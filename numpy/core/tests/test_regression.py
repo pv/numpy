@@ -1293,5 +1293,28 @@ class TestRegression(TestCase):
         assert_raises(IndexError, dt.__getitem__, 1)
         assert_raises(ValueError, dt.__getitem__, 0.0)
 
+    def test_object_array_gc_loop(self):
+        """Ticket #1003"""
+
+        class A(object):
+            def __init__(self, parent):
+                self.parent = parent
+        
+        class B(object):
+            def __init__(self):
+                self.objarray = np.empty((1,), dtype=np.object)
+                self.objarray[0] = A(self)
+
+        gc.collect()
+        n_before = len(gc.get_objects())
+
+        for k in xrange(20):
+            B()
+        
+        gc.collect()
+        n_after = len(gc.get_objects())
+        
+        assert n_after <= n_before, n_after - n_before
+
 if __name__ == "__main__":
     run_module_suite()
