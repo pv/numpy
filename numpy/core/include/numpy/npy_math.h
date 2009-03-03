@@ -84,6 +84,46 @@ double npy_pow(double x, double y);
 double npy_modf(double x, double* y);
 
 /*
+ * double complex math funcs
+ */
+
+void npy_c_sin(npy_cdouble *x, npy_cdouble *out);
+void npy_c_cos(npy_cdouble *x, npy_cdouble *out);
+void npy_c_tan(npy_cdouble *x, npy_cdouble *out);
+void npy_c_sinh(npy_cdouble *x, npy_cdouble *out);
+void npy_c_cosh(npy_cdouble *x, npy_cdouble *out);
+void npy_c_tanh(npy_cdouble *x, npy_cdouble *out);
+
+void npy_c_asin(npy_cdouble *x, npy_cdouble *out);
+void npy_c_acos(npy_cdouble *x, npy_cdouble *out);
+void npy_c_atan(npy_cdouble *x, npy_cdouble *out);
+void npy_c_asinh(npy_cdouble *xx, npy_cdouble *out);
+void npy_c_acosh(npy_cdouble *x, npy_cdouble *out);
+void npy_c_atanh(npy_cdouble *x, npy_cdouble *out);
+
+void npy_c_log(npy_cdouble *x, npy_cdouble *out);
+void npy_c_log10(npy_cdouble *x, npy_cdouble *out);
+void npy_c_exp(npy_cdouble *x, npy_cdouble *out);
+void npy_c_sqrt(npy_cdouble *x, npy_cdouble *out);
+
+void npy_c_expm1(npy_cdouble *x, npy_cdouble *out);
+void npy_c_log1p(npy_cdouble *x, npy_cdouble *out);
+void npy_c_rint(npy_cdouble *x, npy_cdouble *out);
+
+void npy_c_pow(npy_cdouble *x, npy_cdouble *y, npy_cdouble *out);
+
+void npy_c_diff(npy_cdouble *x, npy_cdouble *y, npy_cdouble *out);
+void npy_c_neg(npy_cdouble *x, npy_cdouble *out);
+void npy_c_prod(npy_cdouble *x, npy_cdouble *y, npy_cdouble *out);
+void npy_c_prodi(npy_cdouble *x, npy_cdouble *out);
+void npy_c_quot(npy_cdouble *x, npy_cdouble *y, npy_cdouble *out);
+void npy_c_sum(npy_cdouble *x, npy_cdouble *y, npy_cdouble *out);
+
+/*
+ *
+ */
+
+/*
  * IEEE 754 fpu handling. Those are guaranteed to be macros
  */
 #ifndef NPY_HAVE_DECL_ISNAN
@@ -153,8 +193,46 @@ float npy_fmodf(float x, float y);
 
 float npy_modff(float x, float* y);
 
+
 /*
- * float C99 math functions
+ * single complex math funcs
+ */
+
+void npy_c_sinf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_cosf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_tanf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_sinhf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_coshf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_tanhf(npy_cfloat *x, npy_cfloat *out);
+
+void npy_c_asinf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_acosf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_atanf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_asinhf(npy_cfloat *xx, npy_cfloat *out);
+void npy_c_acoshf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_atanhf(npy_cfloat *x, npy_cfloat *out);
+
+void npy_c_logf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_log10f(npy_cfloat *x, npy_cfloat *out);
+void npy_c_expf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_sqrtf(npy_cfloat *x, npy_cfloat *out);
+
+void npy_c_expm1f(npy_cfloat *x, npy_cfloat *out);
+void npy_c_log1pf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_rintf(npy_cfloat *x, npy_cfloat *out);
+
+void npy_c_powf(npy_cfloat *x, npy_cfloat *y, npy_cfloat *out);
+
+void npy_c_difff(npy_cfloat *x, npy_cfloat *y, npy_cfloat *out);
+void npy_c_negf(npy_cfloat *x, npy_cfloat *out);
+void npy_c_prodf(npy_cfloat *x, npy_cfloat *y, npy_cfloat *out);
+void npy_c_prodif(npy_cfloat *x, npy_cfloat *out);
+void npy_c_quotf(npy_cfloat *x, npy_cfloat *y, npy_cfloat *out);
+void npy_c_sumf(npy_cfloat *x, npy_cfloat *y, npy_cfloat *out);
+
+
+/*
+ * long double C99 math functions
  */
 
 npy_longdouble npy_sinl(npy_longdouble x);
@@ -189,6 +267,44 @@ npy_longdouble npy_powl(npy_longdouble x, npy_longdouble y);
 npy_longdouble npy_fmodl(npy_longdouble x, npy_longdouble y);
 
 npy_longdouble npy_modfl(npy_longdouble x, npy_longdouble* y);
+
+
+/*
+ * long double complex math funcs
+ */
+
+void npy_c_sinl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_cosl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_tanl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_sinhl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_coshl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_tanhl(npy_clongdouble *x, npy_clongdouble *out);
+
+void npy_c_asinl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_acosl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_atanl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_asinhl(npy_clongdouble *xx, npy_clongdouble *out);
+void npy_c_acoshl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_atanhl(npy_clongdouble *x, npy_clongdouble *out);
+
+void npy_c_logl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_log10l(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_expl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_sqrtl(npy_clongdouble *x, npy_clongdouble *out);
+
+void npy_c_expm1l(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_log1pl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_rintl(npy_clongdouble *x, npy_clongdouble *out);
+
+void npy_c_powl(npy_clongdouble *x, npy_clongdouble *y, npy_clongdouble *out);
+
+void npy_c_diffl(npy_clongdouble *x, npy_clongdouble *y, npy_clongdouble *out);
+void npy_c_negl(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_prodl(npy_clongdouble *x, npy_clongdouble *y, npy_clongdouble *out);
+void npy_c_prodil(npy_clongdouble *x, npy_clongdouble *out);
+void npy_c_quotl(npy_clongdouble *x, npy_clongdouble *y, npy_clongdouble *out);
+void npy_c_suml(npy_clongdouble *x, npy_clongdouble *y, npy_clongdouble *out);
+
 
 /*
  * Non standard functions

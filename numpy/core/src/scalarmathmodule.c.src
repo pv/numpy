@@ -457,7 +457,7 @@ static void
 /**end repeat**/
 
 /*
- * Get the nc_powf, nc_pow, and nc_powl functions from
+ * Get the npy_c_powf, npy_c_pow, and npy_c_powl functions from
  * the data area of the power ufunc in umathmodule.
  */
 

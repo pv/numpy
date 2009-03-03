@@ -157,6 +157,19 @@ def check_math_capabilities(config, moredefs, mathlibs):
         fns = [f + prec for f in c99_funcs]
         check_funcs(fns)
 
+    # C99 complex functions: double, float and long double versions
+    c99_complex_funcs = ["cacos", "cacosh", "casin", "casinh", "catan",
+                         "catanh", "ccos", "ccosh", "cexp", "cpow", "csin",
+                         "csinh", "csqrt", "ctan", "ctanh", "clog10"]
+
+    if config.check_header("complex.h"):
+        have_creal = check_funcs(["creal", "cimag"])
+        if have_creal:
+            moredefs.append('HAVE_COMPLEX_H')
+            for prec in ['', 'l', 'f']:
+                fns = [f + prec for f in c99_complex_funcs]
+                check_funcs(fns)
+
 def fname2def(name):
     return "HAVE_%s" % name.upper()
 

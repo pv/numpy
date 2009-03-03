@@ -48,6 +48,10 @@
 #include "config.h"
 #include "numpy/npy_math.h"
 
+#ifdef HAVE_COMPLEX_H
+#include <complex.h>
+#endif
+
 /*
  *****************************************************************************
  **                     BASIC MATH FUNCTIONS                                **
@@ -419,5 +423,600 @@ static @type@ logaddexp2@c@(@type@ x, @type@ y)
 {
     return modf@c@(x, iptr);
 }
+
+/**end repeat**/
+
+
+
+/*
+ *****************************************************************************
+ **                           COMPLEX FUNCTIONS                             **
+ *****************************************************************************
+ */
+
+
+/*
+ * Don't pass structures between functions (only pointers) because how
+ * structures are passed is compiler dependent and could cause segfaults if
+ * umath_ufunc_object.inc is compiled with a different compiler than an
+ * extension that makes use of the UFUNC API
+ */
+
+/**begin repeat
+   #rtyp=float, double, npy_longdouble#
+   #ctyp=npy_cfloat, npy_cdouble, npy_clongdouble#
+   #c=f,,l#
+*/
+
+/* Perform the operation  result := 1 + coef * x * result,
+ * with real coefficient `coef`.
+ */
+#define SERIES_HORNER_TERM@c@(result, x, coef)                  \
+    do {                                                        \
+        npy_c_prod@c@((result), (x), (result));                    \
+        (result)->real *= (coef);                               \
+        (result)->imag *= (coef);                               \
+        npy_c_sum@c@((result), &npy_c_1@c@, (result));                \
+    } while(0)
+
+/* constants */
+static @ctyp@ npy_c_1@c@ = {1., 0.};
+static @ctyp@ npy_c_half@c@ = {0.5, 0.};
+static @ctyp@ npy_c_i@c@ = {0., 1.};
+static @ctyp@ npy_c_i2@c@ = {0., 0.5};
+/*
+ *   static @ctyp@ npy_c_mi@c@ = {0., -1.};
+ *   static @ctyp@ npy_c_pi2@c@ = {M_PI/2., 0.};
+ */
+
+
+void
+npy_c_sum@c@(@ctyp@ *a, @ctyp@ *b, @ctyp@ *r)
+{
+    r->real = a->real + b->real;
+    r->imag = a->imag + b->imag;
+    return;
+}
+
+void
+npy_c_diff@c@(@ctyp@ *a, @ctyp@ *b, @ctyp@ *r)
+{
+    r->real = a->real - b->real;
+    r->imag = a->imag - b->imag;
+    return;
+}
+
+void
+npy_c_neg@c@(@ctyp@ *a, @ctyp@ *r)
+{
+    r->real = -a->real;
+    r->imag = -a->imag;
+    return;
+}
+
+void
+npy_c_prod@c@(@ctyp@ *a, @ctyp@ *b, @ctyp@ *r)
+{
+    @rtyp@ ar=a->real, br=b->real, ai=a->imag, bi=b->imag;
+    r->real = ar*br - ai*bi;
+    r->imag = ar*bi + ai*br;
+    return;
+}
+
+void
+npy_c_quot@c@(@ctyp@ *a, @ctyp@ *b, @ctyp@ *r)
+{
+
+    @rtyp@ ar=a->real, br=b->real, ai=a->imag, bi=b->imag;
+    @rtyp@ d = br*br + bi*bi;
+    r->real = (ar*br + ai*bi)/d;
+    r->imag = (ai*br - ar*bi)/d;
+    return;
+}
+
+void
+npy_c_sqrt@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CSQRT@c@
+    complex z = csqrt@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ s,d;
+    if (x->real == 0. && x->imag == 0.)
+        *r = *x;
+    else {
+        s = npy_sqrt@c@((npy_fabs@c@(x->real) + npy_hypot@c@(x->real,x->imag))/2);
+        d = x->imag/(2*s);
+        if (x->real > 0) {
+            r->real = s;
+            r->imag = d;
+        }
+        else if (x->imag >= 0) {
+            r->real = d;
+            r->imag = s;
+        }
+        else {
+            r->real = -d;
+            r->imag = -s;
+        }
+    }
+    return;
+#endif
+}
+
+void
+npy_c_rint@c@(@ctyp@ *x, @ctyp@ *r)
+{
+    r->real = npy_rint@c@(x->real);
+    r->imag = npy_rint@c@(x->imag);
+}
+
+void
+npy_c_log@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CLOG@c@
+    complex z = clog@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ l = npy_hypot@c@(x->real,x->imag);
+    r->imag = npy_atan2@c@(x->imag, x->real);
+    r->real = npy_log@c@(l);
+    return;
+#endif
+}
+
+void
+npy_c_log1p@c@(@ctyp@ *x, @ctyp@ *r)
+{
+    @rtyp@ l = npy_hypot@c@(x->real + 1,x->imag);
+    r->imag = npy_atan2@c@(x->imag, x->real + 1);
+    r->real = npy_log@c@(l);
+    return;
+}
+
+void
+npy_c_exp@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CEXP@c@
+    complex z = cexp@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ a = npy_exp@c@(x->real);
+    r->real = a*npy_cos@c@(x->imag);
+    r->imag = a*npy_sin@c@(x->imag);
+    return;
+#endif
+}
+
+void
+npy_c_expm1@c@(@ctyp@ *x, @ctyp@ *r)
+{
+    @rtyp@ a = npy_exp@c@(x->real);
+    r->real = a*npy_cos@c@(x->imag) - 1;
+    r->imag = a*npy_sin@c@(x->imag);
+    return;
+}
+
+void
+npy_c_pow@c@(@ctyp@ *a, @ctyp@ *b, @ctyp@ *r)
+{
+#ifdef HAVE_CPOW@c@
+    complex z = cpow@c@(a->real + I*a->imag, b->real + I*b->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    npy_intp n;
+    @rtyp@ ar=a->real, br=b->real, ai=a->imag, bi=b->imag;
+
+    if (br == 0. && bi == 0.) {
+        r->real = 1.;
+        r->imag = 0.;
+        return;
+    }
+    if (ar == 0. && ai == 0.) {
+        r->real = 0.;
+        r->imag = 0.;
+        return;
+    }
+    if (bi == 0 && (n=(npy_intp)br) == br) {
+        if (n > -100 && n < 100) {
+            @ctyp@ p, aa;
+            npy_intp mask = 1;
+            if (n < 0) n = -n;
+            aa = npy_c_1@c@;
+            p.real = ar; p.imag = ai;
+            while (1) {
+                if (n & mask)
+                    npy_c_prod@c@(&aa,&p,&aa);
+                mask <<= 1;
+                if (n < mask || mask <= 0) break;
+                npy_c_prod@c@(&p,&p,&p);
+            }
+            r->real = aa.real; r->imag = aa.imag;
+            if (br < 0) npy_c_quot@c@(&npy_c_1@c@, r, r);
+            return;
+        }
+    }
+    /*
+     * complexobect.c uses an inline version of this formula
+     * investigate whether this had better performance or accuracy
+     */
+    npy_c_log@c@(a, r);
+    npy_c_prod@c@(r, b, r);
+    npy_c_exp@c@(r, r);
+    return;
+#endif
+}
+
+
+void
+npy_c_prodi@c@(@ctyp@ *x, @ctyp@ *r)
+{
+    @rtyp@ xr = x->real;
+    r->real = -x->imag;
+    r->imag = xr;
+    return;
+}
+
+
+void
+npy_c_acos@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CACOS@c@
+    complex z = cacos@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    /*
+     * return npy_c_neg(npy_c_prodi(npy_c_log(npy_c_sum(x,npy_c_prod(npy_c_i,
+     * npy_c_sqrt(npy_c_diff(npy_c_1,npy_c_prod(x,x))))))));
+     */
+    npy_c_prod@c@(x,x,r);
+    npy_c_diff@c@(&npy_c_1@c@, r, r);
+    npy_c_sqrt@c@(r, r);
+    npy_c_prodi@c@(r, r);
+    npy_c_sum@c@(x, r, r);
+    npy_c_log@c@(r, r);
+    npy_c_prodi@c@(r, r);
+    npy_c_neg@c@(r, r);
+    return;
+#endif
+}
+
+void
+npy_c_acosh@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CACOSH@c@
+    complex z = cacosh@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    /*
+     * return npy_c_log(npy_c_sum(x,
+     * npy_c_prod(npy_c_sqrt(npy_c_sum(x,npy_c_1)), npy_c_sqrt(npy_c_diff(x,npy_c_1)))));
+     */
+    @ctyp@ t;
+
+    npy_c_sum@c@(x, &npy_c_1@c@, &t);
+    npy_c_sqrt@c@(&t, &t);
+    npy_c_diff@c@(x, &npy_c_1@c@, r);
+    npy_c_sqrt@c@(r, r);
+    npy_c_prod@c@(&t, r, r);
+    npy_c_sum@c@(x, r, r);
+    npy_c_log@c@(r, r);
+    return;
+#endif
+}
+
+void
+npy_c_asin@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CASIN@c@
+    complex z = casin@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    /*
+     * return npy_c_neg(npy_c_prodi(npy_c_log(npy_c_sum(npy_c_prod(npy_c_i,x),
+     * npy_c_sqrt(npy_c_diff(npy_c_1,npy_c_prod(x,x)))))));
+     */
+    if (fabs(x->real) > 1e-3 || fabs(x->imag) > 1e-3) {
+        @ctyp@ a, *pa=&a;
+        npy_c_prod@c@(x, x, r);
+        npy_c_diff@c@(&npy_c_1@c@, r, r);
+        npy_c_sqrt@c@(r, r);
+        npy_c_prodi@c@(x, pa);
+        npy_c_sum@c@(pa, r, r);
+        npy_c_log@c@(r, r);
+        npy_c_prodi@c@(r, r);
+        npy_c_neg@c@(r, r);
+    }
+    else {
+        /*
+         * Small arguments: series expansion, to avoid loss of precision
+         * asin(x) = x [1 + (1/6) x^2 [1 + (9/20) x^2 [1 - ...]]]
+         *
+         * |x| < 1e-3 => |rel. error| < 1e-20
+         */
+        @ctyp@ x2;
+        npy_c_prod@c@(x, x, &x2);
+        
+        *r = npy_c_1@c@;
+        SERIES_HORNER_TERM@c@(r, &x2, 25./42);
+        SERIES_HORNER_TERM@c@(r, &x2, 9./20);
+        SERIES_HORNER_TERM@c@(r, &x2, 1./6);
+        npy_c_prod@c@(r, x, r);
+    }
+    return;
+#endif
+}
+
+
+void
+npy_c_asinh@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CASINH@c@
+    complex z = casinh@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    /*
+     * return npy_c_log(npy_c_sum(npy_c_sqrt(npy_c_sum(npy_c_1,npy_c_prod(x,x))),x));
+     */
+    if (fabs(x->real) > 1e-3 || fabs(x->imag) > 1e-3) {
+        npy_c_prod@c@(x, x, r);
+        npy_c_sum@c@(&npy_c_1@c@, r, r);
+        npy_c_sqrt@c@(r, r);
+        npy_c_sum@c@(r, x, r);
+        npy_c_log@c@(r, r);
+    }
+    else {
+        /*
+         * Small arguments: series expansion, to avoid loss of precision
+         * asinh(x) = x [1 - (1/6) x^2 [1 - (9/20) x^2 [1 - ...]]]
+         *
+         * |x| < 1e-3 => |rel. error| < 1e-20
+         */
+        @ctyp@ x2;
+        npy_c_prod@c@(x, x, &x2);
+        
+        *r = npy_c_1@c@;
+        SERIES_HORNER_TERM@c@(r, &x2, -25./42);
+        SERIES_HORNER_TERM@c@(r, &x2, -9./20);
+        SERIES_HORNER_TERM@c@(r, &x2, -1./6);
+        npy_c_prod@c@(r, x, r);
+    }
+    return;
+#endif
+}
+
+void
+npy_c_atan@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CATAN@c@
+    complex z = catan@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    /*
+     * return npy_c_prod(npy_c_i2,npy_c_log(npy_c_quot(npy_c_sum(npy_c_i,x),npy_c_diff(npy_c_i,x))));
+     */
+    if (fabs(x->real) > 1e-3 || fabs(x->imag) > 1e-3) {
+        @ctyp@ a, *pa=&a;
+        npy_c_diff@c@(&npy_c_i@c@, x, pa);
+        npy_c_sum@c@(&npy_c_i@c@, x, r);
+        npy_c_quot@c@(r, pa, r);
+        npy_c_log@c@(r,r);
+        npy_c_prod@c@(&npy_c_i2@c@, r, r);
+    }
+    else {
+        /*
+         * Small arguments: series expansion, to avoid loss of precision
+         * atan(x) = x [1 - (1/3) x^2 [1 - (3/5) x^2 [1 - ...]]]
+         *
+         * |x| < 1e-3 => |rel. error| < 1e-20
+         */
+        @ctyp@ x2;
+        npy_c_prod@c@(x, x, &x2);
+        
+        *r = npy_c_1@c@;
+        SERIES_HORNER_TERM@c@(r, &x2, -5./7);
+        SERIES_HORNER_TERM@c@(r, &x2, -3./5);
+        SERIES_HORNER_TERM@c@(r, &x2, -1./3);
+        npy_c_prod@c@(r, x, r);
+    }
+    return;
+#endif
+}
+
+void
+npy_c_atanh@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CATANH@c@
+    complex z = catanh@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    /*
+     * return npy_c_prod(npy_c_half,npy_c_log(npy_c_quot(npy_c_sum(npy_c_1,x),npy_c_diff(npy_c_1,x))));
+     */
+    if (fabs(x->real) > 1e-3 || fabs(x->imag) > 1e-3) {
+        @ctyp@ a, *pa=&a;
+        npy_c_diff@c@(&npy_c_1@c@, x, r);
+        npy_c_sum@c@(&npy_c_1@c@, x, pa);
+        npy_c_quot@c@(pa, r, r);
+        npy_c_log@c@(r, r);
+        npy_c_prod@c@(&npy_c_half@c@, r, r);
+    }
+    else {
+        /*
+         * Small arguments: series expansion, to avoid loss of precision
+         * atan(x) = x [1 + (1/3) x^2 [1 + (3/5) x^2 [1 - ...]]]
+         *
+         * |x| < 1e-3 => |rel. error| < 1e-20
+         */
+        @ctyp@ x2;
+        npy_c_prod@c@(x, x, &x2);
+        
+        *r = npy_c_1@c@;
+        SERIES_HORNER_TERM@c@(r, &x2, 5./7);
+        SERIES_HORNER_TERM@c@(r, &x2, 3./5);
+        SERIES_HORNER_TERM@c@(r, &x2, 1./3);
+        npy_c_prod@c@(r, x, r);
+    }
+    return;
+#endif
+}
+
+void
+npy_c_cos@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CCOS@c@
+    complex z = ccos@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ xr=x->real, xi=x->imag;
+    r->real = npy_cos@c@(xr)*npy_cosh@c@(xi);
+    r->imag = -npy_sin@c@(xr)*npy_sinh@c@(xi);
+    return;
+#endif
+}
+
+void
+npy_c_cosh@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CCOSH@c@
+    complex z = ccosh@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ xr=x->real, xi=x->imag;
+    r->real = npy_cos@c@(xi)*npy_cosh@c@(xr);
+    r->imag = npy_sin@c@(xi)*npy_sinh@c@(xr);
+    return;
+#endif
+}
+
+void
+npy_c_log10@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CLOG10@c@
+    complex z = clog10@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    npy_c_log@c@(x, r);
+    r->real *= (@rtyp@) NPY_LOG10E;
+    r->imag *= (@rtyp@) NPY_LOG10E;
+    return;
+#endif
+}
+
+void
+npy_c_sin@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CSIN@c@
+    complex z = csin@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ xr=x->real, xi=x->imag;
+    r->real = npy_sin@c@(xr)*npy_cosh@c@(xi);
+    r->imag = npy_cos@c@(xr)*npy_sinh@c@(xi);
+    return;
+#endif
+}
+
+void
+npy_c_sinh@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CSINH@c@
+    complex z = csinh@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ xr=x->real, xi=x->imag;
+    r->real = npy_cos@c@(xi)*npy_sinh@c@(xr);
+    r->imag = npy_sin@c@(xi)*npy_cosh@c@(xr);
+    return;
+#endif
+}
+
+void
+npy_c_tan@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CTAN@c@
+    complex z = ctan@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ sr,cr,shi,chi;
+    @rtyp@ rs,is,rc,ic;
+    @rtyp@ d;
+    @rtyp@ xr=x->real, xi=x->imag;
+    sr = npy_sin@c@(xr);
+    cr = npy_cos@c@(xr);
+    shi = npy_sinh@c@(xi);
+    chi = npy_cosh@c@(xi);
+    rs = sr*chi;
+    is = cr*shi;
+    rc = cr*chi;
+    ic = -sr*shi;
+    d = rc*rc + ic*ic;
+    r->real = (rs*rc+is*ic)/d;
+    r->imag = (is*rc-rs*ic)/d;
+    return;
+#endif
+}
+
+void
+npy_c_tanh@c@(@ctyp@ *x, @ctyp@ *r)
+{
+#ifdef HAVE_CTANH@c@
+    complex z = ctanh@c@(x->real + I*x->imag);
+    r->real = creal@c@(z);
+    r->imag = cimag@c@(z);
+    return;
+#else
+    @rtyp@ si,ci,shr,chr;
+    @rtyp@ rs,is,rc,ic;
+    @rtyp@ d;
+    @rtyp@ xr=x->real, xi=x->imag;
+    si = npy_sin@c@(xi);
+    ci = npy_cos@c@(xi);
+    shr = npy_sinh@c@(xr);
+    chr = npy_cosh@c@(xr);
+    rs = ci*shr;
+    is = si*chr;
+    rc = ci*chr;
+    ic = si*shr;
+    d = rc*rc + ic*ic;
+    r->real = (rs*rc+is*ic)/d;
+    r->imag = (is*rc-rs*ic)/d;
+    return;
+#endif
+}
+
+#undef SERIES_HORNER_TERM@c@
 
 /**end repeat**/

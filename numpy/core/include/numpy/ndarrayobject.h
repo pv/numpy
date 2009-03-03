@@ -65,10 +65,6 @@ typedef short npy_short;
 typedef int npy_int;
 typedef long npy_long;
 
-typedef struct { float real, imag; } npy_cfloat;
-typedef struct { double real, imag; } npy_cdouble;
-typedef struct {npy_longdouble real, imag;} npy_clongdouble;
-
 enum NPY_TYPES {    NPY_BOOL=0,
                     NPY_BYTE, NPY_UBYTE,
                     NPY_SHORT, NPY_USHORT,
@@ -865,13 +861,6 @@ typedef enum {
 #endif
 
 /* End of typedefs for numarray style bit-width names */
-
-/* This is to typedef npy_intp to the appropriate pointer size for this
- * platform.  Py_intptr_t, Py_uintptr_t are defined in pyport.h. */
-typedef Py_intptr_t npy_intp;
-typedef Py_uintptr_t npy_uintp;
-#define NPY_SIZEOF_INTP NPY_SIZEOF_PY_INTPTR_T
-#define NPY_SIZEOF_UINTP NPY_SIZEOF_PY_INTPTR_T
 
 #ifdef constchar
 #undef constchar

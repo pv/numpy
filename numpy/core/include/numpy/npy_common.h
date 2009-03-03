@@ -71,4 +71,24 @@ typedef unsigned short npy_ushort;
 typedef unsigned int npy_uint;
 typedef unsigned long npy_ulong;
 
+typedef struct {
+    float real, imag;
+} npy_cfloat;
+
+typedef struct {
+    double real, imag;
+} npy_cdouble;
+
+typedef struct {
+    npy_longdouble real, imag;
+} npy_clongdouble;
+
+
+/* This is to typedef npy_intp to the appropriate pointer size for this
+ * platform.  Py_intptr_t, Py_uintptr_t are defined in pyport.h. */
+typedef Py_intptr_t npy_intp;
+typedef Py_uintptr_t npy_uintp;
+#define NPY_SIZEOF_INTP NPY_SIZEOF_PY_INTPTR_T
+#define NPY_SIZEOF_UINTP NPY_SIZEOF_PY_INTPTR_T
+
 #endif
