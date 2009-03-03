@@ -1,6 +1,7 @@
 from numpy.testing import *
 import numpy.core.umath as ncu
 import numpy as np
+from numpy import inf, pi, nan
 
 class TestDivision(TestCase):
     def test_division_int(self):
@@ -480,6 +481,175 @@ class TestComplexFunctions(object):
     def test_loss_of_precision(self):
         for dtype in [np.complex64, np.complex_, np.longcomplex]:
             yield self.check_loss_of_precision, dtype
+
+
+class TestC99(object):
+    """Check special functions at special points against the C99 standard"""
+    # NB: inherits from object instead of TestCase since using test generators
+
+    #
+    # Non-conforming results are with XXX added to the exception field.
+    #
+
+    def test_clog(self):
+        for p, v, e in [
+            (('-0', 0.), (-inf, pi), 'divide'),
+            ((0, 0.), (-inf, 0.), 'divide'),
+            ((1., inf), (inf, pi/2), ''),
+            ((1., nan), (nan, nan), 'invalid-optional'),
+            ((-inf, 1.), (inf, pi), ''),
+            ((inf, 1.), (inf, 0.), ''),
+            ((-inf, inf), (inf, 3*pi/4), ''),
+            ((inf, inf), (inf, pi/4), ''),
+            ((inf, nan), (inf, nan), ''),
+            ((-inf, nan), (inf, nan), ''),
+            ((nan, 1.), (nan, nan), 'invalid-optional'),
+            ((nan, inf), (inf, nan), ''),
+            ((+nan, nan), (nan, nan), ''),
+        ]:
+            yield self._check, np.log, p, v, e
+
+    def test_csqrt(self):
+        for p, v, e in [
+            ((-0., 0.), (0.,0.),  ''), 
+            ((0., 0.), (0.,0.),  ''),
+            ((1., inf), (inf,inf), ''), 
+            ((nan, inf), (inf,inf), ''), 
+            ((-inf, 1.), (0.,inf), ''),
+            ((inf, 1.), (inf,0.), ''),
+            ((-inf,nan), (nan, '+-inf'), ''), # could also be +inf. raises 'inv'
+            ((inf, nan), (inf, nan),  ''),
+            ((nan, 1.), (nan, nan), 'invalid-optional'),
+            ((nan, nan), (nan, nan), ''),
+        ]:
+            yield self._check, np.sqrt, p, v, e
+
+    def test_cacos(self):
+        for p, v, e in [
+            ((0., 0.), (pi/2, -0.), ''), 
+            ((-0., 0.), (pi/2, -0.), ''),
+            ((0., nan), (pi/2, nan), ''), 
+            ((-0., nan), (pi/2, nan), ''), 
+            ((1., inf), (pi/2, -inf), ''), 
+            ((1., nan), (nan, nan), 'invalid-optional'),
+            ((-inf, 1.), (pi, -inf), ''), 
+            ((inf, 1.), (0., -inf), ''), 
+            ((-inf, inf), (3*pi/4, -inf), ''), 
+            ((inf, inf), (pi/4, -inf), ''), 
+            ((inf, nan), (nan, '+-inf'), ''), 
+            ((-inf, nan), (nan, '+-inf'), ''), 
+            ((nan, 1.), (nan, nan), 'invalid-optional'),
+            ((nan, inf), (nan, -inf), ''), 
+            ((nan, nan), (nan, nan), ''),
+        ]:
+            yield self._check, np.arccos, p, v, e
+
+    def test_cacosh(self):
+        for p, v, e in [
+            ((0., 0), (0, pi/2), ''),
+            ((-0., 0), (0, pi/2), ''),
+            ((1., inf), (inf, pi/2), ''), 
+            ((1., nan), (nan, nan), 'invalid-optional'),
+            ((-inf, 1.), (inf, pi), ''), 
+            ((inf, 1.), (inf, 0.), ''), 
+            ((-inf, inf), (inf, 3*pi/4), ''), 
+            ((inf, inf), (inf, pi/4), ''), 
+            ((inf, nan), (inf, nan), ''), 
+            ((-inf, nan), (inf, nan), ''), 
+            ((nan, 1.), (nan, nan), 'invalid-optional'),
+            ((nan, inf), (inf, nan), ''), 
+            ((nan, nan), (nan, nan), '')
+        ]:
+            yield self._check, np.arccosh, p, v, e
+
+    def test_casinh(self):
+        for p, v, e in [
+            ((0., 0), (0, 0), ''),
+            ((1., inf), (inf, pi/2), ''), 
+            ((1., nan), (nan, nan), 'invalid-optional'),
+            ((inf, 1.), (inf, 0.), ''), 
+            ((inf, inf), (inf, pi/4), ''), 
+            ((inf, nan), (inf, nan), ''), 
+            ((nan, 0.), (nan, 0.), ''), 
+            ((nan, 1.), (nan, nan), 'invalid-optional'),
+            ((nan, inf), ('+-inf', nan), ''), 
+            ((nan, nan), (nan, nan), ''),
+        ]:
+            yield self._check, np.arcsinh, p, v, e
+
+    def test_catanh(self):
+        for p, v, e in [
+            ((0., 0), (0, 0), ''),
+            ((0., nan), (0., nan), ''), 
+            ((1., 0.), (inf, 0.), 'divide'), 
+            ((1., inf), (0, pi/2), ''), 
+            ((1., nan), (nan, nan), 'invalid-optional'),
+            ((inf, 1.), (0., pi/2), ''), 
+            ((inf, inf), (0, pi/2), ''), 
+            ((inf, nan), (0, nan), ''), 
+            ((nan, 1.), (nan, nan), 'invalid-optional'),
+            ((nan, inf), (+0, pi/2), ''), 
+            ((nan, nan), (nan, nan), ''),
+        ]:
+            yield self._check, np.arctanh, p, v, e
+
+    def _check(self, func, point, value, exc=''):
+        if 'XXX' in exc:
+            raise nose.SkipTest
+
+        v = dict(divide='ignore', invalid='ignore',
+                 over='ignore', under='ignore')
+        old_err = np.seterr(**v)
+        try:
+            # check sign of zero, nan, etc.
+            got = func(self._complex_value(point))
+            assert self._complex_eq(got, value), (got, value)
+
+            # check exceptions
+            if exc in ('divide', 'invalid', 'over', 'under'):
+                v[exc] = 'raise'
+                np.seterr(**v)
+                assert_raises(FloatingPointError, func, point)
+            else:
+                for k in v.keys(): v[k] = 'raise'
+                if exc == 'invalid-optional': v['invalid'] = 'ignore'
+                np.seterr(**v)
+                func(self._complex_value(point))
+        finally:
+            np.seterr(**old_err)
+
+    def _float_eq(self, x, value):
+        if isinstance(value, str):
+            if value == '+-inf':
+                return np.isinf(x)
+            elif value == '-0':
+                return (x == 0) and np.signbit(x)
+            else:
+                raise RuntimeError('unknown float string repr')
+        elif np.isnan(value):
+            return np.isnan(x)
+        else:
+            return x == value
+
+    def _float_value(self, x):
+        if isinstance(x, str):
+            if x == '-0':
+                x = np.float_(0.)
+                return -x
+            else:
+                raise RuntimeError('unknown float string repr')
+        else:
+            return x
+
+    def _complex_eq(self, x, value):
+        return (self._float_eq(x.real, value[0]) and
+                self._float_eq(x.imag, value[1]))
+
+    def _complex_value(self, value):
+        x = np.array(0, dtype=np.complex_)
+        x.real = self._float_value(value[0])
+        x.imag = self._float_value(value[1])
+        return x
 
 class TestAttributes(TestCase):
     def test_attributes(self):
