@@ -379,22 +379,6 @@ class TestComplexFunctions(object):
         yield _check_branch_cut, np.arccosh, [-2j, 2j, 2], [1,  1,  1j], 1, 1
         yield _check_branch_cut, np.arctanh, [-2j, 2j, 0], [1,  1,  1j], 1, 1
 
-    @dec.knownfailureif(True, "These branch cuts are known to fail")
-    def test_branch_cuts_failing(self):
-        # XXX: signed zero not OK with ICC on 64-bit platform for log, see
-        # http://permalink.gmane.org/gmane.comp.python.numeric.general/25335
-        yield _check_branch_cut, np.log,   -0.5, 1j, 1, -1, True
-        yield _check_branch_cut, np.log10, -0.5, 1j, 1, -1, True
-        yield _check_branch_cut, np.log1p, -1.5, 1j, 1, -1, True
-        # XXX: signed zeros are not OK for sqrt or for the arc* functions
-        yield _check_branch_cut, np.sqrt,  -0.5, 1j, 1, -1, True
-        yield _check_branch_cut, np.arcsin, [ -2, 2],   [1j, -1j], 1, -1, True
-        yield _check_branch_cut, np.arccos, [ -2, 2],   [1j, -1j], 1, -1, True
-        yield _check_branch_cut, np.arctan, [-2j, 2j],  [1,  -1 ], -1, 1, True
-        yield _check_branch_cut, np.arcsinh, [-2j,  2j], [-1,   1], -1, 1, True
-        yield _check_branch_cut, np.arccosh, [ -1, 0.5], [1j,  1j], 1, -1, True
-        yield _check_branch_cut, np.arctanh, [ -2,   2], [1j, -1j], 1, -1, True
-
     def test_against_cmath(self):
         import cmath, sys
 
@@ -518,13 +502,12 @@ class TestSubclass(TestCase):
         a = simple((3,4))
         assert_equal(a+a, a)
 
-def _check_branch_cut(f, x0, dx, re_sign=1, im_sign=-1, sig_zero_ok=False,
-                      dtype=np.complex):
+def _check_branch_cut(f, x0, dx, re_sign=1, im_sign=-1, dtype=np.complex):
     """
     Check for a branch cut in a function.
 
-    Assert that `x0` lies on a branch cut of function `f` and `f` is
-    continuous from the direction `dx`.
+    Assert that `x0` lies on a branch cut (perp. to `dx`) of function `f`,
+    and that sign of zero determines on which side of branch cut is chosen.
 
     Parameters
     ----------
@@ -544,33 +527,38 @@ def _check_branch_cut(f, x0, dx, re_sign=1, im_sign=-1, sig_zero_ok=False,
     """
     x0 = np.atleast_1d(x0).astype(dtype)
     dx = np.atleast_1d(dx).astype(dtype)
+    dx.real = abs(dx.real)
+    dx.imag = abs(dx.imag)
 
     scale = np.finfo(dtype).eps * 1e3
     atol  = 1e-4
 
+    # branch cut + positive zero
     y0 = f(x0)
-    yp = f(x0 + dx*scale*np.absolute(x0)/np.absolute(dx))
-    ym = f(x0 - dx*scale*np.absolute(x0)/np.absolute(dx))
 
+    # 'positive' direction: continuous
+    yp = f(x0 + dx*scale*np.absolute(x0)/np.absolute(dx))
     assert np.all(np.absolute(y0.real - yp.real) < atol), (y0, yp)
     assert np.all(np.absolute(y0.imag - yp.imag) < atol), (y0, yp)
+
+    # 'negative' direction: branch changes    
+    ym = f(x0 - dx*scale*np.absolute(x0)/np.absolute(dx))
     assert np.all(np.absolute(y0.real - ym.real*re_sign) < atol), (y0, ym)
     assert np.all(np.absolute(y0.imag - ym.imag*im_sign) < atol), (y0, ym)
 
-    if sig_zero_ok:
-        # check that signed zeros also work as a displacement
-        jr = (x0.real == 0) & (dx.real != 0)
-        ji = (x0.imag == 0) & (dx.imag != 0)
+    # check that negative zero also works as a negative displacement
+    jr = (x0.real == 0) & (dx.real != 0)
+    ji = (x0.imag == 0) & (dx.imag != 0)
 
-        x = -x0
-        x.real[jr] = 0.*dx.real
-        x.imag[ji] = 0.*dx.imag
-        x = -x
-        ym = f(x)
-        ym = ym[jr | ji]
-        y0 = y0[jr | ji]
-        assert np.all(np.absolute(y0.real - ym.real*re_sign) < atol), (y0, ym)
-        assert np.all(np.absolute(y0.imag - ym.imag*im_sign) < atol), (y0, ym)
+    x = -x0
+    x.real[jr] = 0.
+    x.imag[ji] = 0.
+    x = -x
+    ym = f(x)
+    ym = ym[jr | ji]
+    y0 = y0[jr | ji]
+    assert np.all(np.absolute(y0.real - ym.real*re_sign) < atol), (y0, ym)
+    assert np.all(np.absolute(y0.imag - ym.imag*im_sign) < atol), (y0, ym)
 
 if __name__ == "__main__":
     run_module_suite()
