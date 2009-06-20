@@ -199,6 +199,7 @@ PyUFunc_clearfperr()
 #define BUFFER_UFUNCLOOP    3
 #define BUFFER_REDUCELOOP   3
 #define SIGNATURE_NOBUFFER_UFUNCLOOP 4
+#define NOBUFFER_UFUNCREDUCE_TRANSPOSE  5
 
 
 static char
@@ -2227,6 +2228,18 @@ _create_reduce_copy(PyUFuncReduceObject *loop, PyArrayObject **arr, int rtype)
     return 0;
 }
 
+/*
+ * Construct a reduction loop.
+ *
+ * Returns
+ * -------
+ * loop : PyUFuncReduceObject
+ *     Reduction loop object.
+ *
+ *     Invariants:
+ *     - `loop->ret` is in C-order and contiguous; possibly UPDATEIFCOPY array
+ *       if `out` was not suitable.
+ */
 static PyUFuncReduceObject *
 construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
                  int axis, int otype, int operation, intp ind_size, char *str)
@@ -2494,6 +2507,70 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
             loop->bufptr[1] = loop->buffer;
         }
     }
+
+    if (operation == UFUNC_REDUCE && loop->meth == NOBUFFER_UFUNCLOOP
+            && loop->size > loop->N) {
+        /*
+         * Try to swap the order of the reduction loops so that the tighter
+         * operation inner loop has more iterations than the slower outer loop.
+         *
+         * The idea is to "vectorize" the reduction to be performed as:
+         *
+         *     for r, ix in enumerate(loop->it):
+         *         ret[r, ...] = arr[ix, ..., 0]
+         *         for j in 1...loop->N:
+         *             ret[r, ...] = func(ret[r, ...], arr[ix, ..., j])
+         *
+         * instead of the usual
+         *
+         *     for j, ix in enumerate(loop->it):
+         *         ret[j] = reduce_func(arr[ix])
+         *
+         * The ``...`` above is performed in the ufunc loop as 
+         *
+         *     for (i = 0; i < loop->size; ++i) {
+         *          ptr_in = loop->it->dataptr + loop->instrides * j
+         *                    + loop->steps[1] * i;
+         *
+         *          ptr_out = loop->bufptr[0] + loop->steps[2] * r
+         *                    + loop->steps[0] * i;
+         *     }
+         *
+         * in PyUFunc_Reduce / NOBUFFER_UFUNCREDUCE_TRANSPOSE.
+         */
+
+        if (aar->nd == 2) {
+            /* 2D arrays can always be handled */
+            loop->instrides = loop->steps[1];
+            loop->steps[0] = loop->outsize;
+            if (axis == 0) {
+                loop->steps[1] = loop->it->strides[1];
+                loop->it->dims_m1[1] = 0;
+            } else {
+                loop->steps[1] = loop->it->strides[0];
+                loop->it->dims_m1[0] = 0;
+            }
+            loop->steps[2] = 0;
+            loop->it->size = 1;
+            loop->meth = NOBUFFER_UFUNCREDUCE_TRANSPOSE;
+        }
+        else if (aar->nd > 2) {
+            
+        }
+
+        /* XXX:
+         *
+         * - generalize algorithm to N-D, for those cases in
+         *   which it is possible
+         *
+         * - recheck the logic + better testing
+         *
+         * - change in semantics of loop->instrides and loop->steps is
+         *   icky: can something be done about this?
+         *
+         */
+    }
+
     PyUFunc_clearfperr();
     return loop;
 
@@ -2518,6 +2595,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
     PyUFuncReduceObject *loop;
     intp i, n;
     char *dptr;
+    npy_intp steps[3];
     NPY_BEGIN_THREADS_DEF;
 
     /* Construct loop object */
@@ -2568,6 +2646,57 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
             loop->bufptr[0] += loop->outsize;
             loop->bufptr[2] = loop->bufptr[0];
             loop->index++;
+        }
+        break;
+    case NOBUFFER_UFUNCREDUCE_TRANSPOSE:
+        /*
+         * Version of NOBUFFER_UFUNCLOOP "vectorized" over some of the axes
+         * perpendicular to the reduction axis.
+         *
+         * This improves performance for reduction over small dimensions.
+         * For more details, see the end of `construct_reduce` above.
+         *
+         */
+
+        steps[0] = loop->steps[0];
+        steps[1] = loop->steps[1];
+        steps[2] = loop->steps[0];
+
+        while (loop->it->index < loop->it->size) {
+            /* Copy first elements to output */
+            if (loop->steps[0] == loop->outsize &&
+                    loop->steps[1] == loop->insize) {
+                /* loop data block is contiguous in memory */
+                memmove(loop->bufptr[0], loop->it->dataptr,
+                        loop->outsize * loop->size);
+            }
+            else {
+                for (i = 0; i < loop->size; ++i) {
+                    dptr = loop->it->dataptr + i*loop->steps[1];
+                    memmove(loop->bufptr[0] + i*loop->steps[0],
+                            dptr, loop->outsize);
+                }
+            }
+
+            /* Handle copied object arrays */
+            if (loop->obj) {
+                for (i = 0; i < loop->size; ++i) {
+                    dptr = loop->it->dataptr + i*loop->steps[1];
+                    Py_INCREF(*((PyObject **)dptr));
+                }
+            }
+
+            /* "Vectorized" reduction along an axis */
+            loop->bufptr[2] = loop->bufptr[0];
+            for (i = 1; i <= loop->N; ++i) {
+                loop->bufptr[1] = loop->it->dataptr + i * loop->instrides;
+                loop->function((char **)loop->bufptr, &(loop->size), steps,
+                               loop->funcdata);
+                UFUNC_CHECK_ERROR(loop);
+            }
+
+            loop->bufptr[0] += loop->steps[2];
+            PyArray_ITER_NEXT(loop->it);
         }
         break;
     case BUFFER_UFUNCLOOP:
