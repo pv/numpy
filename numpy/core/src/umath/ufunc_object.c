@@ -2543,13 +2543,14 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          * Choose the axes that are iterated over in the ufunc inner loop.
          *
          * The following restrictions apply:
-         * a) the axes are chosen so that data in them can be iterated over
+         * a) the corresponding input block must be iterated over
          *    using a single stride
-         * b) iteration results in inserting data to `loop->ret`
-         *    in C order
+         * b) the corresponding output block must be iterated over
+         *    using a single stride
          *
          * Both are satisfied by choosing a slice of axes i0 <= i < i1
          * such that
+         *
          * i) strides[i] = strides[i1-1] * prod(dims[i1:i:-1]),
          * ii) the axis reduced over is not in the interval.
          *
@@ -2574,35 +2575,72 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
             goto fail;
         }
 
-        /* Choose last axes: minimizes stride in output buffer */
-        next_stride = loop->it->strides[max_nd];
-        for (i = max_nd; i >= 0; --i) {
-            if (i == axis || next_stride != loop->it->strides[i]) {
-                break;
-            }
-            next_stride *= loop->it->dims_m1[i] + 1;
-        }
-        i0 = 0;
-        i1 = i + 1;
+        /*
+         * Choose the axes interval so that strides in input and output
+         * buffers are minimized.
+         */
+        i0 = max_nd;
+        i1 = max_nd + 1;
 
-        /* input */
-        loop->instrides = loop->steps[1];
-        loop->steps[1] = loop->it->strides[max_nd];
-        loop->steps[0] = loop->steps[1];
+#define COST(ix) (- abs(loop->it->dims_m1[ix]) \
+                  - 0*abs(loop->rit->dims_m1[(ix < axis) ? ix : ix-1]))
+
+        for (i = max_nd; i >= 0; --i) {
+            if (i == axis)
+                continue;
+            
+            next_stride = loop->it->strides[i];
+            for (j = i; j >= min_nd; --j) {
+                if (j == axis || next_stride != loop->it->strides[j]) {
+                    break;
+                }
+                next_stride *= loop->it->dims_m1[j] + 1;
+            }
+
+            /* check if this candidate is better than the current one */
+            if (COST(i) < COST(i1-1)) {
+                i0 = j+1;
+                i1 = i+1;
+            }
+        }
+
+#undef COST
+
+        i0 = 1;
+        i1 = i0+1;
+
+        assert(i0 < i1);
+
+        /*
+         * Form input and output steps, and modify iterators
+         */
+        loop->rit->contiguous = (i0 == 0);
         
-        /* output */
+        loop->instrides = loop->steps[1];
+
+        loop->steps[0] = loop->it->strides[i1-1];
+        loop->steps[1] = loop->it->strides[i1-1];
         loop->steps[2] = loop->outsize;
+
         loop->size = 1;
-        for (i = i0; i <= max_nd; ++i) {
+        for (i = i0; i < i1; ++i) {
             loop->size *= loop->it->dims_m1[i] + 1;
             loop->it->size /= loop->it->dims_m1[i] + 1;
             loop->it->dims_m1[i] = 0;
+            loop->it->backstrides[i] = 0;
             if (i > axis) {
                 loop->rit->size /= loop->rit->dims_m1[i-1] + 1;
                 loop->rit->dims_m1[i-1] = 0;
+                loop->rit->backstrides[i-1] = 0;
             } else if (i < axis) {
                 loop->rit->size /= loop->rit->dims_m1[i] + 1;
                 loop->rit->dims_m1[i] = 0;
+                loop->rit->backstrides[i] = 0;
+            }
+        }
+        for (; i <= loop->it->nd_m1; ++i) {
+            if (i != axis) {
+                loop->steps[2] *= loop->it->dims_m1[i] + 1;
             }
         }
 
@@ -2611,9 +2649,6 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         /* XXX:
          *
          * - recheck the logic + better testing
-         *
-         * - change in semantics of loop->instrides and loop->steps is
-         *   icky: can something be done about this?
          *
          */
     }
