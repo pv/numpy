@@ -2558,16 +2558,12 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          *
          */
 
-        npy_intp next_stride;
-        int i0, i1, max_nd, min_nd;
+        npy_intp next_stride, cost, best_cost, sz;
+        int i0, i1, max_nd;
 
         max_nd = loop->it->nd_m1;
         if (axis == max_nd)
             max_nd -= 1;
-
-        min_nd = 0;
-        if (axis == min_nd)
-            min_nd += 1;
 
         loop->rit = (PyArrayIterObject *)               \
             PyArray_IterNew((PyObject *)(loop->ret));
@@ -2576,38 +2572,57 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         }
 
         /*
-         * Choose the axes interval so that strides in input and output
-         * buffers are minimized.
+         * Choose the axes interval heuristically.
+         *
+         * - minimize strides in input and output buffers
+         * - give extra points for data blocks fitting into loop->bufsize.
+         *   (we assume this estimates the cache size of the CPU)
+         * - mildly prefer larger intervals
          */
-        i0 = max_nd;
-        i1 = max_nd + 1;
-
-#define COST(ix) (- abs(loop->it->dims_m1[ix]) \
-                  - 0*abs(loop->rit->dims_m1[(ix < axis) ? ix : ix-1]))
+        i0 = -1;
+        i1 = -1;
 
         for (i = max_nd; i >= 0; --i) {
             if (i == axis)
                 continue;
-            
+
             next_stride = loop->it->strides[i];
-            for (j = i; j >= min_nd; --j) {
+            for (j = i; j >= 0; --j) {
                 if (j == axis || next_stride != loop->it->strides[j]) {
                     break;
                 }
                 next_stride *= loop->it->dims_m1[j] + 1;
-            }
 
-            /* check if this candidate is better than the current one */
-            if (COST(i) < COST(i1-1)) {
-                i0 = j+1;
-                i1 = i+1;
+                /* don't consider 0-dimensions */
+                if (loop->it->dims_m1[i] == 0)
+                    continue;
+
+                /*
+                 * Check if this candidate is heuristically better than
+                 * the current one
+                 */
+                cost = (abs(loop->it->strides[i])
+                        + abs(loop->rit->strides[(i < axis) ? i : i-1]));
+
+                sz = (abs(next_stride)
+                      + abs(loop->rit->strides[(j < axis) ? j : j-1]));
+                if (sz < loop->bufsize) {
+                    /* Guess that the block fits in CPU cache:
+                     * reduce cost by the number of data bytes the block
+                     * iterates over.
+                     */
+                    cost -= (sz / loop->it->strides[i]
+                             * (loop->it->dims_m1[i] + 1));
+                }
+                cost += j - i + max_nd;
+
+                if (cost < best_cost || i0 < 0) {
+                    i0 = j;
+                    i1 = i+1;
+                    best_cost = cost;
+                }
             }
         }
-
-#undef COST
-
-        i0 = 1;
-        i1 = i0+1;
 
         assert(i0 < i1);
 
@@ -2615,7 +2630,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          * Form input and output steps, and modify iterators
          */
         loop->rit->contiguous = (i0 == 0);
-        
+
         loop->instrides = loop->steps[1];
 
         loop->steps[0] = loop->it->strides[i1-1];
