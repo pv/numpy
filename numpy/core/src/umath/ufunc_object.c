@@ -40,6 +40,9 @@
 
 #define USE_USE_DEFAULTS 1
 
+/* Guess for CPU L1/L2 cache / loop->bufsize */
+#define BUFSIZE_CACHE_MULTIPLIER 6
+
 /* ---------------------------------------------------------------- */
 
 /*
@@ -2554,8 +2557,6 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          * i) strides[i] = strides[i1-1] * prod(dims[i1:i:-1]),
          * ii) the axis reduced over is not in the interval.
          *
-         * XXX: make this choice optimally
-         *
          */
 
         npy_intp next_stride, cost, best_cost, sz;
@@ -2576,7 +2577,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          *
          * - minimize strides in input and output buffers
          * - give extra points for data blocks fitting into loop->bufsize.
-         *   (we assume this estimates the cache size of the CPU)
+         *   (We assume this is proportional to the cache size of the CPU.)
          * - mildly prefer larger intervals
          */
         i0 = -1;
@@ -2605,14 +2606,15 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
                         + abs(loop->rit->strides[(i < axis) ? i : i-1]));
 
                 sz = (abs(next_stride)
-                      + abs(loop->rit->strides[(j < axis) ? j : j-1]));
-                if (sz < loop->bufsize) {
+                      + abs(loop->rit->strides[(j < axis) ? j : j-1])
+                      * (loop->rit->dims_m1[(j < axis) ? j : j-1] + 1));
+                if (sz < loop->bufsize * BUFSIZE_CACHE_MULTIPLIER) {
                     /* Guess that the block fits in CPU cache:
                      * reduce cost by the number of data bytes the block
                      * iterates over.
                      */
-                    cost -= (sz / loop->it->strides[i]
-                             * (loop->it->dims_m1[i] + 1));
+                    cost -= abs(sz / loop->it->strides[i]
+                                * (loop->it->dims_m1[i] + 1));
                 }
                 cost += j - i + max_nd;
 
