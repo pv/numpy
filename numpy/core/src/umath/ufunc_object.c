@@ -2594,7 +2594,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
     PyArrayObject *ret = NULL;
     PyUFuncReduceObject *loop;
     intp i, n;
-    char *dptr;
+    char *dptr, *sptr;
     npy_intp steps[3];
     NPY_BEGIN_THREADS_DEF;
 
@@ -2663,32 +2663,48 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
         steps[2] = loop->steps[0];
 
         while (loop->it->index < loop->it->size) {
-            /* Copy first elements to output */
-            if (loop->steps[0] == loop->outsize &&
-                    loop->steps[1] == loop->insize) {
-                /* loop data block is contiguous in memory */
-                memmove(loop->bufptr[0], loop->it->dataptr,
-                        loop->outsize * loop->size);
-            }
-            else {
-                for (i = 0; i < loop->size; ++i) {
-                    dptr = loop->it->dataptr + i*loop->steps[1];
-                    memmove(loop->bufptr[0] + i*loop->steps[0],
-                            dptr, loop->outsize);
-                }
-            }
-
-            /* Handle copied object arrays */
             if (loop->obj) {
+                /* Copy object arrays first */
+                sptr = loop->it->dataptr;
+                dptr = loop->bufptr[0];
                 for (i = 0; i < loop->size; ++i) {
-                    dptr = loop->it->dataptr + i*loop->steps[1];
+                    memmove(dptr, sptr, loop->outsize);
                     Py_INCREF(*((PyObject **)dptr));
+                    dptr += loop->steps[0];
+                    sptr += loop->steps[1];
                 }
+
+                /* Setup all reductions */
+                i = 1;
+            } else {
+                /* First reduction
+                 *
+                 * Avoiding the copy required for obj-arrays can be a
+                 * significant performance improvement for reduction over small
+                 * dimensions.
+                 */
+                dptr = loop->bufptr[0];
+
+                assert(loop->N >= 1);
+
+                loop->bufptr[0] = loop->it->dataptr;
+                loop->bufptr[1] = loop->it->dataptr + loop->instrides;
+                loop->bufptr[2] = dptr;
+                steps[0] = loop->steps[1];
+
+                loop->function((char **)loop->bufptr, &(loop->size), steps,
+                               loop->funcdata);
+                UFUNC_CHECK_ERROR(loop);
+
+                /* Setup following reductions */
+                steps[0] = loop->steps[0];
+                loop->bufptr[0] = dptr;
+                i = 2;
             }
 
             /* "Vectorized" reduction along an axis */
             loop->bufptr[2] = loop->bufptr[0];
-            for (i = 1; i <= loop->N; ++i) {
+            for (; i <= loop->N; ++i) {
                 loop->bufptr[1] = loop->it->dataptr + i * loop->instrides;
                 loop->function((char **)loop->bufptr, &(loop->size), steps,
                                loop->funcdata);
