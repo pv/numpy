@@ -2509,7 +2509,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
     }
 
     if (operation == UFUNC_REDUCE && loop->meth == NOBUFFER_UFUNCLOOP
-            && loop->size > loop->N) {
+            && loop->size > loop->N && loop->it->nd_m1 >= 1) {
         /*
          * Try to swap the order of the reduction loops so that the tighter
          * operation inner loop has more iterations than the slower outer loop.
@@ -2539,29 +2539,76 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          * in PyUFunc_Reduce / NOBUFFER_UFUNCREDUCE_TRANSPOSE.
          */
 
-        if (aar->nd == 2) {
-            /* 2D arrays can always be handled */
-            loop->instrides = loop->steps[1];
-            loop->steps[0] = loop->outsize;
-            if (axis == 0) {
-                loop->steps[1] = loop->it->strides[1];
-                loop->it->dims_m1[1] = 0;
-            } else {
-                loop->steps[1] = loop->it->strides[0];
-                loop->it->dims_m1[0] = 0;
-            }
-            loop->steps[2] = 0;
-            loop->it->size = 1;
-            loop->meth = NOBUFFER_UFUNCREDUCE_TRANSPOSE;
-        }
-        else if (aar->nd > 2) {
-            
+        /*
+         * Choose the axes that are iterated over in the ufunc inner loop.
+         *
+         * The following restrictions apply:
+         * a) the axes are chosen so that data in them can be iterated over
+         *    using a single stride
+         * b) iteration results in inserting data to `loop->ret`
+         *    in C order
+         *
+         * Both are satisfied by choosing a slice of axes i0 <= i < i1
+         * such that
+         * i) strides[i] = strides[i1-1] * prod(dims[i1:i:-1]),
+         * ii) the axis reduced over is not in the interval.
+         *
+         * XXX: make this choice optimally
+         *
+         */
+
+        npy_intp next_stride;
+        int i0, i1, max_nd, min_nd;
+
+        max_nd = loop->it->nd_m1;
+        if (axis == max_nd)
+            max_nd -= 1;
+
+        min_nd = 0;
+        if (axis == min_nd)
+            min_nd += 1;
+
+        loop->rit = (PyArrayIterObject *)               \
+            PyArray_IterNew((PyObject *)(loop->ret));
+        if (loop->rit == NULL) {
+            goto fail;
         }
 
+        /* Choose last axes: minimizes stride in output buffer */
+        next_stride = loop->it->strides[max_nd];
+        for (i = max_nd; i >= 0; --i) {
+            if (i == axis || next_stride != loop->it->strides[i]) {
+                break;
+            }
+            next_stride *= loop->it->dims_m1[i] + 1;
+        }
+        i0 = 0;
+        i1 = i + 1;
+
+        /* input */
+        loop->instrides = loop->steps[1];
+        loop->steps[1] = loop->it->strides[max_nd];
+        loop->steps[0] = loop->steps[1];
+        
+        /* output */
+        loop->steps[2] = loop->outsize;
+        loop->size = 1;
+        for (i = i0; i <= max_nd; ++i) {
+            loop->size *= loop->it->dims_m1[i] + 1;
+            loop->it->size /= loop->it->dims_m1[i] + 1;
+            loop->it->dims_m1[i] = 0;
+            if (i > axis) {
+                loop->rit->size /= loop->rit->dims_m1[i-1] + 1;
+                loop->rit->dims_m1[i-1] = 0;
+            } else if (i < axis) {
+                loop->rit->size /= loop->rit->dims_m1[i] + 1;
+                loop->rit->dims_m1[i] = 0;
+            }
+        }
+
+        loop->meth = NOBUFFER_UFUNCREDUCE_TRANSPOSE;
+
         /* XXX:
-         *
-         * - generalize algorithm to N-D, for those cases in
-         *   which it is possible
          *
          * - recheck the logic + better testing
          *
@@ -2595,7 +2642,6 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
     PyUFuncReduceObject *loop;
     intp i, n;
     char *dptr, *sptr;
-    npy_intp steps[3];
     NPY_BEGIN_THREADS_DEF;
 
     /* Construct loop object */
@@ -2658,20 +2704,19 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
          *
          */
 
-        steps[0] = loop->steps[0];
-        steps[1] = loop->steps[1];
-        steps[2] = loop->steps[0];
-
         while (loop->it->index < loop->it->size) {
+            loop->bufptr[0] = loop->it->dataptr;
+            loop->bufptr[2] = loop->rit->dataptr;
+
             if (loop->obj) {
                 /* Copy object arrays first */
-                sptr = loop->it->dataptr;
-                dptr = loop->bufptr[0];
+                sptr = loop->bufptr[0];
+                dptr = loop->bufptr[2];
                 for (i = 0; i < loop->size; ++i) {
                     memmove(dptr, sptr, loop->outsize);
                     Py_INCREF(*((PyObject **)dptr));
-                    dptr += loop->steps[0];
-                    sptr += loop->steps[1];
+                    sptr += loop->steps[0];
+                    dptr += loop->steps[2];
                 }
 
                 /* Setup all reductions */
@@ -2683,36 +2728,31 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
                  * significant performance improvement for reduction over small
                  * dimensions.
                  */
-                dptr = loop->bufptr[0];
-
                 assert(loop->N >= 1);
 
-                loop->bufptr[0] = loop->it->dataptr;
-                loop->bufptr[1] = loop->it->dataptr + loop->instrides;
-                loop->bufptr[2] = dptr;
-                steps[0] = loop->steps[1];
+                loop->steps[0] = loop->steps[1];
 
-                loop->function((char **)loop->bufptr, &(loop->size), steps,
-                               loop->funcdata);
+                loop->bufptr[1] = loop->it->dataptr + loop->instrides;
+                loop->function((char **)loop->bufptr, &(loop->size),
+                               loop->steps, loop->funcdata);
                 UFUNC_CHECK_ERROR(loop);
 
                 /* Setup following reductions */
-                steps[0] = loop->steps[0];
-                loop->bufptr[0] = dptr;
+                loop->steps[0] = loop->steps[2];
+                loop->bufptr[0] = loop->rit->dataptr;
                 i = 2;
             }
 
             /* "Vectorized" reduction along an axis */
-            loop->bufptr[2] = loop->bufptr[0];
             for (; i <= loop->N; ++i) {
                 loop->bufptr[1] = loop->it->dataptr + i * loop->instrides;
-                loop->function((char **)loop->bufptr, &(loop->size), steps,
-                               loop->funcdata);
+                loop->function((char **)loop->bufptr, &(loop->size),
+                               loop->steps, loop->funcdata);
                 UFUNC_CHECK_ERROR(loop);
             }
 
-            loop->bufptr[0] += loop->steps[2];
             PyArray_ITER_NEXT(loop->it);
+            PyArray_ITER_NEXT(loop->rit);
         }
         break;
     case BUFFER_UFUNCLOOP:
