@@ -2526,7 +2526,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
     }
 
     if (operation == UFUNC_REDUCE && loop->meth == NOBUFFER_UFUNCLOOP
-            && loop->size > loop->N && loop->it->nd_m1 >= 1) {
+            && loop->it->nd_m1 >= 1) {
         /*
          * Try to swap the order of the reduction loops so that the tighter
          * operation inner loop has more iterations than the slower outer loop.
@@ -2573,7 +2573,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          *
          */
 
-        npy_intp next_stride, cost, best_cost, sz;
+        npy_intp next_stride, cost, best_cost, direct_cost, sz;
         int i0, i1, max_nd;
 
         max_nd = loop->it->nd_m1;
@@ -2642,40 +2642,53 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
 
         assert(i0 < i1);
 
-        /*
-         * Form input and output steps, and modify iterators
-         */
-        loop->rit->contiguous = (i0 == 0);
+        /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
+        direct_cost = 0;
+        if (abs(loop->steps[1]) * (loop->N + 1)
+                < loop->bufsize*BUFSIZE_CACHE_MULTIPLIER) {
+            direct_cost = -(loop->N + 1)*loop->outsize;
+        }
+        direct_cost += max_nd + abs(loop->steps[1]) + loop->outsize;
+        /* Outer loop overhead: */
+        direct_cost += 10000 / (loop->N + 1) / loop->outsize; 
 
-        loop->instrides = loop->steps[1];
+        /* Compare costs */
+        if (best_cost < direct_cost) {
+            loop->meth = NOBUFFER_UFUNCREDUCE_TRANSPOSE;
 
-        loop->steps[0] = loop->it->strides[i1-1];
-        loop->steps[1] = loop->it->strides[i1-1];
-        loop->steps[2] = loop->outsize;
-
-        loop->size = 1;
-        for (i = i0; i < i1; ++i) {
-            loop->size *= loop->it->dims_m1[i] + 1;
-            loop->it->size /= loop->it->dims_m1[i] + 1;
-            loop->it->dims_m1[i] = 0;
-            loop->it->backstrides[i] = 0;
-            if (i > axis) {
-                loop->rit->size /= loop->rit->dims_m1[i-1] + 1;
-                loop->rit->dims_m1[i-1] = 0;
-                loop->rit->backstrides[i-1] = 0;
-            } else if (i < axis) {
-                loop->rit->size /= loop->rit->dims_m1[i] + 1;
-                loop->rit->dims_m1[i] = 0;
-                loop->rit->backstrides[i] = 0;
+            /*
+             * Form input and output steps, and modify iterators
+             */
+            loop->rit->contiguous = (i0 == 0);
+            
+            loop->instrides = loop->steps[1];
+            
+            loop->steps[0] = loop->it->strides[i1-1];
+            loop->steps[1] = loop->it->strides[i1-1];
+            loop->steps[2] = loop->outsize;
+            
+            loop->size = 1;
+            for (i = i0; i < i1; ++i) {
+                loop->size *= loop->it->dims_m1[i] + 1;
+                loop->it->size /= loop->it->dims_m1[i] + 1;
+                loop->it->dims_m1[i] = 0;
+                loop->it->backstrides[i] = 0;
+                if (i > axis) {
+                    loop->rit->size /= loop->rit->dims_m1[i-1] + 1;
+                    loop->rit->dims_m1[i-1] = 0;
+                    loop->rit->backstrides[i-1] = 0;
+                } else if (i < axis) {
+                    loop->rit->size /= loop->rit->dims_m1[i] + 1;
+                    loop->rit->dims_m1[i] = 0;
+                    loop->rit->backstrides[i] = 0;
+                }
+            }
+            for (; i <= loop->it->nd_m1; ++i) {
+                if (i != axis) {
+                    loop->steps[2] *= loop->it->dims_m1[i] + 1;
+                }
             }
         }
-        for (; i <= loop->it->nd_m1; ++i) {
-            if (i != axis) {
-                loop->steps[2] *= loop->it->dims_m1[i] + 1;
-            }
-        }
-
-        loop->meth = NOBUFFER_UFUNCREDUCE_TRANSPOSE;
 
         /* XXX:
          *
