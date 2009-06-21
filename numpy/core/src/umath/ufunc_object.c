@@ -2593,6 +2593,8 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          * - give extra points for data blocks fitting into loop->bufsize.
          *   (We assume this is proportional to the cache size of the CPU.)
          * - mildly prefer larger intervals
+         *
+         * The cost is measured in bytes per element.
          */
         i0 = -1;
         i1 = -1;
@@ -2627,8 +2629,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
                      * reduce cost by the number of data bytes the block
                      * iterates over.
                      */
-                    cost -= abs(sz / loop->it->strides[i]
-                                * (loop->it->dims_m1[i] + 1));
+                    cost -= abs(next_stride / loop->it->strides[i]);
                 }
                 cost += j - i + max_nd;
 
@@ -2643,14 +2644,14 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         assert(i0 < i1);
 
         /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
-        direct_cost = 0;
+        direct_cost = abs(loop->steps[1]) + loop->outsize;
         if (abs(loop->steps[1]) * (loop->N + 1)
                 < loop->bufsize*BUFSIZE_CACHE_MULTIPLIER) {
             direct_cost = -(loop->N + 1)*loop->outsize;
         }
-        direct_cost += max_nd + abs(loop->steps[1]) + loop->outsize;
+        direct_cost += max_nd;
         /* Outer loop overhead: */
-        direct_cost += 10000 / (loop->N + 1) / loop->outsize; 
+        direct_cost += 8000 / (loop->N + 1) / loop->outsize; 
 
         /* Compare costs */
         if (best_cost < direct_cost) {
