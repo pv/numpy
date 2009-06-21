@@ -1416,10 +1416,11 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
     }
     else if (loop->meth != ONE_UFUNCLOOP) {
         int ldim;
-        intp minsum;
+        intp mincost, cost;
         intp maxdim;
         PyArrayIterObject *it;
         intp stride_sum[NPY_MAXDIMS];
+        intp sizes[NPY_MAXDIMS], block_sizes[NPY_MAXDIMS];
         int j;
 
         /* Fix iterators */
@@ -1434,24 +1435,37 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
          * the slowest loops occur when the memory access occurs for
          * large strides.
          *
-         * Thus, choose the axis for which strides of the last iterator is
+         * Thus, choose the axis for which abs-sum of strides is
          * smallest but non-zero.
          */
         for (i = 0; i < loop->nd; i++) {
             stride_sum[i] = 0;
+            sizes[i] = 0;
+            block_sizes[i] = 0;
             for (j = 0; j < loop->numiter; j++) {
-                stride_sum[i] += loop->iters[j]->strides[i];
+                stride_sum[i] += abs(loop->iters[j]->strides[i]);
+                sizes[i] += abs(loop->iters[j]->dims_m1[i] + 1);
+                block_sizes[i] += (abs(loop->iters[j]->strides[i])
+                                   * abs(loop->iters[j]->dims_m1[i] + 1));
             }
         }
 
-        ldim = loop->nd - 1;
-        minsum = stride_sum[loop->nd - 1];
-        for (i = loop->nd - 2; i >= 0; i--) {
-            if (stride_sum[i] < minsum ) {
+        ldim = -1;
+        mincost = -1;
+        for (i = loop->nd - 1; i >= 0; i--) {
+            cost = stride_sum[i];
+            if (block_sizes[i]
+                    < loop->bufsize*BUFSIZE_CACHE_MULTIPLIER/loop->numiter) {
+                /* guess the whole thing fits into the cache */
+                cost = -sizes[i];
+            }
+            if (cost < mincost || ldim < 0) {
                 ldim = i;
-                minsum = stride_sum[i];
+                mincost = cost;
             }
         }
+        if (loop->nd == 0)
+            ldim = 0;
         maxdim = loop->dimensions[ldim];
         loop->size /= maxdim;
         loop->bufcnt = maxdim;
@@ -1460,7 +1474,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
         /*
          * Fix the iterators so the inner loop occurs over the
          * largest dimensions -- This can be done by
-         * setting the size to 1 in that dimension
+         * setting the size to 1 and backstride to 0 in that dimension
          * (just in the iterators)
          */
         for (i = 0; i < loop->numiter; i++) {
