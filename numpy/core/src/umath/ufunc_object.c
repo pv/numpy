@@ -2647,7 +2647,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         direct_cost = abs(loop->steps[1]) + loop->outsize;
         if (abs(loop->steps[1]) * (loop->N + 1)
                 < loop->bufsize*BUFSIZE_CACHE_MULTIPLIER) {
-            direct_cost = -(loop->N + 1)*loop->outsize;
+            direct_cost -= (loop->N + 1)*loop->outsize;
         }
         direct_cost += max_nd;
         /* Outer loop overhead: */
