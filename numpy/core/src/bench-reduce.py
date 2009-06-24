@@ -301,7 +301,7 @@ def run_plot(options):
     print "new:", np.exp(np.log(y[j_new]).mean())
     print "old:", np.exp(np.log(y[j_old]).mean())
 
-    plt.rc('figure', figsize=(12, 8))
+    plt.rc('figure', figsize=(8, 4.94427))
 
     ds_imp = plt.loglog(xx[j_imp].T, yy[j_imp].T, 'b-', zorder=10)
     ds_neu = plt.loglog(xx[j_neu].T, yy[j_neu].T, 'k-', lw=2, zorder=10)
