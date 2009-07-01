@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 %prog [OPTIONS] PATH [SECTION | SHAPE TRANSPOSE INDEX]
        %prog [OPTIONS] plot < INPUT
