@@ -406,7 +406,8 @@ z = np.sum(get(), axis=%s)
             f = numpy.load(options.dump_file)
             z2 = f['z']
             s2 = f['s']
-            if s.strides == s2.strides and s.shape == s2.shape:
+            if s.strides == s2.strides and s.shape == s2.shape and \
+                    numpy.allclose(s, s2):
                 d = z - z2
                 numpy.testing.assert_equal(z, z2)
         numpy.savez(options.dump_file, z=z, s=s)
