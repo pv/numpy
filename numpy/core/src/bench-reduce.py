@@ -201,10 +201,14 @@ def main():
     p = optparse.OptionParser(__doc__.strip())
     p.add_option("-t", "--time", action="store", type="float", default=1.0,
                  help="time for each benchmark (%default s)")
+    p.add_option("-c", "--count", action="store", type="int", default=None,
+                 help="fixed number of run times (%default s)")
     p.add_option("-l", "--list", action="callback", callback=list_sections,
                  help="list available benchmarks")
     p.add_option("-f", "--fig-title", action="store", dest="title",
                  help="figure title", default="")
+    p.add_option("-d", "--dump-file", action="store", dest="dump_file",
+                 help="temporary dump file", default="test.npz")
     options, args = p.parse_args()
 
     if len(args) == 1 and args[0] == 'plot':
@@ -340,6 +344,8 @@ def run_plot(options):
 def run_suite(new_path, options, sections=None):
     fn = os.path.abspath(__file__)
     opts = ['-t', repr(options.time)]
+    if options.count:
+        opts += ['-c', repr(options.count)]
 
     for sec in sorted(SUITE.keys()):
         if sections is not None and sec not in sections:
@@ -363,6 +369,7 @@ def run_single(new_path, shape, transpose, index, options):
 import numpy as np
 #np.setbufsize(512*1024/8)
 
+np.random.seed(123)
 s = np.random.randn(%s)
 
 cache_size = 10000 * 1024 / 8
@@ -375,6 +382,8 @@ def get():
     jx[0] = (jx[0] + 1) %% len(ss)
     return ss[jx[0]]
 
+z = get()
+
 """ % (shape, transpose)
 
     code = "np.sum(get(), axis=%s)" % index
@@ -382,7 +391,21 @@ def get():
     ns = {}
     exec pre_code in ns
 
-    ts = magic_timeit(code, ns=ns, secs=options.time, repeat=5)
+    if options.dump_file:
+        # Check that the result matches the previous one
+        z = ns['z']
+        s = ns['ss'][0]
+        if os.path.isfile(options.dump_file):
+            f = numpy.load(options.dump_file)
+            z2 = f['z']
+            s2 = f['s']
+            if s.strides == s2.strides and s.shape == s2.shape:
+                d = z - z2
+                numpy.testing.assert_equal(d, 0*d), abs(d).max()
+        numpy.savez(options.dump_file, z=z, s=s)
+
+    ts = magic_timeit(code, ns=ns, secs=options.time, repeat=5,
+                      number=options.count)
 
     print new, shape, transpose, index, "  ".join([
         "%.3g" % (1/t) for t in ts])
@@ -392,9 +415,9 @@ def get():
 # Timing
 #------------------------------------------------------------------------------
 
-def magic_timeit(stmt, ns=None, secs=4.0, repeat=timeit.default_repeat):
+def magic_timeit(stmt, ns=None, secs=4.0, repeat=timeit.default_repeat,
+                 number=None):
     timefunc = timeit.default_timer
-    number = 0
     timer = timeit.Timer(timer=timefunc)
 
     src = timeit.template % {'stmt': timeit.reindent(stmt, 8),
@@ -406,7 +429,7 @@ def magic_timeit(stmt, ns=None, secs=4.0, repeat=timeit.default_repeat):
     exec code in ns
     timer.inner = ns["inner"]
 
-    if number == 0:
+    if number is None:
         # determine number so that 0.4 <= total time < 4.0
         number = 4
         done = 0
