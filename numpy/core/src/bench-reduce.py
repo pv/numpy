@@ -236,6 +236,8 @@ def main():
 
         run_single(new_path, shape, transpose, index, options)
 
+    raise SystemExit(0)
+
 def list_sections(option, opt, value, parser):
     print "Available benchmarks:"
     for sec in sorted(SUITE.keys()):
@@ -353,9 +355,14 @@ def run_suite(new_path, options, sections=None):
         print "#", sec
         sys.stdout.flush()
         for item in SUITE[sec]:
-            subprocess.call([sys.executable, fn, new_path]+ opts + item.split())
-            subprocess.call([sys.executable, fn, ''] + opts + item.split())
+            exec_call([sys.executable, fn, new_path] + opts + item.split())
+            exec_call([sys.executable, fn, ''] + opts + item.split())
 
+def exec_call(cmd):
+    ret = subprocess.call(cmd)
+    if ret != 0:
+        raise RuntimeError("failed: %s" % (" ".join(cmd)))
+            
 def run_single(new_path, shape, transpose, index, options):
     if new_path:
         sys.path.insert(0, new_path)
@@ -382,9 +389,9 @@ def get():
     jx[0] = (jx[0] + 1) %% len(ss)
     return ss[jx[0]]
 
-z = get()
+z = np.sum(get(), axis=%s)
 
-""" % (shape, transpose)
+""" % (shape, transpose, index)
 
     code = "np.sum(get(), axis=%s)" % index
 
@@ -401,7 +408,7 @@ z = get()
             s2 = f['s']
             if s.strides == s2.strides and s.shape == s2.shape:
                 d = z - z2
-                numpy.testing.assert_equal(d, 0*d), abs(d).max()
+                numpy.testing.assert_equal(z, z2)
         numpy.savez(options.dump_file, z=z, s=s)
 
     ts = magic_timeit(code, ns=ns, secs=options.time, repeat=5,
@@ -409,6 +416,7 @@ z = get()
 
     print new, shape, transpose, index, "  ".join([
         "%.3g" % (1/t) for t in ts])
+    sys.stdout.flush()
 
 
 #------------------------------------------------------------------------------
