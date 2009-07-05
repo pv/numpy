@@ -2613,7 +2613,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
                 /* Estimate cost */
                 cost = abs(loop->it->strides[i])
                     + abs(loop->rit->strides[(i<axis)?i:i-1]);
-                cost += 1000 / (next_stride/loop->it->strides[i]);
+                cost += 128 / (next_stride/loop->it->strides[i]);
 
                 /* Check if the candidate is better */
                 if (cost <= best_cost || i0 < 0) {
@@ -2627,8 +2627,51 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         assert(i0 < i1);
 
         /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
-        cost = abs(loop->steps[1]) + loop->outsize;
-        cost += 1000 / (loop->N+1);
+        cost = abs(loop->steps[1]);
+        if (loop->N < 128) {
+            cost = fmin(cost, abs(loop->it->strides[loop->it->nd_m1]));
+        }
+        cost += loop->outsize;
+        cost += 128 / (loop->N+1);
+
+#if 1
+        {
+            /* Print debug info */
+            static int seen = 0;
+            if (!seen) {
+                seen = 1;
+                fprintf(stderr, "\n  ");
+                for (i = 0; i < aar->nd; ++i) {
+                    if (i == axis) {
+                        fprintf(stderr, " <%d>", aar->dimensions[i]);
+                    } else if (i == i0) {
+                        fprintf(stderr, " {%d", aar->dimensions[i]);
+                    } else {
+                        fprintf(stderr, " %d", aar->dimensions[i]);
+                    }
+                    if (i == i1-1) {
+                        fprintf(stderr, "}");
+                    }
+                }
+                fprintf(stderr, "    [", axis);
+                for (i = 0; i < aar->nd; ++i) {
+                    if (i == axis) {
+                        fprintf(stderr, " <%d>", aar->strides[i]);
+                    } else if (i == i0) {
+                        fprintf(stderr, " {%d", aar->strides[i]);
+                    } else {
+                        fprintf(stderr, " %d", aar->strides[i]);
+                    }
+                    if (i == i1-1) {
+                        fprintf(stderr, "}");
+                    }
+                }
+                fprintf(stderr, " ]\n", axis);
+                fprintf(stderr, "  %g vs. %g  : %d %d\n",
+                        best_cost, cost, i0, i1);
+            }
+        }
+#endif
 
         /* Compare costs */
         if (best_cost < cost) {

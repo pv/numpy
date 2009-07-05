@@ -308,16 +308,20 @@ def run_plot(options):
     xx = np.c_[x[j_new], x[j_old]]
     yy = np.c_[y[j_new].max(axis=1), y[j_old].max(axis=1)]
 
-    j_imp = (yy[:,0] > yy[:,1]*1.25)
-    j_reg = (yy[:,0] < yy[:,1]/1.25)
+    j_imp = (yy[:,0] > yy[:,1]*1.1)
+    j_reg = (yy[:,0] < yy[:,1]/1.1)
     j_neu = (~j_imp & ~j_reg)
 
     print "Regressions:"
-    print d[np.where(j_new)[0][j_reg]], "\n"
-
-    print "Geometric mean:"
-    print "new:", np.exp(np.log(y[j_new]).mean())
-    print "old:", np.exp(np.log(y[j_old]).mean())
+    reg = d[np.where(j_new)[0][j_reg]]
+    mag = yy[j_reg,0] / yy[j_reg,1]
+    print "\n".join(["  %-18s %-18s %-8s %g" % (r['shape'], r['trans'],
+                                                r['axis'],m)
+                     for r, m in zip(reg, mag)])
+    print "\nGeometric mean:"
+    print "  new:", np.exp(np.log(y[j_new]).mean())
+    print "  old:", np.exp(np.log(y[j_old]).mean())
+    print "  n/o:", np.exp(np.log(y[j_new]).mean() - np.log(y[j_old]).mean())
 
     plt.rc('figure', figsize=(8, 4.94427))
 
