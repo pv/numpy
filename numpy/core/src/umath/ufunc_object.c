@@ -2575,11 +2575,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
 
         float cost, best_cost, direct_cost, n, sz;
         npy_intp next_stride;
-        int i0, i1, max_nd, k;
-
-        max_nd = loop->it->nd_m1;
-        if (axis == max_nd)
-            max_nd -= 1;
+        int i0, i1, k;
 
         loop->rit = (PyArrayIterObject *)               \
             PyArray_IterNew((PyObject *)(loop->ret));
@@ -2588,19 +2584,17 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         }
 
         /*
-         * Choose the axes interval heuristically.
+         * Choose the inner loop axes interval heuristically.
          *
-         * - minimize strides in input and output buffers
-         * - give extra points for data blocks fitting into loop->bufsize.
-         *   (We assume this is proportional to the cache size of the CPU.)
-         * - mildly prefer larger intervals
+         * - minimize sum of strides in input and output buffers
+         * - penalize small inner loops
          *
-         * The cost is measured in bytes per element.
+         * The cost is measured in bytes.
          */
         i0 = -1;
         i1 = -1;
 
-        for (i = max_nd; i >= 0; --i) {
+        for (i = loop->it->nd_m1; i >= 0; --i) {
             if (i == axis)
                 continue;
 
@@ -2611,59 +2605,18 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
                 }
                 next_stride *= loop->it->dims_m1[j] + 1;
 
-                /* don't consider 0-dimensions */
-                if (loop->it->dims_m1[i] == 0)
-                    continue;
-
                 /*
                  * Check if this candidate is heuristically better than
                  * the current one
                  */
 
-                /* Estimate cache miss cost */
-                cost = 0;
-                n = loop->size * loop->N;
-
-#define ADD_CACHE_MISS_COST(dims_m1, stride)                            \
-                    sz = abs(dims_m1 * stride);                         \
-                    n /= dims_m1 + 1;                                   \
-                    if (cost + sz                                       \
-                          < loop->bufsize * BUFSIZE_CACHE_MULTIPLIER) { \
-                        cost = fmax(cost, sz);                          \
-                    } else if (n > 0) {                                 \
-                        cost += n*sz;                                   \
-                        n = 0;                                          \
-                    } else {                                            \
-                        cost += sz;                                     \
-                    }
-
-                for (k = i; k >= j; --k) {
-                    ADD_CACHE_MISS_COST(loop->it->dims_m1[k],
-                                        loop->it->strides[k]);
-                    ADD_CACHE_MISS_COST(loop->rit->dims_m1[(k<axis)?k:k-1],
-                                        loop->rit->strides[(k<axis)?k:k-1]);
-                }
-                n *= loop->N;
-                ADD_CACHE_MISS_COST(loop->N - 1,
-                                    aar->strides[axis]);
-                for (k = 0; k < i; ++k) {
-                    ADD_CACHE_MISS_COST(loop->it->dims_m1[k],
-                                        loop->it->strides[k]);
-                    ADD_CACHE_MISS_COST(loop->rit->dims_m1[(k<axis)?k:k-1],
-                                        loop->rit->strides[(k<axis)?k:k-1]);
-                }
-                for (k = i+1; k <= loop->it->nd_m1; ++k) {
-                    ADD_CACHE_MISS_COST(loop->it->dims_m1[k],
-                                        loop->it->strides[k]);
-                    ADD_CACHE_MISS_COST(loop->rit->dims_m1[(k<axis)?k:k-1],
-                                        loop->rit->strides[(k<axis)?k:k-1]);
-                }
-
-                /* Estimate outer loop overhead */
-                cost += loop->size * loop->insize / (next_stride/loop->it->strides[i]);
+                /* Estimate cost */
+                cost = abs(loop->it->strides[i])
+                    + abs(loop->rit->strides[(i<axis)?i:i-1]);
+                cost += 1000 / (next_stride/loop->it->strides[i]);
 
                 /* Check if the candidate is better */
-                if (cost < best_cost || i0 < 0) {
+                if (cost <= best_cost || i0 < 0) {
                     i0 = j;
                     i1 = i+1;
                     best_cost = cost;
@@ -2674,26 +2627,16 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         assert(i0 < i1);
 
         /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
-        cost = 0;
-        n = loop->size * loop->N;
-        ADD_CACHE_MISS_COST(loop->N-1, loop->steps[1]);
-        for (k = 0; k <= loop->it->nd_m1; ++k) {
-            ADD_CACHE_MISS_COST(loop->it->dims_m1[k],
-                                loop->it->strides[k]);
-        }
-        /*
-         * The outer loop in NOBUFFER_UFUNCREDUCE is slightly more expensive
-         * than in NOBUFFER_UFUNCREDUCE_TRANSPOSE for small N.
-         */
-        cost += loop->size * loop->insize * (loop->N + 4) / loop->N;
+        cost = abs(loop->steps[1]) + loop->outsize;
+        cost += 1000 / (loop->N+1);
 #undef ADD_CACHE_MISS_COST
 
         {
             static int seen = 0;
             if (!seen) {
                 if (best_cost < cost) {
-                    fprintf(stderr, "NEW: %g < %g  (predicted speedup %g)\n",
-                            best_cost, cost, cost/best_cost);
+                    fprintf(stderr, "NEW: %g < %g  (predicted speedup %g)  %d %d\n",
+                            best_cost, cost, cost/best_cost, i0, i1);
                 } else {
                     fprintf(stderr, "OLD: %g > %g\n", best_cost, cost);
                 }
@@ -2767,8 +2710,9 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
 {
     PyArrayObject *ret = NULL;
     PyUFuncReduceObject *loop;
-    intp i, n;
+    intp i, k, n, i0;
     char *dptr, *sptr;
+    npy_intp block_size;
     NPY_BEGIN_THREADS_DEF;
 
     /* Construct loop object */
@@ -2847,7 +2791,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
                 }
 
                 /* Setup all reductions */
-                i = 1;
+                i0 = 1;
             } else {
                 /* First reduction
                  *
@@ -2867,17 +2811,35 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
                 /* Setup following reductions */
                 loop->steps[0] = loop->steps[2];
                 loop->bufptr[0] = loop->rit->dataptr;
-                i = 2;
+                i0 = 2;
             }
 
-            /* "Vectorized" reduction along an axis */
-            for (; i <= loop->N; ++i) {
-                loop->bufptr[1] = loop->it->dataptr + i * loop->instrides;
-                loop->function((char **)loop->bufptr, &(loop->size),
-                               loop->steps, loop->funcdata);
-                UFUNC_CHECK_ERROR(loop);
-            }
+            /*
+             * "Vectorized" reduction along an axis
+             *
+             * Evaluating the inner loop in smaller blocks interleaved with the
+             * reduction loop aims to avoid cache misses in the loop->ret array.
+             */
+            block_size = 2 + (loop->bufsize / loop->outsize / 2);
+            for (k = 0; k < loop->size; k += block_size) {
+                char *bufptr[3];
 
+                bufptr[0] = loop->bufptr[0] + k * loop->steps[0];
+                bufptr[1] = loop->bufptr[1] + k * loop->steps[1];
+                bufptr[2] = loop->bufptr[2] + k * loop->steps[2];
+
+                if (k + block_size > loop->size) {
+                    block_size = loop->size - k;
+                }
+
+                for (i = i0; i <= loop->N; ++i) {
+                    bufptr[1] += loop->instrides;
+                    loop->function((char **)bufptr, &block_size,
+                                   loop->steps, loop->funcdata);
+                    UFUNC_CHECK_ERROR(loop);
+                }
+            }
+                
             PyArray_ITER_NEXT(loop->it);
             PyArray_ITER_NEXT(loop->rit);
         }
