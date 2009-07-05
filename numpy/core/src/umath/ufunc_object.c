@@ -2573,7 +2573,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          *
          */
 
-        float cost, best_cost, direct_cost, n, sz;
+        float cost, best_cost;
         npy_intp next_stride;
         int i0, i1, k;
 
@@ -2629,20 +2629,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
         cost = abs(loop->steps[1]) + loop->outsize;
         cost += 1000 / (loop->N+1);
-#undef ADD_CACHE_MISS_COST
 
-        {
-            static int seen = 0;
-            if (!seen) {
-                if (best_cost < cost) {
-                    fprintf(stderr, "NEW: %g < %g  (predicted speedup %g)  %d %d\n",
-                            best_cost, cost, cost/best_cost, i0, i1);
-                } else {
-                    fprintf(stderr, "OLD: %g > %g\n", best_cost, cost);
-                }
-                seen = 1;
-            }
-        }
         /* Compare costs */
         if (best_cost < cost) {
             loop->meth = NOBUFFER_UFUNCREDUCE_TRANSPOSE;
@@ -2680,12 +2667,6 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
                 }
             }
         }
-
-        /* XXX:
-         *
-         * - recheck the logic + better testing
-         *
-         */
     }
 
     PyUFunc_clearfperr();
