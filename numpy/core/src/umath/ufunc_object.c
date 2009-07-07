@@ -2528,8 +2528,8 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
     if (operation == UFUNC_REDUCE && loop->meth == NOBUFFER_UFUNCLOOP
             && loop->it->nd_m1 >= 1) {
         /*
-         * Try to swap the order of the reduction loops so that the tighter
-         * operation inner loop has more iterations than the slower outer loop.
+         * Try to swap the order of the reduction loops to improve cache
+         * efficiency, and to reduce overhead in loops over small dimensions.
          *
          * The idea is to "vectorize" the reduction to be performed as:
          *
@@ -2543,17 +2543,6 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          *     for j, ix in enumerate(loop->it):
          *         ret[j] = reduce_func(arr[ix])
          *
-         * The ``...`` above is performed in the ufunc loop as 
-         *
-         *     for (i = 0; i < loop->size; ++i) {
-         *          ptr_in = loop->it->dataptr + loop->instrides * j
-         *                    + loop->steps[1] * i;
-         *
-         *          ptr_out = loop->bufptr[0] + loop->steps[2] * r
-         *                    + loop->steps[0] * i;
-         *     }
-         *
-         * in PyUFunc_Reduce / NOBUFFER_UFUNCREDUCE_TRANSPOSE.
          */
 
         /*
@@ -2574,7 +2563,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          */
 
         float cost, best_cost;
-        npy_intp next_stride;
+        npy_intp next_stride, n;
         int i0, i1, k;
 
         loop->rit = (PyArrayIterObject *)               \
@@ -2584,15 +2573,25 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         }
 
         /*
-         * Choose the inner loop axes interval heuristically.
+         * Choose the inner loop axes interval heuristically:
          *
-         * - minimize sum of strides in input and output buffers
-         * - penalize small inner loops
+         * a) Maximize the number of elements in a fixed-size contiguous block
+         *    of memory, dealt with in the inner loop.
          *
-         * The cost is measured in bytes.
+         *    This is motivated by CPU cache architecture: we want to get
+         *    speedups from having multiple array elements fetched to a single
+         *    cache line, when possible.
+         *
+         * b) Penalize inner loops over small dimensions.
+         *
+         *    This aims to reduce the total overhead from setting up
+         *    the ufunc loop multiple times.
+         *
          */
         i0 = -1;
         i1 = -1;
+
+#define STRIDECOST(stride) (-256.0/abs(stride))
 
         for (i = loop->it->nd_m1; i >= 0; --i) {
             if (i == axis)
@@ -2611,9 +2610,9 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
                  */
 
                 /* Estimate cost */
-                cost = abs(loop->it->strides[i])
-                    + abs(loop->rit->strides[(i<axis)?i:i-1]);
-                cost += 128 / (next_stride/loop->it->strides[i]);
+                cost = STRIDECOST(abs(loop->it->strides[i])
+                                  + abs(loop->rit->strides[(i<axis)?i:i-1]));
+                cost += 128.0 / (next_stride/loop->it->strides[i]);
 
                 /* Check if the candidate is better */
                 if (cost <= best_cost || i0 < 0) {
@@ -2627,12 +2626,10 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         assert(i0 < i1);
 
         /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
-        cost = abs(loop->steps[1]);
-        if (loop->N < 128) {
-            cost = fmin(cost, abs(loop->it->strides[loop->it->nd_m1]));
-        }
-        cost += loop->outsize;
-        cost += 128 / (loop->N+1);
+        cost = STRIDECOST(loop->steps[1]);
+        cost += 128.0 / (loop->N+1);
+
+#undef STRIDECOST
 
 #if 1
         {
