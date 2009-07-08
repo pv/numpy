@@ -2592,6 +2592,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         i1 = -1;
 
 #define STRIDECOST(stride) (-256.0/abs(stride))
+#define SIZECOST(size) (128.0/fmin(size, 128))
 
         for (i = loop->it->nd_m1; i >= 0; --i) {
             if (i == axis)
@@ -2612,7 +2613,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
                 /* Estimate cost */
                 cost = STRIDECOST(abs(loop->it->strides[i])
                                   + abs(loop->rit->strides[(i<axis)?i:i-1]));
-                cost += 128.0 / (next_stride/loop->it->strides[i]);
+                cost += SIZECOST(next_stride/loop->it->strides[i]);
 
                 /* Check if the candidate is better */
                 if (cost <= best_cost || i0 < 0) {
@@ -2627,9 +2628,10 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
 
         /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
         cost = STRIDECOST(loop->steps[1]);
-        cost += 128.0 / (loop->N+1);
+        cost += SIZECOST(loop->N+1);
 
 #undef STRIDECOST
+#undef SIZECOST
 
 #if 1
         {
