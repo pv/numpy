@@ -220,6 +220,8 @@ def main():
                  help="figure title", default="")
     p.add_option("-d", "--dump-file", action="store", dest="dump_file",
                  help="temporary dump file", default="test.npz")
+    p.add_option("-o", "--copy", action="store_true", default=False,
+                 help="make a contiguous copy (%default)")
     options, args = p.parse_args()
 
     if len(args) == 1 and args[0] == 'plot':
@@ -363,6 +365,8 @@ def run_suite(new_path, options, sections=None):
     opts = ['-t', repr(options.time)]
     if options.count:
         opts += ['-c', repr(options.count)]
+    if options.copy:
+        opts += ['-o']
 
     for sec in sorted(SUITE.keys()):
         if sections is not None and sec not in sections:
@@ -404,11 +408,22 @@ def get():
     jx[0] = (jx[0] + 1) %% len(ss)
     return ss[jx[0]]
 
+contig_tp = range(s.ndim)
+contig_tp.remove(%s)
+contig_tp.append(%s)
+
+def get_contiguous():
+    jx[0] = (jx[0] + 1) %% len(ss)
+    return ss[jx[0]].transpose(contig_tp).copy()
+
 z = np.sum(get(), axis=%s)
 
-""" % (shape, transpose, index)
+""" % (shape, transpose, index, index, index)
 
-    code = "np.sum(get(), axis=%s)" % index
+    if options.copy:
+        code = "np.sum(get_contiguous(), axis=-1)"
+    else:
+        code = "np.sum(get(), axis=%s)" % index
 
     ns = {}
     exec pre_code in ns
