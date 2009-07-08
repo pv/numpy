@@ -2592,7 +2592,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         i1 = -1;
 
 #define STRIDECOST(stride) (-256.0/abs(stride))
-#define SIZECOST(size) (128.0/fmin(size, 128))
+#define SIZECOST(size) (64.0/fmin(size, 64))
 
         for (i = loop->it->nd_m1; i >= 0; --i) {
             if (i == axis)
