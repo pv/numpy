@@ -2248,7 +2248,7 @@ _create_reduce_copy(PyUFuncReduceObject *loop, PyArrayObject **arr, int rtype)
 
 #define CACHELINE_BYTES 64
 #define CACHELINE_COUNT 1024
-#define REDUCTION_BLOCKSIZE(loop) (1 + (CACHELINE_COUNT/(1 + ((loop)->outsize + 1)/CACHELINE_BYTES))/2)
+#define REDUCTION_BLOCKSIZE(loop) (1 + ((CACHELINE_COUNT-1)/(1 + ((loop)->outsize + 1)/CACHELINE_BYTES))/2)
 
 /*
  * Construct a reduction loop.
@@ -2840,44 +2840,6 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
          */
 
         while (loop->it->index < loop->it->size) {
-            loop->bufptr[0] = loop->it->dataptr;
-            loop->bufptr[2] = loop->rit->dataptr;
-
-            if (loop->obj) {
-                /* Copy object arrays first */
-                sptr = loop->bufptr[0];
-                dptr = loop->bufptr[2];
-                for (i = 0; i < loop->size; ++i) {
-                    memmove(dptr, sptr, loop->outsize);
-                    Py_INCREF(*((PyObject **)dptr));
-                    sptr += loop->steps[0];
-                    dptr += loop->steps[2];
-                }
-
-                /* Setup all reductions */
-                i0 = 1;
-            } else {
-                /* First reduction
-                 *
-                 * Avoiding the copy required for obj-arrays can be a
-                 * significant performance improvement for reduction over small
-                 * dimensions.
-                 */
-                assert(loop->N >= 1);
-
-                loop->steps[0] = loop->steps[1];
-
-                loop->bufptr[1] = loop->it->dataptr + loop->instrides;
-                loop->function((char **)loop->bufptr, &(loop->size),
-                               loop->steps, loop->funcdata);
-                UFUNC_CHECK_ERROR(loop);
-
-                /* Setup following reductions */
-                loop->steps[0] = loop->steps[2];
-                loop->bufptr[0] = loop->rit->dataptr;
-                i0 = 2;
-            }
-
             /*
              * "Vectorized" reduction along an axis
              *
@@ -2886,24 +2848,58 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
              */
             block_size = REDUCTION_BLOCKSIZE(loop);
             for (k = 0; k < loop->size; k += block_size) {
-                char *bufptr[3];
-
-                bufptr[0] = loop->bufptr[0] + k * loop->steps[0];
-                bufptr[1] = loop->bufptr[1] + k * loop->steps[1];
-                bufptr[2] = loop->bufptr[2] + k * loop->steps[2];
+                loop->bufptr[0] = loop->rit->dataptr + k * loop->steps[0];
+                loop->bufptr[1] = loop->it->dataptr  + k * loop->steps[1];
+                loop->bufptr[2] = loop->rit->dataptr + k * loop->steps[2];
 
                 if (k + block_size > loop->size) {
                     block_size = loop->size - k;
                 }
 
+                if (loop->obj) {
+                    /* Copy object arrays first */
+                    sptr = loop->bufptr[1];
+                    dptr = loop->bufptr[2];
+                    for (i = 0; i < block_size; ++i) {
+                        memmove(dptr, sptr, loop->outsize);
+                        Py_INCREF(*((PyObject **)dptr));
+                        sptr += loop->steps[1];
+                        dptr += loop->steps[2];
+                    }
+
+                    /* Setup all reductions */
+                    i0 = 1;
+                } else {
+                    /* First reduction
+                     *
+                     * Avoiding the copy required for obj-arrays can be a
+                     * significant performance improvement for reduction over
+                     * small dimensions.
+                     */
+                    assert(loop->N >= 1);
+                    
+                    loop->steps[0] = loop->steps[1];
+                    loop->bufptr[0] = loop->bufptr[1];
+                    loop->bufptr[1] += loop->instrides;
+
+                    loop->function((char **)loop->bufptr, &block_size,
+                                   loop->steps, loop->funcdata);
+                    UFUNC_CHECK_ERROR(loop);
+                    
+                    /* Setup following reductions */
+                    loop->steps[0] = loop->steps[2];
+                    loop->bufptr[0] = loop->bufptr[2];
+                    i0 = 2;
+                }
+
                 for (i = i0; i <= loop->N; ++i) {
-                    bufptr[1] += loop->instrides;
-                    loop->function((char **)bufptr, &block_size,
+                    loop->bufptr[1] += loop->instrides;
+                    loop->function((char **)loop->bufptr, &block_size,
                                    loop->steps, loop->funcdata);
                     UFUNC_CHECK_ERROR(loop);
                 }
             }
-                
+
             PyArray_ITER_NEXT(loop->it);
             PyArray_ITER_NEXT(loop->rit);
         }
