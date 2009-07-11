@@ -8,7 +8,7 @@ The `PATH` determines a new sys.path entry where an alternative
 version of numpy can be found. E.g. ``build/lib.linux-i686-2.6``.
 
 """
-import sys, os, glob, subprocess, timeit, time, itertools
+import sys, os, glob, subprocess, timeit, time, itertools, shutil
 import optparse, random
 
 #------------------------------------------------------------------------------
@@ -222,6 +222,10 @@ def main():
                  help="temporary dump file", default="test.npz")
     p.add_option("-o", "--copy", action="store_true", default=False,
                  help="make a contiguous copy (%default)")
+    p.add_option("-s", "--single", action="store_true", default=False,
+                 help="run a single run only (%default)")
+    p.add_option("-v", "--valgrind", action="store_true", default=False,
+                 help="run in Valgrind/Callgrind (%default)")
     options, args = p.parse_args()
 
     if len(args) == 1 and args[0] == 'plot':
@@ -234,20 +238,29 @@ def main():
     if args[0] and not os.path.isdir(os.path.join(args[0], 'numpy')):
         p.error('path does not contain a numpy subdirectory')
 
-    if len(args) == 1:
-        run_suite(args[0], options)
-    elif len(args) >= 2 and args[1][0] not in '0123456789':
-        for sec in args[1:]:
-            if sec not in SUITE:
-                p.error('unknown test section "%s"' % sec)
-        run_suite(args[0], options, sections=args[1:])
-    else:
-        try:
-            new_path, shape, transpose, index = args
-        except (ValueError, SyntaxError, IndexError):
-            p.error('invalid arguments')
+    try:
+        if len(args) == 1:
+            run_suite(args[0], options)
+        elif len(args) >= 2 and args[1][0] not in '0123456789':
+            for sec in args[1:]:
+                if sec not in SUITE:
+                    p.error('unknown test section "%s"' % sec)
+            run_suite(args[0], options, sections=args[1:])
+        else:
+            try:
+                new_path, shape, transpose, index = args
+            except (ValueError, SyntaxError, IndexError):
+                p.error('invalid arguments')
 
-        run_single(new_path, shape, transpose, index, options)
+            if not options.single:
+                run_suite(new_path, options,
+                          suite={'default': ["%s %s %s"
+                                             % (shape, transpose, index)]})
+            else:
+                    run_single(new_path, shape, transpose, index, options)
+    except KeyboardInterrupt:
+        print >> sys.stderr, "Interrupted."
+        raise SystemExit(255)
 
     raise SystemExit(0)
 
@@ -360,22 +373,45 @@ def run_plot(options):
 # Run timers
 #------------------------------------------------------------------------------
 
-def run_suite(new_path, options, sections=None):
-    fn = os.path.abspath(__file__)
-    opts = ['-t', repr(options.time)]
+def run_suite(new_path, options, sections=None, suite=SUITE):
+    opts = ['-s', '-t', repr(options.time)]
     if options.count:
         opts += ['-c', repr(options.count)]
     if options.copy:
         opts += ['-o']
+    if options.valgrind:
+        opts += ['-v']
+    opts += ['-d', options.dump_file]
 
-    for sec in sorted(SUITE.keys()):
+    def cmd(item, new=False):
+        cmd = [sys.executable, os.path.abspath(__file__)]
+        if new:
+            cmd += [new_path]
+        else:
+            cmd += ['']
+        cmd += opts
+        cmd += item.split()
+        if options.valgrind:
+            fn = 'callgrind'
+            if new:
+                fn += '.new'
+            else:
+                fn += '.old'
+            fn += '.' + "-".join(item.split())
+            cmd = ['valgrind', '--tool=callgrind',
+                   '--simulate-cache=yes',
+                   '--instr-atstart=no',
+                   '--callgrind-out-file=' + fn] + cmd
+        return cmd
+
+    for sec in sorted(suite.keys()):
         if sections is not None and sec not in sections:
             continue
         print "#", sec
         sys.stdout.flush()
-        for item in SUITE[sec]:
-            exec_call([sys.executable, fn, new_path] + opts + item.split())
-            exec_call([sys.executable, fn, ''] + opts + item.split())
+        for item in suite[sec]:
+            exec_call(cmd(item, new=True))
+            exec_call(cmd(item, new=False))
 
 def exec_call(cmd):
     ret = subprocess.call(cmd)
@@ -438,11 +474,22 @@ z = np.sum(get(), axis=%s)
             s2 = f['s']
             if s.strides == s2.strides and s.shape == s2.shape:
                 d = z - z2
+                print >> sys.stderr, "# error: %s" % abs(d).max()
                 numpy.testing.assert_equal(z, z2)
-        numpy.savez(options.dump_file, z=z, s=s)
-
+        tmp_file = options.dump_file + ".new.npz"
+        numpy.savez(tmp_file, z=z, s=s)
+        shutil.move(tmp_file, options.dump_file)
+    
+    if options.valgrind:
+        os.spawnvp(os.P_NOWAIT, 'callgrind_control',
+                   ['callgrind_control', '-i', 'on', str(os.getpid())])
+        time.sleep(0.5)
     ts = magic_timeit(code, ns=ns, secs=options.time, repeat=5,
                       number=options.count)
+    if options.valgrind:
+        os.spawnvp(os.P_NOWAIT, 'callgrind_control',
+                   ['callgrind_control', '-i', 'off', str(os.getpid())])
+        time.sleep(0.5)
 
     print new, shape, transpose, index, "  ".join([
         "%.3g" % (1/t) for t in ts])
