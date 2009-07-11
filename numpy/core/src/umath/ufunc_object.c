@@ -2245,6 +2245,11 @@ _create_reduce_copy(PyUFuncReduceObject *loop, PyArrayObject **arr, int rtype)
     return 0;
 }
 
+
+#define CACHELINE_BYTES 64
+#define CACHELINE_COUNT 8192
+#define REDUCTION_BLOCKSIZE(loop) (1 + (CACHELINE_COUNT/(1 + ((loop)->outsize + 1)/CACHELINE_BYTES)))
+
 /*
  * Construct a reduction loop.
  *
@@ -2533,16 +2538,20 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          *
          * The idea is to "vectorize" the reduction to be performed as:
          *
-         *     for r, ix in enumerate(loop->it):
+         *     for r, ix in blocked_enumerate(loop->it):
          *         ret[r, ...] = arr[ix, ..., 0]
          *         for j in 1...loop->N:
          *             ret[r, ...] = func(ret[r, ...], arr[ix, ..., j])
          *
-         * instead of the usual
+         * where ... is evaluated inside the ufunc loop.
+         * 
+         * The usual reduction loop is
          *
          *     for j, ix in enumerate(loop->it):
          *         ret[j] = reduce_func(arr[ix])
          *
+         * ie., we try to optimize the operation by moving a part of the
+         * loop->it iteration inside the reduction.
          */
 
         /*
@@ -2563,7 +2572,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
          */
 
         float cost, best_cost;
-        npy_intp next_stride, n;
+        npy_intp next_stride, n, best_n;
         int i0, i1, k;
 
         loop->rit = (PyArrayIterObject *)               \
@@ -2573,66 +2582,98 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         }
 
         /*
-         * Choose the inner loop axes interval heuristically:
+         * Choose the inner loop heuristically:
          *
-         * a) Maximize the number of elements in a fixed-size contiguous block
-         *    of memory, dealt with in the inner loop.
+         *    Try to find an inner loop with a minimal stride in all arrays.
          *
          *    This is motivated by CPU cache architecture: we want to get
          *    speedups from having multiple array elements fetched to a single
          *    cache line, when possible.
          *
-         * b) Penalize inner loops over small dimensions.
+         * After the candidate inner loop is chosen, we need to compare its cost
+         * to the usual NOBUFFER_UFUNCLOOP route.  We use a similar cost model
+         * as in [CR] to estimate when it is useful to interchange the loops,
+         * and take loop overheads into account with ad-hoc costs.
          *
-         *    This aims to reduce the total overhead from setting up
-         *    the ufunc loop multiple times.
+         * The ``cost`` variable measures the LoopCost of [CR] corresponding to
+         * our effective inner loop, divided by the total number of elements.
          *
+         * .. [CR] S Carr, KS McKinsley, and C-W Tseng
+         *    "Compiler Optimizations for Improving Data Locality".
+         *    Proceedings of ASPLOS-VI (1994).
          */
         i0 = -1;
         i1 = -1;
 
-#define STRIDECOST(stride) (-256.0/abs(stride))
-#define SIZECOST(size) (64.0/fmin(size, 64))
+#define REFCOST(stride) \
+            ((abs(stride) < CACHELINE_BYTES) ? (abs(stride)*1.0/CACHELINE_BYTES) : 1.0 - 1e-5/abs(stride))
+#define OVERHEAD(size) 4.0 / (size) / (size);
 
         for (i = loop->it->nd_m1; i >= 0; --i) {
             if (i == axis)
                 continue;
 
+            /*
+             * Find the largest uniformly strided block
+             */ 
             next_stride = loop->it->strides[i];
             for (j = i; j >= 0; --j) {
                 if (j == axis || next_stride != loop->it->strides[j]) {
                     break;
                 }
                 next_stride *= loop->it->dims_m1[j] + 1;
+            }
+            j += 1;
 
-                /*
-                 * Check if this candidate is heuristically better than
-                 * the current one
-                 */
+            /*
+             * Check if this candidate is heuristically better than
+             * the current one
+             */
 
-                /* Estimate cost */
-                cost = STRIDECOST(abs(loop->it->strides[i])
-                                  + abs(loop->rit->strides[(i<axis)?i:i-1]));
-                cost += SIZECOST(next_stride/loop->it->strides[i]);
+            /* Estimate cost */
+            cost = REFCOST(loop->it->strides[i]);
+            cost += REFCOST(loop->rit->strides[(i<axis)?i:i-1]);
+            n = abs(next_stride / loop->it->strides[i]);
+            cost += OVERHEAD(fmin(n, REDUCTION_BLOCKSIZE(loop)));
 
-                /* Check if the candidate is better */
-                if (cost <= best_cost || i0 < 0) {
-                    i0 = j;
-                    i1 = i+1;
-                    best_cost = cost;
-                }
+            /* Check if the candidate is better */
+            if (cost < best_cost || i0 < 0) {
+                i0 = j;
+                i1 = i+1;
+                best_cost = cost;
+                best_n = n;
             }
         }
 
         assert(i0 < i1);
 
         /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
-        cost = STRIDECOST(loop->steps[1]);
-        cost += SIZECOST(loop->N+1);
+        cost = REFCOST(loop->steps[1]) + 1.0/(loop->N + 1);
 
-#undef STRIDECOST
-#undef SIZECOST
+        /*
+         * Take into account that the first level of the outer loop
+         * may fit into cache in NOBUFFER_UFUNCRECUDE, and not suffer
+         * cache misses.
+         *
+         * The heuristic here is that if the two inner loops fit into the cache,
+         * then the effective stride is the smaller of the two strides.
+         */
+        k = loop->it->nd_m1;
+        while (k == axis || loop->it->dims_m1[k] == 0) {
+            --k;
+        }
+        if (k >= 0 && (loop->N + 1)*(loop->it->dims_m1[k]+1) < REDUCTION_BLOCKSIZE(loop)) {
+            cost += fmin(
+                0.0,
+                REFCOST(loop->it->strides[k]) - REFCOST(loop->steps[1]));
+        }
 
+        /* Reduction loop overheads */
+        cost += OVERHEAD(loop->N + 1);
+
+#undef REFCOST
+#undef OVERHEAD
+        
 #if 1
         {
             /* Print debug info */
@@ -2843,7 +2884,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
              * Evaluating the inner loop in smaller blocks interleaved with the
              * reduction loop aims to avoid cache misses in the loop->ret array.
              */
-            block_size = 2 + (loop->bufsize / loop->outsize / 2);
+            block_size = REDUCTION_BLOCKSIZE(loop);
             for (k = 0; k < loop->size; k += block_size) {
                 char *bufptr[3];
 
