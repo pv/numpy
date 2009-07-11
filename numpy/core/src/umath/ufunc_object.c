@@ -2247,8 +2247,8 @@ _create_reduce_copy(PyUFuncReduceObject *loop, PyArrayObject **arr, int rtype)
 
 
 #define CACHELINE_BYTES 64
-#define CACHELINE_COUNT 8192
-#define REDUCTION_BLOCKSIZE(loop) (1 + (CACHELINE_COUNT/(1 + ((loop)->outsize + 1)/CACHELINE_BYTES)))
+#define CACHELINE_COUNT 1024
+#define REDUCTION_BLOCKSIZE(loop) (1 + (CACHELINE_COUNT/(1 + ((loop)->outsize + 1)/CACHELINE_BYTES))/2)
 
 /*
  * Construct a reduction loop.

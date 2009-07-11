@@ -469,15 +469,15 @@ def magic_timeit(stmt, ns=None, secs=4.0, repeat=timeit.default_repeat,
 
     if number is None:
         # determine number so that 0.4 <= total time < 4.0
-        number = 4
+        number = 1
         done = 0
         timed = 0
         for i in range(1, 10):
-            number *= 2
             timed += timer.timeit(number)
             done += number
-            if timed >= 0.05:
+            if timed >= 0.01:
                 break
+            number *= 5
 
         number = 1 + int(done * secs / timed / repeat)
 
