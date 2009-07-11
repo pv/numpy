@@ -2632,7 +2632,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
 
             /* Estimate cost */
             cost = REFCOST(loop->it->strides[i]);
-            cost += REFCOST(loop->rit->strides[(i<axis)?i:i-1]);
+            cost += 2.0 * REFCOST(loop->rit->strides[(i<axis)?i:i-1]);
             n = abs(next_stride / loop->it->strides[i]);
             cost += OVERHEAD(fmin(n, REDUCTION_BLOCKSIZE(loop)));
 
@@ -2648,7 +2648,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
         assert(i0 < i1);
 
         /* Estimate cost for using the usual NOBUFFER_UFUNCRECUDE loop */
-        cost = REFCOST(loop->steps[1]) + 1.0/(loop->N + 1);
+        cost = REFCOST(loop->steps[1]) + 2.0/(loop->N + 1);
 
         /*
          * Take into account that the first level of the outer loop
