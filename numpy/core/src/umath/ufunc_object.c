@@ -2607,7 +2607,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
 
 #define REFCOST(stride) \
             ((abs(stride) < CACHELINE_BYTES) ? (abs(stride)*1.0/CACHELINE_BYTES) : 1.0 - 1e-5/abs(stride))
-#define OVERHEAD(size) 4.0 / (size) / (size);
+#define OVERHEAD(size) 2.0 / (size)
 
         for (i = loop->it->nd_m1; i >= 0; --i) {
             if (i == axis)
@@ -2632,8 +2632,8 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
 
             /* Estimate cost */
             cost = REFCOST(loop->it->strides[i]);
-            cost += REFCOST(loop->rit->strides[(i<axis)?i:i-1]);
-            cost += REFCOST(loop->rit->strides[(i<axis)?i:i-1]) / (loop->N+1);
+            cost += REFCOST(loop->rit->strides[(i<axis)?i:i-1]); /* read */
+            cost += REFCOST(loop->rit->strides[(i<axis)?i:i-1]); /* write */
             n = abs(next_stride / loop->it->strides[i]);
             cost += OVERHEAD(fmin(n, REDUCTION_BLOCKSIZE(loop)));
 
@@ -2847,6 +2847,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
              * Evaluating the inner loop in smaller blocks interleaved with the
              * reduction loop aims to avoid cache misses in the loop->ret array.
              */
+
             block_size = REDUCTION_BLOCKSIZE(loop);
             for (k = 0; k < loop->size; k += block_size) {
                 loop->bufptr[0] = loop->rit->dataptr + k * loop->steps[0];

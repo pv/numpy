@@ -483,13 +483,13 @@ z = np.sum(get(), axis=%s)
     if options.valgrind:
         os.spawnvp(os.P_NOWAIT, 'callgrind_control',
                    ['callgrind_control', '-i', 'on', str(os.getpid())])
-        time.sleep(0.5)
+        time.sleep(2)
     ts = magic_timeit(code, ns=ns, secs=options.time, repeat=5,
                       number=options.count)
     if options.valgrind:
         os.spawnvp(os.P_NOWAIT, 'callgrind_control',
                    ['callgrind_control', '-i', 'off', str(os.getpid())])
-        time.sleep(0.5)
+        time.sleep(2)
 
     print new, shape, transpose, index, "  ".join([
         "%.3g" % (1/t) for t in ts])
