@@ -1,0 +1,27 @@
+import os
+
+env = DefaultEnvironment(ENV=os.environ)
+#env.Append(CPPPATH=["/usr/media/src/dsp/numpy/numpy-git/numpy/core/include",
+#    "/usr/media/src/dsp/numpy/numpy-git/build/scons/numpy/core/include/numpy",
+#    "/usr/include/python2.5"])
+env.Append(CPPPATH=["/usr/media/src/dsp/numpy/numpy-git/numpy/core/include"])
+if os.environ.has_key("CC"):
+    env["CC"] = os.environ["CC"]
+    env.Append(LINKFLAGS="-static")
+if os.environ.has_key("AMD64"):
+    env.Append(CFLAGS=["-m64"])
+    env.Append(LINKFLAGS=["-m64"])
+env.Append(CFLAGS=["-Wall", "-W"])
+
+env.Append(CPPDEFINES=[("npy_uint32", "int"),])
+
+src = ['test.c', 'common.c']
+
+config = env.Configure()
+if config.CheckDeclaration("__i386__"):
+    src.append("i386/cpuid.c")
+if config.CheckDeclaration("__x86_64__"):
+    src.append("i386/cpuid.c")
+config.Finish()
+
+test = env.Program('test', source=src)
