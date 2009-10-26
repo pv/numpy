@@ -1,5 +1,6 @@
 #include <numpy/npy_compiler.h>
 #include <numpy/npy_cpu.h>
+#include <numpy/npy_os.h>
 
 #include "ppc.h"
 
@@ -9,6 +10,7 @@
  *                    cannot, -1 if the function is not implemented for the
  *                    platform/compiler combo
  */
+
 #if defined(NPY_OS_DARWIN) && defined(NPY_COMPILER_GCC)
 #include "ppc_gcc_darwin.c"
 #else
