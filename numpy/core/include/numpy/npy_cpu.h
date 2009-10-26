@@ -41,11 +41,17 @@
      * _ARCH_PPC is used by at least gcc on AIX
      */
     #define NPY_CPU_PPC
-#elif defined(__ppc64__)
-    #define NPY_CPU_PPC64
+    #if defined(__ppc64__) || defined(__powerpc64__)
+            #undef NPY_CPU_PPC
+            #define NPY_CPU_PPC64
+    #endif
 #elif defined(__sparc__) || defined(__sparc)
     /* __sparc__ is defined by gcc and Forte (e.g. Sun) compilers */
     #define NPY_CPU_SPARC
+    #ifdef __arch64__
+            #undef NPY_CPU_SPARC
+            #define NPY_CPU_SPARC64
+    #endif
 #elif defined(__s390__)
     #define NPY_CPU_S390
 #elif defined(__ia64)
