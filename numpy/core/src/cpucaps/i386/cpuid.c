@@ -10,6 +10,9 @@
 #define CPUID_FLAG_SSE  1 << 25 /* in edx */
 #define CPUID_FLAG_SSE2 1 << 26 /* in edx */
 #define CPUID_FLAG_SSE3 1 << 0  /* in ecx */
+#define CPUID_FLAG_SSSE3 0x0200  /* in ecx */
+#define CPUID_FLAG_SSE4  0x080000  /* in ecx */
+#define CPUID_FLAG_SSE42 0x100000  /* in ecx */
 
 /*
  * long mode (AMD64 instruction set)
@@ -53,6 +56,9 @@ int cpuid_get_caps(i386_cpu_caps *cpu)
     cpu->has_sse = 0;
     cpu->has_sse2 = 0;
     cpu->has_sse3 = 0;
+    cpu->has_ssse3 = 0;
+    cpu->has_sse4 = 0;
+    cpu->has_sse42 = 0;
 
     if (cpu->can_cpuid != 1) {
         return 0;
@@ -84,6 +90,15 @@ int cpuid_get_caps(i386_cpu_caps *cpu)
     }
     if (cpuid.ecx & CPUID_FLAG_SSE3) {
         cpu->has_sse3 = 1;
+    }
+    if (cpuid.ecx & CPUID_FLAG_SSSE3) {
+        cpu->has_ssse3 = 1;
+    }
+    if (cpuid.ecx & CPUID_FLAG_SSE4) {
+        cpu->has_sse4 = 1;
+    }
+    if (cpuid.ecx & CPUID_FLAG_SSE42) {
+        cpu->has_sse42 = 1;
     }
 
     return 0;

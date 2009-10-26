@@ -9,6 +9,9 @@ typedef struct {
 	int has_sse;
 	int has_sse2;
 	int has_sse3;
+	int has_ssse3;
+	int has_sse4;
+	int has_sse42;
 	char vendor[CPUID_VENDOR_STRING_LEN+1];
 } i386_cpu_caps;
 

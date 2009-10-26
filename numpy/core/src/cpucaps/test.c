@@ -53,6 +53,15 @@ int main()
     if (simd_flag & NPY_SIMD_SSE3) {
         printf("Has SSE3\n");
     }
+    if (simd_flag & NPY_SIMD_SSSE3) {
+        printf("Has SSSE3\n");
+    }
+    if (simd_flag & NPY_SIMD_SSE4) {
+        printf("Has SSE4\n");
+    }
+    if (simd_flag & NPY_SIMD_SSE42) {
+        printf("Has SSE4.2\n");
+    }
 
     if (simd_flag & NPY_SIMD_ALTIVEC) {
         printf("Has ALTIVEC\n");

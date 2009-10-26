@@ -138,6 +138,9 @@ enum {
     NPY_SIMD_SSE            = (1 << 5),
     NPY_SIMD_SSE2           = (1 << 6),
     NPY_SIMD_SSE3           = (1 << 7),
+    NPY_SIMD_SSSE3          = (1 << 8),
+    NPY_SIMD_SSE4           = (1 << 9),
+    NPY_SIMD_SSE42          = (1 << 10),
 };
 
 #endif

@@ -62,6 +62,15 @@ int get_cpu_caps(cpu_caps_t *const cpu)
             if(intern.has_sse3) {
                 cpu->simd |= NPY_SIMD_SSE3;
             }
+            if(intern.has_ssse3) {
+                cpu->simd |= NPY_SIMD_SSSE3;
+            }
+            if(intern.has_sse4) {
+                cpu->simd |= NPY_SIMD_SSE4;
+            }
+            if(intern.has_sse42) {
+                cpu->simd |= NPY_SIMD_SSE42;
+            }
         }
     }
 #elif defined(NPY_CPU_PPC) || defined(NPY_CPU_PPC64)
