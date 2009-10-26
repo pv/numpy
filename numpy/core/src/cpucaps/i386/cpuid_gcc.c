@@ -28,10 +28,42 @@ static int can_cpuid(void)
 
     return 0;
 }
+
+static int read_cpuid(npy_reg32_t func, cpuid_t *cpuid)
+{
+    /* we save ebx because it is used when compiled by -fPIC */
+    asm volatile(
+            "pushl %%ebx      \n\t" /* save %ebx */
+            "cpuid            \n\t"
+            "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+            "popl %%ebx       \n\t" /* restore the old %ebx */
+            : "=a"(cpuid->eax), "=r"(cpuid->ebx), 
+              "=c"(cpuid->ecx), "=d"(cpuid->edx)
+            : "a"(func)
+            : "cc"); 
+
+    return 0;
+}
+
 #elif defined(NPY_CPU_AMD64)
 static int can_cpuid(void)
 {
     return 1;
+}
+
+static int read_cpuid(npy_reg32_t func, cpuid_t *cpuid)
+{
+    asm volatile (
+            "  pushq %%rbx\n"
+            "  cpuid\n"
+            "  mov %%ebx, %%esi\n"
+            "  popq %%rbx\n"
+            : "=a" (cpuid->eax), "=r" (cpuid->ebx), 
+              "=c" (cpuid->ecx), "=d" (cpuid->edx)
+            : "a"(func)
+            : "cc"); 
+
+    return 0;
 }
 #else
 #error CPUID for unknown ARCH ? This is a bug, please report it to numpy \
