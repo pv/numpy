@@ -104,4 +104,33 @@
     #endif
 #endif
 
+/* CPU caps */
+enum {
+        /* Major families (compatible ISAs) */
+        NPY_CPUTYPE_UNKNOWN     = (1 << 0),
+        NPY_CPUTYPE_X86         = (1 << 1),  /* 32 bits, x86 arch */
+        NPY_CPUTYPE_AMD64       = (1 << 2),  /* 64 bits, amd64 arch */
+        NPY_CPUTYPE_SPARC       = (1 << 3),  /* 32 bits, Sparc arch */
+        NPY_CPUTYPE_SPARC64     = (1 << 4),  /* 64 bits, Sparc arch */
+        NPY_CPUTYPE_PPC         = (1 << 5),  /* 32 bits, PPC arch */
+        NPY_CPUTYPE_PPC64       = (1 << 6),  /* 64 bits, PPC64 arch */
+        NPY_CPUTYPE_S390        = (1 << 7),  /* S390 arch */
+        NPY_CPUTYPE_IA64        = (1 << 8),  /* Itanium */
+        NPY_CPUTYPE_HPPA        = (1 << 9),  /* HPPA */
+        NPY_CPUTYPE_ALPHA       = (1 << 10), /* Alpha */
+        NPY_CPUTYPE_ARM         = (1 << 11), /* ARM */
+        NPY_CPUTYPE_SH          = (1 << 12), /* SuperH */
+        NPY_CPUTYPE_MIPS        = (1 << 13), /* MIPS */
+};
+
+enum {
+        NPY_SIMD_UNKNOWN        = (1 << 0),
+        NPY_SIMD_UNIMPLEMENTED  = (1 << 1),
+        NPY_SIMD_ALTIVEC        = (1 << 2),
+        NPY_SIMD_MMX            = (1 << 3),
+        NPY_SIMD_SSE            = (1 << 4),
+        NPY_SIMD_SSE2           = (1 << 5),
+        NPY_SIMD_SSE3           = (1 << 6),
+};
+
 #endif
