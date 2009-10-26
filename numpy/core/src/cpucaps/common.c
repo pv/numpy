@@ -3,6 +3,8 @@
 #include "common.h"
 #if defined(NPY_CPU_X86) || defined(NPY_CPU_AMD64)
     #include "i386/cpuid.h"
+#elif defined(NPY_CPU_PPC) || defined(NPY_CPU_PPC64)
+    #include "ppc/ppc.h"
 #endif
 
 int get_cpu_caps(cpu_caps_t *const cpu)
@@ -60,6 +62,20 @@ int get_cpu_caps(cpu_caps_t *const cpu)
             if(intern.has_sse3) {
                 cpu->simd |= NPY_SIMD_SSE3;
             }
+        }
+    }
+#elif defined(NPY_CPU_PPC) || defined(NPY_CPU_PPC64)
+    {
+        ppc_cpu_caps intern;
+
+        ppc_get_caps(&intern);
+
+        cpu->simd = 0;
+
+        if (intern.has_altivec == -1) {
+            cpu->simd |= NPY_SIMD_UNIMPLEMENTED;
+        } else if (intern.has_altivec == 1) {
+            cpu->simd |= NPY_SIMD_ALTIVEC;
         }
     }
 #else

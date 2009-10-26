@@ -22,6 +22,8 @@ if config.CheckDeclaration("__i386__"):
     src.append("i386/cpuid.c")
 if config.CheckDeclaration("__x86_64__"):
     src.append("i386/cpuid.c")
+if config.CheckDeclaration("__powerpc__"):
+    src.append("ppc/ppc.c")
 config.Finish()
 
 test = env.Program('test', source=src)
