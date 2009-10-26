@@ -63,12 +63,12 @@ int cpuid_get_caps(i386_cpu_caps *cpu)
     if (st == -1) {
         return 0;
     }
-	if (cpuid.eax < 0x00000001) {
-		return 0;
-	}
+    if (cpuid.eax < 0x00000001) {
+        return 0;
+    }
 
     /* Get MMX, SSE 1, 2, and 3 capabilities */
-	st = read_cpuid(0x00000001, &cpuid);
+    st = read_cpuid(0x00000001, &cpuid);
     if (st == -1) {
         return 0;
     }
@@ -84,7 +84,7 @@ int cpuid_get_caps(i386_cpu_caps *cpu)
     }
     if (cpuid.ecx & CPUID_FLAG_SSE3) {
         cpu->has_sse3 = 1;
-	}
+    }
 
     return 0;
 }
