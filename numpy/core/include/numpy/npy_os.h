@@ -21,7 +21,8 @@
     #define NPY_OS_CYGWIN
 #elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
     #define NPY_OS_WIN32
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) /* XXX: this would work for mac os 9 as well, but we
+                                 don't support those anyway */
     #define NPY_OS_DARWIN
 #else
     #define NPY_OS_UNKNOWN
