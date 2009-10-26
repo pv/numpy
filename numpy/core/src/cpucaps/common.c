@@ -1,6 +1,9 @@
 #include <numpy/npy_cpu.h>
 
 #include "common.h"
+#if defined(NPY_CPU_X86) || defined(NPY_CPU_AMD64)
+    #include "i386/cpuid.h"
+#endif
 
 int get_cpu_caps(cpu_caps_t *const cpu)
 {
@@ -34,5 +37,33 @@ int get_cpu_caps(cpu_caps_t *const cpu)
     cpu->arch = NPY_CPUTYPE_UNKNOWN;
 #endif
 
+#if defined(NPY_CPU_X86) || defined(NPY_CPU_AMD64)
+    {
+        i386_cpu_caps intern;
+
+        cpuid_get_caps(&intern);
+
+        if (intern.can_cpuid == -1) {
+            cpu->simd = NPY_SIMD_UNIMPLEMENTED;
+        } else {
+            cpu->simd = 0;
+
+            if(intern.has_mmx) {
+                cpu->simd |= NPY_SIMD_MMX;
+            }
+            if(intern.has_sse) {
+                cpu->simd |= NPY_SIMD_SSE;
+            }
+            if(intern.has_sse2) {
+                cpu->simd |= NPY_SIMD_SSE2;
+            }
+            if(intern.has_sse3) {
+                cpu->simd |= NPY_SIMD_SSE3;
+            }
+        }
+    }
+#else
+    cpu->simd = NPY_SIMD_UNKNOWN;
+#endif
     return 0;
 }
