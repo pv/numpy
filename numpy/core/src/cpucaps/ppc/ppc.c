@@ -9,7 +9,7 @@
  *                    cannot, -1 if the function is not implemented for the
  *                    platform/compiler combo
  */
-#if defined(NPY_OS_DARWIN) && defined(NPY_COMPILER_GNUC)
+#if defined(NPY_OS_DARWIN) && defined(NPY_COMPILER_GCC)
 #include "ppc_gcc_darwin.c"
 #else
 #include "ppc_unknown.c"
