@@ -130,13 +130,14 @@ enum {
 };
 
 enum {
-        NPY_SIMD_UNKNOWN        = (1 << 0),
-        NPY_SIMD_UNIMPLEMENTED  = (1 << 1),
-        NPY_SIMD_ALTIVEC        = (1 << 2),
-        NPY_SIMD_MMX            = (1 << 3),
-        NPY_SIMD_SSE            = (1 << 4),
-        NPY_SIMD_SSE2           = (1 << 5),
-        NPY_SIMD_SSE3           = (1 << 6),
+        NPY_SIMD_NONE           = (1 << 0),
+        NPY_SIMD_UNKNOWN        = (1 << 1),
+        NPY_SIMD_UNIMPLEMENTED  = (1 << 2),
+        NPY_SIMD_ALTIVEC        = (1 << 3),
+        NPY_SIMD_MMX            = (1 << 4),
+        NPY_SIMD_SSE            = (1 << 5),
+        NPY_SIMD_SSE2           = (1 << 6),
+        NPY_SIMD_SSE3           = (1 << 7),
 };
 
 #endif
