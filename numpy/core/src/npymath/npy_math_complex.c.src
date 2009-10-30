@@ -6,6 +6,19 @@
  */
 
 
+#include <Python.h>
+#include <math.h>
+
+#include "npy_config.h"
+#include "numpy/npy_math.h"
+
+#include "npy_math_private.h"
+
+
+#define cfloat npy_cfloat
+#define cdouble npy_cdouble
+#define clongdouble npy_clongdouble
+#define longdouble npy_longdouble
 
 
 /*
@@ -177,7 +190,7 @@ npy_cexpm1@c@_p(c@typ@ *x, c@typ@ *r)
 void
 npy_cpow@c@_p(c@typ@ *a, c@typ@ *b, c@typ@ *r)
 {
-    intp n;
+    long n;
     @typ@ ar=a->real, br=b->real, ai=a->imag, bi=b->imag;
 
     if (br == 0. && bi == 0.) {
@@ -190,7 +203,7 @@ npy_cpow@c@_p(c@typ@ *a, c@typ@ *b, c@typ@ *r)
         r->imag = 0.;
         return;
     }
-    if (bi == 0 && (n=(intp)br) == br) {
+    if (bi == 0 && (n=(long)br) == br) {
         if (n == 1) {
             /* unroll: handle inf better */
             r->real = a->real; r->imag = a->imag;
@@ -209,7 +222,7 @@ npy_cpow@c@_p(c@typ@ *a, c@typ@ *b, c@typ@ *r)
         }
         else if (n > -100 && n < 100) {
             c@typ@ p, aa;
-            intp mask = 1;
+            long mask = 1;
             if (n < 0) n = -n;
             aa = npy_c1@c@;
             p.real = ar; p.imag = ai;
