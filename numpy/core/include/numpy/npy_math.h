@@ -212,7 +212,7 @@ float npy_modff(float x, float* y);
 float npy_copysignf(float x, float y);
 
 /*
- * float C99 math functions
+ * long double C99 math functions
  */
 
 npy_longdouble npy_sinl(npy_longdouble x);
@@ -275,5 +275,204 @@ npy_longdouble npy_logaddexp2l(npy_longdouble x, npy_longdouble y);
 #define npy_radians npy_deg2rad
 #define npy_radiansf npy_deg2radf
 #define npy_radiansl npy_deg2radl
+
+
+/*
+ * Complex functions (pointer versions, non-C99)
+ */
+
+void npy_csumf_p(npy_cfloat *a, npy_cfloat *b, npy_cfloat *r);
+void npy_cdifff_p(npy_cfloat *a, npy_cfloat *b, npy_cfloat *r);
+void npy_cnegf_p(npy_cfloat *a, npy_cfloat *r);
+void npy_cprodf_p(npy_cfloat *a, npy_cfloat *b, npy_cfloat *r);
+void npy_cquotf_p(npy_cfloat *a, npy_cfloat *b, npy_cfloat *r);
+void npy_crintf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_clog1pf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_cexpm1f_p(npy_cfloat *x, npy_cfloat *r);
+void npy_cprodif_p(npy_cfloat *x, npy_cfloat *r);
+void npy_cexp2f_p(npy_cfloat *x, npy_cfloat *r); /* reserved for future C99 */
+void npy_clog10f_p(npy_cfloat *x, npy_cfloat *r); /* reserved for future C99 */
+void npy_clog2f_p(npy_cfloat *x, npy_cfloat *r); /* reserved for future C99 */
+
+void npy_csum_p(npy_cdouble *a, npy_cdouble *b, npy_cdouble *r);
+void npy_cdiff_p(npy_cdouble *a, npy_cdouble *b, npy_cdouble *r);
+void npy_cneg_p(npy_cdouble *a, npy_cdouble *r);
+void npy_cprod_p(npy_cdouble *a, npy_cdouble *b, npy_cdouble *r);
+void npy_cquot_p(npy_cdouble *a, npy_cdouble *b, npy_cdouble *r);
+void npy_crint_p(npy_cdouble *x, npy_cdouble *r);
+void npy_clog1p_p(npy_cdouble *x, npy_cdouble *r);
+void npy_cexpm1_p(npy_cdouble *x, npy_cdouble *r);
+void npy_cprodi_p(npy_cdouble *x, npy_cdouble *r);
+void npy_cexp2_p(npy_cdouble *x, npy_cdouble *r); /* reserved for future C99 */
+void npy_clog10_p(npy_cdouble *x, npy_cdouble *r); /* reserved for future C99 */
+void npy_clog2_p(npy_cdouble *x, npy_cdouble *r); /* reserved for future C99 */
+
+void npy_csuml_p(npy_clongdouble *a, npy_clongdouble *b, npy_clongdouble *r);
+void npy_cdiffl_p(npy_clongdouble *a, npy_clongdouble *b, npy_clongdouble *r);
+void npy_cnegl_p(npy_clongdouble *a, npy_clongdouble *r);
+void npy_cprodl_p(npy_clongdouble *a, npy_clongdouble *b, npy_clongdouble *r);
+void npy_cquotl_p(npy_clongdouble *a, npy_clongdouble *b, npy_clongdouble *r);
+void npy_crintl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_clog1pl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_cexpm1l_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_cprodil_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_cexp2l_p(npy_clongdouble *x, npy_clongdouble *r); /* reserved for future C99 */
+void npy_clog10l_p(npy_clongdouble *x, npy_clongdouble *r); /* reserved for future C99 */
+void npy_clog2l_p(npy_clongdouble *x, npy_clongdouble *r); /* reserved for future C99 */
+
+
+/*
+ * Complex functions (pointer versions, C99-like)
+ */
+
+void npy_csqrtf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_clogf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_cexpf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_cpowf_p(npy_cfloat *a, npy_cfloat *b, npy_cfloat *r);
+void npy_cacosf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_cacoshf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_casinf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_casinhf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_catanf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_catanhf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_ccosf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_ccoshf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_csinf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_csinhf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_ctanf_p(npy_cfloat *x, npy_cfloat *r);
+void npy_ctanhf_p(npy_cfloat *x, npy_cfloat *r);
+
+void npy_csqrt_p(npy_cdouble *x, npy_cdouble *r);
+void npy_clog_p(npy_cdouble *x, npy_cdouble *r);
+void npy_cexp_p(npy_cdouble *x, npy_cdouble *r);
+void npy_cpow_p(npy_cdouble *a, npy_cdouble *b, npy_cdouble *r);
+void npy_cacos_p(npy_cdouble *x, npy_cdouble *r);
+void npy_cacosh_p(npy_cdouble *x, npy_cdouble *r);
+void npy_casin_p(npy_cdouble *x, npy_cdouble *r);
+void npy_casinh_p(npy_cdouble *x, npy_cdouble *r);
+void npy_catan_p(npy_cdouble *x, npy_cdouble *r);
+void npy_catanh_p(npy_cdouble *x, npy_cdouble *r);
+void npy_ccos_p(npy_cdouble *x, npy_cdouble *r);
+void npy_ccosh_p(npy_cdouble *x, npy_cdouble *r);
+void npy_csin_p(npy_cdouble *x, npy_cdouble *r);
+void npy_csinh_p(npy_cdouble *x, npy_cdouble *r);
+void npy_ctan_p(npy_cdouble *x, npy_cdouble *r);
+void npy_ctanh_p(npy_cdouble *x, npy_cdouble *r);
+
+void npy_csqrtl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_clogl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_cexpl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_cpowl_p(npy_clongdouble *a, npy_clongdouble *b, npy_clongdouble *r);
+void npy_cacosl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_cacoshl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_casinl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_casinhl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_catanl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_catanhl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_ccosl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_ccoshl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_csinl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_csinhl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_ctanl_p(npy_clongdouble *x, npy_clongdouble *r);
+void npy_ctanhl_p(npy_clongdouble *x, npy_clongdouble *r);
+
+/*
+ * Complex functions (non-pointer versions)
+ */
+
+#define NPY_COMPLEXFUNC1(type, name) \
+    static type name(type a) { type r; name##_p(&a, &r); return r; }
+#define NPY_COMPLEXFUNC2(type, name) \
+    static type name(type a, type b) { type r; name##_p(&a, &b, &r); return r; }
+
+NPY_COMPLEXFUNC2(npy_cfloat, npy_csumf)
+NPY_COMPLEXFUNC2(npy_cfloat, npy_cdifff)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_cnegf)
+NPY_COMPLEXFUNC2(npy_cfloat, npy_cprodf)
+NPY_COMPLEXFUNC2(npy_cfloat, npy_cquotf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_crintf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_clog1pf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_cexpm1f)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_cprodif)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_cexp2f)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_clog10f)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_clog2f)
+
+NPY_COMPLEXFUNC2(npy_cdouble, npy_csum)
+NPY_COMPLEXFUNC2(npy_cdouble, npy_cdiff)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_cneg)
+NPY_COMPLEXFUNC2(npy_cdouble, npy_cprod)
+NPY_COMPLEXFUNC2(npy_cdouble, npy_cquot)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_crint)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_clog1p)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_cexpm1)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_cprodi)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_cexp2)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_clog10)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_clog2)
+
+NPY_COMPLEXFUNC2(npy_clongdouble, npy_csuml)
+NPY_COMPLEXFUNC2(npy_clongdouble, npy_cdiffl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_cnegl)
+NPY_COMPLEXFUNC2(npy_clongdouble, npy_cprodl)
+NPY_COMPLEXFUNC2(npy_clongdouble, npy_cquotl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_crintl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_clog1pl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_cexpm1l)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_cprodil)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_cexp2l)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_clog10l)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_clog2l)
+
+NPY_COMPLEXFUNC1(npy_cfloat, npy_csqrtf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_clogf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_cexpf)
+NPY_COMPLEXFUNC2(npy_cfloat, npy_cpowf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_cacosf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_cacoshf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_casinf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_casinhf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_catanf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_catanhf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_ccosf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_ccoshf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_csinf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_csinhf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_ctanf)
+NPY_COMPLEXFUNC1(npy_cfloat, npy_ctanhf)
+
+NPY_COMPLEXFUNC1(npy_cdouble, npy_csqrt)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_clog)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_cexp)
+NPY_COMPLEXFUNC2(npy_cdouble, npy_cpow)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_cacos)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_cacosh)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_casin)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_casinh)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_catan)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_catanh)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_ccos)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_ccosh)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_csin)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_csinh)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_ctan)
+NPY_COMPLEXFUNC1(npy_cdouble, npy_ctanh)
+
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_csqrtl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_clogl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_cexpl)
+NPY_COMPLEXFUNC2(npy_clongdouble, npy_cpowl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_cacosl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_cacoshl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_casinl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_casinhl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_catanl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_catanhl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_ccosl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_ccoshl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_csinl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_csinhl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_ctanl)
+NPY_COMPLEXFUNC1(npy_clongdouble, npy_ctanhl)
 
 #endif
