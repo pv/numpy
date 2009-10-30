@@ -381,9 +381,11 @@ void npy_ctanhl_p(npy_clongdouble *x, npy_clongdouble *r);
  */
 
 #define NPY_COMPLEXFUNC1(type, name) \
-    static type name(type a) { type r; name##_p(&a, &r); return r; }
+    NPY_INLINE static type name(type a) \
+    { type r; name##_p(&a, &r); return r; }
 #define NPY_COMPLEXFUNC2(type, name) \
-    static type name(type a, type b) { type r; name##_p(&a, &b, &r); return r; }
+    NPY_INLINE static type name(type a, type b) \
+    { type r; name##_p(&a, &b, &r); return r; }
 
 NPY_COMPLEXFUNC2(npy_cfloat, npy_csumf)
 NPY_COMPLEXFUNC2(npy_cfloat, npy_cdifff)
@@ -474,5 +476,8 @@ NPY_COMPLEXFUNC1(npy_clongdouble, npy_csinl)
 NPY_COMPLEXFUNC1(npy_clongdouble, npy_csinhl)
 NPY_COMPLEXFUNC1(npy_clongdouble, npy_ctanl)
 NPY_COMPLEXFUNC1(npy_clongdouble, npy_ctanhl)
+
+#undef NPY_COMPLEXFUNC1
+#undef NPY_COMPLEXFUNC2
 
 #endif
