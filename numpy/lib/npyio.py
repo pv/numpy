@@ -380,6 +380,9 @@ def savez(file, *args, **kwds):
         Either the file name (string) or an open file (file-like object)
         where the data will be saved. If file is a string, the ``.npz``
         extension will be appended to the file name if it is not already there.
+    compression : bool, optional
+        Whether to produce a compressed file or not.
+        Default: True (if zlib is available).
     \\*args : Arguments, optional
         Arrays to save to the file. Since it is not possible for Python to
         know the names of the arrays outside `savez`, the arrays will be saved
@@ -449,6 +452,18 @@ def savez(file, *args, **kwds):
         if not file.endswith('.npz'):
             file = file + '.npz'
 
+    try:
+        if kwds.pop('compression'):
+            compression = zipfile.ZIP_DEFLATED
+        else:
+            compression = zipfile.ZIP_STORED
+    except KeyError:
+        try:
+            import zlib
+            compression = zipfile.ZIP_DEFLATED
+        except ImportError:
+            compression = zipfile.ZIP_STORED
+
     namedict = kwds
     for i, val in enumerate(args):
         key = 'arr_%d' % i
@@ -456,7 +471,7 @@ def savez(file, *args, **kwds):
             raise ValueError, "Cannot use un-named variables and keyword %s" % key
         namedict[key] = val
 
-    zip = zipfile.ZipFile(file, mode="w")
+    zip = zipfile.ZipFile(file, mode="w", compression=compression)
 
     # Stage arrays in a temporary file on disk, before writing to zip.
     fd, tmpfile = tempfile.mkstemp(suffix='-numpy.npy')
