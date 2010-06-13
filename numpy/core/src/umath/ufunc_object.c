@@ -1818,7 +1818,7 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
     intp min_val, val;
     int min_j;
     int i, j;
-    
+
 #define PERMUTE(arr, perm)                           \
         do {                                         \
             intp tmp[MAX_DIMS];                      \
@@ -1842,9 +1842,15 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
     for (j = 0; j < loop->nd; ++j) {
         stride_values[j].index = j;
         stride_values[j].value = 0;
-        for (i = 0; i < loop->numiter; ++i) {
-            if (!own_mps[i]) {
-                stride_values[j].value += abs(loop->iters[i]->strides[j]);
+        if (loop->dimensions[j] <= 1) {
+            /* sort unit dimensions as outmost */
+            stride_values[j].value = NPY_MAX_INTP;
+        }
+        else {
+            for (i = 0; i < loop->numiter; ++i) {
+                if (!own_mps[i]) {
+                    stride_values[j].value += abs(loop->iters[i]->strides[j]);
+                }
             }
         }
     }
@@ -1894,6 +1900,7 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
                 loop->iters[i]->backstrides[j] =
                     loop->iters[i]->strides[j] * loop->iters[i]->dims_m1[j];
             }
+            PyArray_UpdateFlags(mps[i], CONTIGUOUS | FORTRAN);
         }
     }
     PERMUTE(loop->dimensions, permutation);
@@ -1923,13 +1930,17 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
     /* Combine contiguous dimensions in the iterators with the last dimension,
      * so that they can all be processed in the inner ufunc loop.
      */
-    for (i = 0; i < loop->numiter; ++i) {
-        loop->iters[i]->contiguous = FALSE;
-        for (j = min_j; j < loop->nd - 1; ++j) {
-            loop->iters[i]->dims_m1[loop->nd-1] *= loop->iters[i]->dims_m1[j]+1;
+    for (j = min_j; j < loop->nd - 1; ++j) {
+        for (i = 0; i < loop->numiter; ++i) {
+            loop->iters[i]->contiguous = FALSE;
+            loop->iters[i]->dims_m1[loop->nd-1] =
+                (loop->iters[i]->dims_m1[loop->nd-1] + 1)
+                * (loop->iters[i]->dims_m1[j] + 1) - 1;
             loop->iters[i]->dims_m1[j] = 0;
             loop->iters[i]->backstrides[j] = 0;
         }
+        loop->dimensions[loop->nd-1] *= loop->dimensions[j];
+        loop->dimensions[j] = 1;
     }
 
     /* Detect if we can do with a single ufunc inner loop */
