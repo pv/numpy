@@ -47,6 +47,10 @@
 static int
 _does_loop_use_arrays(void *data);
 
+static void
+_optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
+                     PyArrayObject **mps);
+
 /*
  * fpstatus is the ufunc_formatted hardware status
  * errmask is the handling mask specified by the user.
@@ -1164,6 +1168,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
     Py_ssize_t nargs;
     int i;
     int arg_types[NPY_MAXARGS];
+    int own_mps[NPY_MAXARGS];
     PyArray_SCALARKIND scalars[NPY_MAXARGS];
     PyArray_SCALARKIND maxarrkind, maxsckind, new;
     PyUFuncObject *self = loop->ufunc;
@@ -1203,6 +1208,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
             return -1;
         }
         arg_types[i] = PyArray_TYPE(mps[i]);
+        own_mps[i] = 0;
         if (!flexible && PyTypeNum_ISFLEXIBLE(arg_types[i])) {
             flexible = 1;
         }
@@ -1334,6 +1340,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
             mps[i] = NULL;
             continue;
         }
+        own_mps[i] = 0;
         Py_INCREF(mps[i]);
         if (!PyArray_Check((PyObject *)mps[i])) {
             PyObject *new;
@@ -1395,6 +1402,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
             if (mps[i] == NULL) {
                 return -1;
             }
+            own_mps[i] = 1;
         }
 
         /*
@@ -1516,8 +1524,9 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
      */
     loop->bufcnt = 0;
     loop->obj = 0;
+
     /* Determine looping method needed */
-    loop->meth = NO_UFUNCLOOP;
+    loop->meth = NOBUFFER_UFUNCLOOP;
     if (loop->size == 0) {
         return nargs;
     }
@@ -1555,74 +1564,36 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
                         "Object type not allowed in ufunc with signature");
         return -1;
     }
-    if (loop->meth == NO_UFUNCLOOP) {
-        loop->meth = ONE_UFUNCLOOP;
 
-        /* All correct type and BEHAVED */
-        /* Check for non-uniform stridedness */
-        for (i = 0; i < self->nargs; i++) {
-            if (!(loop->iters[i]->contiguous)) {
-                /*
-                 * May still have uniform stride
-                 * if (broadcast result) <= 1-d
-                 */
-                if (mps[i]->nd != 0 &&                  \
-                    (loop->iters[i]->nd_m1 > 0)) {
-                    loop->meth = NOBUFFER_UFUNCLOOP;
-                    break;
-                }
-            }
-        }
-        if (loop->meth == ONE_UFUNCLOOP) {
-            for (i = 0; i < self->nargs; i++) {
-                loop->bufptr[i] = mps[i]->data;
-            }
+    if (loop->nd == 0) {
+        /* Handle 0-d */
+        for (i = 0; i < loop->numiter; ++i) {
+            loop->iters[i]->dims_m1[0] = 0;
+            loop->iters[i]->strides[0] = 0;
+            loop->iters[i]->backstrides[0] = 0;
+            loop->iters[i]->factors[0] = 0;
         }
     }
 
     loop->numiter = self->nargs;
 
-    /* Fill in steps  */
+    /* Modify loop iterators to get a better memory access pattern */
+    _optimize_ufunc_loop(loop, own_mps, mps);
+
+    /* Fill in steps */
     if (loop->meth == SIGNATURE_NOBUFFER_UFUNCLOOP && loop->nd == 0) {
         /* Use default core_strides */
     }
-    else if (loop->meth != ONE_UFUNCLOOP) {
+    else {
         int ldim;
-        intp minsum;
         intp maxdim;
         PyArrayIterObject *it;
-        intp stride_sum[NPY_MAXDIMS];
-        int j;
 
         /* Fix iterators */
-
-        /*
-         * Optimize axis the iteration takes place over
-         *
-         * The first thought was to have the loop go
-         * over the largest dimension to minimize the number of loops
-         *
-         * However, on processors with slow memory bus and cache,
-         * the slowest loops occur when the memory access occurs for
-         * large strides.
-         *
-         * Thus, choose the axis for which strides of the last iterator is
-         * smallest but non-zero.
-         */
-        for (i = 0; i < loop->nd; i++) {
-            stride_sum[i] = 0;
-            for (j = 0; j < loop->numiter; j++) {
-                stride_sum[i] += loop->iters[j]->strides[i];
-            }
-        }
-
         ldim = loop->nd - 1;
-        minsum = stride_sum[loop->nd - 1];
-        for (i = loop->nd - 2; i >= 0; i--) {
-            if (stride_sum[i] < minsum ) {
-                ldim = i;
-                minsum = stride_sum[i];
-            }
+        if (ldim < 0) {
+            /* Handle 0-d case */
+            ldim = 0;
         }
         maxdim = loop->dimensions[ldim];
         loop->size /= maxdim;
@@ -1631,7 +1602,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
 
         /*
          * Fix the iterators so the inner loop occurs over the
-         * largest dimensions -- This can be done by
+         * last dimension -- This can be done by
          * setting the size to 1 in that dimension
          * (just in the iterators)
          */
@@ -1677,16 +1648,10 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
                 /* These are changed later if casting is needed */
             }
         }
-    }
-    else if (loop->meth == ONE_UFUNCLOOP) {
-        /* uniformly-strided case */
-        for (i = 0; i < self->nargs; i++) {
-            if (PyArray_SIZE(mps[i]) == 1) {
-                loop->steps[i] = 0;
-            }
-            else {
-                loop->steps[i] = mps[i]->strides[mps[i]->nd - 1];
-            }
+
+        /* Uniformly-strided case */
+        if (loop->meth == ONE_UFUNCLOOP) {
+            loop->bufptr[i] = mps[i]->data;
         }
     }
 
@@ -1803,6 +1768,169 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
     }
 
     return nargs;
+}
+
+/*
+ * Convenience for sorting indexed values.
+ */
+typedef struct {
+    int index;
+    intp value;
+} indexed_value_t;
+
+static int
+compare_indexed_value(const void *a, const void *b)
+{
+    indexed_value_t *va = (const indexed_value_t*)a;
+    indexed_value_t *vb = (const indexed_value_t*)b;
+    int cmp;
+    cmp = (va->value > vb->value) - (va->value < vb->value);
+    if (cmp == 0) {
+        cmp = (a < b) ? -1 : ((a > b) ? 1 : 0);
+    }
+    return cmp;
+}
+
+/*
+ * Optimize loop order in the ufunc loop.
+ *
+ * This can modify the loop iterators, and those argument arrays for which the
+ * corresponding `own_mps` is true.
+ *
+ * The output loop is such that the inner ufunc loop is performed over
+ * the last dimension in the iterators.
+ */
+static void
+_optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
+                     PyArrayObject **mps)
+{
+    indexed_value_t stride_values[MAX_DIMS];
+    int permutation[MAX_DIMS];
+    intp sizes[NPY_MAXARGS];
+    intp min_val, val;
+    int min_j;
+    int i, j;
+    
+#define PERMUTE(arr, perm)                           \
+        do {                                         \
+            intp tmp[MAX_DIMS];                      \
+            int k;                                   \
+            for (k = 0; k < loop->nd; ++k) {         \
+                tmp[k] = arr[perm[k]];               \
+            }                                        \
+            for (k = 0; k < loop->nd; ++k) {         \
+                arr[k] = tmp[k];                     \
+            }                                        \
+        } while (0)
+
+#define PERMUTE_INVERSE(arr, perm)                   \
+        do {                                         \
+            intp tmp[MAX_DIMS];                      \
+            int k;                                   \
+            for (k = 0; k < loop->nd; ++k) {         \
+                tmp[perm[k]] = arr[k];               \
+            }                                        \
+            for (k = 0; k < loop->nd; ++k) {         \
+                arr[k] = tmp[k];                     \
+            }                                        \
+        } while (0)
+
+    if (loop->meth != NOBUFFER_UFUNCLOOP) {
+        /* We know how to optimize only the simplest case */
+        return;
+    }
+
+    /* Permute axes to make sum of strides decreasing to the right, for the
+     * arrays that we cannot re-stride.
+     */
+    for (j = 0; j < loop->nd; ++j) {
+        stride_values[j].index = j;
+        stride_values[j].value = 0;
+        for (i = 0; i < loop->numiter; ++i) {
+            if (!own_mps[i]) {
+                stride_values[j].value += loop->iters[i]->strides[j];
+            }
+        }
+    }
+    qsort(stride_values, loop->nd, sizeof(indexed_value_t),
+          compare_indexed_value);
+    for (j = 0; j < loop->nd; ++j) {
+        permutation[j] = stride_values[loop->nd - j - 1].index;
+    }
+
+    /* Apply permutation */
+    for (i = 0; i < loop->numiter; ++i) {
+        if (!own_mps[i]) {
+            PERMUTE(loop->iters[i]->coordinates, permutation);
+            PERMUTE(loop->iters[i]->dims_m1, permutation);
+            PERMUTE(loop->iters[i]->strides, permutation);
+            PERMUTE(loop->iters[i]->backstrides, permutation);
+            PERMUTE(loop->iters[i]->factors, permutation);
+            loop->iters[i]->contiguous = FALSE;
+        }
+    }
+
+    /* Determine how many of the trailing dimensions are contiguous */
+    for (i = 0; i < loop->numiter; ++i) {
+        sizes[i] = loop->iters[i]->strides[loop->nd-1];
+    }
+    for (j = loop->nd-2; j >= 0; --j) {
+        int is_contiguous;
+        intp sz;
+        is_contiguous = 1;
+        for (i = 0; i < loop->numiter; ++i) {
+            sz = sizes[i] * loop->iters[i]->dims_m1[j] + 1;
+            if (sz != loop->iters[i]->strides[j]) {
+                /* non-contiguity */
+                is_contiguous = 0;
+                break;
+            }
+        }
+        if (!is_contiguous) {
+            break;
+        }
+        else {
+            for (i = 0; i < loop->numiter; ++i) {
+                sizes[i] *= loop->iters[i]->dims_m1[j] + 1;
+            }
+        }
+    }
+    min_j = (j < 0) ? 0 : j;
+
+    /* Combine contiguous dimensions in the iterators with the last dimension,
+     * so that they can all be processed in the inner ufunc loop.
+     */
+    for (i = 0; i < loop->numiter; ++i) {
+        loop->iters[i]->contiguous = FALSE;
+        for (j = min_j; j < loop->nd - 1; ++j) {
+            loop->iters[i]->dims_m1[loop->nd-1] *= loop->iters[i]->dims_m1[j]+1;
+            loop->iters[i]->dims_m1[j] = 0;
+        }
+    }
+
+    /* Re-stride owned arrays.
+     *
+     * We want the ufunc loop always access them in C order, so we need to apply
+     * inverse permutation to their strides.
+     *
+     * Output arrays never have broadcast dimensions, and the number of real
+     * dimensions is the same as in the output iterators.
+     */
+    for (i = 0; i < loop->numiter; ++i) {
+        if (!own_mps[i]) {
+            continue;
+        }
+        PERMUTE_INVERSE(mps[i]->strides, permutation);
+    }
+
+    /* Detect if we can do with a single ufunc inner loop
+     */
+    if (min_j == 0) {
+        loop->meth = ONE_UFUNCLOOP;
+    }
+
+#undef PERMUTE
+#undef PERMUTE_INVERSE
 }
 
 static void

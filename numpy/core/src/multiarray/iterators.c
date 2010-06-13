@@ -307,7 +307,12 @@ array_iter_base_init(PyArrayIterObject *it, PyArrayObject *ao)
     it->ao = ao;
     it->size = PyArray_SIZE(ao);
     it->nd_m1 = nd - 1;
-    it->factors[nd-1] = 1;
+    if (nd > 0) {
+        it->factors[nd-1] = 1;
+    }
+    else {
+        it->factors[0] = 1;
+    }
     for (i = 0; i < nd; i++) {
         it->dims_m1[i] = ao->dimensions[i] - 1;
         it->strides[i] = ao->strides[i];
