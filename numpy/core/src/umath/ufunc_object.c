@@ -1565,24 +1565,37 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
         return -1;
     }
 
+    loop->numiter = self->nargs;
+
     if (loop->nd == 0) {
         /* Handle 0-d */
+        if (loop->meth == NOBUFFER_UFUNCLOOP) {
+            loop->meth = ONE_UFUNCLOOP;
+        }
         for (i = 0; i < loop->numiter; ++i) {
             loop->iters[i]->dims_m1[0] = 0;
             loop->iters[i]->strides[0] = 0;
             loop->iters[i]->backstrides[0] = 0;
             loop->iters[i]->factors[0] = 0;
         }
+        loop->dimensions[0] = loop->size;
     }
 
-    loop->numiter = self->nargs;
-
     /* Modify loop iterators to get a better memory access pattern */
-    _optimize_ufunc_loop(loop, own_mps, mps);
+    /*_optimize_ufunc_loop(loop, own_mps, mps);*/
 
     /* Fill in steps */
     if (loop->meth == SIGNATURE_NOBUFFER_UFUNCLOOP && loop->nd == 0) {
         /* Use default core_strides */
+    }
+    else if (loop->meth == ONE_UFUNCLOOP) {
+        /* Uniformly-strided case */
+        int ldim;
+        ldim = (loop->nd > 0) ? loop->nd - 1 : 0;
+        for (i = 0; i < self->nargs; ++i) {
+            loop->bufptr[i] = mps[i]->data;
+            loop->steps[i] = loop->iters[i]->strides[ldim];
+        }
     }
     else {
         int ldim;
@@ -1647,11 +1660,6 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
                 }
                 /* These are changed later if casting is needed */
             }
-        }
-
-        /* Uniformly-strided case */
-        if (loop->meth == ONE_UFUNCLOOP) {
-            loop->bufptr[i] = mps[i]->data;
         }
     }
 
@@ -1874,28 +1882,24 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
     for (i = 0; i < loop->numiter; ++i) {
         sizes[i] = loop->iters[i]->strides[loop->nd-1];
     }
+    min_j = 0;
     for (j = loop->nd-2; j >= 0; --j) {
         int is_contiguous;
         intp sz;
         is_contiguous = 1;
         for (i = 0; i < loop->numiter; ++i) {
-            sz = sizes[i] * loop->iters[i]->dims_m1[j] + 1;
-            if (sz != loop->iters[i]->strides[j]) {
+            sizes[i] *= loop->iters[i]->dims_m1[j] + 1;
+            if (sizes[i] != loop->iters[i]->strides[j]) {
                 /* non-contiguity */
                 is_contiguous = 0;
                 break;
             }
         }
         if (!is_contiguous) {
+            min_j = j + 1;
             break;
         }
-        else {
-            for (i = 0; i < loop->numiter; ++i) {
-                sizes[i] *= loop->iters[i]->dims_m1[j] + 1;
-            }
-        }
     }
-    min_j = (j < 0) ? 0 : j;
 
     /* Combine contiguous dimensions in the iterators with the last dimension,
      * so that they can all be processed in the inner ufunc loop.
