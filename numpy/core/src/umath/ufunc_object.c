@@ -1582,7 +1582,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
     }
 
     /* Modify loop iterators to get a better memory access pattern */
-    /*_optimize_ufunc_loop(loop, own_mps, mps);*/
+    _optimize_ufunc_loop(loop, own_mps, mps);
 
     /* Fill in steps */
     if (loop->meth == SIGNATURE_NOBUFFER_UFUNCLOOP && loop->nd == 0) {
@@ -1831,18 +1831,6 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
             }                                        \
         } while (0)
 
-#define PERMUTE_INVERSE(arr, perm)                   \
-        do {                                         \
-            intp tmp[MAX_DIMS];                      \
-            int k;                                   \
-            for (k = 0; k < loop->nd; ++k) {         \
-                tmp[perm[k]] = arr[k];               \
-            }                                        \
-            for (k = 0; k < loop->nd; ++k) {         \
-                arr[k] = tmp[k];                     \
-            }                                        \
-        } while (0)
-
     if (loop->meth != NOBUFFER_UFUNCLOOP) {
         /* We know how to optimize only the simplest case */
         return;
@@ -1856,7 +1844,7 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
         stride_values[j].value = 0;
         for (i = 0; i < loop->numiter; ++i) {
             if (!own_mps[i]) {
-                stride_values[j].value += loop->iters[i]->strides[j];
+                stride_values[j].value += abs(loop->iters[i]->strides[j]);
             }
         }
     }
@@ -1868,15 +1856,47 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
 
     /* Apply permutation */
     for (i = 0; i < loop->numiter; ++i) {
-        if (!own_mps[i]) {
-            PERMUTE(loop->iters[i]->coordinates, permutation);
-            PERMUTE(loop->iters[i]->dims_m1, permutation);
-            PERMUTE(loop->iters[i]->strides, permutation);
-            PERMUTE(loop->iters[i]->backstrides, permutation);
-            PERMUTE(loop->iters[i]->factors, permutation);
-            loop->iters[i]->contiguous = FALSE;
+        /*
+         * NB. iter->factors and iter->coordinates won't be needed in the
+         *     ufunc code, so we do not fix them up!
+         */
+        loop->iters[i]->contiguous = FALSE;
+        PERMUTE(loop->iters[i]->dims_m1, permutation);
+        PERMUTE(loop->iters[i]->strides, permutation);
+        PERMUTE(loop->iters[i]->backstrides, permutation);
+
+        if (own_mps[i] && loop->nd > 1) {
+            intp elsize;
+            /* Re-stride owned arrays.
+             *
+             * We want the ufunc loop always access them in C order, so we need
+             * to
+             *
+             * 1) Rewrite the loop strides in C order
+             * 2) Rewrite the array strides in permuted C order
+             *
+             * Owned output arrays are always contiguous, and the number of
+             * their real dimensions is the same as in the loop iterators.
+             */
+            elsize = mps[i]->strides[loop->nd-1];
+            for (j = loop->nd-1; j >= 0; --j) {
+                if (j == loop->nd-1) {
+                    loop->iters[i]->strides[j] = elsize;
+                    mps[i]->strides[permutation[j]] = elsize;
+                }
+                else {
+                    loop->iters[i]->strides[j] = loop->iters[i]->strides[j+1]
+                        * (loop->iters[i]->dims_m1[j+1] + 1);
+                    mps[i]->strides[permutation[j]] =
+                        mps[i]->strides[permutation[j+1]]
+                        * mps[i]->dimensions[permutation[j+1]];
+                }
+                loop->iters[i]->backstrides[j] =
+                    loop->iters[i]->strides[j] * loop->iters[i]->dims_m1[j];
+            }
         }
     }
+    PERMUTE(loop->dimensions, permutation);
 
     /* Determine how many of the trailing dimensions are contiguous */
     for (i = 0; i < loop->numiter; ++i) {
@@ -1885,10 +1905,9 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
     min_j = 0;
     for (j = loop->nd-2; j >= 0; --j) {
         int is_contiguous;
-        intp sz;
         is_contiguous = 1;
         for (i = 0; i < loop->numiter; ++i) {
-            sizes[i] *= loop->iters[i]->dims_m1[j] + 1;
+            sizes[i] *= loop->iters[i]->dims_m1[j+1] + 1;
             if (sizes[i] != loop->iters[i]->strides[j]) {
                 /* non-contiguity */
                 is_contiguous = 0;
@@ -1909,32 +1928,16 @@ _optimize_ufunc_loop(PyUFuncLoopObject *loop, int *own_mps,
         for (j = min_j; j < loop->nd - 1; ++j) {
             loop->iters[i]->dims_m1[loop->nd-1] *= loop->iters[i]->dims_m1[j]+1;
             loop->iters[i]->dims_m1[j] = 0;
+            loop->iters[i]->backstrides[j] = 0;
         }
     }
 
-    /* Re-stride owned arrays.
-     *
-     * We want the ufunc loop always access them in C order, so we need to apply
-     * inverse permutation to their strides.
-     *
-     * Output arrays never have broadcast dimensions, and the number of real
-     * dimensions is the same as in the output iterators.
-     */
-    for (i = 0; i < loop->numiter; ++i) {
-        if (!own_mps[i]) {
-            continue;
-        }
-        PERMUTE_INVERSE(mps[i]->strides, permutation);
-    }
-
-    /* Detect if we can do with a single ufunc inner loop
-     */
+    /* Detect if we can do with a single ufunc inner loop */
     if (min_j == 0) {
         loop->meth = ONE_UFUNCLOOP;
     }
 
 #undef PERMUTE
-#undef PERMUTE_INVERSE
 }
 
 static void
