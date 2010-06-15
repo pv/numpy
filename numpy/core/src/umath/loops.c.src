@@ -28,6 +28,9 @@
         && (steps[0] == steps[2])\
         && (steps[0] == 0))
 
+#define IS_ELSIZE_LOOP(TYPE) \
+        (steps[0] == sizeof(TYPE) && steps[1] == sizeof(TYPE) && steps[2] == sizeof(TYPE))
+
 #define OUTPUT_LOOP\
     char *op1 = args[1];\
     intp os1 = steps[1];\
@@ -55,6 +58,14 @@
     intp n = dimensions[0];\
     intp i;\
     for(i = 0; i < n; i++, ip1 += is1, ip2 += is2, op1 += os1)
+
+#define BINARY_ELSIZE_LOOP(TYPE) \
+    const TYPE *ep1 = (const TYPE*)args[0]; \
+    const TYPE *ep2 = (const TYPE*)args[1]; \
+    TYPE *ep3 = (TYPE*)args[2]; \
+    int n = dimensions[0]; \
+    intp i; \
+    for (i = 0; i < n; ++i)
 
 #define BINARY_REDUCE_LOOP(TYPE)\
     char *iop1 = args[0], *ip2 = args[1]; \
@@ -639,6 +650,11 @@ NPY_NO_EXPORT void
             io1 @OP@= *(@s@@type@ *)ip2;
         }
         *((@s@@type@ *)iop1) = io1;
+    }
+    else if (IS_ELSIZE_LOOP(@s@@type@)) {
+        BINARY_ELSIZE_LOOP(@s@@type@) {
+            ep3[i] = ep1[i] @OP@ ep2[i];
+        }
     }
     else {
         BINARY_LOOP {
