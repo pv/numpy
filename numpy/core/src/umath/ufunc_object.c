@@ -3509,6 +3509,8 @@ ufunc_generic_call(PyUFuncObject *self, PyObject *args, PyObject *kwds)
     PyObject *res;
     int errval;
 
+    UFUNC_LAZY_BYPASS(self, "__call__", args, kwds);
+
     /*
      * Initialize all array objects to NULL to make cleanup easier
      * if something goes wrong.
@@ -4163,18 +4165,21 @@ ufunc_outer(PyUFuncObject *self, PyObject *args, PyObject *kwds)
 static PyObject *
 ufunc_reduce(PyUFuncObject *self, PyObject *args, PyObject *kwds)
 {
+    UFUNC_LAZY_BYPASS(self, "reduce", args, kwds);
     return PyUFunc_GenericReduction(self, args, kwds, UFUNC_REDUCE);
 }
 
 static PyObject *
 ufunc_accumulate(PyUFuncObject *self, PyObject *args, PyObject *kwds)
 {
+    UFUNC_LAZY_BYPASS(self, "accumulate", args, kwds);
     return PyUFunc_GenericReduction(self, args, kwds, UFUNC_ACCUMULATE);
 }
 
 static PyObject *
 ufunc_reduceat(PyUFuncObject *self, PyObject *args, PyObject *kwds)
 {
+    UFUNC_LAZY_BYPASS(self, "reduceat", args, kwds);
     return PyUFunc_GenericReduction(self, args, kwds, UFUNC_REDUCEAT);
 }
 

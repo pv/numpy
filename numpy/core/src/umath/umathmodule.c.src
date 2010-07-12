@@ -147,6 +147,56 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
 
 /*
  *****************************************************************************
+ **                       LAZY EVALUATION HOOK                              **
+ *****************************************************************************
+ */
+
+static int lazy_hook_tls_key = -1;
+
+static void
+ufunc_init_lazy_hook()
+{
+    lazy_hook_tls_key = PyThread_create_key();
+    PyThread_set_key_value(lazy_hook_tls_key, NULL);
+}
+
+NPY_NO_EXPORT PyObject *
+ufunc_get_lazy_hook()
+{
+    return PyThread_get_key_value(lazy_hook_tls_key);
+}
+
+NPY_NO_EXPORT PyObject *
+ufunc_set_lazy_hook(PyObject *NPY_UNUSED(dummy), PyObject *args)
+{
+    PyObject *function;
+    PyObject *old_function;
+    if (!PyArg_ParseTuple(args, "O", &function)) {
+        return NULL;
+    }
+    if (!PyCallable_Check(function) && function != Py_None) {
+        PyErr_SetString(PyExc_TypeError, "function must be callable or None");
+        return NULL;
+    }
+    old_function = ufunc_get_lazy_hook();
+    if (!old_function) {
+        old_function = Py_None;
+        Py_INCREF(Py_None);
+    }
+    if (function == Py_None) {
+        function = NULL;
+    }
+    else {
+        Py_INCREF(function);
+    }
+    PyThread_delete_key_value(lazy_hook_tls_key);
+    PyThread_set_key_value(lazy_hook_tls_key, function);
+    return old_function;
+}
+
+
+/*
+ *****************************************************************************
  **                            SETUP UFUNCS                                 **
  *****************************************************************************
  */
@@ -244,6 +294,8 @@ static struct PyMethodDef methods[] = {
      METH_VARARGS, NULL},
     {"geterrobj", (PyCFunction) ufunc_geterr,
      METH_VARARGS, NULL},
+    {"set_lazy_hook", (PyCFunction) ufunc_set_lazy_hook,
+     METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}                /* sentinel */
 };
 
@@ -296,6 +348,9 @@ PyMODINIT_FUNC initumath(void)
         }
         return RETVAL;
     }
+
+    /* Initialize lazy evaluation hook */
+    ufunc_init_lazy_hook();
 
     /* Initialize the types */
     if (PyType_Ready(&PyUFunc_Type) < 0)
