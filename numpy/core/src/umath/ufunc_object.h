@@ -17,7 +17,7 @@ ufunc_get_lazy_hook();
         if (lazy_hook) {                                                \
             kw = kwds;                                                  \
             if (!kw) {                                                  \
-                kw = Py_None;                                           \
+                kw = PyDict_New();                                      \
             }                                                           \
             ret = PyObject_CallFunction(lazy_hook, "OsOO",              \
                                         self, calltype, args, kw);      \
