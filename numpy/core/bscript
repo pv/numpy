@@ -1,0 +1,45 @@
+import distutils.sysconfig
+
+from bento.commands.hooks \
+    import \
+        post_configure
+from yaku.conftests \
+    import \
+        check_header, check_cpp_symbol, check_type, check_type_size
+
+@post_configure
+def yo(cfg):
+    yctx = cfg.yaku_configure_ctx
+
+    if not yctx.builders.has_key("ctasks"):
+        yctx.use_tools(["ctasks"])
+
+    yctx.env["CPPPATH"].append(distutils.sysconfig.get_python_inc())
+    check_header(yctx, "Python.h")
+
+    for tp in ["short", "int", "long"]:
+        if tp == "long":
+            if not check_cpp_symbol(yctx, "SIZEOF_LONG", ["Python.h"]):
+                raise ValueError("Gne")
+        else:
+            check_type_size(yctx, tp)
+
+    for tp in ['float', 'double', 'long double']:
+        check_type_size(yctx, tp)
+
+        complex_def = "struct {%s __x; %s __y;}" % (tp, tp)
+        check_type_size(yctx, complex_def)
+
+    for tp in ['Py_intptr_t']:
+        check_type_size(yctx, tp, headers=["Python.h"])
+
+    mfuncs = ('expl', 'expf', 'log1p', 'expm1', 'asinh', 'atanhf',
+            'atanhl', 'rint', 'trunc')
+
+    # Set value to 1 for each defined function (in math lib)
+    mfuncs_defined = dict([(f, 0) for f in mfuncs])
+
+    # Check for mandatory funcs: we barf if a single one of those is not there
+    if not check_funcs_once(yctx, mfuncs):
+        raise SystemError("One of the required function to build numpy is not"
+                " available (the list is %s)." % str(mfuncs))
