@@ -182,6 +182,11 @@ def unique(ar, return_index=False, return_inverse=False):
         perm = ar.argsort()
         aux = ar[perm]
         flag = np.concatenate(([True], aux[1:] != aux[:-1]))
+        if np.issubdtype(aux.dtype, np.floating) and np.isnan(aux[-1]):
+            # strip consecutive nans from the end
+            num_nans = np.isnan(aux).sum()
+            if num_nans > 1:
+                flag[-num_nans+1:] = False
         if return_inverse:
             iflag = np.cumsum(flag) - 1
             iperm = perm.argsort()
@@ -195,6 +200,11 @@ def unique(ar, return_index=False, return_inverse=False):
     else:
         ar.sort()
         flag = np.concatenate(([True], ar[1:] != ar[:-1]))
+        if np.issubdtype(ar.dtype, np.floating) and np.isnan(ar[-1]):
+            # strip consecutive nans from the end
+            num_nans = np.isnan(ar).sum()
+            if num_nans > 1:
+                flag[-num_nans+1:] = False
         return ar[flag]
 
 

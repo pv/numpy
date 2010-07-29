@@ -36,6 +36,21 @@ class TestAso(TestCase):
 
         assert_array_equal([], unique([]))
 
+    def test_unique_with_nan(self):
+        xs = [
+            np.array([1, 1, np.nan, 2, 3, 3, np.nan, 2]),
+            np.array([3, 1, 1, 3, np.nan, 2])
+        ]
+        for x in xs:
+            y = np.array([1, 2, 3, np.nan])
+            assert_array_equal(unique(x), y)
+
+            y2, ix = unique(x, return_index=True)
+            assert_array_equal(x[ix], y)
+
+            y2, iv = unique(x, return_inverse=True)
+            assert_array_equal(y[iv], x)
+
     def test_intersect1d( self ):
         # unique inputs
         a = np.array( [5, 7, 1, 2] )
