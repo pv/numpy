@@ -1,38 +1,140 @@
+import os
+import sys
+import re
 import distutils.sysconfig
 
 from bento.commands.hooks \
     import \
-        post_configure
+        post_configure, pre_build
 from yaku.conftests \
     import \
-        check_header, check_cpp_symbol, check_type, check_type_size
+        check_header, check_cpp_symbol, check_type, check_type_size, \
+        check_funcs_at_once, check_func, generate_config_h, define, check_lib
+
+sys.path.insert(0, os.path.dirname(__file__))
+
+from setup_common \
+    import \
+        OPTIONAL_STDFUNCS_MAYBE, C99_FUNCS_EXTENDED, C99_FUNCS_SINGLE, \
+        C99_COMPLEX_TYPES, C99_COMPLEX_FUNCS, LONG_DOUBLE_REPRESENTATION_SRC, \
+        pyod, long_double_representation, C_API_VERSION, C_ABI_VERSION
+from code_generators.numpy_api \
+    import \
+        multiarray_api as multiarray_api_dict, \
+        ufunc_api as ufunc_api_dict
+from code_generators.generate_numpy_api \
+    import \
+         do_generate_api as nowrap_do_generate_numpy_api
+from code_generators.generate_ufunc_api \
+    import \
+         do_generate_api as nowrap_do_generate_ufunc_api
 
 @post_configure
-def yo(cfg):
+def myconfigure(cfg):
     yctx = cfg.yaku_configure_ctx
 
     if not yctx.builders.has_key("ctasks"):
         yctx.use_tools(["ctasks"])
+    yctx.use_tools(["tpl_tasks"])
+    yctx.use_tools(["numpy_c_template"], [os.getcwd()])
 
     yctx.env["CPPPATH"].append(distutils.sysconfig.get_python_inc())
+    yctx.env["CPPPATH"].extend(["include", "src/npymath",
+                                "src/private"])
+    yctx.env["CPPPATH"].append(os.path.join(yctx.env["BLDDIR"], "conf"))
+    yctx.env["CPPPATH"].append(os.path.join(yctx.env["BLDDIR"], "include", "numpy"))
+
+    yctx.env["PYEXT_CPPPATH"].append("include")
+    yctx.env["PYEXT_CPPPATH"].append(os.path.join(yctx.env["BLDDIR"], "include", "numpy"))
+    yctx.env["PYEXT_CPPPATH"].append(os.path.join(yctx.env["BLDDIR"], "conf"))
+    yctx.env["PYEXT_CPPPATH"].append(os.path.join("src", "private"))
+
+    # Convention: list of tuples (definition, value). value:
+    # - 0: #undef definition
+    # - 1: #define definition
+    # - string: #define definition value
+    numpyconfig_sym = []
+
     check_header(yctx, "Python.h")
+
+    def value_to_string(value):
+        return re.sub('[^A-Z0-9_]', '_', value.upper())
 
     for tp in ["short", "int", "long"]:
         if tp == "long":
             if not check_cpp_symbol(yctx, "SIZEOF_LONG", ["Python.h"]):
                 raise ValueError("Gne")
+            numpyconfig_sym.append(('SIZEOF_LONG', 'SIZEOF_LONG'))
         else:
-            check_type_size(yctx, tp)
+            sz = check_type_size(yctx, tp)
+            numpyconfig_sym.append(('SIZEOF_%s' % value_to_string(tp),
+                                    '%d' % sz))
 
     for tp in ['float', 'double', 'long double']:
-        check_type_size(yctx, tp)
+        sz = check_type_size(yctx, tp)
+        numpyconfig_sym.append(('SIZEOF_%s' % value_to_string(tp),
+                                '%d' % sz))
 
         complex_def = "struct {%s __x; %s __y;}" % (tp, tp)
-        check_type_size(yctx, complex_def)
+        sz = check_type_size(yctx, complex_def)
+        numpyconfig_sym.append(('SIZEOF_COMPLEX_%s' % \
+                                value_to_string(tp), '%d' % sz))
+
+    check_ldouble_representation(yctx)
 
     for tp in ['Py_intptr_t']:
-        check_type_size(yctx, tp, headers=["Python.h"])
+        sz = check_type_size(yctx, tp, headers=["Python.h"])
+        numpyconfig_sym.append(('SIZEOF_%s' % \
+                                value_to_string(tp), '%d' % sz))
 
+    if check_cpp_symbol(yctx, "PY_LONG_LONG", headers=["Python.h"]):
+        sz = check_type_size(yctx, "PY_LONG_LONG", headers=["Python.h"])
+        numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_LONGLONG',
+                                '#define NPY_SIZEOF_LONGLONG %d' % sz))
+        numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_PY_LONG_LONG',
+                                '#define NPY_SIZEOF_PY_LONG_LONG %d' % sz))
+    else:
+        numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_LONGLONG', ''))
+        numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_PY_LONG_LONG', ''))
+
+    if not check_cpp_symbol(yctx, "CHAR_BIT", headers=["Python.h"]):
+        raise ValueError("Config wo CHAR_BIT not supported")
+
+    if is_npy_no_signal():
+        define(yctx, '__NPY_PRIVATE_NO_SIGNAL',
+               comment="define to 1 to disable SMP support")
+        numpyconfig_sym.append(('DEFINE_NPY_NO_SIGNAL', '#define NPY_NO_SIGNAL\n'))
+    else:
+        numpyconfig_sym.append(('DEFINE_NPY_NO_SIGNAL', ''))
+
+    if define_no_smp():
+        nosmp = 1
+    else:
+        nosmp = 0
+    numpyconfig_sym.append(('NPY_NO_SMP', nosmp))
+
+    if check_cpp_symbol(yctx, "PRIdPTR", headers=["inttypes.h"]):
+        numpyconfig_sym.append(('DEFINE_NPY_USE_C99_FORMATS',
+                                '#define NPY_USE_C99_FORMATS 1'))
+    else:
+        numpyconfig_sym.append(('DEFINE_NPY_USE_C99_FORMATS', ''))
+
+    #----------------------
+    # Checking the mathlib
+    #----------------------
+    mlibs = [[], ['m'], ['cpml']]
+    mathlib = os.environ.get('MATHLIB')
+    if mathlib:
+        mlibs.insert(0, mathlib)
+
+    mlib = check_mlibs(yctx, mlibs)
+    for lib in mlib[::-1]:
+        yctx.env["LIBS"].insert(0, lib)
+    numpyconfig_sym.append(('MATHLIB', ','.join(mlib)))
+
+    #------------------------
+    # Checking math functions
+    #------------------------
     mfuncs = ('expl', 'expf', 'log1p', 'expm1', 'asinh', 'atanhf',
             'atanhl', 'rint', 'trunc')
 
@@ -40,6 +142,241 @@ def yo(cfg):
     mfuncs_defined = dict([(f, 0) for f in mfuncs])
 
     # Check for mandatory funcs: we barf if a single one of those is not there
-    if not check_funcs_once(yctx, mfuncs):
+    if not check_funcs_at_once(yctx, mfuncs):
         raise SystemError("One of the required function to build numpy is not"
                 " available (the list is %s)." % str(mfuncs))
+
+    for f in OPTIONAL_STDFUNCS_MAYBE:
+        if check_cpp_symbol(yctx, "HAVE_%s" % f.upper()):
+            OPTIONAL_STDFUNCS_MAYBE.remove(f)
+
+    check_funcs(yctx, OPTIONAL_STDFUNCS_MAYBE)
+    check_funcs(yctx, C99_FUNCS_SINGLE)
+    check_funcs(yctx, C99_FUNCS_EXTENDED)
+
+    for f in ["isnan", "isinf", "signbit", "isfinite"]:
+        headers = ["Python.h", "math.h"]
+        if check_cpp_symbol(yctx, f, headers=headers):
+            numpyconfig_sym.append(('DEFINE_NPY_HAVE_DECL_%s' % f.upper(),
+                '#define NPY_HAVE_DECL_%s' % f.upper()))
+        else:
+            numpyconfig_sym.append(('DEFINE_NPY_HAVE_DECL_%s' % f.upper(), ''))
+
+    check_inline(yctx)
+    numpyconfig_sym.append(('DEFINE_NPY_ENABLE_SEPARATE_COMPILATION', ''))
+
+    if check_header(yctx, "complex.h"):
+        numpyconfig_sym.append(
+                ('DEFINE_NPY_USE_C99_COMPLEX',
+                 '#define NPY_USE_C99_COMPLEX 1'))
+        for t in C99_COMPLEX_TYPES:
+            st = check_type(yctx, t, headers=["complex.h"])
+            if st:
+                numpyconfig_sym.append(
+                        ('DEFINE_NPY_HAVE_%s' % value_to_string(t),
+                         '#define NPY_HAVE_%s' % value_to_string(t)))
+            else:
+                numpyconfig_sym.append(('DEFINE_NPY_HAVE_%s' % 
+                                        value_to_string(t), ''))
+
+        check_prec(yctx, '')
+        check_prec(yctx, 'f')
+        check_prec(yctx, 'l')
+
+    def visibility_define():
+        src = """
+    int
+    main()
+    {
+#if !(defined __GNUC__ && (__GNUC__ >= 4))
+    die from an horrible death
+#endif
+    }
+    """
+        if check_compile(yctx, src):
+            return '__attribute__((visibility("hidden")))'
+        else:
+            return ''
+    numpyconfig_sym.append(('VISIBILITY_HIDDEN', visibility_define()))
+
+    numpyconfig_sym.append(('NPY_ABI_VERSION',
+                            '0x%.8X' % C_ABI_VERSION))
+    numpyconfig_sym.append(('NPY_API_VERSION',
+                            '0x%.8X' % C_API_VERSION))
+
+    generate_config_h(yctx.conf_results, "build/conf/config.h")
+    create_numpyconfig(yctx, numpyconfig_sym)
+
+    create_api_headers(yctx)
+
+    from numpy_c_template import process_file
+    for f in ["scalartypes.c", "arraytypes.c"]:
+        src = os.path.join("src", "multiarray", f + ".src")
+        code = process_file(src)
+        fid = open(os.path.join("src", "multiarray", f), "w")
+        try:
+            fid.write(code)
+        finally:
+            fid.close()
+
+    yctx.env["LIBS"].insert(0, "npymath")
+
+def create_numpyconfig(ctx, syms):
+    from yaku.task_manager import create_tasks
+    from yaku.scheduler import run_tasks
+
+    subst_dict = {}
+    for key, value in syms:
+        subst_dict[key] = str(value)
+    ctx.env["SUBST_DICT"] = subst_dict
+
+    tasks = create_tasks(ctx, ["include/numpy/_numpyconfig.h.in"])
+    run_tasks(ctx, tasks)
+
+def check_prec(context, prec):
+    flist = [f + prec for f in C99_COMPLEX_FUNCS]
+    st = check_funcs_at_once(context, flist)
+    if not st:
+        # Global check failed, check func per func
+        for f in flist:
+            check_func(context, f)
+
+def check_funcs(ctx, funcs):
+    # Use check_funcs_once first, and if it does not work, test func
+    # per func. Return success only if all the functions are available
+    st = check_funcs_at_once(ctx, funcs)
+    if not st:
+        for f in funcs:
+            check_funcs_at_once(ctx, f)
+
+from yaku.conf import ccompile, create_file
+
+def check_inline(yctx):
+    sys.stderr.write("Checking for inline keyword... ")
+    body = """
+#ifndef __cplusplus
+static %(inline)s int static_func (void)
+{
+    return 0;
+}
+%(inline)s int nostatic_func (void)
+{
+    return 0;
+}
+#endif"""
+    inline = None
+    for kw in ['inline', '__inline__', '__inline']:
+        st = ccompile(yctx, [create_file(yctx, body % {'inline': kw}, "yomama", '.c')])
+        if st:
+            inline = kw
+            break
+
+    if inline:
+        sys.stderr.write(inline + "\n")
+    else:
+        sys.stderr.write("none found\n")
+    return inline
+
+def check_ldouble_representation(context):
+    msg = {
+        'INTEL_EXTENDED_12_BYTES_LE': "Intel extended, little endian",
+        'INTEL_EXTENDED_16_BYTES_LE': "Intel extended, little endian",
+        'IEEE_QUAD_BE': "IEEE Quad precision, big endian",
+        'IEEE_QUAD_LE': "IEEE Quad precision, little endian",
+        'IEEE_DOUBLE_LE': "IEEE Double precision, little endian",
+        'IEEE_DOUBLE_BE': "IEEE Double precision, big endian"
+    }
+
+    sys.stderr.write("Checking for long double representation... ")
+    body = LONG_DOUBLE_REPRESENTATION_SRC % {'type': 'long double'}
+    st = ccompile(context,  [create_file(context,
+        body, "yomama", '.c')])
+    if st:
+        obj = context.tasks[-1].outputs[0]
+        tp = long_double_representation(pyod(obj))
+        sys.stderr.write(msg[tp] + "\n")
+        define(context, "HAVE_LDOUBLE_%s" % tp, 1,
+               "Define for arch-specific long double representation")
+        return tp
+    if not st:
+        sys.stderr.write("failed\n")
+
+def check_compile(context, body):
+    return ccompile(context,
+            [create_file(context, body, "yomama", '.c')])
+
+def is_npy_no_signal():
+    """Return True if the NPY_NO_SIGNAL symbol must be defined in
+    configuration header."""
+    return sys.platform == 'win32'
+
+def define_no_smp():
+    """Returns True if we should define NPY_NOSMP, False otherwise."""
+    #--------------------------------
+    # Checking SMP and thread options
+    #--------------------------------
+    # Python 2.3 causes a segfault when
+    #  trying to re-acquire the thread-state
+    #  which is done in error-handling
+    #  ufunc code.  NPY_ALLOW_C_API and friends
+    #  cause the segfault. So, we disable threading
+    #  for now.
+    if sys.version[:5] < '2.4.2':
+        nosmp = 1
+    else:
+        # Perhaps a fancier check is in order here.
+        #  so that threads are only enabled if there
+        #  are actually multiple CPUS? -- but
+        #  threaded code can be nice even on a single
+        #  CPU so that long-calculating code doesn't
+        #  block.
+        try:
+            nosmp = os.environ['NPY_NOSMP']
+            nosmp = 1
+        except KeyError:
+            nosmp = 0
+    return nosmp == 1
+
+def check_mlibs(config, mlibs):
+    for mlib in mlibs:
+        if check_mlib(config, mlib):
+            return mlib
+
+    raise ValueError("No usable mathlib was found: chose another " \
+                     "one using the MATHLIB env variable, eg " \
+                     "'MATHLIB=m bentomaker configure'")
+
+def check_mlib(config, mlib):
+    """Return 1 if mlib is available and usable by numpy, 0 otherwise.
+
+    mlib can be a string (one library), or a list of libraries."""
+    # Check the libraries in mlib are linkable
+    if len(mlib) > 0:
+        return check_lib(config, mlib[0], "exp")
+    else:
+        return check_func(config, "exp")
+
+def generate_api_func(ctx, module_name):
+    codegen_dir = "code_generators"
+    script = os.path.join(codegen_dir, module_name + '.py')
+    sys.path.insert(0, codegen_dir)
+    try:
+        m = __import__(module_name)
+        h_file, c_file, doc_file = m.generate_api(
+                os.path.join(ctx.env["BLDDIR"], "include", "numpy"))
+    finally:
+        del sys.path[0]
+    return (h_file,)
+
+def create_api_headers(ctx):
+    # XXX: integrate into the build instead of imperative generation
+    # of the API files
+    generate_api_func(ctx, "generate_numpy_api")
+    generate_api_func(ctx, "generate_ufunc_api")
+
+#@pre_build
+#def myprebuild(ctx):
+#    print dir(ctx)
+#    yctx = ctx.yaku_build_ctx
+#    create_api_headers(yctx)
+

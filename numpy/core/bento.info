@@ -1,3 +1,14 @@
 Name: numpy_core
 
 HookFile: bscript
+
+Library:
+    CompiledLibrary: npymath
+        Sources:
+            src/npymath/_signbit.c,
+            src/npymath/ieee754.c.src,
+            src/npymath/npy_math.c.src,
+            src/npymath/npy_math_complex.c.src
+    Extension: multiarray
+        Sources:
+            src/multiarray/multiarraymodule_onefile.c
