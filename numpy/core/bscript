@@ -24,12 +24,14 @@ from code_generators.numpy_api \
     import \
         multiarray_api as multiarray_api_dict, \
         ufunc_api as ufunc_api_dict
+
 from code_generators.generate_numpy_api \
     import \
          do_generate_api as nowrap_do_generate_numpy_api
 from code_generators.generate_ufunc_api \
     import \
          do_generate_api as nowrap_do_generate_ufunc_api
+from code_generators import generate_umath
 
 @post_configure
 def myconfigure(cfg):
@@ -204,6 +206,8 @@ def myconfigure(cfg):
     create_numpyconfig(yctx, numpyconfig_sym)
 
     create_api_headers(yctx)
+    create_umath(yctx, os.path.join(yctx.env["BLDDIR"],
+                        "__umath_generated.c"))
 
     from numpy_c_template import process_file
     for f in ["scalartypes.c", "arraytypes.c"]:
@@ -369,6 +373,15 @@ def create_api_headers(ctx):
     # of the API files
     generate_api_func(ctx, "generate_numpy_api")
     generate_api_func(ctx, "generate_ufunc_api")
+
+def create_umath(config, target):
+    code = generate_umath.make_code(generate_umath.defdict,
+            generate_umath.__file__)
+    t = open(target, "w")
+    try:
+        t.write(code)
+    finally:
+        t.close()
 
 #@pre_build
 #def myprebuild(ctx):
