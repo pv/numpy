@@ -39,6 +39,8 @@ def myconfigure(cfg):
 
     if not yctx.builders.has_key("ctasks"):
         yctx.use_tools(["ctasks"])
+    if not yctx.builders.has_key("pyext"):
+        yctx.use_tools(["pyext"])
     yctx.use_tools(["tpl_tasks"])
     yctx.use_tools(["numpy_c_template"], [os.getcwd()])
 
