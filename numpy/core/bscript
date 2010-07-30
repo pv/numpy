@@ -222,7 +222,10 @@ def myconfigure(cfg):
         finally:
             fid.close()
 
-    yctx.env["LIBS"].insert(0, "npymath")
+    yctx.env["PYEXT_LIBDIR"].insert(0, yctx.env["BLDDIR"])
+    yctx.env["PYEXT_LIBS"].insert(0, "npymath")
+    yctx.env["PYEXT_CFLAGS"].append("-O0")
+    yctx.env["PYEXT_CPPPATH"].append(yctx.env["BLDDIR"])
 
 def create_numpyconfig(ctx, syms):
     from yaku.task_manager import create_tasks
