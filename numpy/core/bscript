@@ -210,10 +210,13 @@ def myconfigure(cfg):
                         "__umath_generated.c"))
 
     from numpy_c_template import process_file
-    for f in ["scalartypes.c", "arraytypes.c"]:
-        src = os.path.join("src", "multiarray", f + ".src")
-        code = process_file(src)
-        fid = open(os.path.join("src", "multiarray", f), "w")
+    for f in [os.path.join("src", "multiarray", "scalartypes.c"),
+              os.path.join("src", "multiarray", "arraytypes.c"),
+              os.path.join("src", "umath", "umathmodule.c"),
+              os.path.join("src", "umath", "funcs.inc"),
+              os.path.join("src", "umath", "loops.c")]:
+        code = process_file(f + ".src")
+        fid = open(f, "w")
         try:
             fid.write(code)
         finally:
