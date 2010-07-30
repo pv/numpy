@@ -17,7 +17,9 @@ from setup_common \
     import \
         OPTIONAL_STDFUNCS_MAYBE, C99_FUNCS_EXTENDED, C99_FUNCS_SINGLE, \
         C99_COMPLEX_TYPES, C99_COMPLEX_FUNCS, LONG_DOUBLE_REPRESENTATION_SRC, \
-        pyod, long_double_representation, C_API_VERSION, C_ABI_VERSION
+        pyod, long_double_representation, C_API_VERSION, C_ABI_VERSION, \
+        MANDATORY_FUNCS
+
 from code_generators.numpy_api \
     import \
         multiarray_api as multiarray_api_dict, \
@@ -135,14 +137,8 @@ def myconfigure(cfg):
     #------------------------
     # Checking math functions
     #------------------------
-    mfuncs = ('expl', 'expf', 'log1p', 'expm1', 'asinh', 'atanhf',
-            'atanhl', 'rint', 'trunc')
-
-    # Set value to 1 for each defined function (in math lib)
-    mfuncs_defined = dict([(f, 0) for f in mfuncs])
-
     # Check for mandatory funcs: we barf if a single one of those is not there
-    if not check_funcs_at_once(yctx, mfuncs):
+    if not check_funcs_at_once(yctx, MANDATORY_FUNCS):
         raise SystemError("One of the required function to build numpy is not"
                 " available (the list is %s)." % str(mfuncs))
 
