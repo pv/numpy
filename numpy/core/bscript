@@ -18,7 +18,7 @@ from setup_common \
         OPTIONAL_STDFUNCS_MAYBE, C99_FUNCS_EXTENDED, C99_FUNCS_SINGLE, \
         C99_COMPLEX_TYPES, C99_COMPLEX_FUNCS, LONG_DOUBLE_REPRESENTATION_SRC, \
         pyod, long_double_representation, C_API_VERSION, C_ABI_VERSION, \
-        MANDATORY_FUNCS
+        MANDATORY_FUNCS, OPTIONAL_STDFUNCS
 
 from code_generators.numpy_api \
     import \
@@ -144,9 +144,9 @@ def myconfigure(cfg):
 
     for f in OPTIONAL_STDFUNCS_MAYBE:
         if check_cpp_symbol(yctx, "HAVE_%s" % f.upper()):
-            OPTIONAL_STDFUNCS_MAYBE.remove(f)
+            OPTIONAL_STDFUNCS.remove(f)
 
-    check_funcs(yctx, OPTIONAL_STDFUNCS_MAYBE)
+    check_funcs(yctx, OPTIONAL_STDFUNCS)
     check_funcs(yctx, C99_FUNCS_SINGLE)
     check_funcs(yctx, C99_FUNCS_EXTENDED)
 
