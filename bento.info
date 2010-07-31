@@ -35,6 +35,10 @@ Classifiers:
     Operating System :: MacOS
 
 Subento:
-    numpy/core
+    numpy/core,
+    numpy/lib,
+    numpy/fft,
+    numpy/linalg,
+    numpy/random
 
 HookFile: bscript

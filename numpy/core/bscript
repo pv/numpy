@@ -229,6 +229,7 @@ def myconfigure(cfg):
         finally:
             fid.close()
 
+    yctx.env["PYEXT_LIBDIR"].insert(0, os.path.join(yctx.env["BLDDIR"], "numpy", "core"))
     yctx.env["PYEXT_LIBDIR"].insert(0, yctx.env["BLDDIR"])
     yctx.env["PYEXT_LIBS"].insert(0, "npymath")
     yctx.env["PYEXT_CFLAGS"].append("-O0")
