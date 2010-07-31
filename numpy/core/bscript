@@ -3,6 +3,9 @@ import sys
 import re
 import distutils.sysconfig
 
+from bento.core.utils \
+    import \
+        ensure_dir
 from bento.commands.hooks \
     import \
         post_configure, pre_build
@@ -37,23 +40,24 @@ from code_generators import generate_umath
 def myconfigure(cfg):
     yctx = cfg.yaku_configure_ctx
 
-    if not yctx.builders.has_key("ctasks"):
-        yctx.use_tools(["ctasks"])
-    if not yctx.builders.has_key("pyext"):
-        yctx.use_tools(["pyext"])
-    yctx.use_tools(["tpl_tasks"])
-    yctx.use_tools(["numpy_c_template"], [os.getcwd()])
+    #if not yctx.builders.has_key("ctasks"):
+    #    yctx.use_tools(["ctasks"])
+    #if not yctx.builders.has_key("pyext"):
+    #    yctx.use_tools(["pyext"])
+    #yctx.use_tools(["tpl_tasks"])
+    #yctx.use_tools(["numpy_c_template"], [os.getcwd()])
 
     yctx.env["CPPPATH"].append(distutils.sysconfig.get_python_inc())
-    yctx.env["CPPPATH"].extend(["include", "src/npymath",
-                                "src/private"])
+    yctx.env["CPPPATH"].extend(["numpy/core/include", "numpy/core/src/npymath",
+                                "numpy/core/src/private"])
     yctx.env["CPPPATH"].append(os.path.join(yctx.env["BLDDIR"], "conf"))
     yctx.env["CPPPATH"].append(os.path.join(yctx.env["BLDDIR"], "include", "numpy"))
 
-    yctx.env["PYEXT_CPPPATH"].append("include")
+    yctx.env["PYEXT_CPPPATH"].append("numpy/core/include")
+    yctx.env["PYEXT_CPPPATH"].append("numpy/core/include/numpy")
     yctx.env["PYEXT_CPPPATH"].append(os.path.join(yctx.env["BLDDIR"], "include", "numpy"))
     yctx.env["PYEXT_CPPPATH"].append(os.path.join(yctx.env["BLDDIR"], "conf"))
-    yctx.env["PYEXT_CPPPATH"].append(os.path.join("src", "private"))
+    yctx.env["PYEXT_CPPPATH"].append(os.path.join("numpy", "core", "src", "private"))
 
     # Convention: list of tuples (definition, value). value:
     # - 0: #undef definition
@@ -205,9 +209,9 @@ def myconfigure(cfg):
                             '0x%.8X' % C_API_VERSION))
 
     generate_config_h(yctx.conf_results, "build/conf/config.h")
-    create_numpyconfig(yctx, numpyconfig_sym)
+    create_numpyconfig(cfg, numpyconfig_sym)
 
-    create_api_headers(yctx)
+    create_api_headers(cfg)
     create_umath(yctx, os.path.join(yctx.env["BLDDIR"],
                         "__umath_generated.c"))
 
@@ -217,8 +221,9 @@ def myconfigure(cfg):
               os.path.join("src", "umath", "umathmodule.c"),
               os.path.join("src", "umath", "funcs.inc"),
               os.path.join("src", "umath", "loops.c")]:
-        code = process_file(f + ".src")
-        fid = open(f, "w")
+        base = os.path.join(cfg.local_dir, f)
+        code = process_file(base + ".src")
+        fid = open(os.path.join(yctx.env["BLDDIR"], base), "w")
         try:
             fid.write(code)
         finally:
@@ -233,13 +238,14 @@ def create_numpyconfig(ctx, syms):
     from yaku.task_manager import create_tasks
     from yaku.scheduler import run_tasks
 
+    yctx = ctx.yaku_configure_ctx
     subst_dict = {}
     for key, value in syms:
         subst_dict[key] = str(value)
-    ctx.env["SUBST_DICT"] = subst_dict
+    yctx.env["SUBST_DICT"] = subst_dict
 
-    tasks = create_tasks(ctx, ["include/numpy/_numpyconfig.h.in"])
-    run_tasks(ctx, tasks)
+    tasks = create_tasks(yctx, [os.path.join(ctx.local_dir, "include/numpy/_numpyconfig.h.in")])
+    run_tasks(yctx, tasks)
 
 def check_prec(context, prec):
     flist = [f + prec for f in C99_COMPLEX_FUNCS]
@@ -365,13 +371,18 @@ def check_mlib(config, mlib):
         return check_func(config, "exp")
 
 def generate_api_func(ctx, module_name):
+    yctx = ctx.yaku_configure_ctx
     codegen_dir = "code_generators"
     script = os.path.join(codegen_dir, module_name + '.py')
-    sys.path.insert(0, codegen_dir)
+    sys.path.insert(0, os.path.join(ctx.local_dir, codegen_dir))
     try:
+        print module_name
         m = __import__(module_name)
+        d = os.path.join(yctx.env["BLDDIR"],
+                         ctx.local_dir, "include", "numpy")
+        ensure_dir(d)
         h_file, c_file, doc_file = m.generate_api(
-                os.path.join(ctx.env["BLDDIR"], "include", "numpy"))
+                os.path.abspath(d))
     finally:
         del sys.path[0]
     return (h_file,)

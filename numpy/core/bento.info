@@ -1,7 +1,3 @@
-Name: numpy_core
-
-HookFile: bscript
-
 Library:
     CompiledLibrary: npymath
         Sources:

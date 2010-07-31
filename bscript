@@ -1,0 +1,17 @@
+import os
+
+from bento.commands.hooks \
+    import \
+        recurse, post_configure
+
+@recurse(["numpy/core/bscript"])
+@post_configure
+def configure(ctx):
+    yctx = ctx.yaku_configure_ctx
+
+    if not yctx.builders.has_key("ctasks"):
+        yctx.use_tools(["ctasks"])
+    if not yctx.builders.has_key("pyext"):
+        yctx.use_tools(["pyext"])
+    yctx.use_tools(["tpl_tasks"])
+    yctx.use_tools(["numpy_c_template"], [os.getcwd()])
