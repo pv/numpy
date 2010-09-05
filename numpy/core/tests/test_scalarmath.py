@@ -107,5 +107,36 @@ class TestRepr(TestCase):
         for t in [np.float32, np.float64]:
             yield test_float_repr, t
 
+class TestSubclass(TestCase):
+    def _test_value(self, tp):
+        if issubclass(tp, np.integer):
+            return 1
+        elif issubclass(tp, np.complexfloating):
+            return 1+1j
+        elif issubclass(tp, np.floating):
+            return 1.0
+        elif tp == np.bool_:
+            return True
+        else:
+            raise RuntimeError("no default value: %s" % tp)
+
+    def _check_subclass_init(self, tp, err_msg=""):
+        class A(object): pass
+        class B(tp, A): pass
+        class C(A, tp): pass
+
+        value = self._test_value(tp)
+
+        x = B(value)
+        y = C(value)
+
+        assert_equal(x, value, err_msg="B: %s" % repr(tp))
+        assert_equal(y, value, err_msg="C: %s" % repr(tp))
+
+    def test_subclass_init(self):
+        for tp in types:
+            print tp
+            self._check_subclass_init(tp)
+
 if __name__ == "__main__":
     run_module_suite()

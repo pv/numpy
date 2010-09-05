@@ -2071,22 +2071,20 @@ object_arrtype_dealloc(PyObject *v)
  *  memory from the sub-types memory allocator.
  */
 
-#define _WORK(num)  \
+#define _WORK(num, name) \
     if (type->tp_bases && (PyTuple_GET_SIZE(type->tp_bases)==2)) { \
         PyTypeObject *sup; \
         /* We are inheriting from a Python type as well so \
            give it first dibs on conversion */ \
         sup = (PyTypeObject *)PyTuple_GET_ITEM(type->tp_bases, num); \
-        robj = sup->tp_new(type, args, kwds); \
-        if (robj != NULL) goto finish;              \
-        if (PyTuple_GET_SIZE(args)!=1) return NULL; \
-        PyErr_Clear(); \
+        if (sup->tp_new != name##_arrtype_new) { \
+            robj = sup->tp_new(type, args, kwds); \
+            if (robj != NULL) goto finish; \
+            if (PyTuple_GET_SIZE(args)!=1) return NULL; \
+            PyErr_Clear(); \
+        } \
         /* now do default conversion */ \
     }
-
-#define _WORK1 _WORK(1)
-#define _WORKz _WORK(0)
-#define _WORK0
 
 /**begin repeat
  * #name = byte, short, int, long, longlong, ubyte, ushort, uint, ulong,
@@ -2095,9 +2093,16 @@ object_arrtype_dealloc(PyObject *v)
  * #TYPE = BYTE, SHORT, INT, LONG, LONGLONG, UBYTE, USHORT, UINT, ULONG,
  *         ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE, CFLOAT, CDOUBLE, CLONGDOUBLE,
  *         STRING, UNICODE, OBJECT#
+ * #NAME = Byte, Short, Int, Long, LongLong, UByte, UShort, UInt, ULong,
+ *         ULongLong, Float, Double, LongDouble, CFloat, CDouble, CLongDouble,
+ *         String, Unicode, Object#
  * #work = 0,0,1,1,1,0,0,0,0,0,0,1,0,0,0,0,z,z,0#
  * #default = 0*16,1*2,2#
  */
+
+#define _WORK1 _WORK(1, @name@)
+#define _WORKz _WORK(0, @name@)
+#define _WORK0
 
 #define _NPY_UNUSED2_1
 #define _NPY_UNUSED2_z
@@ -2107,7 +2112,7 @@ object_arrtype_dealloc(PyObject *v)
 #define _NPY_UNUSED1_2 NPY_UNUSED
 
 static PyObject *
-@name@_arrtype_new(PyTypeObject *_NPY_UNUSED1_@default@(type), PyObject *args, PyObject *_NPY_UNUSED2_@work@(kwds))
+@name@_arrtype_new(PyTypeObject *type, PyObject *args, PyObject *_NPY_UNUSED2_@work@(kwds))
 {
     PyObject *obj = NULL;
     PyObject *robj;
@@ -2211,11 +2216,13 @@ finish:
     return obj;
 #endif
 }
-/**end repeat**/
 
 #undef _WORK1
 #undef _WORKz
 #undef _WORK0
+
+/**end repeat**/
+
 #undef _WORK
 
 /* bool->tp_new only returns Py_True or Py_False */
