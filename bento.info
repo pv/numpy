@@ -41,4 +41,6 @@ Subento:
     numpy/linalg,
     numpy/random
 
-HookFile: bscript
+HookFile:
+    bscript,
+    numpy/core/bscript
