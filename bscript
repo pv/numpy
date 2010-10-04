@@ -16,6 +16,5 @@ def configure(ctx):
     yctx.use_tools(["tpl_tasks"])
     yctx.use_tools(["numpy_template"], [os.getcwd()])
     yctx.env["CFLAGS"].append("-fPIC")
-    yctx.env["PYEXT_CPPPATH"].insert(0, "numpy/core/include")
-    yctx.env["PYEXT_CC"] = ["clang"]
-    yctx.env["CC"] = ["clang"]
+    yctx.env["PYEXT_CPPPATH"].insert(0, os.path.join(ctx.local_node.abspath(), "numpy/core/include"))
+
