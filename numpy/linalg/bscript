@@ -1,0 +1,10 @@
+from bento.commands.hooks \
+    import \
+        pre_build
+
+@pre_build
+def prebuild(ctx):
+    cfg = ctx.yaku_build_ctx
+    if cfg.env.has_key("LAPACK"):
+        ext = ctx.local_pkg.extensions["lapack_lite"]
+        ext.sources = ["lapack_litemodule.c"]

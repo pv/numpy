@@ -18,3 +18,12 @@ def configure(ctx):
     yctx.env["CFLAGS"].append("-fPIC")
     yctx.env["PYEXT_CPPPATH"].insert(0, os.path.join(ctx.local_node.abspath(), "numpy/core/include"))
 
+    if sys.platform == "darwin":
+        yctx.env["BLAS"] = {"FRAMEWORKS": ["Accelerate"]}
+        yctx.env["LAPACK"] = {"FRAMEWORKS": ["Accelerate"]}
+    elif sys.platform == "win32":
+        pass
+    else:
+        yctx.env["BLAS"] = {"LIBS": ["f77blas", "cblas", "atlas"]}
+        yctx.env["LAPACK"] = {"LIBS": ["lapack", "f77blas",
+                                       "cblas", "atlas"]}
