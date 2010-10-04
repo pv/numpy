@@ -1,9 +1,16 @@
 import os
 import sys
+import shutil
+
+sys.path.insert(0, os.getcwd())
+try:
+    from setup import VERSION, ISRELEASED
+finally:
+    sys.path.pop(0)
 
 from bento.commands.hooks \
     import \
-        post_configure
+        post_configure, pre_build, post_build
 
 @post_configure
 def configure(ctx):
@@ -27,3 +34,23 @@ def configure(ctx):
         yctx.env["BLAS"] = {"LIBS": ["f77blas", "cblas", "atlas"]}
         yctx.env["LAPACK"] = {"LIBS": ["lapack", "f77blas",
                                        "cblas", "atlas"]}
+
+    yctx.env["SUBST_DICT"] = {"VERSION": VERSION, "RELEASED": str(ISRELEASED)}
+
+@pre_build
+def prebuild(ctx):
+    bld = ctx.yaku_build_ctx
+
+    templater = bld.builders["tpl_tasks"]
+    tasks = templater.build("version", ["numpy/version.py.in"])
+    tasks += templater.build("__config__", ["numpy/__config__.py.in"])
+
+@post_build
+def postbuild(ctx):
+    bld = ctx.yaku_build_ctx
+
+    if "-i" in sys.argv:
+        for f in [os.path.join("numpy", "version.py"),
+                  os.path.join("numpy", "__config__.py")]:
+            source = bld.bld_root.find_node(f)
+            shutil.copy(source.path_from(bld.src_root), f)
