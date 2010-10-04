@@ -13,6 +13,9 @@ from yaku.conftests \
     import \
         check_header, check_cpp_symbol, check_type, check_type_size, \
         check_funcs_at_once, check_func, generate_config_h, define, check_lib
+from yaku.conf \
+    import \
+        create_compile_conf_taskgen
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -197,7 +200,7 @@ def myconfigure(cfg):
 #endif
     }
     """
-        if check_compile(yctx, src):
+        if create_compile_conf_taskgen(yctx, "visibility_check", src, []):
             return '__attribute__((visibility("hidden")))'
         else:
             return ''
@@ -236,8 +239,9 @@ def myconfigure(cfg):
     yctx.env["PYEXT_CPPPATH"].append(yctx.env["BLDDIR"])
 
 def create_numpyconfig(ctx, syms):
-    from yaku.task_manager import create_tasks
     from yaku.scheduler import run_tasks
+    from yaku.task_manager import TaskGen
+    import copy
 
     yctx = ctx.yaku_configure_ctx
     subst_dict = {}
@@ -245,7 +249,12 @@ def create_numpyconfig(ctx, syms):
         subst_dict[key] = str(value)
     yctx.env["SUBST_DICT"] = subst_dict
 
-    tasks = create_tasks(yctx, [os.path.join(ctx.local_dir, "include/numpy/_numpyconfig.h.in")])
+    sources = ["numpy/core/include/numpy/_numpyconfig.h.in"]
+    sources = [yctx.src_root.find_resource(s) for s in sources]
+    task_gen = TaskGen("conf", yctx, sources, "version")
+    task_gen.env.update(copy.deepcopy(yctx.env))
+
+    tasks = task_gen.process()
     run_tasks(yctx, tasks)
 
 def check_prec(context, prec):
@@ -266,8 +275,8 @@ def check_funcs(ctx, funcs):
 
 from yaku.conf import ccompile, create_file
 
-def check_inline(yctx):
-    sys.stderr.write("Checking for inline keyword... ")
+def check_inline(context):
+    context.start_message("Checking for inline keyword... ")
     body = """
 #ifndef __cplusplus
 static %(inline)s int static_func (void)
@@ -281,15 +290,15 @@ static %(inline)s int static_func (void)
 #endif"""
     inline = None
     for kw in ['inline', '__inline__', '__inline']:
-        st = ccompile(yctx, [create_file(yctx, body % {'inline': kw}, "yomama", '.c')])
+        st = create_compile_conf_taskgen(context, "check_inline", body % {'inline': kw}, None)
         if st:
             inline = kw
             break
 
     if inline:
-        sys.stderr.write(inline + "\n")
+        context.end_message(inline)
     else:
-        sys.stderr.write("none found\n")
+        context.end_message("none found")
     return inline
 
 def check_ldouble_representation(context):
@@ -302,23 +311,18 @@ def check_ldouble_representation(context):
         'IEEE_DOUBLE_BE': "IEEE Double precision, big endian"
     }
 
-    sys.stderr.write("Checking for long double representation... ")
+    context.start_message("Checking for long double representation... ")
     body = LONG_DOUBLE_REPRESENTATION_SRC % {'type': 'long double'}
-    st = ccompile(context,  [create_file(context,
-        body, "yomama", '.c')])
+    st = create_compile_conf_taskgen(context, "check_cpp_symbol", body, None)
     if st:
-        obj = context.tasks[-1].outputs[0]
-        tp = long_double_representation(pyod(obj))
-        sys.stderr.write(msg[tp] + "\n")
+        obj = context.last_task.outputs[0]
+        tp = long_double_representation(pyod(obj.abspath()))
+        context.end_message(msg[tp])
         define(context, "HAVE_LDOUBLE_%s" % tp, 1,
                "Define for arch-specific long double representation")
         return tp
-    if not st:
-        sys.stderr.write("failed\n")
-
-def check_compile(context, body):
-    return ccompile(context,
-            [create_file(context, body, "yomama", '.c')])
+    else:
+        context.end_message("failed")
 
 def is_npy_no_signal():
     """Return True if the NPY_NO_SIGNAL symbol must be defined in
