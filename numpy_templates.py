@@ -1,12 +1,15 @@
 import os
 import sys
 
+import __builtin__ as builtins
+builtins.__NUMPY_SETUP__ = True
 from numpy.distutils.conv_template \
     import \
         process_file as process_c_file
 from numpy.distutils.from_template \
     import \
         process_file as process_f_file
+builtins.__NUMPY_SETUP__ = False
 
 from yaku.task_manager \
     import \

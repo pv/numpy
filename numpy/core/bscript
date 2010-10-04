@@ -210,14 +210,14 @@ def myconfigure(cfg):
     create_umath(yctx, os.path.join(yctx.env["BLDDIR"],
                         "__umath_generated.c"))
 
-    from numpy_c_template import process_file
+    from numpy_templates import process_c_file
     for f in [os.path.join("src", "multiarray", "scalartypes.c"),
               os.path.join("src", "multiarray", "arraytypes.c"),
               os.path.join("src", "umath", "umathmodule.c"),
               os.path.join("src", "umath", "funcs.inc"),
               os.path.join("src", "umath", "loops.c")]:
         base = os.path.join(cfg.local_dir, f)
-        code = process_file(base + ".src")
+        code = process_c_file(base + ".src")
         fid = open(os.path.join(yctx.env["BLDDIR"], base), "w")
         try:
             fid.write(code)

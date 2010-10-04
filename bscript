@@ -14,7 +14,7 @@ def configure(ctx):
     if not yctx.builders.has_key("pyext"):
         yctx.use_tools(["pyext"])
     yctx.use_tools(["tpl_tasks"])
-    yctx.use_tools(["numpy_template"], [os.getcwd()])
+    yctx.use_tools(["numpy_templates"], [os.getcwd()])
     yctx.env["CFLAGS"].append("-fPIC")
     yctx.env["PYEXT_CPPPATH"].insert(0, os.path.join(ctx.local_node.abspath(), "numpy/core/include"))
 
