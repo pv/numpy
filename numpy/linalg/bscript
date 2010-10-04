@@ -8,3 +8,8 @@ def prebuild(ctx):
     if cfg.env.has_key("LAPACK"):
         ext = ctx.local_pkg.extensions["lapack_lite"]
         ext.sources = ["lapack_litemodule.c"]
+
+        env = {}
+        for flag in cfg.env["LAPACK"]:
+            env["PYEXT_%s" % flag] = cfg.env["LAPACK"][flag]
+        ctx.register_environment("lapack_lite", env)
