@@ -43,14 +43,13 @@ from code_generators import generate_umath
 def myconfigure(cfg):
     yctx = cfg.yaku_configure_ctx
 
-    yctx.env["CPPPATH"].append(distutils.sysconfig.get_python_inc())
     yctx.env["CPPPATH"].extend(["numpy/core/include", "numpy/core/src/npymath",
                                 "numpy/core/src/private"])
     yctx.env["CPPPATH"].append(os.path.join(yctx.bld_root.abspath(), "numpy/core/include/numpy"))
     yctx.env["CPPPATH"].append(os.path.join(yctx.bld_root.abspath(), "conf"))
-    yctx.env["PYEXT_CPPPATH"].append(os.path.join(yctx.bld_root.abspath(), "numpy/core/include/numpy"))
-    yctx.env["PYEXT_CPPPATH"].append(os.path.join(yctx.bld_root.abspath(), "conf"))
+    yctx.env["CPPPATH"].append(distutils.sysconfig.get_python_inc())
 
+    yctx.env["PYEXT_CPPPATH"].append(os.path.join(yctx.bld_root.abspath(), "numpy/core/include/numpy"))
     yctx.env["PYEXT_CPPPATH"].append(os.path.join(yctx.bld_root.abspath(), "conf"))
     yctx.env["PYEXT_CPPPATH"].append(os.path.join("numpy", "core", "src", "private"))
 
