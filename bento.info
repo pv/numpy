@@ -46,6 +46,21 @@ HookFile:
     numpy/core/bscript,
     numpy/linalg/bscript
 
+ExtraSourceFiles:
+    setup.py,
+    numpy/version.py.in,
+    numpy/__config__.py.in,
+    numpy/core/include/numpy/*.h,
+    numpy/core/include/numpy/*.in,
+    numpy/core/include/numpy/fenv/*.h,
+    numpy/core/include/numpy/fenv/*.c,
+    numpy/core/src/npymath/*.h,
+    numpy/core/src/multiarray/*.c,
+    numpy/core/src/multiarray/*.c.src,
+    numpy/core/src/private/*.h,
+    numpy/core/src/umath/*.src,
+    numpy/core/src/umath/*.c
+
 DataFiles: tests
     TargetDir: $sitedir/numpy
     SourceDir: numpy
@@ -68,6 +83,7 @@ Library:
         numpy,
         numpy.compat,
         numpy.core,
+        numpy.core.code_generators,
         numpy.distutils,
         numpy.distutils.command,
         numpy.distutils.fcompiler,
