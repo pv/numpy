@@ -45,3 +45,41 @@ HookFile:
     bscript,
     numpy/core/bscript,
     numpy/linalg/bscript
+
+DataFiles: tests
+    TargetDir: $sitedir/numpy
+    SourceDir: numpy
+    Files:
+        core/tests/*.py,
+        distutils/tests/*.py,
+        f2py/tests/*.py,
+        fft/tests/*.py,
+        lib/tests/*.py,
+        linalg/tests/*.py,
+        ma/tests/*.py,
+        matrixlib/tests/*.py,
+        oldnumeric/tests/*.py,
+        polynomial/tests/*.py,
+        random/tests/*.py,
+        testing/tests/*.py
+
+Library:
+    Packages:
+        numpy,
+        numpy.compat,
+        numpy.core,
+        numpy.distutils,
+        numpy.distutils.command,
+        numpy.distutils.fcompiler,
+        numpy.doc,
+        numpy.f2py,
+        numpy.fft,
+        numpy.lib,
+        numpy.linalg,
+        numpy.ma,
+        numpy.matrixlib,
+        numpy.numarray,
+        numpy.oldnumeric,
+        numpy.polynomial,
+        numpy.random,
+        numpy.testing
