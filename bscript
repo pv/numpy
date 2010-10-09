@@ -1,5 +1,6 @@
 import os
 import sys
+import copy
 import shutil
 
 sys.path.insert(0, os.getcwd())
@@ -11,6 +12,25 @@ finally:
 from bento.commands.hooks \
     import \
         post_configure, pre_build, post_build
+from yaku.conftests \
+    import \
+        check_compiler
+
+def check_supported_archs(cfg):
+    archs = []
+    for arch in ["i386", "x86_64", "ppc", "ppc64"]:
+        old_cc = copy.copy(cfg.env["CFLAGS"])
+        old_link = copy.copy(cfg.env["LINKFLAGS"])
+        try:
+            cfg.env["CFLAGS"].extend(["-arch", arch])
+            cfg.env["LINKFLAGS"].extend(["-arch", arch])
+            st = check_compiler(cfg, msg="Checking whether '-arch %s' is supported" % arch)
+            if st:
+                archs.append(arch)
+        finally:
+            cfg.env["CFLAGS"] = old_cc
+            cfg.env["LINKFLAGS"] = old_link
+    return archs
 
 @post_configure
 def configure(ctx):
@@ -28,6 +48,10 @@ def configure(ctx):
     if sys.platform == "darwin":
         yctx.env["BLAS"] = {"FRAMEWORKS": ["Accelerate"]}
         yctx.env["LAPACK"] = {"FRAMEWORKS": ["Accelerate"]}
+        archs = check_supported_archs(yctx)
+        for arch in archs:
+            for flag in ["CFLAGS", "LINKFLAGS", "SHLINKFLAGS", "PYEXT_CFLAGS", "PYEXT_SHLINKFLAGS"]:
+                yctx.env[flag].extend(["-arch", arch])
     elif sys.platform == "win32":
         pass
     else:
