@@ -186,6 +186,8 @@ def myconfigure(cfg):
         numpyconfig_sym.append(
                 ('DEFINE_NPY_HAVE_ENDIAN_H',
                  '#define NPY_HAVE_ENDIAN_H 1'))
+    else:
+        numpyconfig_sym.append(('DEFINE_NPY_HAVE_ENDIAN_H', ''))
 
     def visibility_define():
         src = """
