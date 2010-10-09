@@ -2,6 +2,7 @@ import os
 import sys
 import copy
 import shutil
+import subprocess
 
 sys.path.insert(0, os.getcwd())
 try:
@@ -12,6 +13,12 @@ finally:
 from bento.commands.hooks \
     import \
         post_configure, pre_build, post_build
+from bento.commands.errors \
+    import \
+        CommandExecutionFailure
+from bento.commands.core \
+    import \
+        register_command, Command
 from yaku.conftests \
     import \
         check_compiler
@@ -78,3 +85,26 @@ def postbuild(ctx):
                   os.path.join("numpy", "__config__.py")]:
             source = bld.bld_root.find_node(f)
             shutil.copy(source.path_from(bld.src_root), f)
+
+class TestCommand(Command):
+    def run(self, opts):
+        # XXX: we cannot execute tests in-process because we need to import
+        # unbuilt numpy early on (to get some build-related bits of numpy), and
+        # python cannot reload a package which has changed.
+        saved = os.getcwd()
+        os.chdir("/")
+        try:
+            python_path = os.environ.get("PYTHONPATH", "")
+            if python_path:
+                python_path = saved + os.pathsep + python_path
+            else:
+                python_path = saved
+            env = copy.deepcopy(os.environ)
+            env["PYTHONPATH"] = python_path
+            p = subprocess.Popen("python -c 'import numpy; numpy.test()'", shell=True)
+            p.wait()
+        finally:
+            os.chdir(saved)
+
+def startup():
+    register_command("test", TestCommand)
