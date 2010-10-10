@@ -29,12 +29,19 @@ else:
 
 _string_like = _is_string_like
 
-def seek_gzip_factory(f):
-    """Use this factory to produce the class so that we can do a lazy
-    import on gzip.
+class ForwardSeekableFile(object):
+    """
+    Produce a seekable file handle from only rewindable one.
 
     """
-    import gzip
+    def __init__(self, f):
+        self._f = f
+
+    def __del__(self):
+        self.close()
+
+    def __iter__(self):
+        return self._f.__iter__()
 
     def seek(self, offset, whence=0):
         # figure out new position (we can only seek forwards)
@@ -46,28 +53,32 @@ def seek_gzip_factory(f):
 
         if offset < self.offset:
             # for negative seek, rewind and do positive seek
-            self.rewind()
-            count = offset - self.offset
-            for i in range(count // 1024):
-                self.read(1024)
-            self.read(count % 1024)
+            self._f.rewind()
+            self.offset = 0
+        count = offset - self.offset
+        for i in range(count // 1024):
+            self._f.read(1024)
+        self._f.read(count % 1024)
 
     def tell(self):
         return self.offset
 
+    def __getattr__(self, name):
+        if name not in ['_f', 'seek', 'tell']:
+            return getattr(self._f, name)
+        raise AttributeError(name)
+
+
+
+def seek_gzip_factory(f):
+    """Use this factory to produce the class so that we can do a lazy
+    import on gzip.
+
+    """
     if isinstance(f, str):
+        import gzip
         f = gzip.GzipFile(f)
-
-    if sys.version_info[0] >= 3:
-        import types
-        f.seek = types.MethodType(seek, f)
-        f.tell = types.MethodType(tell, f)
-    else:
-        import new
-        f.seek = new.instancemethod(seek, f)
-        f.tell = new.instancemethod(tell, f)
-
-    return f
+    return ForwardSeekableFile(f)
 
 
 
@@ -664,7 +675,6 @@ def loadtxt(fname, dtype=float, comments='#', delimiter=None,
     if _is_string_like(fname):
         own_fh = True
         if fname.endswith('.gz'):
-            import gzip
             fh = seek_gzip_factory(fname)
         elif fname.endswith('.bz2'):
             import bz2
