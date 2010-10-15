@@ -49,8 +49,12 @@ def configure(ctx):
         yctx.use_tools(["pyext"])
     yctx.use_tools(["tpl_tasks"])
     yctx.use_tools(["numpy_templates"], [os.getcwd()])
-    yctx.env["CFLAGS"].append("-fPIC")
-    yctx.env["PYEXT_CPPPATH"].insert(0, os.path.join(ctx.local_node.abspath(), "numpy/core/include"))
+
+    # FIXME: fix this once we get rid of distutils configuration
+    if "-fPIC" in yctx.env["PYEXT_CFLAGS"]:
+        yctx.env["CFLAGS"].append("-fPIC")
+
+    yctx.env["PYEXT_CPPPATH"].insert(0, os.path.join(ctx.local_node.abspath(), "numpy", "core", "include"))
 
     if sys.platform == "darwin":
         yctx.env["BLAS"] = {"FRAMEWORKS": ["Accelerate"]}
@@ -60,7 +64,9 @@ def configure(ctx):
             for flag in ["CFLAGS", "LINKFLAGS", "SHLINKFLAGS", "PYEXT_CFLAGS", "PYEXT_SHLINKFLAGS"]:
                 yctx.env[flag].extend(["-arch", arch])
     elif sys.platform == "win32":
-        pass
+        index = yctx.env["PYEXT_CFLAGS"].index("/Ox")
+        yctx.env["PYEXT_CFLAGS"].pop(index)
+        yctx.env["CFLAGS"].append("/MD")
     else:
         yctx.env["BLAS"] = {"LIBS": ["f77blas", "cblas", "atlas"]}
         yctx.env["LAPACK"] = {"LIBS": ["lapack", "f77blas",
@@ -73,8 +79,8 @@ def prebuild(ctx):
     bld = ctx.yaku_build_ctx
 
     templater = bld.builders["tpl_tasks"]
-    tasks = templater.build("version", ["numpy/version.py.in"])
-    tasks += templater.build("__config__", ["numpy/__config__.py.in"])
+    tasks = templater.build("version", [os.path.join("numpy", "version.py.in")])
+    tasks += templater.build("__config__", [os.path.join("numpy", "__config__.py.in")])
 
 @post_build
 def postbuild(ctx):
