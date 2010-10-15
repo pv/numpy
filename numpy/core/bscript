@@ -278,7 +278,7 @@ def check_funcs(ctx, funcs):
     st = check_funcs_at_once(ctx, funcs)
     if not st:
         for f in funcs:
-            check_funcs_at_once(ctx, f)
+            check_func(ctx, f)
 
 from yaku.conf import ccompile, create_file
 
@@ -378,7 +378,7 @@ def check_mlib(config, mlib):
     mlib can be a string (one library), or a list of libraries."""
     # Check the libraries in mlib are linkable
     if len(mlib) > 0:
-        return check_lib(config, mlib[0], "exp")
+        return check_lib(config, mlib, "exp")
     else:
         return check_func(config, "exp")
 
