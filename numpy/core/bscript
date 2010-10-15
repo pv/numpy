@@ -12,7 +12,7 @@ from bento.commands.hooks \
 from yaku.conftests \
     import \
         check_header, check_cpp_symbol, check_type, check_type_size, \
-        check_funcs_at_once, check_func, generate_config_h, define, check_lib
+        check_funcs_at_once, check_func, generate_config_h, define, check_lib, define
 from yaku.conf \
     import \
         create_compile_conf_taskgen
@@ -161,7 +161,8 @@ def myconfigure(cfg):
         else:
             numpyconfig_sym.append(('DEFINE_NPY_HAVE_DECL_%s' % f.upper(), ''))
 
-    check_inline(yctx)
+    inline = check_inline(yctx)
+    define(yctx, "inline", inline)
     numpyconfig_sym.append(('DEFINE_NPY_ENABLE_SEPARATE_COMPILATION', ''))
 
     if check_header(yctx, "complex.h"):
