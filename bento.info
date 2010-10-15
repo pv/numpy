@@ -44,7 +44,8 @@ Subento:
 HookFile:
     bscript,
     numpy/core/bscript,
-    numpy/linalg/bscript
+    numpy/linalg/bscript,
+    numpy/random/bscript
 
 ExtraSourceFiles:
     numpy_templates.py,

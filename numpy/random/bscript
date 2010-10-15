@@ -1,0 +1,25 @@
+import copy
+
+from bento.commands.hooks \
+    import \
+        post_configure, pre_build
+from yaku.conftests \
+    import \
+        check_cpp_symbol
+
+@post_configure
+def pconfigure(ctx):
+    yctx = ctx.yaku_configure_ctx
+
+    if check_cpp_symbol(yctx, "_WIN32"):
+        yctx.env["CRYPTO_LIBS"] = {"LIBS": ["Advapi32"]}
+
+@pre_build
+def pbuild(ctx):
+    bld = ctx.yaku_build_ctx
+
+    random_env = {} 
+    for flag, value in bld.env["CRYPTO_LIBS"].items():
+        random_env["PYEXT_%s" % flag] = value[:]
+
+    ctx.register_environment("mtrand", random_env)
