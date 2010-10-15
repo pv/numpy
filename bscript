@@ -19,6 +19,9 @@ from bento.commands.errors \
 from bento.commands.core \
     import \
         register_command, Command
+from bento.installed_package_description \
+    import \
+        InstalledSection
 from yaku.conftests \
     import \
         check_compiler
@@ -81,6 +84,17 @@ def prebuild(ctx):
     templater = bld.builders["tpl_tasks"]
     tasks = templater.build("version", [os.path.join("numpy", "version.py.in")])
     tasks += templater.build("__config__", [os.path.join("numpy", "__config__.py.in")])
+
+    section_writer = ctx.cmd.section_writer
+    section = InstalledSection(
+                  "gen_pythonfiles",
+                  "library",
+                  os.path.join("$_srcrootdir",
+                               ctx.yaku_build_ctx.env["BLDDIR"]),
+                  "$sitedir",
+                  [os.path.join("numpy", "version.py"),
+                   os.path.join("numpy", "__config__.py")])
+    section_writer.sections["pythonfiles"]["gen_files"] = section
 
 @post_build
 def postbuild(ctx):
