@@ -182,6 +182,12 @@ def myconfigure(cfg):
         check_prec(yctx, '')
         check_prec(yctx, 'f')
         check_prec(yctx, 'l')
+    else:
+        numpyconfig_sym.append(
+                ('DEFINE_NPY_USE_C99_COMPLEX', ''))
+        for t in C99_COMPLEX_TYPES:
+            numpyconfig_sym.append(('DEFINE_NPY_HAVE_%s' %
+                                    value_to_string(t), ''))
 
     if check_header(yctx, "endian.h"):
         numpyconfig_sym.append(
