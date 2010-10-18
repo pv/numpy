@@ -280,8 +280,6 @@ def check_funcs(ctx, funcs):
         for f in funcs:
             check_func(ctx, f)
 
-from yaku.conf import ccompile, create_file
-
 def check_inline(context):
     context.start_message("Checking for inline keyword... ")
     body = """
