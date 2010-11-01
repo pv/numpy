@@ -11,8 +11,9 @@ from yaku.conftests \
 def pconfigure(ctx):
     yctx = ctx.yaku_configure_ctx
 
+    yctx.env["CRYPTO_LIBS"] = {}
     if check_cpp_symbol(yctx, "_WIN32"):
-        yctx.env["CRYPTO_LIBS"] = {"LIBS": ["Advapi32"]}
+        yctx.env["CRYPTO_LIBS"]["LIBS"] = ["Advapi32"]
 
 @pre_build
 def pbuild(ctx):
