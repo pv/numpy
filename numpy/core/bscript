@@ -15,7 +15,7 @@ from yaku.conftests \
         check_funcs_at_once, check_func, generate_config_h, define, check_lib, define
 from yaku.conf \
     import \
-        create_compile_conf_taskgen
+        with_conf_blddir
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -206,7 +206,7 @@ def myconfigure(cfg):
 #endif
     }
     """
-        if create_compile_conf_taskgen(yctx, "visibility_check", src, []):
+        if yctx.builders["ctasks"].try_compile("visibility_check", src):
             return '__attribute__((visibility("hidden")))'
         else:
             return ''
@@ -294,8 +294,9 @@ static %(inline)s int static_func (void)
 }
 #endif"""
     inline = None
+    cbuilder = context.builders["ctasks"]
     for kw in ['inline', '__inline__', '__inline']:
-        st = create_compile_conf_taskgen(context, "check_inline", body % {'inline': kw}, None)
+        st = cbuilder.try_compile("check_inline", body % {'inline': kw})
         if st:
             inline = kw
             break
@@ -318,16 +319,17 @@ def check_ldouble_representation(context):
 
     context.start_message("Checking for long double representation... ")
     body = LONG_DOUBLE_REPRESENTATION_SRC % {'type': 'long double'}
-    st = create_compile_conf_taskgen(context, "check_cpp_symbol", body, None)
-    if st:
-        obj = context.last_task.outputs[0]
-        tp = long_double_representation(pyod(obj.abspath()))
-        context.end_message(msg[tp])
-        define(context, "HAVE_LDOUBLE_%s" % tp, 1,
-               "Define for arch-specific long double representation")
-        return tp
-    else:
-        context.end_message("failed")
+    def f():
+        if context.builders["ctasks"].try_compile_no_blddir("foo", body):
+            obj = context.last_task.outputs[0]
+            tp = long_double_representation(pyod(obj.abspath()))
+            context.end_message(msg[tp])
+            define(context, "HAVE_LDOUBLE_%s" % tp, 1,
+                   "Define for arch-specific long double representation")
+            return tp
+        else:
+            context.end_message("failed")
+    with_conf_blddir(context, "exeshlib", "checking for long double representation", f)
 
 def is_npy_no_signal():
     """Return True if the NPY_NO_SIGNAL symbol must be defined in
