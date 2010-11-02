@@ -12,7 +12,7 @@ finally:
 
 from bento.commands.hooks \
     import \
-        post_configure, pre_build, post_build
+        pre_configure, post_configure, pre_build, post_build
 from bento.commands.errors \
     import \
         CommandExecutionFailure
@@ -42,7 +42,7 @@ def check_supported_archs(cfg):
             cfg.env["LINKFLAGS"] = old_link
     return archs
 
-@post_configure
+@pre_configure
 def configure(ctx):
     yctx = ctx.yaku_configure_ctx
 
