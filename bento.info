@@ -34,7 +34,7 @@ Classifiers:
     Operating System :: Unix,
     Operating System :: MacOS
 
-Subento:
+Recurse:
     numpy/core,
     numpy/lib,
     numpy/fft,
