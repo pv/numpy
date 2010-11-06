@@ -2,7 +2,7 @@ from bento.commands.hooks \
     import \
         pre_build
 
-@pre_build
+@pre_build()
 def prebuild(ctx):
     cfg = ctx.yaku_build_ctx
     if cfg.env.has_key("LAPACK"):

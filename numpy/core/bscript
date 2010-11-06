@@ -39,7 +39,7 @@ from code_generators.generate_ufunc_api \
          do_generate_api as nowrap_do_generate_ufunc_api
 from code_generators import generate_umath
 
-@post_configure
+@post_configure()
 def myconfigure(cfg):
     yctx = cfg.yaku_configure_ctx
 
