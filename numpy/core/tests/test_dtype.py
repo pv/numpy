@@ -26,11 +26,11 @@ class TestBuiltin(TestCase):
             dt = np.dtype(t)
             dt2 = dt.newbyteorder("<")
             dt3 = dt.newbyteorder(">")
+            # XXX: this test does not work -- it's not possible to create
+            #      unnormalized byte orders from Python
             if dt == dt2:
-                self.assertTrue(dt.byteorder != dt2.byteorder, "bogus test")
                 assert_dtype_equal(dt, dt2)
             else:
-                self.assertTrue(dt.byteorder != dt3.byteorder, "bogus test")
                 assert_dtype_equal(dt, dt3)
 
 class TestRecord(TestCase):

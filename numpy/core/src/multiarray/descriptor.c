@@ -2577,7 +2577,12 @@ PyArray_DescrNewByteorder(PyArray_Descr *self, char newendian)
             new->byteorder = endian;
         }
         else if (newendian != PyArray_IGNORE) {
-            new->byteorder = newendian;
+            if (PyArray_IsNativeByteOrder(newendian)) {
+                new->byteorder = '=';
+            }
+            else {
+                new->byteorder = newendian;
+            }
         }
     }
     if (new->names) {

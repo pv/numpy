@@ -1441,5 +1441,16 @@ class TestRegression(TestCase):
         a = a.byteswap().newbyteorder()
         assert_equal(a.nonzero()[0], [1]) # [0] if nonzero() ignores swap
 
+    def test_newdtype_normalize_byteorder(self):
+        if sys.byteorder == 'little':
+            a = np.dtype('<f')
+            b = a.newbyteorder('<')
+        else:
+            a = np.dtype('>f')
+            b = a.newbyteorder('>')
+
+        assert_equal(a.byteorder, '=')
+        assert_equal(b.byteorder, '=')
+
 if __name__ == "__main__":
     run_module_suite()
