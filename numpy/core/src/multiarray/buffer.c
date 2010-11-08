@@ -287,7 +287,7 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
             descr->type_num == NPY_ULONGLONG);
 #endif
 
-        if (descr->byteorder == '=' &&
+        if (PyArray_IsNativeByteOrder(descr->byteorder) &&
                 _is_natively_aligned_at(descr, arr, *offset)) {
             /* Prefer native types, to cater for Cython */
             is_standard_size = 0;
@@ -296,7 +296,7 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
                 *active_byteorder = '@';
             }
         }
-        else if (descr->byteorder == '=' && is_native_only_type) {
+        else if (PyArray_IsNativeByteOrder(descr->byteorder) && is_native_only_type) {
             /* Data types that have no standard size */
             is_standard_size = 0;
             if (*active_byteorder != '^') {

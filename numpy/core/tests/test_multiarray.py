@@ -1742,9 +1742,9 @@ if sys.version_info >= (2, 6):
 
             sz = sum([dtype(b).itemsize for a, b in dt])
             if dtype('l').itemsize == 4:
-                assert_equal(y.format, 'T{b:a:=h:b:i:c:l:d:^q:dx:B:e:@H:f:=I:g:L:h:^Q:hx:=f:i:d:j:^g:k:=Zf:ix:Zd:jx:^Zg:kx:4s:l:=4w:m:3x:n:?:o:}')
+                assert_equal(y.format, 'T{b:a:=h:b:i:c:l:d:^q:dx:@B:e:H:f:=I:g:L:h:^Q:hx:=f:i:d:j:^g:k:=Zf:ix:Zd:jx:^Zg:kx:@4s:l:=4w:m:@3x:n:?:o:}')
             else:
-                assert_equal(y.format, 'T{b:a:=h:b:i:c:q:d:^q:dx:B:e:@H:f:=I:g:Q:h:^Q:hx:=f:i:d:j:^g:k:=Zf:ix:Zd:jx:^Zg:kx:4s:l:=4w:m:3x:n:?:o:}')
+                assert_equal(y.format, 'T{b:a:=h:b:i:c:q:d:^q:dx:@B:e:H:f:=I:g:Q:h:^Q:hx:=f:i:d:j:^g:k:=Zf:ix:Zd:jx:^Zg:kx:@4s:l:=4w:m:@3x:n:?:o:}')
             assert_equal(y.strides, (sz,))
             assert_equal(y.itemsize, sz)
 
