@@ -172,10 +172,10 @@ U@TYPE@_remainder(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(f
 
 /**begin repeat
  * Float types
- *  #type = float, double, longdouble#
- *  #TYPE = FLOAT, DOUBLE, LONGDOUBLE#
- *  #c = f, , l#
- *  #C = F, , L#
+ *  #type = half, float, double, longdouble#
+ *  #TYPE = HALF, FLOAT, DOUBLE, LONGDOUBLE#
+ *  #c = f, f, , l#
+ *  #C = F, F, , L#
  */
 
 

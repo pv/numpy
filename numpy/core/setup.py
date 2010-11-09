@@ -610,7 +610,8 @@ def configuration(parent_package='',top_path=None):
         from numpy.distutils.misc_util import get_cmd
 
         subpath = join('src', 'umath')
-        sources = [join(local_dir, subpath, 'loops.c.src'),
+        sources = [join(local_dir, subpath, 'loops.h.src'),
+                   join(local_dir, subpath, 'loops.c.src'),
                    join(local_dir, subpath, 'umathmodule.c.src')]
 
         # numpy.distutils generate .c from .c.src in weird directories, we have

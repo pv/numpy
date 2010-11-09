@@ -13,10 +13,12 @@
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "numpy/npy_math.h"
+#include "numpy/halffloat.h"
 
 #include "numpy/npy_3kcompat.h"
 
 #include "ufunc_object.h"
+
 
 /*
  *****************************************************************************
@@ -76,13 +78,48 @@
  *****************************************************************************/
 
 
+typedef float halfUnaryFunc(half x);
 typedef float floatUnaryFunc(float x);
 typedef double doubleUnaryFunc(double x);
 typedef longdouble longdoubleUnaryFunc(longdouble x);
+typedef half halfBinaryFunc(half x, half y);
 typedef float floatBinaryFunc(float x, float y);
 typedef double doubleBinaryFunc(double x, double y);
 typedef longdouble longdoubleBinaryFunc(longdouble x, longdouble y);
 
+
+/*UFUNC_API*/
+NPY_NO_EXPORT void
+PyUFunc_j_j(char **args, intp *dimensions, intp *steps, void *func)
+{
+    halfUnaryFunc *f = (halfUnaryFunc *)func;
+    UNARY_LOOP {
+        const half in1 = *(half *)ip1;
+        *(half *)op1 = f(in1);
+    }
+}
+
+/*UFUNC_API*/
+NPY_NO_EXPORT void
+PyUFunc_j_j_As_f_f(char **args, intp *dimensions, intp *steps, void *func)
+{
+    floatUnaryFunc *f = (floatUnaryFunc *)func;
+    UNARY_LOOP {
+        const float in1 = half_to_float(*(half *)ip1);
+        *(half *)op1 = float_to_half(f(in1));
+    }
+}
+
+/*UFUNC_API*/
+NPY_NO_EXPORT void
+PyUFunc_j_j_As_d_d(char **args, intp *dimensions, intp *steps, void *func)
+{
+    doubleUnaryFunc *f = (doubleUnaryFunc *)func;
+    UNARY_LOOP {
+        const double in1 = half_to_double(*(half *)ip1);
+        *(half *)op1 = double_to_half(f(in1));
+    }
+}
 
 /*UFUNC_API*/
 NPY_NO_EXPORT void
@@ -103,6 +140,42 @@ PyUFunc_f_f_As_d_d(char **args, intp *dimensions, intp *steps, void *func)
     UNARY_LOOP {
         const float in1 = *(float *)ip1;
         *(float *)op1 = (float)f((double)in1);
+    }
+}
+
+/*UFUNC_API*/
+NPY_NO_EXPORT void
+PyUFunc_jj_j(char **args, intp *dimensions, intp *steps, void *func)
+{
+    halfBinaryFunc *f = (halfBinaryFunc *)func;
+    BINARY_LOOP {
+        half in1 = *(half *)ip1;
+        half in2 = *(half *)ip2;
+        *(half *)op1 = f(in1, in2);
+    }
+}
+
+/*UFUNC_API*/
+NPY_NO_EXPORT void
+PyUFunc_jj_j_As_ff_f(char **args, intp *dimensions, intp *steps, void *func)
+{
+    floatBinaryFunc *f = (floatBinaryFunc *)func;
+    BINARY_LOOP {
+        float in1 = half_to_float(*(half *)ip1);
+        float in2 = half_to_float(*(half *)ip2);
+        *(half *)op1 = float_to_half(f(in1, in2));
+    }
+}
+
+/*UFUNC_API*/
+NPY_NO_EXPORT void
+PyUFunc_jj_j_As_dd_d(char **args, intp *dimensions, intp *steps, void *func)
+{
+    doubleBinaryFunc *f = (doubleBinaryFunc *)func;
+    BINARY_LOOP {
+        double in1 = half_to_double(*(half *)ip1);
+        double in2 = half_to_double(*(half *)ip2);
+        *(half *)op1 = double_to_half(f(in1, in2));
     }
 }
 
@@ -1053,8 +1126,6 @@ NPY_NO_EXPORT void
 }
 /**end repeat1**/
 
-/**end repeat1**/
-
 /**begin repeat1
  * #kind = equal, not_equal, less, less_equal, greater, greater_equal,
  *        logical_and, logical_or#
@@ -1321,6 +1392,315 @@ NPY_NO_EXPORT void
 #define @TYPE@_true_divide @TYPE@_divide
 
 /**end repeat**/
+
+/*
+ *****************************************************************************
+ **                          HALF-FLOAT LOOPS                               **
+ *****************************************************************************
+ */
+
+
+/**begin repeat
+ * Arithmetic
+ * # kind = add, subtract, multiply, divide#
+ * # OP = +, -, *, /#
+ */
+NPY_NO_EXPORT void
+HALF_@kind@(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    if(IS_BINARY_REDUCE) {
+        /* Manually broke out the BINARY_REDUCE_LOOP so io1 can be float */
+        char *iop1 = args[0], *ip2 = args[1];
+        intp is2 = steps[1];
+        intp n = dimensions[0];
+        intp i;
+        float io1 = half_to_float(*(half *)iop1);
+        for(i = 0; i < n; i++, ip2 += is2) {
+            io1 @OP@= half_to_float(*(half *)ip2);
+        }
+        *((half *)iop1) = float_to_half(io1);
+    }
+    else {
+        BINARY_LOOP {
+            const float in1 = half_to_float(*(half *)ip1);
+            const float in2 = half_to_float(*(half *)ip2);
+            *((half *)op1) = float_to_half(in1 @OP@ in2);
+        }
+    }
+}
+/**end repeat**/
+
+#define _HALF_LOGICAL_AND(a,b) (!half_iszero(a) && !half_iszero(b))
+#define _HALF_LOGICAL_OR(a,b) (!half_iszero(a) || !half_iszero(b))
+/**begin repeat
+ * #kind = equal, not_equal, less, less_equal, greater, greater_equal,
+ *        logical_and, logical_or#
+ * #OP = half_eq, half_ne, half_lt, half_le, half_gt, half_ge, _HALF_LOGICAL_AND, _HALF_LOGICAL_OR#
+ */
+NPY_NO_EXPORT void
+HALF_@kind@(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    BINARY_LOOP {
+        const half in1 = *(half *)ip1;
+        const half in2 = *(half *)ip2;
+        *((Bool *)op1) = @OP@(in1, in2);
+    }
+}
+/**end repeat**/
+#undef _HALF_LOGICAL_AND
+#undef _HALF_LOGICAL_OR
+
+NPY_NO_EXPORT void
+HALF_logical_xor(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    BINARY_LOOP {
+        const int in1 = !half_iszero(*(half *)ip1);
+        const int in2 = !half_iszero(*(half *)ip2);
+        *((Bool *)op1)= (in1 && !in2) || (!in1 && in2);
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_logical_not(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    UNARY_LOOP {
+        const half in1 = *(half *)ip1;
+        *((Bool *)op1) = half_iszero(in1);
+    }
+}
+
+/**begin repeat
+ * #kind = isnan, isinf, isfinite, signbit#
+ * #func = half_isnan, half_isinf, half_isfinite, half_signbit#
+ **/
+NPY_NO_EXPORT void
+HALF_@kind@(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    UNARY_LOOP {
+        const half in1 = *(half *)ip1;
+        *((Bool *)op1) = @func@(in1) != 0;
+    }
+}
+/**end repeat**/
+
+NPY_NO_EXPORT void
+HALF_spacing(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    UNARY_LOOP {
+        const half in1 = *(half *)ip1;
+        *((half *)op1) = half_spacing(in1);
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_copysign(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    BINARY_LOOP {
+        const half in1 = *(half *)ip1;
+        const half in2 = *(half *)ip2;
+        *((half *)op1)= half_copysign(in1, in2);
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_nextafter(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    BINARY_LOOP {
+        const half in1 = *(half *)ip1;
+        const half in2 = *(half *)ip2;
+        *((half *)op1)= half_nextafter(in1, in2);
+    }
+}
+
+/**begin repeat
+ * #kind = maximum, minimum#
+ * #OP =  half_ge, half_le#
+ **/
+NPY_NO_EXPORT void
+HALF_@kind@(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    /*  */
+    BINARY_LOOP {
+        const half in1 = *(half *)ip1;
+        const half in2 = *(half *)ip2;
+        *((half *)op1) = (@OP@(in1, in2) || half_isnan(in1)) ? in1 : in2;
+    }
+}
+/**end repeat**/
+
+/**begin repeat
+ * #kind = fmax, fmin#
+ * #OP =  half_ge, half_le#
+ **/
+NPY_NO_EXPORT void
+HALF_@kind@(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    /*  */
+    BINARY_LOOP {
+        const half in1 = *(half *)ip1;
+        const half in2 = *(half *)ip2;
+        *((half *)op1) = (@OP@(in1, in2) || half_isnan(in2)) ? in1 : in2;
+    }
+}
+/**end repeat**/
+
+NPY_NO_EXPORT void
+HALF_floor_divide(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    BINARY_LOOP {
+        const float in1 = half_to_float(*(half *)ip1);
+        const float in2 = half_to_float(*(half *)ip2);
+        *((half *)op1) = float_to_half(npy_floorf(in1/in2));
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_remainder(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    BINARY_LOOP {
+        const float in1 = half_to_float(*(half *)ip1);
+        const float in2 = half_to_float(*(half *)ip2);
+        const float res = npy_fmodf(in1,in2);
+        if (res && ((in2 < 0) != (res < 0))) {
+            *((half *)op1) = float_to_half(res + in2);
+        }
+        else {
+            *((half *)op1) = float_to_half(res);
+        }
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_square(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(data))
+{
+    UNARY_LOOP {
+        const float in1 = half_to_float(*(half *)ip1);
+        *((half *)op1) = float_to_half(in1*in1);
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_reciprocal(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(data))
+{
+    UNARY_LOOP {
+        const float in1 = half_to_float(*(half *)ip1);
+        *((half *)op1) = float_to_half(1/in1);
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_ones_like(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(data))
+{
+    OUTPUT_LOOP {
+        *((half *)op1) = HALF_ONE;
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_conjugate(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    UNARY_LOOP {
+        const half in1 = *(half *)ip1;
+        *((half *)op1) = in1;
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_absolute(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    UNARY_LOOP {
+        const half in1 = *(half *)ip1;
+        *((half *)op1) = in1&0x7fffu;
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_negative(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    UNARY_LOOP {
+        const half in1 = *(half *)ip1;
+        *((half *)op1) = in1^0x8000u;
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_sign(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    /* Sign of nan is nan */
+    UNARY_LOOP {
+        const half in1 = *(half *)ip1;
+        *((half *)op1) = half_isnan(in1) ? in1 :
+                            (((in1&0x7fffu) == 0) ? 0 :
+                                (((in1&0x8000u) == 0) ? HALF_ONE : HALF_NEGONE));
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_modf(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    float temp;
+
+    UNARY_LOOP_TWO_OUT {
+        const float in1 = half_to_float(*(half *)ip1);
+        *((half *)op1) = float_to_half(npy_modff(in1, &temp));
+        *((half *)op2) = float_to_half(temp);
+    }
+}
+
+#ifdef HAVE_FREXPF
+NPY_NO_EXPORT void
+HALF_frexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    UNARY_LOOP_TWO_OUT {
+        const float in1 = half_to_float(*(half *)ip1);
+        *((half *)op1) = float_to_half(frexpf(in1, (int *)op2));
+    }
+}
+#endif
+
+#ifdef HAVE_LDEXPF
+NPY_NO_EXPORT void
+HALF_ldexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    BINARY_LOOP {
+        const float in1 = half_to_float(*(half *)ip1);
+        const int in2 = *(int *)ip2;
+        *((half *)op1) = float_to_half(ldexpf(in1, in2));
+    }
+}
+
+NPY_NO_EXPORT void
+HALF_ldexp_long(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func))
+{
+    /*
+     * Additional loop to handle long integer inputs (cf. #866, #1633).
+     * long != int on many 64-bit platforms, so we need this second loop
+     * to handle the default integer type.
+     */
+    BINARY_LOOP {
+        const float in1 = half_to_float(*(half *)ip1);
+        const long in2 = *(long *)ip2;
+        if (((int)in2) == in2) {
+            /* Range OK */
+            *((half *)op1) = float_to_half(ldexpf(in1, ((int)in2)));
+        }
+        else {
+            /*
+             * Outside int range -- also ldexp will overflow in this case,
+             * given that exponent has less bits than int.
+             */
+            if (in2 > 0) {
+                *((half *)op1) = float_to_half(ldexpf(in1, NPY_MAX_INT));
+            }
+            else {
+                *((half *)op1) = float_to_half(ldexpf(in1, NPY_MIN_INT));
+            }
+        }
+    }
+}
+#endif
+
+#define HALF_true_divide HALF_divide
 
 
 /*
