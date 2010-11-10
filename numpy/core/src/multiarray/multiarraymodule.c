@@ -559,7 +559,7 @@ PyArray_CanCoerceScalar(int thistype, int neededtype,
             return (neededtype >= PyArray_BYTE)
                 && !(PyTypeNum_ISUNSIGNED(neededtype));
         case PyArray_FLOAT_SCALAR:
-            return (neededtype >= PyArray_FLOAT);
+            return (neededtype >= PyArray_HALF);
         case PyArray_COMPLEX_SCALAR:
             return (neededtype >= PyArray_CFLOAT);
         default:

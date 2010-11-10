@@ -632,6 +632,7 @@ PyArray_CanCastSafely(int fromtype, int totype)
         else {
             return totype > fromtype;
         }
+    case PyArray_HALF:
     case PyArray_FLOAT:
     case PyArray_DOUBLE:
     case PyArray_LONGDOUBLE:
