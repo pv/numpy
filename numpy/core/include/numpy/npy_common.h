@@ -195,6 +195,7 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_MIN_LONG  LONG_MIN
 #define NPY_MAX_ULONG  ULONG_MAX
 
+#define NPY_SIZEOF_HALF 2
 #define NPY_SIZEOF_DATETIME 8
 #define NPY_SIZEOF_TIMEDELTA 8
 
@@ -204,6 +205,7 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_BITSOF_INT (NPY_SIZEOF_INT * CHAR_BIT)
 #define NPY_BITSOF_LONG (NPY_SIZEOF_LONG * CHAR_BIT)
 #define NPY_BITSOF_LONGLONG (NPY_SIZEOF_LONGLONG * CHAR_BIT)
+#define NPY_BITSOF_HALF (NPY_SIZEOF_HALF * CHAR_BIT)
 #define NPY_BITSOF_FLOAT (NPY_SIZEOF_FLOAT * CHAR_BIT)
 #define NPY_BITSOF_DOUBLE (NPY_SIZEOF_DOUBLE * CHAR_BIT)
 #define NPY_BITSOF_LONGDOUBLE (NPY_SIZEOF_LONGDOUBLE * CHAR_BIT)
@@ -835,6 +837,10 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_FLOAT256_FMT NPY_LONGDOUBLE_FMT
 #define NPY_COMPLEX512_FMT NPY_CLONGDOUBLE_FMT
 #endif
+
+/* half float16 typedef */
+typedef npy_uint16 npy_half;
+#define NPY_HALF_FMT "g"
 
 /* datetime typedefs */
 typedef npy_int64 npy_timedelta;

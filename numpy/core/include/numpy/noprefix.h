@@ -25,6 +25,7 @@ compatibility measure*/
 #define ushort      npy_ushort
 #define uint        npy_uint
 #define ulong       npy_ulong
+#define half        npy_half
 #define cfloat      npy_cfloat
 #define cdouble     npy_cdouble
 #define clongdouble npy_clongdouble
@@ -108,12 +109,14 @@ compatibility measure*/
 
 #define SIZEOF_LONGDOUBLE NPY_SIZEOF_LONGDOUBLE
 #define SIZEOF_LONGLONG   NPY_SIZEOF_LONGLONG
+#define SIZEOF_HALF       NPY_SIZEOF_HALF
 #define BITSOF_BOOL       NPY_BITSOF_BOOL
 #define BITSOF_CHAR       NPY_BITSOF_CHAR
 #define BITSOF_SHORT      NPY_BITSOF_SHORT
 #define BITSOF_INT        NPY_BITSOF_INT
 #define BITSOF_LONG       NPY_BITSOF_LONG
 #define BITSOF_LONGLONG   NPY_BITSOF_LONGLONG
+#define BITSOF_HALF       NPY_BITSOF_HALF
 #define BITSOF_FLOAT      NPY_BITSOF_FLOAT
 #define BITSOF_DOUBLE     NPY_BITSOF_DOUBLE
 #define BITSOF_LONGDOUBLE NPY_BITSOF_LONGDOUBLE
@@ -197,5 +200,39 @@ compatibility measure*/
 
 #define REFCOUNT PyArray_REFCOUNT
 #define MAX_ELSIZE NPY_MAX_ELSIZE
+
+#define half_to_float npy_half_to_float
+#define half_to_double npy_half_to_double
+#define float_to_half npy_float_to_half
+#define double_to_half npy_double_to_half
+#define half_eq npy_half_eq
+#define half_ne npy_half_ne
+#define half_le npy_half_le
+#define half_lt npy_half_lt
+#define half_ge npy_half_ge
+#define half_gt npy_half_gt
+#define half_eq_nonan npy_half_eq_nonan
+#define half_lt_nonan npy_half_lt_nonan
+#define half_le_nonan npy_half_le_nonan
+#define half_iszero npy_half_iszero
+#define half_isnan npy_half_isnan
+#define half_isinf npy_half_isinf
+#define half_isfinite npy_half_isfinite
+#define half_signbit npy_half_signbit
+#define half_spacing npy_half_spacing
+#define half_copysign npy_half_copysign
+#define half_nextafter npy_half_nextafter
+#define HALF_ZERO NPY_HALF_ZERO
+#define HALF_PZERO NPY_HALF_PZERO
+#define HALF_NZERO NPY_HALF_NZERO
+#define HALF_ONE NPY_HALF_ONE
+#define HALF_NEGONE NPY_HALF_NEGONE
+#define HALF_PINF NPY_HALF_PINF
+#define HALF_NINF NPY_HALF_NINF
+#define HALF_NAN NPY_HALF_NAN
+#define floatbits_to_halfbits npy_floatbits_to_halfbits
+#define doublebits_to_halfbits npy_doublebits_to_halfbits
+#define halfbits_to_floatbits npy_halfbits_to_floatbits
+#define halfbits_to_doublebits npy_halfbits_to_doublebits
 
 #endif
