@@ -651,7 +651,7 @@ static PyObject *
 {
     PyObject *ret;
     @name@ arg1, arg2;
-    @otyp@ out;
+    volatile @otyp@ out; /* Declare volatile to prevent buggy reordering */
 #if @twoout@
     @otyp@ out2;
     PyObject *obj;
@@ -692,9 +692,9 @@ static PyObject *
      * as a function call.
      */
 #if @twoout@
-    @name@_ctype_@oper@(arg1, arg2, &out, &out2);
+    @name@_ctype_@oper@(arg1, arg2, (@otyp@ *)&out, &out2);
 #else
-    @name@_ctype_@oper@(arg1, arg2, &out);
+    @name@_ctype_@oper@(arg1, arg2, (@otyp@ *)&out);
 #endif
 
 #if @fperr@
