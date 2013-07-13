@@ -2407,6 +2407,12 @@ PyUFunc_GenericFunction(PyUFuncObject *ufunc,
         goto fail;
     }
 
+    PyObject *override;
+    override = _find_ufunc_override(ufunc, args);
+    if (override != NULL) {
+        return 0;
+    }
+
     /* Only do the trivial loop check for the unmasked version. */
     if (!need_fancy) {
         /*
@@ -4100,6 +4106,12 @@ ufunc_generic_call(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
     /* Free the input references */
     for (i = 0; i < ufunc->nin; i++) {
         Py_XDECREF(mps[i]);
+    }
+
+    PyObject *override = NULL;
+    override = _find_ufunc_override(ufunc, args);
+    if (override) {
+        return PyObject_Call(override, args, kwds);
     }
 
     /*
