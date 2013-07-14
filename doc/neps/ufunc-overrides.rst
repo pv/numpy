@@ -19,7 +19,7 @@ to no support for arbitrary objects. e.g. SciPy's sparse matrices [2]_
 Here we propose adding a mechanism to override ufuncs based on the ufunc
 checking each of it's arguments for a ``__ufunc_override__`` attribute.
 On discovery of ``__ufunc_override__`` the ufunc will hand off the
-operation to a function contianed the attribute. 
+operation to a function contained the attribute. 
 
 This covers some of the same ground as Travis Oliphant's proposal to
 retro-fit NumPy with multi-methods [4]_, which would solve the same
@@ -38,11 +38,11 @@ The current machinery for dispatching ufuncs is generally agreed to be
 at a dead end. There have been lengthy discussions and other proposed
 solutions [5]_. 
 
-Using subclasses of ndarray is limitted to ``__array_prepare__`` and
-``__array_wrap__`` but these don't even allow you to change the shape or
-the data of the arguments. Ufuncing things that don't subclass ndarray
-is even more hopeless. Take this example of ufuncs interopability with
-sparse matrices.::
+Using ufuncs with subclasses of ndarray is limited to
+``__array_prepare__`` and ``__array_wrap__`` but these don't even allow
+you to change the shape or the data of the arguments. Ufuncing things
+that don't subclass ndarray is even more hopeless. Take this example of
+ufuncs interoperability with sparse matrices.::
 
     In [1]: import numpy as np
     import scipy.sparse as sp
@@ -62,31 +62,101 @@ sparse matrices.::
                    [4, 0, 1]]))
 
     In [3]: np.multiply(a, b) # The right answer
-    Out[3]:array([[0, 4, 0],
-                  [0, 0, 2],
-                  [4, 0, 1]])
+    Out[3]: array([[0, 4, 0],
+                   [0, 0, 2],
+                   [4, 0, 1]])
 
+    In [4]: np.multiply(asp, bsp).todense() # calls __mul__ which does matrix multi
+    Out[4]: matrix([[16,  0,  8],
+                    [ 8,  1,  5],
+                    [ 4,  1,  4]], dtype=int64)
+                    
+    In [5]: np.multiply(a, bsp) # Returns NotImplemented to user, bad!
+    Out[5]: NotImplemed
 
-To start with, it is virtually impossible to come up with a single
-date/time type that fills the needs of every case of use.  So, after
-pondering about different possibilities, we have stuck with *two*
-different types, namely ``datetime64`` and ``timedelta64`` (these names
-are preliminary and can be changed), that can have different time units
-so as to cover different needs.
+Returning ``NotImplemented`` to user should not happen. I'm not sure if
+the blame for this lies in scipy.sparse or numpy, but it should be
+fixed.::
+
+    In [6]: np.multiply(asp, b)
+    Out[6]: array([[ <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>,
+                        <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>,
+                        <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>],
+                       [ <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>,
+                        <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>,
+                        <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>],
+                       [ <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>,
+                        <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>,
+                        <3x3 sparse matrix of type '<class 'numpy.int64'>'
+                    with 8 stored elements in Compressed Sparse Row format>]], dtype=object)
+
+I'm not sure what happened here either, but I think raising
+``TypeError`` would be preferable. Adding the ``__ufunc_override__``
+functionality fixes this.
 
 .. [5] http://mail.scipy.org/pipermail/numpy-discussion/2011-June/056945.html
 
 Implementation
 ==============
 
-Compatability
--------------
+Classes that should override ufuncs should contain a
+``__array_priority__`` and ``__ufunc_override__`` attribute.
+``__ufunc_override__`` is a dictionary keyed with the name
+(``ufunc.__name__``) of the ufunc to be overridden, and valued with the
+callable function that should override the ufunc. 
 
-Forward
-~~~~~~~
+Every time a ufunc is executed it checks it arguments for a
+``__ufunc_override__`` attribute. Then checks if the attribute contains
+an override for the ufunc being called. A list of the eligible
+overrides are made, then their corresponding ``__array_priority__`` is
+compared to find the override with the highest priority. Once an
+override is found, it is called with the ``args`` and ``kwds`` that were
+given to the original ufunc.
 
-Backward
-~~~~~~~~
+Handing ``args`` and ``kwds``  as-is to the replacement function has one
+drawback; if the replacement *function* is a *method* of the overriding argument, then
+it expects this argument (``self``) to come first. In general this is
+not the case unless the arguments are reordered for the overriding
+argument to come first. This is probably a bad idea since ufuncs are not
+necessarily associative. So the replacement funtions should be able to
+handle the arguments in the same order as passed to the ufunc.
+
+Demo
+====
+
+A pull request[6]_ has been made including the changes proposed in this NEP.
+Here is a demo highlighting the effectiveness. Using the same variables
+as above, except sparse matrices have a ufunc override attribute for
+multiply.::
+
+    In [1]: asp.__ufunc_override__
+    Out[1]: {'multiply': <function scipy.sparse.base.multiply>}
+
+
+    In [2]: np.multiply(asp, b)
+    Out[2]: matrix([[0, 4, 0],
+                    [0, 0, 2],
+                    [4, 0, 1]])
+
+We can define a simple class that will override the ufuncs like this.::
+
+    In [3]: class TestClass(object):
+                def foo(*args, **kwds):
+                    return 42  # The answer.
+                __array_priority__ = 13  # Just > matrix priority.
+                __ufunc_override__ = {'add':foo}  # override add w/ foo
+
+    In [4]: bar = TestClass()
+    In [5]: np.add(bar, a)
+    Out[5]: 42
 
 .. Local Variables:
 .. mode: rst
