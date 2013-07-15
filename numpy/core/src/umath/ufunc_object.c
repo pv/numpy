@@ -712,14 +712,11 @@ _find_ufunc_override(PyUFuncObject *ufunc, PyObject *args)
 {
     int i;
     int nin = ufunc->nin;
-    int noa = 0; // number override args, Better name?
+    int noa = 0;
     const char *ufunc_name;
     PyObject *obj;
     PyObject *with_override[NPY_MAXARGS], *overrides[NPY_MAXARGS];
     PyObject *override = NULL, *override_dict = NULL;
-
-
-    ufunc_name = ufunc->name ? ufunc->name : "<unnamed ufunc>";
     
     for (i = 0; i < nin; i++) {
         obj = PyTuple_GET_ITEM(args, i);
@@ -729,6 +726,7 @@ _find_ufunc_override(PyUFuncObject *ufunc, PyObject *args)
         override_dict = PyObject_GetAttrString(obj, "__ufunc_override__");
         if (override_dict) {
             if (PyDict_CheckExact(override_dict)) {
+                ufunc_name = ufunc->name ? ufunc->name : "<unnamed ufunc>";
                 override = PyDict_GetItemString(override_dict, ufunc_name);
                 if (PyCallable_Check(override)) {
                     with_override[noa] = obj;
@@ -2407,12 +2405,6 @@ PyUFunc_GenericFunction(PyUFuncObject *ufunc,
         goto fail;
     }
 
-    PyObject *override;
-    override = _find_ufunc_override(ufunc, args);
-    if (override != NULL) {
-        return 0;
-    }
-
     /* Only do the trivial loop check for the unmasked version. */
     if (!need_fancy) {
         /*
@@ -4073,6 +4065,7 @@ ufunc_generic_call(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
     PyObject *retobj[NPY_MAXARGS];
     PyObject *wraparr[NPY_MAXARGS];
     PyObject *res;
+    PyObject *override = NULL;
     int errval;
 
     /*
@@ -4081,6 +4074,11 @@ ufunc_generic_call(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
      */
     for (i = 0; i < ufunc->nargs; i++) {
         mps[i] = NULL;
+    }
+
+    override = _find_ufunc_override(ufunc, args);
+    if (override) {
+        return PyObject_Call(override, args, kwds);
     }
 
     errval = PyUFunc_GenericFunction(ufunc, args, kwds, mps);
@@ -4106,12 +4104,6 @@ ufunc_generic_call(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
     /* Free the input references */
     for (i = 0; i < ufunc->nin; i++) {
         Py_XDECREF(mps[i]);
-    }
-
-    PyObject *override = NULL;
-    override = _find_ufunc_override(ufunc, args);
-    if (override) {
-        return PyObject_Call(override, args, kwds);
     }
 
     /*
