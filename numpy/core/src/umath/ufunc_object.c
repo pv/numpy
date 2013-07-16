@@ -707,8 +707,9 @@ fail:
     return -1;
 }
 
-static PyObject *
-_find_ufunc_override(PyUFuncObject *ufunc, PyObject *args)
+/*UFUNC_API*/
+NPY_NO_EXPORT PyObject *
+PyUFunc_GetOverride(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
 {
     int i;
     int nin = ufunc->nin;
@@ -738,7 +739,9 @@ _find_ufunc_override(PyUFuncObject *ufunc, PyObject *args)
             Py_DECREF(override_dict);
             override_dict = NULL;
         }
-        PyErr_Clear();
+        else {
+            PyErr_Clear();
+        }
     }
     if (noa > 0) {
         /* If we have some overrides, find the one of the highest priority. */
@@ -4076,7 +4079,7 @@ ufunc_generic_call(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
         mps[i] = NULL;
     }
 
-    override = _find_ufunc_override(ufunc, args);
+    override = PyUFunc_GetOverride(ufunc, args, kwds);
     if (override) {
         return PyObject_Call(override, args, kwds);
     }
