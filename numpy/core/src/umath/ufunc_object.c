@@ -714,7 +714,6 @@ PyUFunc_GetOverride(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
     int i;
     int nin = ufunc->nin;
     int noa = 0;
-    const char *ufunc_name;
     PyObject *obj;
     PyObject *with_override[NPY_MAXARGS], *overrides[NPY_MAXARGS];
     PyObject *override = NULL, *override_dict = NULL;
@@ -727,8 +726,7 @@ PyUFunc_GetOverride(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
         override_dict = PyObject_GetAttrString(obj, "__ufunc_override__");
         if (override_dict) {
             if (PyDict_CheckExact(override_dict)) {
-                ufunc_name = ufunc->name ? ufunc->name : "<unnamed ufunc>";
-                override = PyDict_GetItemString(override_dict, ufunc_name);
+                override = PyDict_GetItem(override_dict, ufunc);
                 if (PyCallable_Check(override)) {
                     with_override[noa] = obj;
                     overrides[noa] = override;
