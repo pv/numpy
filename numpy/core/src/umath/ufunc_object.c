@@ -44,6 +44,7 @@
 #include "reduction.h"
 
 #include "ufunc_object.h"
+#include "ufunc_override.h"
 
 /********** PRINTF DEBUG TRACING **************/
 #define NPY_UF_DBG_TRACING 0
@@ -706,60 +707,6 @@ fail:
     }
     return -1;
 }
-
-/*UFUNC_API*/
-NPY_NO_EXPORT PyObject *
-PyUFunc_GetOverride(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
-{
-    int i;
-    int nin = ufunc->nin;
-    int noa = 0;
-    PyObject *obj;
-    PyObject *with_override[NPY_MAXARGS], *overrides[NPY_MAXARGS];
-    PyObject *override = NULL, *override_dict = NULL;
-    
-    for (i = 0; i < nin; i++) {
-        obj = PyTuple_GET_ITEM(args, i);
-        if (PyArray_CheckExact(obj) || PyArray_IsAnyScalar(obj)) {
-            continue;
-        }
-        override_dict = PyObject_GetAttrString(obj, "__ufunc_override__");
-        if (override_dict) {
-            if (PyDict_CheckExact(override_dict)) {
-                override = PyDict_GetItem(override_dict, ufunc);
-                if (PyCallable_Check(override)) {
-                    with_override[noa] = obj;
-                    overrides[noa] = override;
-                    ++noa;
-                } 
-                override = NULL;
-            }
-            Py_DECREF(override_dict);
-            override_dict = NULL;
-        }
-        else {
-            PyErr_Clear();
-        }
-    }
-    if (noa > 0) {
-        /* If we have some overrides, find the one of the highest priority. */
-        override = overrides[0];
-        if (noa > 1) {
-            double maxpriority = PyArray_GetPriority(with_override[0], 
-                    NPY_PRIORITY);
-            for (i = 1; i < noa; i++) {
-                double priority = PyArray_GetPriority(with_override[i],
-                        NPY_PRIORITY);
-                if (priority > maxpriority) {
-                    maxpriority = priority;
-                    override = overrides[i];
-                }
-            }
-        }
-    }
-    return override;
-}
-
 
 /********* GENERIC UFUNC USING ITERATOR *********/
 

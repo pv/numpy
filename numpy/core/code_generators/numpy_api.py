@@ -385,8 +385,6 @@ ufunc_funcs_api = {
     'PyUFunc_DefaultTypeResolver':              39,
     'PyUFunc_ValidateCasting':                  40,
     'PyUFunc_RegisterLoopForDescr':             41,
-    # End 1.7 API
-    'PyUFunc_GetOverride':                      42,
 }
 
 # List of all the dicts which define the C API
