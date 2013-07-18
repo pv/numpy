@@ -17,8 +17,8 @@ to no support for arbitrary objects. e.g. SciPy's sparse matrices [2]_
 [3]_.
 
 Here we propose adding a mechanism to override ufuncs based on the ufunc
-checking each of it's arguments for a ``__ufunc_override__`` attribute.
-On discovery of ``__ufunc_override__`` the ufunc will hand off the
+checking each of it's arguments for a ``__numpy_ufunc__`` attribute.
+On discovery of ``__numpy_ufunc__`` the ufunc will hand off the
 operation to a function contained the attribute. 
 
 This covers some of the same ground as Travis Oliphant's proposal to
@@ -72,7 +72,7 @@ ufuncs interoperability with sparse matrices.::
                     [ 4,  1,  4]], dtype=int64)
                     
     In [5]: np.multiply(a, bsp) # Returns NotImplemented to user, bad!
-    Out[5]: NotImplemed
+    Out[5]: NotImplemted
 
 Returning ``NotImplemented`` to user should not happen. I'm not sure if
 the blame for this lies in scipy.sparse or numpy, but it should be
@@ -99,7 +99,7 @@ fixed.::
                     with 8 stored elements in Compressed Sparse Row format>]], dtype=object)
 
 I'm not sure what happened here either, but I think raising
-``TypeError`` would be preferable. Adding the ``__ufunc_override__``
+``TypeError`` would be preferable. Adding the ``__numpy_ufunc__``
 functionality fixes this.
 
 .. [5] http://mail.scipy.org/pipermail/numpy-discussion/2011-June/056945.html
@@ -107,27 +107,36 @@ functionality fixes this.
 Implementation
 ==============
 
+Objects that should override ufuncs have a ``__numpy_ufunc__`` method.
+
+We first normalize the ufunc's arguments into a tuple of input data
+(``inputs``), and dict of key word arguments.
+
+We iterate over inputs checking if each piece of data has a 
+``__numpy_ufunc__`` method. The method passed the ufunc, ufunc method,
+args, kwargs, and its position e.g.::
+ 
+ inputs[i].__numpy_ufunc__(ufunc, ufunc.method, i, inputs, kwargs)
+
+If this returns ``NotImplemented`` we go check the next input. If it
+returns some other value, that is returned. If it return an error it is
+propogated.
+
+If we finish scanning the input arrays, then there are two possiblities.
+If we found at least one ``__numpy_ufunc__`` attribute, then the fact
+that we've reached the end means that they've all returned
+NotImplemented. In this case, we raise TypeError. If we found no
+``__numpy_ufunc__`` attributes, then we fall back on the current ufunc
+dispatch behaviour.
+
+
+- This will override the current ``__array_wrap__``,
+  ``__array_prepare__``, etc behavior. 
 Classes that should override ufuncs should contain a
-``__array_priority__`` and ``__ufunc_override__`` attribute.
-``__ufunc_override__`` is a dictionary keyed with the name
+``__array_priority__`` and ``__numpy_ufunc__`` attribute.
+``__numpy_ufunc__`` is a dictionary keyed with the name
 (``ufunc.__name__``) of the ufunc to be overridden, and valued with the
 callable function that should override the ufunc. 
-
-Every time a ufunc is executed it checks it arguments for a
-``__ufunc_override__`` attribute. Then checks if the attribute contains
-an override for the ufunc being called. A list of the eligible
-overrides are made, then their corresponding ``__array_priority__`` is
-compared to find the override with the highest priority. Once an
-override is found, it is called with the ``args`` and ``kwds`` that were
-given to the original ufunc.
-
-Handing ``args`` and ``kwds``  as-is to the replacement function has one
-drawback; if the replacement *function* is a *method* of the overriding argument, then
-it expects this argument (``self``) to come first. In general this is
-not the case unless the arguments are reordered for the overriding
-argument to come first. This is probably a bad idea since ufuncs are not
-necessarily associative. So the replacement funtions should be able to
-handle the arguments in the same order as passed to the ufunc.
 
 Demo
 ====
