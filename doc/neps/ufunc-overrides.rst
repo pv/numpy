@@ -100,7 +100,8 @@ fixed.::
 
 I'm not sure what happened here either, but I think raising
 ``TypeError`` would be preferable. Adding the ``__numpy_ufunc__``
-functionality fixes this.
+functionality fixes this and would deprecate the other ufunc modifying
+functions.
 
 .. [5] http://mail.scipy.org/pipermail/numpy-discussion/2011-June/056945.html
 
@@ -110,7 +111,7 @@ Implementation
 Objects that should override ufuncs have a ``__numpy_ufunc__`` method.
 
 We first normalize the ufunc's arguments into a tuple of input data
-(``inputs``), and dict of key word arguments.
+(``inputs``), and dict of keyword arguments.
 
 We iterate over inputs checking if each piece of data has a 
 ``__numpy_ufunc__`` method. The method passed the ufunc, ufunc method,
@@ -120,9 +121,9 @@ args, kwargs, and its position e.g.::
 
 If this returns ``NotImplemented`` we go check the next input. If it
 returns some other value, that is returned. If it return an error it is
-propogated.
+propagated.
 
-If we finish scanning the input arrays, then there are two possiblities.
+If we finish scanning the input arrays, then there are two possibilities.
 If we found at least one ``__numpy_ufunc__`` attribute, then the fact
 that we've reached the end means that they've all returned
 NotImplemented. In this case, we raise TypeError. If we found no
@@ -137,6 +138,13 @@ Classes that should override ufuncs should contain a
 ``__numpy_ufunc__`` is a dictionary keyed with the name
 (``ufunc.__name__``) of the ufunc to be overridden, and valued with the
 callable function that should override the ufunc. 
+
+Ufunc Methods
+-------------
+
+Ufunc Methods currently take a different code path than standard ufuncs.
+So patching them can be don separately from normal ufuncs. And the
+mechanism does not have to be general enough to handle both.
 
 Demo
 ====
