@@ -4016,6 +4016,8 @@ ufunc_generic_call(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
     PyObject *override = NULL;
     int errval;
 
+    PyObject *ufunc_method = PyUString_FromString("__call__");
+
     /*
      * Initialize all array objects to NULL to make cleanup easier
      * if something goes wrong.
@@ -4024,9 +4026,9 @@ ufunc_generic_call(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
         mps[i] = NULL;
     }
 
-    override = PyUFunc_GetOverride(ufunc, args, kwds);
+    override = PyUFunc_CheckOverride(ufunc, ufunc_method, args, kwds);
     if (override) {
-        return PyObject_Call(override, args, kwds);
+        return override;
     }
 
     errval = PyUFunc_GenericFunction(ufunc, args, kwds, mps);
