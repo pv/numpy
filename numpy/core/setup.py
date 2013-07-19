@@ -879,6 +879,7 @@ def configuration(parent_package='',top_path=None):
     umath_deps = [
             generate_umath_py,
             join('src', 'umath', 'simd.inc.src'),
+            join('src', 'private', 'ufunc_override.h'),
             join(codegen_dir,'generate_ufunc_api.py')]
 
     if not ENABLE_SEPARATE_COMPILATION:
