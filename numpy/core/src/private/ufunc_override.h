@@ -1,31 +1,25 @@
 #ifndef __UFUNC_OVERRIDE_H
 #define __UFUNC_OVERRIDE_H
 #include <npy_config.h>
+#include "numpy/arrayobject.h"
+#include "multiarray/common.h"
 
 
 /* Normalizes the args passed to ufunc. Returns a tuple of the data
  * args and dict of the kwargs.
  */
 NPY_NO_EXPORT PyObject *
-PyUFunc_NormalizeArgs(PyObject *ufunc, PyObject *args, PyObject *kwds) {};
-
-NPY_NO_EXPORT PyObject *
-PyUFunc_CheckOverride(PyObject *ufunc, PyObject *ufunc_method,
+PyUFunc_CheckOverride(PyUFuncObject *ufunc, PyObject *ufunc_method,
                     PyObject *args, PyObject *kwds)
 {
     int i;
     int nargs = PyTuple_GET_SIZE(args);
-    /* Marks if a __numpy_ufunc__ was found. */
-    int found_override = 0;
 
     PyObject *obj;
-    PyObject *inputs[NPY_MAXARGS];
-    PyObject *numpy_ufunc = NULL;
-    PyObject *res;
-    PyObject *numpy_ufunc_args;
+    PyObject *override_args;
 
-    static char *_reduce_type[] = {
-        "__call__", "reduce", "accumulate", "reduceat"};
+    PyObject *override = NULL;
+    PyObject *res = NULL;
 
     for (i = 0; i < nargs; i++) {
         obj = PyTuple_GET_ITEM(args, i);
@@ -33,13 +27,13 @@ PyUFunc_CheckOverride(PyObject *ufunc, PyObject *ufunc_method,
             continue;
         }
 
-        numpy_ufunc = PyObject_GetAttrString(obj, "__numpy_ufunc__");
-        if (PyCallable_Check(numpy_ufunc)) {
-            numpy_ufunc_args = PyTuple_Pack(4, ufunc, ufunc_method, i, args);
-            res = PyObject_Call(numpy_ufunc, numpy_ufunc_args, kwds);
-            Py_DECREF(numpy_ufunc);
-            numpy_ufunc = NULL;
-            found_override = 1;
+        if (PyObject_HasAttrString(obj, "__numpy_ufunc__")) {
+            override = PyObject_GetAttrString(obj, "__numpy_ufunc__");
+            override_args = Py_BuildValue("OOiO", ufunc, ufunc_method, i, args);
+            res = PyObject_Call(override, override_args, kwds);
+
+            Py_DECREF(override);
+            Py_DECREF(override_args);
             if (res == Py_NotImplemented) {
                 continue;
             }
@@ -48,7 +42,7 @@ PyUFunc_CheckOverride(PyObject *ufunc, PyObject *ufunc_method,
             }
         }
     }
-    if (found_override) {
+    if (res) {
         PyErr_SetString(PyExc_TypeError, 
                 "Not implemented for this type.");
         return NULL;
