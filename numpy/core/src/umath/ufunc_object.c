@@ -4813,18 +4813,36 @@ ufunc_outer(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
 static PyObject *
 ufunc_reduce(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
 {
+    PyObject *override;
+    PyObject *ufunc_method = PyUString_FromString("reduce");
+    override = PyUFunc_CheckOverride(ufunc, ufunc_method, args, kwds);
+    if (override) {
+        return override;
+    }
     return PyUFunc_GenericReduction(ufunc, args, kwds, UFUNC_REDUCE);
 }
 
 static PyObject *
 ufunc_accumulate(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
 {
+    PyObject *override;
+    PyObject *ufunc_method = PyUString_FromString("accumulate");
+    override = PyUFunc_CheckOverride(ufunc, ufunc_method, args, kwds);
+    if (override) {
+        return override;
+    }
     return PyUFunc_GenericReduction(ufunc, args, kwds, UFUNC_ACCUMULATE);
 }
 
 static PyObject *
 ufunc_reduceat(PyUFuncObject *ufunc, PyObject *args, PyObject *kwds)
 {
+    PyObject *override;
+    PyObject *ufunc_method = PyUString_FromString("reduceat");
+    override = PyUFunc_CheckOverride(ufunc, ufunc_method, args, kwds);
+    if (override) {
+        return override;
+    }
     return PyUFunc_GenericReduction(ufunc, args, kwds, UFUNC_REDUCEAT);
 }
 
