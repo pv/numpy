@@ -17,13 +17,13 @@ to no support for arbitrary objects. e.g. SciPy's sparse matrices [2]_
 [3]_.
 
 Here we propose adding a mechanism to override ufuncs based on the ufunc
-checking each of it's arguments for a ``__numpy_ufunc__`` attribute.
+checking each of it's arguments for a ``__numpy_ufunc__`` method.
 On discovery of ``__numpy_ufunc__`` the ufunc will hand off the
-operation to a function contained the attribute. 
+operation to the method. 
 
 This covers some of the same ground as Travis Oliphant's proposal to
 retro-fit NumPy with multi-methods [4]_, which would solve the same
-problems. But the mechanism proposed here is much less intrusive.
+problems. But the mechanism proposed here is less intrusive.
 
 .. [1] http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 .. [2] https://github.com/scipy/scipy/issues/2123
@@ -34,15 +34,15 @@ problems. But the mechanism proposed here is much less intrusive.
 Motivation
 ==========
 
-The current machinery for dispatching ufuncs is generally agreed to be
-at a dead end. There have been lengthy discussions and other proposed
-solutions [5]_. 
+The current machinery for dispatching ufuncs is generally agreed to be at a
+dead end. There have been lengthy discussions and other proposed solutions
+[5]_. 
 
-Using ufuncs with subclasses of ndarray is limited to
-``__array_prepare__`` and ``__array_wrap__`` but these don't even allow
-you to change the shape or the data of the arguments. Ufuncing things
-that don't subclass ndarray is even more hopeless. Take this example of
-ufuncs interoperability with sparse matrices.::
+Using ufuncs with subclasses of ndarray is limited to ``__array_prepare__`` and
+``__array_wrap__`` to prepare the arguments. but these don't even allow you to
+change the shape or the data of the arguments. Ufuncing things that don't
+subclass ndarray is even more hopeless. Take this example of ufuncs
+interoperability with sparse matrices.::
 
     In [1]: import numpy as np
     import scipy.sparse as sp
@@ -113,31 +113,20 @@ Objects that should override ufuncs have a ``__numpy_ufunc__`` method.
 We first normalize the ufunc's arguments into a tuple of input data
 (``inputs``), and dict of keyword arguments.
 
-We iterate over inputs checking if each piece of data has a 
-``__numpy_ufunc__`` method. The method passed the ufunc, ufunc method,
-args, kwargs, and its position e.g.::
+We iterate over inputs checking if each piece of data has a ``__numpy_ufunc__``
+method. The method passed the ufunc, ufunc method, args, kwargs, and its
+position e.g.::
  
  inputs[i].__numpy_ufunc__(ufunc, ufunc.method, i, inputs, kwargs)
 
-If this returns ``NotImplemented`` we go check the next input. If it
-returns some other value, that is returned. If it return an error it is
-propagated.
+If this returns ``NotImplemented`` we go check the next input. If it returns
+some other value, that is returned. If it returns an error it is propagated.
 
-If we finish scanning the input arrays, then there are two possibilities.
-If we found at least one ``__numpy_ufunc__`` attribute, then the fact
-that we've reached the end means that they've all returned
-NotImplemented. In this case, we raise TypeError. If we found no
-``__numpy_ufunc__`` attributes, then we fall back on the current ufunc
-dispatch behaviour.
-
-
-- This will override the current ``__array_wrap__``,
-  ``__array_prepare__``, etc behavior. 
-Classes that should override ufuncs should contain a
-``__array_priority__`` and ``__numpy_ufunc__`` attribute.
-``__numpy_ufunc__`` is a dictionary keyed with the name
-(``ufunc.__name__``) of the ufunc to be overridden, and valued with the
-callable function that should override the ufunc. 
+If we finish scanning the input arrays, then there are two possibilities.  If
+we found at least one ``__numpy_ufunc__`` attribute, then the fact that we've
+reached the end means that they've all returned NotImplemented. In this case,
+we raise TypeError. If we found no ``__numpy_ufunc__`` attributes, then we fall
+back on the current ufunc dispatch behaviour.
 
 Ufunc Methods
 -------------
