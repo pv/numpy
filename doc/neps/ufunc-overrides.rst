@@ -117,7 +117,7 @@ Proposed interface
 Objects that want to override Ufuncs can define a ``__numpy_ufunc__`` method.
 The method signature is::
 
-    def __numpy_ufunc__(self, ufunc, ufunc_method, i, inputs, kwargs)
+    def __numpy_ufunc__(self, ufunc, method, i, inputs, kwargs)
 
 Here:
 
