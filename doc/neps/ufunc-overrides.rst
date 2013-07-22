@@ -23,7 +23,8 @@ operation to the method.
 
 This covers some of the same ground as Travis Oliphant's proposal to
 retro-fit NumPy with multi-methods [4]_, which would solve the same
-problems. But the mechanism proposed here is less intrusive.
+problem. The mechanism here follows more closely the way Python enables
+classes to override ``__mul__`` and other binary operations.
 
 .. [1] http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 .. [2] https://github.com/scipy/scipy/issues/2123
@@ -34,15 +35,18 @@ problems. But the mechanism proposed here is less intrusive.
 Motivation
 ==========
 
-The current machinery for dispatching ufuncs is generally agreed to be at a
-dead end. There have been lengthy discussions and other proposed solutions
-[5]_. 
+The current machinery for dispatching Ufuncs is generally agreed to be
+insufficient. There have been lengthy discussions and other proposed
+solutions [5]_.
 
-Using ufuncs with subclasses of ndarray is limited to ``__array_prepare__`` and
-``__array_wrap__`` to prepare the arguments. but these don't even allow you to
-change the shape or the data of the arguments. Ufuncing things that don't
-subclass ndarray is even more hopeless. Take this example of ufuncs
-interoperability with sparse matrices.::
+Using ufuncs with subclasses of ndarray is limited to
+``__array_prepare__`` and ``__array_wrap__`` to prepare the arguments,
+but these don't allow you to for example change the shape or the data of
+the arguments. Ufuncing things that don't subclass ndarray is even more
+hopeless, as the input arguments tend to be cast to object arrays, which
+ends up producing surprising results.
+
+Take this example of ufuncs interoperability with sparse matrices.::
 
     In [1]: import numpy as np
     import scipy.sparse as sp
@@ -74,9 +78,7 @@ interoperability with sparse matrices.::
     In [5]: np.multiply(a, bsp) # Returns NotImplemented to user, bad!
     Out[5]: NotImplemted
 
-Returning ``NotImplemented`` to user should not happen. I'm not sure if
-the blame for this lies in scipy.sparse or numpy, but it should be
-fixed.::
+Returning ``NotImplemented`` to user should not happen. Moreover::
 
     In [6]: np.multiply(asp, b)
     Out[6]: array([[ <3x3 sparse matrix of type '<class 'numpy.int64'>'
@@ -98,42 +100,61 @@ fixed.::
                         <3x3 sparse matrix of type '<class 'numpy.int64'>'
                     with 8 stored elements in Compressed Sparse Row format>]], dtype=object)
 
-I'm not sure what happened here either, but I think raising
-``TypeError`` would be preferable. Adding the ``__numpy_ufunc__``
-functionality fixes this and would deprecate the other ufunc modifying
-functions.
+Here, it appears that the sparse matrix was converted to a object array
+scalar, which was then multiplied with all elements of the ``b`` array.
+However, this behavior is more confusing than useful, and having a
+``TypeError`` would be preferable.
+
+Adding the ``__numpy_ufunc__`` functionality fixes this and would
+deprecate the other ufunc modifying functions.
 
 .. [5] http://mail.scipy.org/pipermail/numpy-discussion/2011-June/056945.html
 
-Implementation
-==============
 
-Objects that should override ufuncs have a ``__numpy_ufunc__`` method.
+Proposed interface
+==================
 
-We first normalize the ufunc's arguments into a tuple of input data
-(``inputs``), and dict of keyword arguments.
+Objects that want to override Ufuncs can define a ``__numpy_ufunc__`` method.
+The method signature is::
 
-We iterate over inputs checking if each piece of data has a ``__numpy_ufunc__``
-method. The method passed the ufunc, ufunc method, args, kwargs, and its
-position e.g.::
- 
- inputs[i].__numpy_ufunc__(ufunc, ufunc.method, i, inputs, kwargs)
+    def __numpy_ufunc__(self, ufunc, ufunc_method, i, inputs, kwargs)
 
-If this returns ``NotImplemented`` we go check the next input. If it returns
-some other value, that is returned. If it returns an error it is propagated.
+Here:
 
-If we finish scanning the input arrays, then there are two possibilities.  If
-we found at least one ``__numpy_ufunc__`` attribute, then the fact that we've
-reached the end means that they've all returned NotImplemented. In this case,
-we raise TypeError. If we found no ``__numpy_ufunc__`` attributes, then we fall
-back on the current ufunc dispatch behaviour.
+- *ufunc* is the ufunc object that was called. 
+- *method* is a string indicating which Ufunc method was called
+  (one of ``"__call__"``, ``"reduce"``, ``"reduceat"``,
+  ``"accumulate"``, ``"outer"``, ``"inner"``). 
+- *i* is the index of *self* in *inputs*.
+- *inputs* is a tuple of the input arguments to the ``ufunc``
+- *kwargs* is a dictionary containing the optional input arguments
+  of the ufunc. The ``out`` argument is always contained in
+  *kwargs*, if given.
 
-Ufunc Methods
--------------
+The ufunc's arguments are first normalized into a tuple of input data
+(``inputs``), and dict of keyword arguments. The output argument ``out``
+is always put into the keyword argument dictionary.
 
-Ufunc Methods currently take a different code path than standard ufuncs.
-So patching them can be don separately from normal ufuncs. And the
-mechanism does not have to be general enough to handle both.
+The function dispatch proceeds as follows:
+
+- If one of the input arguments implements ``__numpy_ufunc__`` it is
+  executed instead of the Ufunc.
+
+- If more than one of the input arguments implements ``__numpy_ufunc__``,
+  they are tried in the following order: subclasses before superclasses,
+  otherwise left to right.  The first ``__numpy_ufunc__`` method returning
+  something else than ``NotImplemented`` determines the return value of
+  the Ufunc.
+
+- If all ``__numpy_ufunc__`` methods of the input arguments return
+  ``NotImplemented``, a ``TypeError`` is raised.
+
+- If a ``__numpy_ufunc__`` method raises an error, the error is propagated
+  immediately.
+
+If none of the input arguments has a ``__numpy_ufunc__`` method, the
+execution falls back on the default ufunc behaviour.
+
 
 Demo
 ====
