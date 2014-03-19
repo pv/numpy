@@ -515,7 +515,7 @@ def get_config_header(self, defines=True, headers=False, define_prefix=None):
 
     lst = []
     if headers:
-        for x in self.env[INCKEYS]:
+        for x in self.env[waflib.Tools.c_config.INCKEYS]:
             lst.append('#include <%s>' % x)
 
     if defines:

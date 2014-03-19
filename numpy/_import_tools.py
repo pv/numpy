@@ -68,6 +68,7 @@ class PackageLoader(object):
                         break
                 else:
                     try:
+                        info = None
                         exec('import %s.info as info' % (package_name))
                         info_modules[package_name] = info
                     except ImportError as msg:

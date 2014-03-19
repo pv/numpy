@@ -27,6 +27,7 @@ def importall(package):
         if not os.path.isfile(os.path.join(subdir, '__init__.py')):
             continue
         name = package_name+'.'+subpackage_name
+        m = None
         try:
             exec('import %s as m' % (name))
         except Exception as msg:

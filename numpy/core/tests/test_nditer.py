@@ -1004,7 +1004,7 @@ def test_iter_object_arrays_basic():
     i = nditer(a.reshape(2, 2).T, ['refs_ok', 'buffered'],
                         ['readonly'], order='C')
     assert_(i.iterationneedsapi)
-    vals = [x[()] for x in i]
+    vals = [y[()] for y in i]
     assert_equal(np.array(vals, dtype='O'), a.reshape(2, 2).ravel(order='F'))
     vals, i, x = [None]*3
     assert_equal(sys.getrefcount(obj), rc)
@@ -1715,7 +1715,7 @@ def test_iter_buffered_cast_structured_type():
     i = nditer(a, ['buffered', 'refs_ok'], ['readonly'],
                     casting='unsafe',
                     op_dtypes='i4')
-    assert_equal([x[()] for x in i], [5, 8])
+    assert_equal([y[()] for y in i], [5, 8])
 
     # struct type -> struct type (field-wise copy)
     sdt1 = [('a', 'f4'), ('b', 'i8'), ('d', 'O')]
@@ -1725,7 +1725,7 @@ def test_iter_buffered_cast_structured_type():
                     casting='unsafe',
                     op_dtypes=sdt2)
     assert_equal(i[0].dtype, np.dtype(sdt2))
-    assert_equal([np.array(x) for x in i],
+    assert_equal([np.array(y) for y in i],
                     [np.array((3, 1, 2), dtype=sdt2),
                      np.array((6, 4, 5), dtype=sdt2)])
 

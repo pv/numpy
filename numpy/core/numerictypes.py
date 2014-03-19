@@ -107,6 +107,7 @@ if sys.version_info[0] >= 3:
 else:
     from __builtin__ import bool, int, float, complex, object, unicode, str
 
+object_ = None
 
 # String-handling utilities to avoid locale-dependence.
 

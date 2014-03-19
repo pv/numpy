@@ -64,6 +64,7 @@ def getargs(co):
     Three things are returned: (args, varargs, varkw), where 'args' is
     a list of argument names (possibly containing nested lists), and
     'varargs' and 'varkw' are the names of the * and ** arguments or None."""
+    import dis
 
     if not iscode(co):
         raise TypeError('arg is not a code object')
@@ -204,7 +205,7 @@ def formatargvalues(args, varargs, varkw, locals,
         specs.append(formatvarargs(varargs) + formatvalue(locals[varargs]))
     if varkw:
         specs.append(formatvarkw(varkw) + formatvalue(locals[varkw]))
-    return '(' + string.join(specs, ', ') + ')'
+    return '(' + ', '.join(specs) + ')'
 
 if __name__ == '__main__':
     import inspect
