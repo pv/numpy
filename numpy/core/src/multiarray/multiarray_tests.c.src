@@ -1,3 +1,4 @@
+/* -*-c-*- */
 #define NPY_NO_DEPRECATED_API NPY_API_VERSION
 #include <Python.h>
 #include "numpy/arrayobject.h"
@@ -1122,6 +1123,12 @@ int128_from_pylong(PyObject *obj, npy_extint128_t *result)
         *mask_64 = NULL, *max_128 = NULL, *hi_bits = NULL,
         *lo_bits = NULL, *tmp = NULL;
     int cmp;
+    int negative_zero = 0;
+
+    if (PyBool_Check(obj)) {
+        /* False means negative zero */
+        negative_zero = 1;
+    }
 
     long_obj = PyObject_CallFunction((PyObject*)&PyLong_Type, "O", obj);
     if (long_obj == NULL) {
@@ -1199,6 +1206,10 @@ int128_from_pylong(PyObject *obj, npy_extint128_t *result)
     result->lo = PyLong_AsUnsignedLongLong(lo_bits);
     if (result->lo == (unsigned PY_LONG_LONG)-1 && PyErr_Occurred()) {
         goto fail;
+    }
+
+    if (negative_zero && result->hi == 0 && result->lo == 0) {
+        result->sign = -1;
     }
 
     Py_XDECREF(long_obj);

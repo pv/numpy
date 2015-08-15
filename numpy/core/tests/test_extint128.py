@@ -36,7 +36,8 @@ INT128_VALUES = (
     [INT128_MID + j for j in range(-20, 20)] +
     [2*INT128_MID + j for j in range(-20, 20)] +
     [INT128_MID//2 + j for j in range(-20, 20)] +
-    list(range(-70, 70))
+    list(range(-70, 70)) +
+    [False]  # negative zero
 )
 
 INT64_POS_VALUES = [x for x in INT64_VALUES if x > 0]
