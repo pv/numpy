@@ -74,6 +74,18 @@ to_128(npy_int64 x)
 }
 
 
+/* Long integer init */
+static NPY_INLINE npy_extint128_t
+to_u128(npy_uint64 x)
+{
+    npy_extint128_t result;
+    result.sign = 1;
+    result.hi = 0;
+    result.lo = x;
+    return result;
+}
+
+
 static NPY_INLINE npy_int64
 to_64(npy_extint128_t x, char *overflow)
 {
@@ -86,26 +98,25 @@ to_64(npy_extint128_t x, char *overflow)
 }
 
 
+
+
 /* Long integer multiply */
 static NPY_INLINE npy_extint128_t
-mul_64_64(npy_int64 a, npy_int64 b)
+mul_u64_u64(npy_uint64 a, npy_uint64 b)
 {
-    npy_extint128_t x, y, z;
+    npy_extint128_t z;
     npy_uint64 x1, x2, y1, y2, r1, r2, prev;
 
-    x = to_128(a);
-    y = to_128(b);
+    x1 = a & 0xffffffff;
+    x2 = a >> 32;
 
-    x1 = x.lo & 0xffffffff;
-    x2 = x.lo >> 32;
-
-    y1 = y.lo & 0xffffffff;
-    y2 = y.lo >> 32;
+    y1 = b & 0xffffffff;
+    y2 = b >> 32;
 
     r1 = x1*y2;
     r2 = x2*y1;
 
-    z.sign = x.sign * y.sign;
+    z.sign = 1;
     z.hi = x2*y2 + (r1 >> 32) + (r2 >> 32);
     z.lo = x1*y1;
 
@@ -121,6 +132,22 @@ mul_64_64(npy_int64 a, npy_int64 b)
     if (z.lo < prev) {
         ++z.hi;
     }
+
+    return z;
+}
+
+
+/* Long integer multiply */
+static NPY_INLINE npy_extint128_t
+mul_64_64(npy_int64 a, npy_int64 b)
+{
+    npy_extint128_t x, y, z;
+
+    x = to_128(a);
+    y = to_128(b);
+
+    z = mul_u64_u64(x.lo, y.lo);
+    z.sign = x.sign * y.sign;
 
     return z;
 }
@@ -187,25 +214,43 @@ sub_128(npy_extint128_t x, npy_extint128_t y, char *overflow)
 
 
 static NPY_INLINE npy_extint128_t
-shl_128(npy_extint128_t v)
+shl_128(npy_extint128_t v, unsigned int n)
 {
     npy_extint128_t z;
     z = v;
-    z.hi <<= 1;
-    z.hi |= (z.lo & (((npy_uint64)1) << 63)) >> 63;
-    z.lo <<= 1;
+    if (n == 0) {
+        /* noop */
+    }
+    else if (n < 64) {
+        z.hi <<= n;
+        z.hi |= z.lo >> (64 - n);
+        z.lo <<= n;
+    }
+    else {
+        z.hi = z.lo << (n - 64);
+        z.lo = 0;
+    }
     return z;
 }
 
 
 static NPY_INLINE npy_extint128_t
-shr_128(npy_extint128_t v)
+shr_128(npy_extint128_t v, unsigned int n)
 {
     npy_extint128_t z;
     z = v;
-    z.lo >>= 1;
-    z.lo |= (z.hi & 0x1) << 63;
-    z.hi >>= 1;
+    if (n == 0) {
+        /* noop */
+    }
+    else if (n < 64) {
+        z.lo >>= n;
+        z.lo |= z.hi << (64 - n);
+        z.hi >>= n;
+    }
+    else {
+        z.lo = z.hi >> (n - 64);
+        z.hi = 0;
+    }
     return z;
 }
 
@@ -229,12 +274,17 @@ gt_128(npy_extint128_t a, npy_extint128_t b)
 
 /* Long integer divide */
 static NPY_INLINE npy_extint128_t
-divmod_128_64(npy_extint128_t x, npy_int64 b, npy_int64 *mod)
+divmod_128_64(npy_extint128_t x, npy_int64 b_in, npy_int64 *mod)
 {
-    npy_extint128_t remainder, pointer, result, divisor;
+    npy_extint128_t remainder, pointer, result, divisor, tmp;
+    npy_uint64 b, q, r, v;
+    npy_uint32 b0, b1, vnext;
+    int j, shift;
     char overflow = 0;
 
-    assert(b > 0);
+    assert(b_in > 0);
+
+    b = b_in;
 
     if (b <= 1 || x.hi == 0) {
         result.sign = x.sign;
@@ -244,36 +294,115 @@ divmod_128_64(npy_extint128_t x, npy_int64 b, npy_int64 *mod)
         return result;
     }
 
-    /* Long division, not the most efficient choice */
-    remainder = x;
-    remainder.sign = 1;
+    /* Pre-division of the high bits */
 
-    divisor.sign = 1;
-    divisor.hi = 0;
-    divisor.lo = b;
+    q = x.hi / b;
+    r = x.hi % b;
 
     result.sign = 1;
+    result.hi = q;
     result.lo = 0;
-    result.hi = 0;
 
-    pointer.sign = 1;
-    pointer.lo = 1;
-    pointer.hi = 0;
+    b1 = b >> 32;
+    b0 = b & 0xffffffff;
 
-    while ((divisor.hi & (((npy_uint64)1) << 63)) == 0 &&
-           gt_128(remainder, divisor)) {
-        divisor = shl_128(divisor);
-        pointer = shl_128(pointer);
+    if (b1 == 0) {
+        /* Long division in base 32 with 1-digit divisor */
+
+        r = (r << 32) | (x.lo >> 32);
+
+        q = r / b0;
+        r = r % b0;
+
+        result.lo = q << 32;
+
+        r = (r << 32) | (x.lo & 0xffffffff);
+
+        q = r / b0;
+        r = r % b0;
+
+        result.lo |= q;
+
+        /* Fix signs and return */
+        result.sign = x.sign;
+        *mod = x.sign * r;
+        return result;
     }
 
-    while (pointer.lo || pointer.hi) {
-        if (!gt_128(divisor, remainder)) {
-            remainder = sub_128(remainder, divisor, &overflow);
-            result = add_128(result, pointer, &overflow);
+    remainder.sign = 1;
+    remainder.hi = r;
+    remainder.lo = x.lo;
+
+    /* Long division in base 32, with 2-digit divisor, loop unrolled.
+
+       See Knuth, TAOCP vol 2 sec 4.3.1 Algorithm D.
+       We don't need step D5-D6 since the divisor is only two digits wide.
+     */
+
+    /* Note that at this point we have remainder.hi < b <= 2**63-1 */
+
+    /* Normalize so that b1 >= 2**31 */
+    shift = 0;
+    while ((b1 & ((npy_uint32)1 << 31)) == 0) {
+        b1 <<= 1;
+        ++shift;
+    }
+    if (shift != 0) {
+        b1 |= b0 >> (32 - shift);
+        b0 <<= shift;
+        b <<= shift;
+        remainder = shl_128(remainder, shift);
+    }
+
+    /* Division of the highest three digits */
+    v = remainder.hi;
+    q = v / b1;  /* < (2**63-1) // 2**31 < 2**32 */
+    r = v % b1;
+
+    assert((q >> 32) == 0);
+
+    vnext = (remainder.lo >> 32);
+
+    while (q*b0 > ((r << 32) | vnext)) {
+        /* These loops require at most 2 iterations, cf TAOCP */
+        --q;
+        r += b1;
+        if ((r >> 32) != 0) {
+            break;
         }
-        divisor = shr_128(divisor);
-        pointer = shr_128(pointer);
     }
+
+    /* Subtract q*b. This is guaranteed to remove the high bits of the
+       remainder, so we just drop them here. */
+    v = ((r << 32) | vnext) - q*b0;
+    remainder.hi = v >> 32;
+    remainder.lo = (v << 32) | (remainder.lo & 0xffffffff);
+
+    result.lo |= q << 32;
+
+    /* Division of the lowest three digits */
+    v = (remainder.hi << 32) | (remainder.lo >> 32);
+    q = v / b1;
+    r = v % b1;
+
+    vnext = (remainder.lo & 0xffffffff);
+
+    while ((q >> 32) != 0 || q*b0 > ((r << 32) | vnext)) {
+        --q;
+        r += b1;
+        if ((r >> 32) != 0) {
+            break;
+        }
+    }
+
+    remainder.hi = 0;
+    remainder.lo = ((r << 32) | vnext) - q*b0;
+
+    result.lo |= q;
+
+    /* Because b is larger than 32-bit, the rest is remainder */
+
+    remainder.lo >>= shift; /* Unnormalize */
 
     /* Fix signs and return; cannot overflow */
     result.sign = x.sign;

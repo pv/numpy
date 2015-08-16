@@ -16,6 +16,8 @@ INT64_MAX = np.iinfo(np.int64).max
 INT64_MIN = np.iinfo(np.int64).min
 INT64_MID = 2**32
 
+INT32_MID = 2**16
+
 # int128 is not two's complement, the sign bit is separate
 INT128_MAX = 2**128 - 1
 INT128_MIN = -INT128_MAX
@@ -27,6 +29,8 @@ INT64_VALUES = (
     [INT64_MID + j for j in range(-20, 20)] +
     [2*INT64_MID + j for j in range(-20, 20)] +
     [INT64_MID//2 + j for j in range(-20, 20)] +
+    [(2**31-1) << 32] +
+    [2**31-1] +
     list(range(-70, 70))
 )
 
@@ -36,6 +40,8 @@ INT128_VALUES = (
     [INT128_MID + j for j in range(-20, 20)] +
     [2*INT128_MID + j for j in range(-20, 20)] +
     [INT128_MID//2 + j for j in range(-20, 20)] +
+    [(2**32-1) << 32] +
+    [(2**32-1) << 64] +
     list(range(-70, 70)) +
     [False]  # negative zero
 )
@@ -151,25 +157,25 @@ def test_neg_128():
 
 
 def test_shl_128():
-    with exc_iter(INT128_VALUES) as it:
-        for a, in it:
+    with exc_iter(INT128_VALUES, list(range(128))) as it:
+        for a, n in it:
             if a < 0:
-                b = -(((-a) << 1) & (2**128-1))
+                b = -(((-a) << n) & (2**128-1))
             else:
-                b = (a << 1) & (2**128-1)
-            c = mt.extint_shl_128(a)
+                b = (a << n) & (2**128-1)
+            c = mt.extint_shl_128(a, n)
             if b != c:
                 assert_equal(c, b)
 
 
 def test_shr_128():
-    with exc_iter(INT128_VALUES) as it:
-        for a, in it:
+    with exc_iter(INT128_VALUES, list(range(128))) as it:
+        for a, n in it:
             if a < 0:
-                b = -((-a) >> 1)
+                b = -((-a) >> n)
             else:
-                b = a >> 1
-            c = mt.extint_shr_128(a)
+                b = a >> n
+            c = mt.extint_shr_128(a, n)
             if b != c:
                 assert_equal(c, b)
 

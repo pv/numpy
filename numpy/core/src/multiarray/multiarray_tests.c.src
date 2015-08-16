@@ -1366,13 +1366,14 @@ static PyObject *
 extint_shl_128(PyObject *NPY_UNUSED(self), PyObject *args) {
     PyObject *a_obj;
     npy_extint128_t a, b;
-    if (!PyArg_ParseTuple(args, "O", &a_obj)) {
+    unsigned int n;
+    if (!PyArg_ParseTuple(args, "OI", &a_obj, &n)) {
         return NULL;
     }
     if (int128_from_pylong(a_obj, &a)) {
         return NULL;
     }
-    b = shl_128(a);
+    b = shl_128(a, n);
     return pylong_from_int128(b);
 }
 
@@ -1381,13 +1382,14 @@ static PyObject *
 extint_shr_128(PyObject *NPY_UNUSED(self), PyObject *args) {
     PyObject *a_obj;
     npy_extint128_t a, b;
-    if (!PyArg_ParseTuple(args, "O", &a_obj)) {
+    unsigned int n;
+    if (!PyArg_ParseTuple(args, "OI", &a_obj, &n)) {
         return NULL;
     }
     if (int128_from_pylong(a_obj, &a)) {
         return NULL;
     }
-    b = shr_128(a);
+    b = shr_128(a, n);
     return pylong_from_int128(b);
 }
 
