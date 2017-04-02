@@ -516,9 +516,14 @@ The simplest implementation would be::
                     return NotImplemented
 
             # Deal only with multiplication, for this example...
-            out = kwargs.pop('out', ())
-            if ufunc is not np.multiply or method != '__call__' or kwargs:
+            if ufunc is not np.multiply or method != '__call__':
                 return NotImplemented
+
+            # Raise error on unknown kwargs --- don't return NotImplemented,
+            # as that should be based on the input operand types and called ufunc
+            out = kwargs.pop('out', ())
+            if kwargs:
+                raise NotImplementedError()
 
             # Convert inputs
             inputs = [np.asarray(x) if not isinstance(x, ArrayLike) else x
