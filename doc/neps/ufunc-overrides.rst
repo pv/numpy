@@ -404,6 +404,14 @@ XXX: work in progress --- didn't think this through completely. Also,
 the PEP must write down the other alternatives discussed earlier --- this
 way it will become clearer what tradeoffs they imply.
 
+XXX: in particular --- the options where, (i) there's no opt-out for
+binops, (ii) where the opt-out is ``__array_ufunc__ = None`` so that
+it also disables ufuncs, and (iii) the laissez-faire where the opt-out
+does not disable ufuncs.
+
+XXX: the current implementation seems to be like (ii), but the discussion
+in the NEP didn't seem to be fully consistent with it.
+
 
 The ``__array_ufunc__`` mechanism is fully independent of Python's
 standard operator override mechanism, and the two do not interact
