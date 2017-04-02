@@ -687,6 +687,36 @@ We also suggest using the following boilerplate mix-in code:
             return '%s(%r)' % (type(self).__name__, self.value)
 
 
+    class TransparentArrayLike(UFuncSpecialMethodMixin):
+        """A transparent array-like class that wraps a generic duck-array.
+
+        In contrast to the above wrapper class, this version inherits
+        all binary operations supported by the wrapped duck-array,
+        rather than restricting them to ArrayLike + ndarray.
+
+        """
+    
+        def __init__(self, value):
+            self.value = value
+
+        __array_priority__ = 1000  # backward-compatibility with old Numpy
+
+        def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+            # ArrayLike implements arithmetic and ufuncs by deferring to the wrapped array
+            inputs = tuple(x.value if isinstance(self, type(x)) else x
+                           for x in inputs)
+            if kwargs.get('out') is not None:
+                kwargs['out'] = tuple(x.value if isinstance(self, type(x)) else x
+                                      for x in kwargs['out'])
+
+            # Masquerade as the wrapped object
+            return self.value.__array_ufunc__(ufunc, method, *inputs, **kwargs)
+    
+        def __repr__(self):
+            return '%s(%r)' % (type(self).__name__, self.value)
+
+
+
 Extension to other numpy functions
 ==================================
 
