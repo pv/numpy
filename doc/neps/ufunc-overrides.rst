@@ -436,7 +436,7 @@ to the following logic::
 
         def __imul__(self, other):
             result = self.__array_ufunc__(self, np.multiply, '__call__', other, self,
-                                          out=self)
+                                          out=(self,))
             if result is NotImplemented:
                 raise TypeError()
 
@@ -509,7 +509,7 @@ The simplest implementation would be::
                 elif isinstance(item, ArrayLike):
                     # Handle own type
                     pass
-                elif type(item) == np.ndarray:
+                elif type(item) is np.ndarray:
                     # Handle ndarrays (but not its subclasses, to be safe)
                     pass
                 else:
@@ -541,7 +541,7 @@ The simplest implementation would be::
             return self.__array_ufunc__(np.multiply, '__call__', other, self)
 
         def __imul__(self, other):
-            result = self.__array_ufunc__(np.multiply, '__call__', self, other, out=self)
+            result = self.__array_ufunc__(np.multiply, '__call__', self, other, out=(self,))
             if result is NotImplemented:
                 # If you don't want to allow "x += y" -> "x = x + y"
                 raise TypeError()
@@ -550,6 +550,142 @@ The simplest implementation would be::
 A point that needs to be considered more carefully is the implementation
 of in-place operations. The main question is whether Python is allowed to
 do the fallback ``x += y  ->  x = x + y`` or not.
+
+We also suggest using the following boilerplate mix-in code:
+
+.. code::
+
+    # Copyright 2017 Google Inc.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    # https://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    
+    import numpy as np
+    
+    
+    def _binary_method(ufunc):
+        def func(self, other):
+            return self.__array_ufunc__(ufunc, '__call__', self, other)
+        return func
+    
+    def _reflected_binary_method(ufunc):
+        def func(self, other):    
+            return self.__array_ufunc__(ufunc, '__call__', other, self)
+        return func
+    
+    def _inplace_binary_method(ufunc):
+        def func(self, other):
+            return self.__array_ufunc__(ufunc, '__call__', self, other, out=(self,))
+        return func
+    
+    def _numeric_methods(ufunc):
+        return (_binary_method(ufunc),
+                _reflected_binary_method(ufunc),
+                _inplace_binary_method(ufunc))
+    
+    def _unary_method(ufunc):
+        def func(self):
+            return self.__array_ufunc__(ufunc, '__call__', self)
+        return func
+    
+    
+    class UFuncSpecialMethodMixin(object):
+        """Implements all special methods using __array_ufunc__."""
+    
+        # comparisons
+        __lt__ = _binary_method(np.less)
+        __le__ = _binary_method(np.less_equal)
+        __eq__ = _binary_method(np.equal)
+        __ne__ = _binary_method(np.not_equal)
+        __gt__ = _binary_method(np.greater)
+        __ge__ = _binary_method(np.greater_equal)
+    
+        # numeric methods
+        __add__, __radd__, __iadd__ = _numeric_methods(np.add)
+        __sub__, __rsub__, __isub__ = _numeric_methods(np.subtract)
+        __mul__, __rmul__, __imul__ = _numeric_methods(np.multiply)
+        __matmul__, __rmatmul__, __imatmul__ = _numeric_methods(np.matmul)
+        __div__, __rdiv__, __idiv__ = _numeric_methods(np.divide)  # Python 2 only
+        __truediv__, __rtruediv__, __itruediv__ = _numeric_methods(np.true_divide)
+        __floordiv__, __rfloordiv__, __ifloordiv__ = _numeric_methods(np.floor_divide)
+        __mod__, __rmod__, __imod__ = _numeric_methods(np.mod)
+        # No ufunc for __divmod__!
+        # TODO: handle the optional third argument for __pow__?
+        __pow__, __rpow__, __ipow__ = _numeric_methods(np.power)
+        __lshift__, __rlshift__, __ilshift__ = _numeric_methods(np.left_shift)
+        __rshift__, __rrshift__, __irshift__ = _numeric_methods(np.right_shift)
+        __and__, __rand__, __iand__ = _numeric_methods(np.logical_and)
+        __xor__, __rxor__, __ixor__ = _numeric_methods(np.logical_xor)
+        __or__, __ror__, __ior__ = _numeric_methods(np.logical_or)
+    
+        # unary methods
+        __neg__ =_unary_method(np.negative)
+        # No ufunc for __pos__!
+        __abs__ = _unary_method(np.absolute)
+        __invert__ = _unary_method(np.invert)
+
+    
+    class ArrayLike(UFuncSpecialMethodMixin):
+        """An array-like class that wraps a generic duck-array.
+
+        Try using it to wrap your favorite duck array! (e.g., from dask.array,
+        xarray or pandas)
+        Example usage:
+            >>> x = ArrayLike(np.array([1, 2, 3]))
+            >>> x - 1
+            ArrayLike(array([0, 1, 2]))
+            >>> 1 - x
+            ArrayLike(array([ 0, -1, -2]))
+            >>> np.arange(3) - x
+            ArrayLike(array([-1, -1, -1]))
+            >>> x - np.arange(3)
+            ArrayLike(array([1, 1, 1]))
+        """
+    
+        def __init__(self, value):
+            self.value = value
+
+        __array_priority__ = 1000  # backward-compatibility with old Numpy
+
+        def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+            # Check inputs can be dealt with
+            for item in inputs:
+                if not hasattr(item, '__array_ufunc__'):
+                    # Handle items without __array_ufunc__ (similarly to ndarray)
+                    pass
+                elif isinstance(item, ArrayLike):
+                    # Handle own type
+                    pass
+                elif type(item) is np.ndarray:
+                    # Handle ndarrays (but not its subclasses, to be safe)
+                    pass
+                else:
+                    return NotImplemented
+
+            # ArrayLike implements arithmetic and ufuncs by deferring to the wrapped array
+            inputs = tuple(x.value if isinstance(self, type(x)) else x
+                           for x in inputs)
+            if kwargs.get('out') is not None:
+                kwargs['out'] = tuple(x.value if isinstance(self, type(x)) else x
+                                      for x in kwargs['out'])
+            result = getattr(ufunc, method)(*inputs, **kwargs)
+            if isinstance(result, tuple):
+                return tuple(type(self)(x) for x in result)
+            else:
+                return type(self)(result)
+    
+        def __repr__(self):
+            return '%s(%r)' % (type(self).__name__, self.value)
+
 
 Extension to other numpy functions
 ==================================
