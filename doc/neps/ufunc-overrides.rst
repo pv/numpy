@@ -242,7 +242,7 @@ convert unknown objects to ndarrays.
 
 .. admonition:: Example
 
-   Type casting hierarchy
+   Type casting hierarchy.
 
    .. graphviz::
 
@@ -262,6 +262,43 @@ convert unknown objects to ndarrays.
    relative to A and vice versa, and A and ndarray are incompatible relative to D.
    Ufunc expressions involving these classes produce results of the highest type
    involved or raise a TypeError.
+
+
+.. admonition:: Example
+
+   1-cycle in the ``__array_ufunc__`` graph.
+
+   .. graphviz::
+
+      digraph array_ufuncs {
+         rankdir=BT;
+         A -> B;
+         B -> A;
+      }
+
+
+   In this case, the ``__array_ufunc__`` relations have a cycle of length 1,
+   and a type casting hierarchy does not exist. Binary operations are not
+   commutative: ``type(a + b) is A`` but ``type(b + a) is B``.
+
+.. admonition:: Example
+
+   Longer cycle in the ``__array_ufunc__`` graph.
+
+   .. graphviz::
+
+      digraph array_ufuncs {
+         rankdir=BT;
+         A -> B;
+         B -> C;
+         C -> A;
+      }
+
+
+   In this case, the ``__array_ufunc__`` relations have a longer cycle, and a type
+   casting hierarchy does not exist. Binary operations are still commutative,
+   but type transitivity is lost: ``type(a + (b + c)) is A`` but
+   ``type((a + b) + c) is C``.
 
 
 Subclass hierarchies
