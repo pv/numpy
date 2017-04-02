@@ -710,7 +710,13 @@ We also suggest using the following boilerplate mix-in code:
                                       for x in kwargs['out'])
 
             # Masquerade as the wrapped object
-            return self.value.__array_ufunc__(ufunc, method, *inputs, **kwargs)
+            result = self.value.__array_ufunc__(ufunc, method, *inputs, **kwargs)
+            if result is NotImplemented:
+                return result
+            elif isinstance(result, tuple):
+                return tuple(type(self)(x) for x in result)
+            else:
+                return type(self)(result)
     
         def __repr__(self):
             return '%s(%r)' % (type(self).__name__, self.value)
