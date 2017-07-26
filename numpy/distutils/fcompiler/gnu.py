@@ -298,6 +298,8 @@ class Gnu95FCompiler(GnuFCompiler):
         return arch_flags
 
     def get_flags(self):
+        if self.c_compiler.compiler_type == "msvc" and not is_win64():
+            return ['-O0']
         flags = GnuFCompiler.get_flags(self)
         arch_flags = self._universal_flags(self.compiler_f90)
         if arch_flags:
