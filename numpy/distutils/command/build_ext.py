@@ -5,6 +5,7 @@ from __future__ import division, absolute_import, print_function
 
 import os
 import sys
+import shutil
 from glob import glob
 
 from distutils.dep_util import newer_group
@@ -15,7 +16,7 @@ from distutils.file_util import copy_file
 
 from numpy.distutils import log
 from numpy.distutils.exec_command import exec_command
-from numpy.distutils.system_info import combine_paths
+from numpy.distutils.system_info import combine_paths, system_info
 from numpy.distutils.misc_util import filter_sources, has_f_sources, \
      has_cxx_sources, get_ext_source_files, \
      get_numpy_include_dirs, is_sequence, get_build_architecture, \
@@ -256,6 +257,18 @@ class build_ext (old_build_ext):
         # Build extensions
         self.build_extensions()
 
+        shared_libs = system_info.shared_libs
+        if shared_libs:
+            runtime_lib_dir = os.path.join(
+                self.build_lib, self.distribution.get_name(), '_lib')
+            try:
+                os.makedirs(runtime_lib_dir)
+            except OSError:
+                pass
+
+            for runtime_lib in shared_libs:
+                if runtime_lib:
+                    copy_file(runtime_lib, runtime_lib_dir)
 
     def swig_sources(self, sources):
         # Do nothing. Swig sources have beed handled in build_src command.
