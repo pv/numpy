@@ -12,8 +12,8 @@ from distutils.errors import DistutilsSetupError, DistutilsError, \
 from numpy.distutils import log
 from distutils.dep_util import newer_group
 from numpy.distutils.misc_util import filter_sources, has_f_sources,\
-     has_cxx_sources, all_strings, get_lib_source_files, is_sequence, \
-     get_numpy_include_dirs
+    has_cxx_sources, all_strings, get_lib_source_files, is_sequence, \
+    get_numpy_include_dirs, get_library_names
 
 # Fix Python distutils bug sf #1718574:
 _l = old_build_clib.user_options
@@ -129,6 +129,11 @@ class build_clib(old_build_clib):
         return filenames
 
     def build_libraries(self, libraries):
+        library_names = get_library_names()
+        library_order = {v: k for k, v in enumerate(library_names)}
+        libraries = sorted(
+            libraries, key=lambda library: library_order[library[0]])
+
         for (lib_name, build_info) in libraries:
             self.build_a_library(build_info, lib_name, libraries)
 

@@ -6,12 +6,15 @@ import sys
 import warnings
 import platform
 import tempfile
+import random
+import string
 from subprocess import Popen, PIPE, STDOUT
-
+from copy import copy
 from numpy.distutils.fcompiler import FCompiler
 from numpy.distutils.exec_command import exec_command
 from numpy.distutils.misc_util import msvc_runtime_library
 from numpy.distutils.compat import get_exception
+from numpy.distutils.system_info import system_info
 
 compilers = ['GnuFCompiler', 'Gnu95FCompiler']
 
@@ -197,9 +200,6 @@ class GnuFCompiler(FCompiler):
             # the following code is not needed (read: breaks) when using MinGW
             # in case want to link F77 compiled code with MSVC
             opt.append('gcc')
-            runtime_lib = msvc_runtime_library()
-            if runtime_lib:
-                opt.append(runtime_lib)
         if sys.platform == 'darwin':
             opt.append('cc_dynamic')
         return opt
@@ -337,15 +337,13 @@ class Gnu95FCompiler(GnuFCompiler):
             if c_compiler and c_compiler.compiler_type == "msvc":
                 if "gcc" in opt:
                     i = opt.index("gcc")
-                    opt.insert(i+1, "mingwex")
-                    opt.insert(i+1, "mingw32")
-            # XXX: fix this mess, does not work for mingw
-            if is_win64():
-                c_compiler = self.c_compiler
-                if c_compiler and c_compiler.compiler_type == "msvc":
-                    return []
-                else:
-                    pass
+                    opt.insert(i + 1, "mingwex")
+                    opt.insert(i + 1, "mingw32")
+            c_compiler = self.c_compiler
+            if c_compiler and c_compiler.compiler_type == "msvc":
+                return []
+            else:
+                pass
         return opt
 
     def get_target(self):
@@ -358,11 +356,98 @@ class Gnu95FCompiler(GnuFCompiler):
                 return m.group(1)
         return ""
 
-    def get_flags_opt(self):
+    @staticmethod
+    def _generate_id(size=6, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
+
+    def link_wrapper_lib(self,
+                         objects=[], libraries=[], library_dirs=[],
+                         output_dir=None, debug=False):
+        """Create a wrapper shared library for the given objects
+
+        Return an MSVC-compatible lib
+        """
+
+        c_compiler = self.c_compiler
+        if c_compiler.compiler_type != "msvc":
+            raise ValueError("This method only supports MSVC")
+
         if is_win64():
-            return ['-O0']
+            tag = 'win_amd64'
         else:
-            return GnuFCompiler.get_flags_opt(self)
+            tag = 'win32'
+
+        root_name = self._generate_id() + '.gfortran-' + tag
+        dll_name = root_name + '.dll'
+        dll_path = os.path.join(output_dir, dll_name)
+        def_path = root_name + '.def'
+        lib_path = os.path.join(output_dir, root_name + '.lib')
+
+        self.link_shared_object(objects, dll_name,
+                                output_dir=output_dir,
+                                extra_postargs=list(system_info.shared_libs) + [
+                                    '-Wl,--output-def,' + def_path,
+                                    '-Wl,--export-all-symbols',
+                                    '-Wl,--enable-auto-import',
+                                    '-static',
+                                    '-mlong-double-64',
+                                ] + ['-l' + library for library in libraries] +
+                                ['-L' + lib_dir for lib_dir in library_dirs],
+                                debug=debug)
+
+        system_info.shared_libs.add(dll_path)
+
+        # No PowerPC!
+        if is_win64():
+            specifier = '/MACHINE:X64'
+        else:
+            specifier = '/MACHINE:X86'
+
+        # MSVC specific code
+        lib_args = ['/def:' + def_path,
+                    '/OUT:' + lib_path, specifier]
+        if not c_compiler.initialized:
+            c_compiler.initialize()
+        c_compiler.spawn([c_compiler.lib] + lib_args)
+
+        return lib_path
+
+    def compile(self, sources,
+                output_dir,
+                macros=[],
+                include_dirs=[],
+                debug=False,
+                extra_postargs=[],
+                depends=[], **kwargs):
+        c_compiler = self.c_compiler
+        if c_compiler and c_compiler.compiler_type == "msvc":
+            # MSVC cannot link objects compiled by GNU fortran
+            # so we need to contain the damage here. Immediately
+            # compile a DLL and return the lib for the DLL as
+            # the object. Also keep track of previous DLLs that
+            # we have compiled so that we can link against them.
+            objects = GnuFCompiler.compile(self, sources,
+                                           output_dir=output_dir,
+                                           macros=macros,
+                                           include_dirs=include_dirs,
+                                           debug=debug,
+                                           extra_postargs=extra_postargs,
+                                           depends=depends)
+
+            lib_path = self.link_wrapper_lib(objects,
+                                             output_dir=output_dir)
+
+            # Return the lib that we created as the "object"
+            return [lib_path]
+        else:
+            return GnuFCompiler.compile(self, sources,
+                                        output_dir,
+                                        macros=macros,
+                                        include_dirs=include_dirs,
+                                        debug=debug,
+                                        extra_postargs=extra_postargs,
+                                        depends=depends, **kwargs)
+
 
 def _can_target(cmd, arch):
     """Return true if the architecture supports the -arch flag"""
