@@ -13,6 +13,11 @@ More modifications by Jeff Whitaker
 
 typedef CBLAS_INT        fortran_int;
 
+#ifdef BLAS_CHARACTER_LEN_TYPE
+#define BLAS_CHARACTER_LEN_ARG ,1
+#define BLAS_CHARACTER_LEN_PROTO ,BLAS_CHARACTER_LEN_TYPE
+#endif
+
 #ifdef HAVE_BLAS_ILP64
 
 #if NPY_BITSOF_SHORT == 64
@@ -65,7 +70,7 @@ extern fortran_int FNAME(zungqr)(fortran_int *m, fortran_int *n, fortran_int *k,
                           fortran_int *lda, f2c_doublecomplex tau[],
                           f2c_doublecomplex work[], fortran_int *lwork, fortran_int *info);
 
-extern fortran_int FNAME(xerbla)(char *srname, fortran_int *info);
+extern fortran_int FNAME(xerbla)(char *srname, fortran_int *info BLAS_CHARACTER_LEN_PROTO);
 
 static PyObject *LapackError;
 
@@ -353,7 +358,7 @@ lapack_lite_xerbla(PyObject *NPY_UNUSED(self), PyObject *args)
 
     NPY_BEGIN_THREADS_DEF;
     NPY_BEGIN_THREADS;
-    FNAME(xerbla)("test", &info);
+    FNAME(xerbla)("x", &info BLAS_CHARACTER_LEN_ARG);
     NPY_END_THREADS;
 
     if (PyErr_Occurred()) {
