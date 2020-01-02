@@ -4,15 +4,11 @@ NOTE: This is generated code. Look in Misc/lapack_lite for information on
 */
 #include "f2c.h"
 
-#ifdef HAVE_CONFIG
-#include "config.h"
-#else
-extern doublereal dlamch_(char *);
-#define EPSILON dlamch_("Epsilon")
-#define SAFEMINIMUM dlamch_("Safe minimum")
-#define PRECISION dlamch_("Precision")
-#define BASE dlamch_("Base")
-#endif
+extern doublereal dlamch_(char *, ftnlen);
+#define EPSILON dlamch_("Epsilon", 1)
+#define SAFEMINIMUM dlamch_("Safe minimum", 1)
+#define PRECISION dlamch_("Precision", 1)
+#define BASE dlamch_("Base", 1)
 
 extern doublereal dlapy2_(doublereal *x, doublereal *y);
 
@@ -54,7 +50,8 @@ static real c_b3178 = 2.f;
 
 /* Subroutine */ int sbdsdc_(char *uplo, char *compq, integer *n, real *d__,
 	real *e, real *u, integer *ldu, real *vt, integer *ldvt, real *q,
-	integer *iq, real *work, integer *iwork, integer *info)
+	integer *iq, real *work, integer *iwork, integer *info, ftnlen
+	uplo_len, ftnlen compq_len)
 {
     /* System generated locals */
     integer u_dim1, u_offset, vt_dim1, vt_offset, i__1, i__2;
@@ -70,36 +67,38 @@ static real c_b3178 = 2.f;
     static integer nm1;
     static real eps;
     static integer ivt, difl, difr, ierr, perm, mlvl, sqre;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer poles;
     extern /* Subroutine */ int slasr_(char *, char *, char *, integer *,
-	    integer *, real *, real *, real *, integer *);
+	    integer *, real *, real *, real *, integer *, ftnlen, ftnlen,
+	    ftnlen);
     static integer iuplo, nsize, start;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *), sswap_(integer *, real *, integer *, real *, integer *
 	    ), slasd0_(integer *, integer *, real *, real *, real *, integer *
 	    , real *, integer *, integer *, integer *, real *, integer *);
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     extern /* Subroutine */ int slasda_(integer *, integer *, integer *,
 	    integer *, real *, real *, real *, integer *, real *, integer *,
 	    real *, real *, real *, real *, integer *, integer *, integer *,
 	    integer *, real *, real *, real *, real *, integer *, integer *),
-	    xerbla_(char *, integer *);
+	    xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *);
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen);
     static integer givcol;
     extern /* Subroutine */ int slasdq_(char *, integer *, integer *, integer
 	    *, integer *, integer *, real *, real *, real *, integer *, real *
-	    , integer *, real *, integer *, real *, integer *);
+	    , integer *, real *, integer *, real *, integer *, ftnlen);
     static integer icompq;
     extern /* Subroutine */ int slaset_(char *, integer *, integer *, real *,
-	    real *, real *, integer *), slartg_(real *, real *, real *
+	    real *, real *, integer *, ftnlen), slartg_(real *, real *, real *
 	    , real *, real *);
     static real orgnrm;
     static integer givnum;
-    extern doublereal slanst_(char *, integer *, real *, real *);
+    extern doublereal slanst_(char *, integer *, real *, real *, ftnlen);
     static integer givptr, qstart, smlsiz, wstart, smlszp;
 
 
@@ -249,17 +248,17 @@ static real c_b3178 = 2.f;
     *info = 0;
 
     iuplo = 0;
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	iuplo = 1;
     }
-    if (lsame_(uplo, "L")) {
+    if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	iuplo = 2;
     }
-    if (lsame_(compq, "N")) {
+    if (lsame_(compq, "N", (ftnlen)1, (ftnlen)1)) {
 	icompq = 0;
-    } else if (lsame_(compq, "P")) {
+    } else if (lsame_(compq, "P", (ftnlen)1, (ftnlen)1)) {
 	icompq = 1;
-    } else if (lsame_(compq, "I")) {
+    } else if (lsame_(compq, "I", (ftnlen)1, (ftnlen)1)) {
 	icompq = 2;
     } else {
 	icompq = -1;
@@ -277,7 +276,7 @@ static real c_b3178 = 2.f;
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SBDSDC", &i__1);
+	xerbla_("SBDSDC", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -338,7 +337,7 @@ static real c_b3178 = 2.f;
     if (icompq == 0) {
 	slasdq_("U", &c__0, n, &c__0, &c__0, &c__0, &d__[1], &e[1], &vt[
 		vt_offset], ldvt, &u[u_offset], ldu, &u[u_offset], ldu, &work[
-		wstart], info);
+		wstart], info, (ftnlen)1);
 	goto L40;
     }
 
@@ -349,39 +348,44 @@ static real c_b3178 = 2.f;
 
     if (*n <= smlsiz) {
 	if (icompq == 2) {
-	    slaset_("A", n, n, &c_b29, &c_b15, &u[u_offset], ldu);
-	    slaset_("A", n, n, &c_b29, &c_b15, &vt[vt_offset], ldvt);
+	    slaset_("A", n, n, &c_b29, &c_b15, &u[u_offset], ldu, (ftnlen)1);
+	    slaset_("A", n, n, &c_b29, &c_b15, &vt[vt_offset], ldvt, (ftnlen)
+		    1);
 	    slasdq_("U", &c__0, n, n, n, &c__0, &d__[1], &e[1], &vt[vt_offset]
 		    , ldvt, &u[u_offset], ldu, &u[u_offset], ldu, &work[
-		    wstart], info);
+		    wstart], info, (ftnlen)1);
 	} else if (icompq == 1) {
 	    iu = 1;
 	    ivt = iu + *n;
-	    slaset_("A", n, n, &c_b29, &c_b15, &q[iu + (qstart - 1) * *n], n);
-	    slaset_("A", n, n, &c_b29, &c_b15, &q[ivt + (qstart - 1) * *n], n);
+	    slaset_("A", n, n, &c_b29, &c_b15, &q[iu + (qstart - 1) * *n], n,
+		    (ftnlen)1);
+	    slaset_("A", n, n, &c_b29, &c_b15, &q[ivt + (qstart - 1) * *n], n,
+		     (ftnlen)1);
 	    slasdq_("U", &c__0, n, n, n, &c__0, &d__[1], &e[1], &q[ivt + (
 		    qstart - 1) * *n], n, &q[iu + (qstart - 1) * *n], n, &q[
-		    iu + (qstart - 1) * *n], n, &work[wstart], info);
+		    iu + (qstart - 1) * *n], n, &work[wstart], info, (ftnlen)
+		    1);
 	}
 	goto L40;
     }
 
     if (icompq == 2) {
-	slaset_("A", n, n, &c_b29, &c_b15, &u[u_offset], ldu);
-	slaset_("A", n, n, &c_b29, &c_b15, &vt[vt_offset], ldvt);
+	slaset_("A", n, n, &c_b29, &c_b15, &u[u_offset], ldu, (ftnlen)1);
+	slaset_("A", n, n, &c_b29, &c_b15, &vt[vt_offset], ldvt, (ftnlen)1);
     }
 
 /*     Scale. */
 
-    orgnrm = slanst_("M", n, &d__[1], &e[1]);
+    orgnrm = slanst_("M", n, &d__[1], &e[1], (ftnlen)1);
     if (orgnrm == 0.f) {
 	return 0;
     }
-    slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, &c__1, &d__[1], n, &ierr);
+    slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, &c__1, &d__[1], n, &ierr, (
+	    ftnlen)1);
     slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &nm1, &c__1, &e[1], &nm1, &
-	    ierr);
+	    ierr, (ftnlen)1);
 
-    eps = slamch_("Epsilon");
+    eps = slamch_("Epsilon", (ftnlen)7);
 
     mlvl = (integer) (log((real) (*n) / (real) (smlsiz + 1)) / log(2.f)) + 1;
     smlszp = smlsiz + 1;
@@ -478,7 +482,8 @@ static real c_b3178 = 2.f;
 
 /*     Unscale */
 
-    slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n, &ierr);
+    slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n, &ierr, (
+	    ftnlen)1);
 L40:
 
 /*     Use Selection Sort to minimize swaps of singular vectors */
@@ -528,7 +533,8 @@ L40:
 */
 
     if (iuplo == 2 && icompq == 2) {
-	slasr_("L", "V", "B", n, n, &work[1], &work[*n], &u[u_offset], ldu);
+	slasr_("L", "V", "B", n, n, &work[1], &work[*n], &u[u_offset], ldu, (
+		ftnlen)1, (ftnlen)1, (ftnlen)1);
     }
 
     return 0;
@@ -539,7 +545,8 @@ L40:
 
 /* Subroutine */ int sbdsqr_(char *uplo, integer *n, integer *ncvt, integer *
 	nru, integer *ncc, real *d__, real *e, real *vt, integer *ldvt, real *
-	u, integer *ldu, real *c__, integer *ldc, real *work, integer *info)
+	u, integer *ldu, real *c__, integer *ldc, real *work, integer *info,
+	ftnlen uplo_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, u_dim1, u_offset, vt_dim1, vt_offset, i__1,
@@ -564,7 +571,7 @@ L40:
     extern /* Subroutine */ int srot_(integer *, real *, integer *, real *,
 	    integer *, real *, real *), slas2_(real *, real *, real *, real *,
 	     real *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static real oldcs;
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *);
     static integer oldll;
@@ -572,15 +579,16 @@ L40:
     static integer maxit;
     static real sminl;
     extern /* Subroutine */ int slasr_(char *, char *, char *, integer *,
-	    integer *, real *, real *, real *, integer *);
+	    integer *, real *, real *, real *, integer *, ftnlen, ftnlen,
+	    ftnlen);
     static real sigmx;
     static logical lower;
     extern /* Subroutine */ int sswap_(integer *, real *, integer *, real *,
 	    integer *), slasq1_(integer *, real *, real *, real *, integer *),
 	     slasv2_(real *, real *, real *, real *, real *, real *, real *,
 	    real *, real *);
-    extern doublereal slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static real sminoa;
     extern /* Subroutine */ int slartg_(real *, real *, real *, real *, real *
 	    );
@@ -751,8 +759,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    lower = lsame_(uplo, "L");
-    if (! lsame_(uplo, "U") && ! lower) {
+    lower = lsame_(uplo, "L", (ftnlen)1, (ftnlen)1);
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lower) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -771,7 +779,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SBDSQR", &i__1);
+	xerbla_("SBDSQR", &i__1, (ftnlen)6);
 	return 0;
     }
     if (*n == 0) {
@@ -799,8 +807,8 @@ L40:
 
 /*     Get machine constants */
 
-    eps = slamch_("Epsilon");
-    unfl = slamch_("Safe minimum");
+    eps = slamch_("Epsilon", (ftnlen)7);
+    unfl = slamch_("Safe minimum", (ftnlen)12);
 
 /*
        If matrix lower bidiagonal, rotate to be upper bidiagonal
@@ -823,11 +831,11 @@ L40:
 
 	if (*nru > 0) {
 	    slasr_("R", "V", "F", nru, n, &work[1], &work[*n], &u[u_offset],
-		    ldu);
+		    ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
 	if (*ncc > 0) {
 	    slasr_("L", "V", "F", n, ncc, &work[1], &work[*n], &c__[c_offset],
-		     ldc);
+		     ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
     }
 
@@ -1168,17 +1176,19 @@ L90:
 	    if (*ncvt > 0) {
 		i__1 = m - ll + 1;
 		slasr_("L", "V", "F", &i__1, ncvt, &work[1], &work[*n], &vt[
-			ll + vt_dim1], ldvt);
+			ll + vt_dim1], ldvt, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	    if (*nru > 0) {
 		i__1 = m - ll + 1;
 		slasr_("R", "V", "F", nru, &i__1, &work[nm12 + 1], &work[nm13
-			+ 1], &u[ll * u_dim1 + 1], ldu);
+			+ 1], &u[ll * u_dim1 + 1], ldu, (ftnlen)1, (ftnlen)1,
+			(ftnlen)1);
 	    }
 	    if (*ncc > 0) {
 		i__1 = m - ll + 1;
 		slasr_("L", "V", "F", &i__1, ncc, &work[nm12 + 1], &work[nm13
-			+ 1], &c__[ll + c_dim1], ldc);
+			+ 1], &c__[ll + c_dim1], ldc, (ftnlen)1, (ftnlen)1, (
+			ftnlen)1);
 	    }
 
 /*           Test convergence */
@@ -1221,17 +1231,18 @@ L90:
 	    if (*ncvt > 0) {
 		i__1 = m - ll + 1;
 		slasr_("L", "V", "B", &i__1, ncvt, &work[nm12 + 1], &work[
-			nm13 + 1], &vt[ll + vt_dim1], ldvt);
+			nm13 + 1], &vt[ll + vt_dim1], ldvt, (ftnlen)1, (
+			ftnlen)1, (ftnlen)1);
 	    }
 	    if (*nru > 0) {
 		i__1 = m - ll + 1;
 		slasr_("R", "V", "B", nru, &i__1, &work[1], &work[*n], &u[ll *
-			 u_dim1 + 1], ldu);
+			 u_dim1 + 1], ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	    if (*ncc > 0) {
 		i__1 = m - ll + 1;
 		slasr_("L", "V", "B", &i__1, ncc, &work[1], &work[*n], &c__[
-			ll + c_dim1], ldc);
+			ll + c_dim1], ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 
 /*           Test convergence */
@@ -1285,17 +1296,19 @@ L90:
 	    if (*ncvt > 0) {
 		i__1 = m - ll + 1;
 		slasr_("L", "V", "F", &i__1, ncvt, &work[1], &work[*n], &vt[
-			ll + vt_dim1], ldvt);
+			ll + vt_dim1], ldvt, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	    if (*nru > 0) {
 		i__1 = m - ll + 1;
 		slasr_("R", "V", "F", nru, &i__1, &work[nm12 + 1], &work[nm13
-			+ 1], &u[ll * u_dim1 + 1], ldu);
+			+ 1], &u[ll * u_dim1 + 1], ldu, (ftnlen)1, (ftnlen)1,
+			(ftnlen)1);
 	    }
 	    if (*ncc > 0) {
 		i__1 = m - ll + 1;
 		slasr_("L", "V", "F", &i__1, ncc, &work[nm12 + 1], &work[nm13
-			+ 1], &c__[ll + c_dim1], ldc);
+			+ 1], &c__[ll + c_dim1], ldc, (ftnlen)1, (ftnlen)1, (
+			ftnlen)1);
 	    }
 
 /*           Test convergence */
@@ -1351,17 +1364,18 @@ L90:
 	    if (*ncvt > 0) {
 		i__1 = m - ll + 1;
 		slasr_("L", "V", "B", &i__1, ncvt, &work[nm12 + 1], &work[
-			nm13 + 1], &vt[ll + vt_dim1], ldvt);
+			nm13 + 1], &vt[ll + vt_dim1], ldvt, (ftnlen)1, (
+			ftnlen)1, (ftnlen)1);
 	    }
 	    if (*nru > 0) {
 		i__1 = m - ll + 1;
 		slasr_("R", "V", "B", nru, &i__1, &work[1], &work[*n], &u[ll *
-			 u_dim1 + 1], ldu);
+			 u_dim1 + 1], ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	    if (*ncc > 0) {
 		i__1 = m - ll + 1;
 		slasr_("L", "V", "B", &i__1, ncc, &work[1], &work[*n], &c__[
-			ll + c_dim1], ldc);
+			ll + c_dim1], ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	}
     }
@@ -1450,7 +1464,7 @@ L220:
 
 /* Subroutine */ int sgebak_(char *job, char *side, integer *n, integer *ilo,
 	integer *ihi, real *scale, integer *m, real *v, integer *ldv, integer
-	*info)
+	*info, ftnlen job_len, ftnlen side_len)
 {
     /* System generated locals */
     integer v_dim1, v_offset, i__1;
@@ -1459,11 +1473,11 @@ L220:
     static integer i__, k;
     static real s;
     static integer ii;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *);
     static logical leftv;
     extern /* Subroutine */ int sswap_(integer *, real *, integer *, real *,
-	    integer *), xerbla_(char *, integer *);
+	    integer *), xerbla_(char *, integer *, ftnlen);
     static logical rightv;
 
 
@@ -1537,12 +1551,13 @@ L220:
     v -= v_offset;
 
     /* Function Body */
-    rightv = lsame_(side, "R");
-    leftv = lsame_(side, "L");
+    rightv = lsame_(side, "R", (ftnlen)1, (ftnlen)1);
+    leftv = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
 
     *info = 0;
-    if (! lsame_(job, "N") && ! lsame_(job, "P") && ! lsame_(job, "S")
-	    && ! lsame_(job, "B")) {
+    if (! lsame_(job, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(job, "P", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(job, "S", (ftnlen)1, (ftnlen)1)
+	    && ! lsame_(job, "B", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (! rightv && ! leftv) {
 	*info = -2;
@@ -1559,7 +1574,7 @@ L220:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGEBAK", &i__1);
+	xerbla_("SGEBAK", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -1571,7 +1586,7 @@ L220:
     if (*m == 0) {
 	return 0;
     }
-    if (lsame_(job, "N")) {
+    if (lsame_(job, "N", (ftnlen)1, (ftnlen)1)) {
 	return 0;
     }
 
@@ -1581,7 +1596,8 @@ L220:
 
 /*     Backward balance */
 
-    if (lsame_(job, "S") || lsame_(job, "B")) {
+    if (lsame_(job, "S", (ftnlen)1, (ftnlen)1) || lsame_(job, "B", (ftnlen)1,
+	    (ftnlen)1)) {
 
 	if (rightv) {
 	    i__1 = *ihi;
@@ -1611,7 +1627,8 @@ L220:
 */
 
 L30:
-    if (lsame_(job, "P") || lsame_(job, "B")) {
+    if (lsame_(job, "P", (ftnlen)1, (ftnlen)1) || lsame_(job, "B", (ftnlen)1,
+	    (ftnlen)1)) {
 	if (rightv) {
 	    i__1 = *n;
 	    for (ii = 1; ii <= i__1; ++ii) {
@@ -1660,7 +1677,8 @@ L50:
 } /* sgebak_ */
 
 /* Subroutine */ int sgebal_(char *job, integer *n, real *a, integer *lda,
-	integer *ilo, integer *ihi, real *scale, integer *info)
+	integer *ilo, integer *ihi, real *scale, integer *info, ftnlen
+	job_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -1671,12 +1689,12 @@ L50:
     static integer i__, j, k, l, m;
     static real r__, s, ca, ra;
     static integer ica, ira, iexc;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    sswap_(integer *, real *, integer *, real *, integer *);
     static real sfmin1, sfmin2, sfmax1, sfmax2;
-    extern doublereal slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer isamax_(integer *, real *, integer *);
     extern logical sisnan_(real *);
     static logical noconv;
@@ -1789,8 +1807,9 @@ L50:
 
     /* Function Body */
     *info = 0;
-    if (! lsame_(job, "N") && ! lsame_(job, "P") && ! lsame_(job, "S")
-	    && ! lsame_(job, "B")) {
+    if (! lsame_(job, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(job, "P", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(job, "S", (ftnlen)1, (ftnlen)1)
+	    && ! lsame_(job, "B", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -1799,7 +1818,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGEBAL", &i__1);
+	xerbla_("SGEBAL", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -1810,7 +1829,7 @@ L50:
 	goto L210;
     }
 
-    if (lsame_(job, "N")) {
+    if (lsame_(job, "N", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    scale[i__] = 1.f;
@@ -1819,7 +1838,7 @@ L50:
 	goto L210;
     }
 
-    if (lsame_(job, "S")) {
+    if (lsame_(job, "S", (ftnlen)1, (ftnlen)1)) {
 	goto L120;
     }
 
@@ -1912,7 +1931,7 @@ L120:
 /* L130: */
     }
 
-    if (lsame_(job, "P")) {
+    if (lsame_(job, "P", (ftnlen)1, (ftnlen)1)) {
 	goto L210;
     }
 
@@ -1922,7 +1941,7 @@ L120:
        Iterative loop for norm reduction
 */
 
-    sfmin1 = slamch_("S") / slamch_("P");
+    sfmin1 = slamch_("S", (ftnlen)1) / slamch_("P", (ftnlen)1);
     sfmax1 = 1.f / sfmin1;
     sfmin2 = sfmin1 * 2.f;
     sfmax2 = 1.f / sfmin2;
@@ -1989,7 +2008,7 @@ L180:
 
 	    *info = -3;
 	    i__2 = -(*info);
-	    xerbla_("SGEBAL", &i__2);
+	    xerbla_("SGEBAL", &i__2, (ftnlen)6);
 	    return 0;
 	}
 	f /= 2.f;
@@ -2051,8 +2070,8 @@ L210:
     /* Local variables */
     static integer i__;
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), xerbla_(
-	    char *, integer *), slarfg_(integer *, real *, real *,
+	    integer *, real *, real *, integer *, real *, ftnlen), xerbla_(
+	    char *, integer *, ftnlen), slarfg_(integer *, real *, real *,
 	    integer *, real *);
 
 
@@ -2199,7 +2218,7 @@ L210:
     }
     if (*info < 0) {
 	i__1 = -(*info);
-	xerbla_("SGEBD2", &i__1);
+	xerbla_("SGEBD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -2227,7 +2246,7 @@ L210:
 		i__3 = *n - i__;
 		slarf_("Left", &i__2, &i__3, &a[i__ + i__ * a_dim1], &c__1, &
 			tauq[i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]
-			);
+			, (ftnlen)4);
 	    }
 	    a[i__ + i__ * a_dim1] = d__[i__];
 
@@ -2252,7 +2271,7 @@ L210:
 		i__3 = *n - i__;
 		slarf_("Right", &i__2, &i__3, &a[i__ + (i__ + 1) * a_dim1],
 			lda, &taup[i__], &a[i__ + 1 + (i__ + 1) * a_dim1],
-			lda, &work[1]);
+			lda, &work[1], (ftnlen)5);
 		a[i__ + (i__ + 1) * a_dim1] = e[i__];
 	    } else {
 		taup[i__] = 0.f;
@@ -2282,7 +2301,8 @@ L210:
 		i__2 = *m - i__;
 		i__3 = *n - i__ + 1;
 		slarf_("Right", &i__2, &i__3, &a[i__ + i__ * a_dim1], lda, &
-			taup[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+			taup[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1],
+			(ftnlen)5);
 	    }
 	    a[i__ + i__ * a_dim1] = d__[i__];
 
@@ -2307,7 +2327,7 @@ L210:
 		i__3 = *n - i__;
 		slarf_("Left", &i__2, &i__3, &a[i__ + 1 + i__ * a_dim1], &
 			c__1, &tauq[i__], &a[i__ + 1 + (i__ + 1) * a_dim1],
-			lda, &work[1]);
+			lda, &work[1], (ftnlen)4);
 		a[i__ + 1 + i__ * a_dim1] = e[i__];
 	    } else {
 		tauq[i__] = 0.f;
@@ -2334,13 +2354,13 @@ L210:
     static integer nbmin, iinfo;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer minmn;
     extern /* Subroutine */ int sgebd2_(integer *, integer *, real *, integer
 	    *, real *, real *, real *, real *, real *, integer *), slabrd_(
 	    integer *, integer *, integer *, real *, integer *, real *, real *
 	    , real *, real *, real *, integer *, real *, integer *), xerbla_(
-	    char *, integer *);
+	    char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwrkx, ldwrky, lwkopt;
@@ -2514,7 +2534,7 @@ L210:
     }
     if (*info < 0) {
 	i__1 = -(*info);
-	xerbla_("SGEBRD", &i__1);
+	xerbla_("SGEBRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -2593,12 +2613,14 @@ L210:
 	i__4 = *n - i__ - nb + 1;
 	sgemm_("No transpose", "Transpose", &i__3, &i__4, &nb, &c_b151, &a[
 		i__ + nb + i__ * a_dim1], lda, &work[ldwrkx * nb + nb + 1], &
-		ldwrky, &c_b15, &a[i__ + nb + (i__ + nb) * a_dim1], lda);
+		ldwrky, &c_b15, &a[i__ + nb + (i__ + nb) * a_dim1], lda, (
+		ftnlen)12, (ftnlen)9);
 	i__3 = *m - i__ - nb + 1;
 	i__4 = *n - i__ - nb + 1;
 	sgemm_("No transpose", "No transpose", &i__3, &i__4, &nb, &c_b151, &
 		work[nb + 1], &ldwrkx, &a[i__ + (i__ + nb) * a_dim1], lda, &
-		c_b15, &a[i__ + nb + (i__ + nb) * a_dim1], lda);
+		c_b15, &a[i__ + nb + (i__ + nb) * a_dim1], lda, (ftnlen)12, (
+		ftnlen)12);
 
 /*        Copy diagonal and off-diagonal elements of B back into A */
 
@@ -2635,7 +2657,8 @@ L210:
 
 /* Subroutine */ int sgeev_(char *jobvl, char *jobvr, integer *n, real *a,
 	integer *lda, real *wr, real *wi, real *vl, integer *ldvl, real *vr,
-	integer *ldvr, real *work, integer *lwork, integer *info)
+	integer *ldvr, real *work, integer *lwork, integer *info, ftnlen
+	jobvl_len, ftnlen jobvr_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, vl_dim1, vl_offset, vr_dim1, vr_offset, i__1,
@@ -2656,35 +2679,38 @@ L210:
     extern /* Subroutine */ int srot_(integer *, real *, integer *, real *,
 	    integer *, real *, real *);
     extern doublereal snrm2_(integer *, real *, integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *);
     extern doublereal slapy2_(real *, real *);
     extern /* Subroutine */ int slabad_(real *, real *);
     static logical scalea;
     static real cscale;
     extern /* Subroutine */ int sgebak_(char *, char *, integer *, integer *,
-	    integer *, real *, integer *, real *, integer *, integer *), sgebal_(char *, integer *, real *, integer *,
-	    integer *, integer *, real *, integer *);
-    extern doublereal slamch_(char *), slange_(char *, integer *,
-	    integer *, real *, integer *, real *);
+	    integer *, real *, integer *, real *, integer *, integer *,
+	    ftnlen, ftnlen), sgebal_(char *, integer *, real *, integer *,
+	    integer *, integer *, real *, integer *, ftnlen);
+    extern doublereal slamch_(char *, ftnlen), slange_(char *, integer *,
+	    integer *, real *, integer *, real *, ftnlen);
     extern /* Subroutine */ int sgehrd_(integer *, integer *, integer *, real
 	    *, integer *, real *, real *, integer *, integer *), xerbla_(char
-	    *, integer *);
+	    *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical select[1];
     static real bignum;
     extern /* Subroutine */ int slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *);
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen);
     extern integer isamax_(integer *, real *, integer *);
     extern /* Subroutine */ int slacpy_(char *, integer *, integer *, real *,
-	    integer *, real *, integer *), slartg_(real *, real *,
+	    integer *, real *, integer *, ftnlen), slartg_(real *, real *,
 	    real *, real *, real *), sorghr_(integer *, integer *, integer *,
 	    real *, integer *, real *, real *, integer *, integer *), shseqr_(
 	    char *, char *, integer *, integer *, integer *, real *, integer *
-	    , real *, real *, real *, integer *, real *, integer *, integer *), strevc_(char *, char *, logical *, integer *,
+	    , real *, real *, real *, integer *, real *, integer *, integer *,
+	     ftnlen, ftnlen), strevc_(char *, char *, logical *, integer *,
 	    real *, integer *, real *, integer *, real *, integer *, integer *
-	    , integer *, real *, integer *);
+	    , integer *, real *, integer *, ftnlen, ftnlen);
     static integer minwrk, maxwrk;
     static logical wantvl;
     static real smlnum;
@@ -2818,11 +2844,11 @@ L210:
     /* Function Body */
     *info = 0;
     lquery = *lwork == -1;
-    wantvl = lsame_(jobvl, "V");
-    wantvr = lsame_(jobvr, "V");
-    if (! wantvl && ! lsame_(jobvl, "N")) {
+    wantvl = lsame_(jobvl, "V", (ftnlen)1, (ftnlen)1);
+    wantvr = lsame_(jobvr, "V", (ftnlen)1, (ftnlen)1);
+    if (! wantvl && ! lsame_(jobvl, "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! wantvr && ! lsame_(jobvr, "N")) {
+    } else if (! wantvr && ! lsame_(jobvr, "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -2861,7 +2887,8 @@ L210:
 			1);
 		maxwrk = max(i__1,i__2);
 		shseqr_("S", "V", n, &c__1, n, &a[a_offset], lda, &wr[1], &wi[
-			1], &vl[vl_offset], ldvl, &work[1], &c_n1, info);
+			1], &vl[vl_offset], ldvl, &work[1], &c_n1, info, (
+			ftnlen)1, (ftnlen)1);
 		hswork = work[1];
 /* Computing MAX */
 		i__1 = maxwrk, i__2 = *n + 1, i__1 = max(i__1,i__2), i__2 = *
@@ -2878,7 +2905,8 @@ L210:
 			1);
 		maxwrk = max(i__1,i__2);
 		shseqr_("S", "V", n, &c__1, n, &a[a_offset], lda, &wr[1], &wi[
-			1], &vr[vr_offset], ldvr, &work[1], &c_n1, info);
+			1], &vr[vr_offset], ldvr, &work[1], &c_n1, info, (
+			ftnlen)1, (ftnlen)1);
 		hswork = work[1];
 /* Computing MAX */
 		i__1 = maxwrk, i__2 = *n + 1, i__1 = max(i__1,i__2), i__2 = *
@@ -2890,7 +2918,8 @@ L210:
 	    } else {
 		minwrk = *n * 3;
 		shseqr_("E", "N", n, &c__1, n, &a[a_offset], lda, &wr[1], &wi[
-			1], &vr[vr_offset], ldvr, &work[1], &c_n1, info);
+			1], &vr[vr_offset], ldvr, &work[1], &c_n1, info, (
+			ftnlen)1, (ftnlen)1);
 		hswork = work[1];
 /* Computing MAX */
 		i__1 = maxwrk, i__2 = *n + 1, i__1 = max(i__1,i__2), i__2 = *
@@ -2908,7 +2937,7 @@ L210:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGEEV ", &i__1);
+	xerbla_("SGEEV ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -2922,8 +2951,8 @@ L210:
 
 /*     Get machine constants */
 
-    eps = slamch_("P");
-    smlnum = slamch_("S");
+    eps = slamch_("P", (ftnlen)1);
+    smlnum = slamch_("S", (ftnlen)1);
     bignum = 1.f / smlnum;
     slabad_(&smlnum, &bignum);
     smlnum = sqrt(smlnum) / eps;
@@ -2931,7 +2960,7 @@ L210:
 
 /*     Scale A if max element outside range [SMLNUM,BIGNUM] */
 
-    anrm = slange_("M", n, n, &a[a_offset], lda, dum);
+    anrm = slange_("M", n, n, &a[a_offset], lda, dum, (ftnlen)1);
     scalea = FALSE_;
     if (anrm > 0.f && anrm < smlnum) {
 	scalea = TRUE_;
@@ -2942,7 +2971,7 @@ L210:
     }
     if (scalea) {
 	slascl_("G", &c__0, &c__0, &anrm, &cscale, n, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     }
 
 /*
@@ -2951,7 +2980,8 @@ L210:
 */
 
     ibal = 1;
-    sgebal_("B", n, &a[a_offset], lda, &ilo, &ihi, &work[ibal], &ierr);
+    sgebal_("B", n, &a[a_offset], lda, &ilo, &ihi, &work[ibal], &ierr, (
+	    ftnlen)1);
 
 /*
        Reduce to upper Hessenberg form
@@ -2972,7 +3002,7 @@ L210:
 */
 
 	*(unsigned char *)side = 'L';
-	slacpy_("L", n, n, &a[a_offset], lda, &vl[vl_offset], ldvl)
+	slacpy_("L", n, n, &a[a_offset], lda, &vl[vl_offset], ldvl, (ftnlen)1)
 		;
 
 /*
@@ -2992,7 +3022,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	shseqr_("S", "V", n, &ilo, &ihi, &a[a_offset], lda, &wr[1], &wi[1], &
-		vl[vl_offset], ldvl, &work[iwrk], &i__1, info);
+		vl[vl_offset], ldvl, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
 
 	if (wantvr) {
 
@@ -3002,7 +3033,8 @@ L210:
 */
 
 	    *(unsigned char *)side = 'B';
-	    slacpy_("F", n, n, &vl[vl_offset], ldvl, &vr[vr_offset], ldvr);
+	    slacpy_("F", n, n, &vl[vl_offset], ldvl, &vr[vr_offset], ldvr, (
+		    ftnlen)1);
 	}
 
     } else if (wantvr) {
@@ -3013,7 +3045,7 @@ L210:
 */
 
 	*(unsigned char *)side = 'R';
-	slacpy_("L", n, n, &a[a_offset], lda, &vr[vr_offset], ldvr)
+	slacpy_("L", n, n, &a[a_offset], lda, &vr[vr_offset], ldvr, (ftnlen)1)
 		;
 
 /*
@@ -3033,7 +3065,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	shseqr_("S", "V", n, &ilo, &ihi, &a[a_offset], lda, &wr[1], &wi[1], &
-		vr[vr_offset], ldvr, &work[iwrk], &i__1, info);
+		vr[vr_offset], ldvr, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
 
     } else {
 
@@ -3045,7 +3078,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	shseqr_("E", "N", n, &ilo, &ihi, &a[a_offset], lda, &wr[1], &wi[1], &
-		vr[vr_offset], ldvr, &work[iwrk], &i__1, info);
+		vr[vr_offset], ldvr, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
     }
 
 /*     If INFO > 0 from SHSEQR, then quit */
@@ -3062,7 +3096,8 @@ L210:
 */
 
 	strevc_(side, "B", select, n, &a[a_offset], lda, &vl[vl_offset], ldvl,
-		 &vr[vr_offset], ldvr, n, &nout, &work[iwrk], &ierr);
+		 &vr[vr_offset], ldvr, n, &nout, &work[iwrk], &ierr, (ftnlen)
+		1, (ftnlen)1);
     }
 
     if (wantvl) {
@@ -3073,7 +3108,7 @@ L210:
 */
 
 	sgebak_("B", "L", n, &ilo, &ihi, &work[ibal], n, &vl[vl_offset], ldvl,
-		 &ierr);
+		 &ierr, (ftnlen)1, (ftnlen)1);
 
 /*        Normalize left eigenvectors and make largest component real */
 
@@ -3116,7 +3151,7 @@ L210:
 */
 
 	sgebak_("B", "R", n, &ilo, &ihi, &work[ibal], n, &vr[vr_offset], ldvr,
-		 &ierr);
+		 &ierr, (ftnlen)1, (ftnlen)1);
 
 /*        Normalize right eigenvectors and make largest component real */
 
@@ -3160,20 +3195,20 @@ L50:
 	i__3 = *n - *info;
 	i__2 = max(i__3,1);
 	slascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &wr[*info +
-		1], &i__2, &ierr);
+		1], &i__2, &ierr, (ftnlen)1);
 	i__1 = *n - *info;
 /* Computing MAX */
 	i__3 = *n - *info;
 	i__2 = max(i__3,1);
 	slascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &wi[*info +
-		1], &i__2, &ierr);
+		1], &i__2, &ierr, (ftnlen)1);
 	if (*info > 0) {
 	    i__1 = ilo - 1;
 	    slascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &wr[1],
-		    n, &ierr);
+		    n, &ierr, (ftnlen)1);
 	    i__1 = ilo - 1;
 	    slascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &wi[1],
-		    n, &ierr);
+		    n, &ierr, (ftnlen)1);
 	}
     }
 
@@ -3194,8 +3229,8 @@ L50:
     static integer i__;
     static real aii;
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), xerbla_(
-	    char *, integer *), slarfg_(integer *, real *, real *,
+	    integer *, real *, real *, integer *, real *, ftnlen), xerbla_(
+	    char *, integer *, ftnlen), slarfg_(integer *, real *, real *,
 	    integer *, real *);
 
 
@@ -3306,7 +3341,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGEHD2", &i__1);
+	xerbla_("SGEHD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -3327,14 +3362,15 @@ L50:
 
 	i__2 = *ihi - i__;
 	slarf_("Right", ihi, &i__2, &a[i__ + 1 + i__ * a_dim1], &c__1, &tau[
-		i__], &a[(i__ + 1) * a_dim1 + 1], lda, &work[1]);
+		i__], &a[(i__ + 1) * a_dim1 + 1], lda, &work[1], (ftnlen)5);
 
 /*        Apply H(i) to A(i+1:ihi,i+1:n) from the left */
 
 	i__2 = *ihi - i__;
 	i__3 = *n - i__;
 	slarf_("Left", &i__2, &i__3, &a[i__ + 1 + i__ * a_dim1], &c__1, &tau[
-		i__], &a[i__ + 1 + (i__ + 1) * a_dim1], lda, &work[1]);
+		i__], &a[i__ + 1 + (i__ + 1) * a_dim1], lda, &work[1], (
+		ftnlen)4);
 
 	a[i__ + 1 + i__ * a_dim1] = aii;
 /* L10: */
@@ -3360,16 +3396,17 @@ L50:
     static integer nb, nh, nx, iws, nbmin, iinfo;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *), strmm_(char *, char *, char *,
+	    real *, integer *, ftnlen, ftnlen), strmm_(char *, char *, char *,
 	     char *, integer *, integer *, real *, real *, integer *, real *,
-	    integer *), saxpy_(integer *,
+	    integer *, ftnlen, ftnlen, ftnlen, ftnlen), saxpy_(integer *,
 	    real *, real *, integer *, real *, integer *), sgehd2_(integer *,
 	    integer *, integer *, real *, integer *, real *, real *, integer *
 	    ), slahr2_(integer *, integer *, integer *, real *, integer *,
 	    real *, real *, integer *, real *, integer *), slarfb_(char *,
 	    char *, char *, char *, integer *, integer *, integer *, real *,
 	    integer *, real *, integer *, real *, integer *, real *, integer *
-	    ), xerbla_(char *, integer *);
+	    , ftnlen, ftnlen, ftnlen, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
@@ -3508,7 +3545,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGEHRD", &i__1);
+	xerbla_("SGEHRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -3620,7 +3657,8 @@ L50:
 	    i__3 = *ihi - i__ - ib + 1;
 	    sgemm_("No transpose", "Transpose", ihi, &i__3, &ib, &c_b151, &
 		    work[1], &ldwork, &a[i__ + ib + i__ * a_dim1], lda, &
-		    c_b15, &a[(i__ + ib) * a_dim1 + 1], lda);
+		    c_b15, &a[(i__ + ib) * a_dim1 + 1], lda, (ftnlen)12, (
+		    ftnlen)9);
 	    a[i__ + ib + (i__ + ib - 1) * a_dim1] = ei;
 
 /*
@@ -3630,7 +3668,8 @@ L50:
 
 	    i__3 = ib - 1;
 	    strmm_("Right", "Lower", "Transpose", "Unit", &i__, &i__3, &c_b15,
-		     &a[i__ + 1 + i__ * a_dim1], lda, &work[1], &ldwork);
+		     &a[i__ + 1 + i__ * a_dim1], lda, &work[1], &ldwork, (
+		    ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 	    i__3 = ib - 2;
 	    for (j = 0; j <= i__3; ++j) {
 		saxpy_(&i__, &c_b151, &work[ldwork * j + 1], &c__1, &a[(i__ +
@@ -3647,7 +3686,8 @@ L50:
 	    i__4 = *n - i__ - ib + 1;
 	    slarfb_("Left", "Transpose", "Forward", "Columnwise", &i__3, &
 		    i__4, &ib, &a[i__ + 1 + i__ * a_dim1], lda, t, &c__65, &a[
-		    i__ + 1 + (i__ + ib) * a_dim1], lda, &work[1], &ldwork);
+		    i__ + 1 + (i__ + ib) * a_dim1], lda, &work[1], &ldwork, (
+		    ftnlen)4, (ftnlen)9, (ftnlen)7, (ftnlen)10);
 /* L40: */
 	}
     }
@@ -3673,8 +3713,8 @@ L50:
     static integer i__, k;
     static real aii;
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), xerbla_(
-	    char *, integer *), slarfg_(integer *, real *, real *,
+	    integer *, real *, real *, integer *, real *, ftnlen), xerbla_(
+	    char *, integer *, ftnlen), slarfg_(integer *, real *, real *,
 	    integer *, real *);
 
 
@@ -3760,7 +3800,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGELQ2", &i__1);
+	xerbla_("SGELQ2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -3785,7 +3825,8 @@ L50:
 	    i__2 = *m - i__;
 	    i__3 = *n - i__ + 1;
 	    slarf_("Right", &i__2, &i__3, &a[i__ + i__ * a_dim1], lda, &tau[
-		    i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+		    i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1], (ftnlen)
+		    5);
 	    a[i__ + i__ * a_dim1] = aii;
 	}
 /* L10: */
@@ -3807,11 +3848,12 @@ L50:
     extern /* Subroutine */ int sgelq2_(integer *, integer *, real *, integer
 	    *, real *, real *, integer *), slarfb_(char *, char *, char *,
 	    char *, integer *, integer *, integer *, real *, integer *, real *
-	    , integer *, real *, integer *, real *, integer *), xerbla_(char *, integer *);
+	    , integer *, real *, integer *, real *, integer *, ftnlen, ftnlen,
+	     ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarft_(char *, char *, integer *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
     static logical lquery;
 
@@ -3916,7 +3958,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGELQF", &i__1);
+	xerbla_("SGELQF", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -3993,7 +4035,8 @@ L50:
 
 		i__3 = *n - i__ + 1;
 		slarft_("Forward", "Rowwise", &i__3, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)7);
 
 /*              Apply H to A(i+ib:m,i:n) from the right */
 
@@ -4002,7 +4045,8 @@ L50:
 		slarfb_("Right", "No transpose", "Forward", "Rowwise", &i__3,
 			&i__4, &ib, &a[i__ + i__ * a_dim1], lda, &work[1], &
 			ldwork, &a[i__ + ib + i__ * a_dim1], lda, &work[ib +
-			1], &ldwork);
+			1], &ldwork, (ftnlen)5, (ftnlen)12, (ftnlen)7, (
+			ftnlen)7);
 	    }
 /* L10: */
 	}
@@ -4042,38 +4086,38 @@ L50:
     extern /* Subroutine */ int slabad_(real *, real *), sgebrd_(integer *,
 	    integer *, real *, integer *, real *, real *, real *, real *,
 	    real *, integer *, integer *);
-    extern doublereal slamch_(char *), slange_(char *, integer *,
-	    integer *, real *, integer *, real *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slamch_(char *, ftnlen), slange_(char *, integer *,
+	    integer *, real *, integer *, real *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static real bignum;
     extern /* Subroutine */ int sgelqf_(integer *, integer *, real *, integer
 	    *, real *, real *, integer *, integer *), slalsd_(char *, integer
 	    *, integer *, integer *, real *, real *, real *, integer *, real *
-	    , integer *, real *, integer *, integer *), slascl_(char *
+	    , integer *, real *, integer *, integer *, ftnlen), slascl_(char *
 	    , integer *, integer *, real *, real *, integer *, integer *,
-	    real *, integer *, integer *);
+	    real *, integer *, integer *, ftnlen);
     static integer wlalsd;
     extern /* Subroutine */ int sgeqrf_(integer *, integer *, real *, integer
 	    *, real *, real *, integer *, integer *), slacpy_(char *, integer
-	    *, integer *, real *, integer *, real *, integer *),
+	    *, integer *, real *, integer *, real *, integer *, ftnlen),
 	    slaset_(char *, integer *, integer *, real *, real *, real *,
-	    integer *);
+	    integer *, ftnlen);
     static integer ldwork;
     extern /* Subroutine */ int sormbr_(char *, char *, char *, integer *,
 	    integer *, integer *, real *, integer *, real *, real *, integer *
-	    , real *, integer *, integer *);
+	    , real *, integer *, integer *, ftnlen, ftnlen, ftnlen);
     static integer liwork, minwrk, maxwrk;
     static real smlnum;
     extern /* Subroutine */ int sormlq_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
     static logical lquery;
     static integer smlsiz;
     extern /* Subroutine */ int sormqr_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
 
 
 /*
@@ -4402,7 +4446,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGELSD", &i__1);
+	xerbla_("SGELSD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -4417,58 +4461,59 @@ L50:
 
 /*     Get machine parameters. */
 
-    eps = slamch_("P");
-    sfmin = slamch_("S");
+    eps = slamch_("P", (ftnlen)1);
+    sfmin = slamch_("S", (ftnlen)1);
     smlnum = sfmin / eps;
     bignum = 1.f / smlnum;
     slabad_(&smlnum, &bignum);
 
 /*     Scale A if max entry outside range [SMLNUM,BIGNUM]. */
 
-    anrm = slange_("M", m, n, &a[a_offset], lda, &work[1]);
+    anrm = slange_("M", m, n, &a[a_offset], lda, &work[1], (ftnlen)1);
     iascl = 0;
     if (anrm > 0.f && anrm < smlnum) {
 
 /*        Scale matrix norm up to SMLNUM. */
 
 	slascl_("G", &c__0, &c__0, &anrm, &smlnum, m, n, &a[a_offset], lda,
-		info);
+		info, (ftnlen)1);
 	iascl = 1;
     } else if (anrm > bignum) {
 
 /*        Scale matrix norm down to BIGNUM. */
 
 	slascl_("G", &c__0, &c__0, &anrm, &bignum, m, n, &a[a_offset], lda,
-		info);
+		info, (ftnlen)1);
 	iascl = 2;
     } else if (anrm == 0.f) {
 
 /*        Matrix all zero. Return zero solution. */
 
 	i__1 = max(*m,*n);
-	slaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[b_offset], ldb);
-	slaset_("F", &minmn, &c__1, &c_b29, &c_b29, &s[1], &c__1);
+	slaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[b_offset], ldb, (ftnlen)
+		1);
+	slaset_("F", &minmn, &c__1, &c_b29, &c_b29, &s[1], &c__1, (ftnlen)1);
 	*rank = 0;
 	goto L10;
     }
 
 /*     Scale B if max entry outside range [SMLNUM,BIGNUM]. */
 
-    bnrm = slange_("M", m, nrhs, &b[b_offset], ldb, &work[1]);
+    bnrm = slange_("M", m, nrhs, &b[b_offset], ldb, &work[1], (ftnlen)1);
     ibscl = 0;
     if (bnrm > 0.f && bnrm < smlnum) {
 
 /*        Scale matrix norm up to SMLNUM. */
 
 	slascl_("G", &c__0, &c__0, &bnrm, &smlnum, m, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	ibscl = 1;
     } else if (bnrm > bignum) {
 
 /*        Scale matrix norm down to BIGNUM. */
 
 	slascl_("G", &c__0, &c__0, &bnrm, &bignum, m, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	ibscl = 2;
     }
 
@@ -4476,7 +4521,8 @@ L50:
 
     if (*m < *n) {
 	i__1 = *n - *m;
-	slaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[*m + 1 + b_dim1], ldb);
+	slaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[*m + 1 + b_dim1], ldb, (
+		ftnlen)1);
     }
 
 /*     Overdetermined case. */
@@ -4510,7 +4556,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    sormqr_("L", "T", m, nrhs, n, &a[a_offset], lda, &work[itau], &b[
-		    b_offset], ldb, &work[nwork], &i__1, info);
+		    b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		    ftnlen)1);
 
 /*           Zero out below R. */
 
@@ -4518,7 +4565,7 @@ L50:
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		slaset_("L", &i__1, &i__2, &c_b29, &c_b29, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 	    }
 	}
 
@@ -4543,12 +4590,13 @@ L50:
 
 	i__1 = *lwork - nwork + 1;
 	sormbr_("Q", "L", "T", &mm, nrhs, n, &a[a_offset], lda, &work[itauq],
-		&b[b_offset], ldb, &work[nwork], &i__1, info);
+		&b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	slalsd_("U", &smlsiz, n, nrhs, &s[1], &work[ie], &b[b_offset], ldb,
-		rcond, rank, &work[nwork], &iwork[1], info);
+		rcond, rank, &work[nwork], &iwork[1], info, (ftnlen)1);
 	if (*info != 0) {
 	    goto L10;
 	}
@@ -4557,7 +4605,8 @@ L50:
 
 	i__1 = *lwork - nwork + 1;
 	sormbr_("P", "L", "N", n, nrhs, n, &a[a_offset], lda, &work[itaup], &
-		b[b_offset], ldb, &work[nwork], &i__1, info);
+		b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
 
     } else /* if(complicated condition) */ {
 /* Computing MAX */
@@ -4598,11 +4647,12 @@ L50:
 
 /*        Copy L to WORK(IL), zeroing out above its diagonal. */
 
-	    slacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwork);
+	    slacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwork, (ftnlen)
+		    1);
 	    i__1 = *m - 1;
 	    i__2 = *m - 1;
 	    slaset_("U", &i__1, &i__2, &c_b29, &c_b29, &work[il + ldwork], &
-		    ldwork);
+		    ldwork, (ftnlen)1);
 	    ie = il + ldwork * *m;
 	    itauq = ie + *m;
 	    itaup = itauq + *m;
@@ -4624,12 +4674,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    sormbr_("Q", "L", "T", m, nrhs, m, &work[il], &ldwork, &work[
-		    itauq], &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    itauq], &b[b_offset], ldb, &work[nwork], &i__1, info, (
+		    ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	    slalsd_("U", &smlsiz, m, nrhs, &s[1], &work[ie], &b[b_offset],
-		    ldb, rcond, rank, &work[nwork], &iwork[1], info);
+		    ldb, rcond, rank, &work[nwork], &iwork[1], info, (ftnlen)
+		    1);
 	    if (*info != 0) {
 		goto L10;
 	    }
@@ -4638,13 +4690,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    sormbr_("P", "L", "N", m, nrhs, m, &work[il], &ldwork, &work[
-		    itaup], &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    itaup], &b[b_offset], ldb, &work[nwork], &i__1, info, (
+		    ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*        Zero out below first M rows of B. */
 
 	    i__1 = *n - *m;
 	    slaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[*m + 1 + b_dim1],
-		    ldb);
+		    ldb, (ftnlen)1);
 	    nwork = itau + *m;
 
 /*
@@ -4654,7 +4707,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    sormlq_("L", "T", n, nrhs, m, &a[a_offset], lda, &work[itau], &b[
-		    b_offset], ldb, &work[nwork], &i__1, info);
+		    b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		    ftnlen)1);
 
 	} else {
 
@@ -4681,12 +4735,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    sormbr_("Q", "L", "T", m, nrhs, n, &a[a_offset], lda, &work[itauq]
-		    , &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    , &b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1,
+		     (ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	    slalsd_("L", &smlsiz, m, nrhs, &s[1], &work[ie], &b[b_offset],
-		    ldb, rcond, rank, &work[nwork], &iwork[1], info);
+		    ldb, rcond, rank, &work[nwork], &iwork[1], info, (ftnlen)
+		    1);
 	    if (*info != 0) {
 		goto L10;
 	    }
@@ -4695,7 +4751,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    sormbr_("P", "L", "N", n, nrhs, m, &a[a_offset], lda, &work[itaup]
-		    , &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    , &b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1,
+		     (ftnlen)1, (ftnlen)1);
 
 	}
     }
@@ -4704,21 +4761,21 @@ L50:
 
     if (iascl == 1) {
 	slascl_("G", &c__0, &c__0, &anrm, &smlnum, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	slascl_("G", &c__0, &c__0, &smlnum, &anrm, &minmn, &c__1, &s[1], &
-		minmn, info);
+		minmn, info, (ftnlen)1);
     } else if (iascl == 2) {
 	slascl_("G", &c__0, &c__0, &anrm, &bignum, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	slascl_("G", &c__0, &c__0, &bignum, &anrm, &minmn, &c__1, &s[1], &
-		minmn, info);
+		minmn, info, (ftnlen)1);
     }
     if (ibscl == 1) {
 	slascl_("G", &c__0, &c__0, &smlnum, &bnrm, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
     } else if (ibscl == 2) {
 	slascl_("G", &c__0, &c__0, &bignum, &bnrm, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
     }
 
 L10:
@@ -4740,8 +4797,8 @@ L10:
     static integer i__, k;
     static real aii;
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), xerbla_(
-	    char *, integer *), slarfg_(integer *, real *, real *,
+	    integer *, real *, real *, integer *, real *, ftnlen), xerbla_(
+	    char *, integer *, ftnlen), slarfg_(integer *, real *, real *,
 	    integer *, real *);
 
 
@@ -4827,7 +4884,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGEQR2", &i__1);
+	xerbla_("SGEQR2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -4852,7 +4909,8 @@ L10:
 	    i__2 = *m - i__ + 1;
 	    i__3 = *n - i__;
 	    slarf_("Left", &i__2, &i__3, &a[i__ + i__ * a_dim1], &c__1, &tau[
-		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]);
+		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1], (
+		    ftnlen)4);
 	    a[i__ + i__ * a_dim1] = aii;
 	}
 /* L10: */
@@ -4874,11 +4932,12 @@ L10:
     extern /* Subroutine */ int sgeqr2_(integer *, integer *, real *, integer
 	    *, real *, real *, integer *), slarfb_(char *, char *, char *,
 	    char *, integer *, integer *, integer *, real *, integer *, real *
-	    , integer *, real *, integer *, real *, integer *), xerbla_(char *, integer *);
+	    , integer *, real *, integer *, real *, integer *, ftnlen, ftnlen,
+	     ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarft_(char *, char *, integer *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
     static logical lquery;
 
@@ -4984,7 +5043,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGEQRF", &i__1);
+	xerbla_("SGEQRF", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -5061,7 +5120,8 @@ L10:
 
 		i__3 = *m - i__ + 1;
 		slarft_("Forward", "Columnwise", &i__3, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)10);
 
 /*              Apply H' to A(i:m,i+ib:n) from the left */
 
@@ -5070,7 +5130,8 @@ L10:
 		slarfb_("Left", "Transpose", "Forward", "Columnwise", &i__3, &
 			i__4, &ib, &a[i__ + i__ * a_dim1], lda, &work[1], &
 			ldwork, &a[i__ + (i__ + ib) * a_dim1], lda, &work[ib
-			+ 1], &ldwork);
+			+ 1], &ldwork, (ftnlen)4, (ftnlen)9, (ftnlen)7, (
+			ftnlen)10);
 	    }
 /* L10: */
 	}
@@ -5096,7 +5157,8 @@ L10:
 
 /* Subroutine */ int sgesdd_(char *jobz, integer *m, integer *n, real *a,
 	integer *lda, real *s, real *u, integer *ldu, real *vt, integer *ldvt,
-	 real *work, integer *lwork, integer *iwork, integer *info)
+	 real *work, integer *lwork, integer *iwork, integer *info, ftnlen
+	jobz_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, u_dim1, u_offset, vt_dim1, vt_offset, i__1,
@@ -5108,11 +5170,11 @@ L10:
     static integer ivt, iscl;
     static real anrm;
     static integer idum[1], ierr, itau;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer chunk;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer minmn, wrkbl, itaup, itauq, mnthr;
     static logical wntqa;
     static integer nwork;
@@ -5120,28 +5182,29 @@ L10:
     static integer bdspac;
     extern /* Subroutine */ int sbdsdc_(char *, char *, integer *, real *,
 	    real *, real *, integer *, real *, integer *, real *, integer *,
-	    real *, integer *, integer *), sgebrd_(integer *,
+	    real *, integer *, integer *, ftnlen, ftnlen), sgebrd_(integer *,
 	    integer *, real *, integer *, real *, real *, real *, real *,
 	    real *, integer *, integer *);
-    extern doublereal slamch_(char *), slange_(char *, integer *,
-	    integer *, real *, integer *, real *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slamch_(char *, ftnlen), slange_(char *, integer *,
+	    integer *, real *, integer *, real *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static real bignum;
     extern /* Subroutine */ int sgelqf_(integer *, integer *, real *, integer
 	    *, real *, real *, integer *, integer *), slascl_(char *, integer
 	    *, integer *, real *, real *, integer *, integer *, real *,
-	    integer *, integer *), sgeqrf_(integer *, integer *, real
+	    integer *, integer *, ftnlen), sgeqrf_(integer *, integer *, real
 	    *, integer *, real *, real *, integer *, integer *), slacpy_(char
-	    *, integer *, integer *, real *, integer *, real *, integer *), slaset_(char *, integer *, integer *, real *, real *,
-	    real *, integer *), sorgbr_(char *, integer *, integer *,
+	    *, integer *, integer *, real *, integer *, real *, integer *,
+	    ftnlen), slaset_(char *, integer *, integer *, real *, real *,
+	    real *, integer *, ftnlen), sorgbr_(char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, integer *
-	    );
+	    , ftnlen);
     static integer ldwrkl;
     extern /* Subroutine */ int sormbr_(char *, char *, char *, integer *,
 	    integer *, integer *, real *, integer *, real *, real *, integer *
-	    , real *, integer *, integer *);
+	    , real *, integer *, integer *, ftnlen, ftnlen, ftnlen);
     static integer ldwrkr, minwrk, ldwrku, maxwrk;
     extern /* Subroutine */ int sorglq_(integer *, integer *, integer *, real
 	    *, integer *, real *, real *, integer *, integer *);
@@ -5308,11 +5371,11 @@ L10:
     /* Function Body */
     *info = 0;
     minmn = min(*m,*n);
-    wntqa = lsame_(jobz, "A");
-    wntqs = lsame_(jobz, "S");
+    wntqa = lsame_(jobz, "A", (ftnlen)1, (ftnlen)1);
+    wntqs = lsame_(jobz, "S", (ftnlen)1, (ftnlen)1);
     wntqas = wntqa || wntqs;
-    wntqo = lsame_(jobz, "O");
-    wntqn = lsame_(jobz, "N");
+    wntqo = lsame_(jobz, "O", (ftnlen)1, (ftnlen)1);
+    wntqn = lsame_(jobz, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
     if (! (wntqa || wntqs || wntqo || wntqn)) {
@@ -5686,7 +5749,7 @@ L10:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGESDD", &i__1);
+	xerbla_("SGESDD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -5700,22 +5763,22 @@ L10:
 
 /*     Get machine constants */
 
-    eps = slamch_("P");
-    smlnum = sqrt(slamch_("S")) / eps;
+    eps = slamch_("P", (ftnlen)1);
+    smlnum = sqrt(slamch_("S", (ftnlen)1)) / eps;
     bignum = 1.f / smlnum;
 
 /*     Scale A if max element outside range [SMLNUM,BIGNUM] */
 
-    anrm = slange_("M", m, n, &a[a_offset], lda, dum);
+    anrm = slange_("M", m, n, &a[a_offset], lda, dum, (ftnlen)1);
     iscl = 0;
     if (anrm > 0.f && anrm < smlnum) {
 	iscl = 1;
 	slascl_("G", &c__0, &c__0, &anrm, &smlnum, m, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     } else if (anrm > bignum) {
 	iscl = 1;
 	slascl_("G", &c__0, &c__0, &anrm, &bignum, m, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     }
 
     if (*m >= *n) {
@@ -5752,7 +5815,7 @@ L10:
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		slaset_("L", &i__1, &i__2, &c_b29, &c_b29, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 		ie = 1;
 		itauq = ie + *n;
 		itaup = itauq + *n;
@@ -5774,7 +5837,8 @@ L10:
 */
 
 		sbdsdc_("U", "N", n, &s[1], &work[ie], dum, &c__1, dum, &c__1,
-			 dum, idum, &work[nwork], &iwork[1], info);
+			 dum, idum, &work[nwork], &iwork[1], info, (ftnlen)1,
+			(ftnlen)1);
 
 	    } else if (wntqo) {
 
@@ -5807,11 +5871,12 @@ L10:
 
 /*              Copy R to WORK(IR), zeroing out below it */
 
-		slacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr);
+		slacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		slaset_("L", &i__1, &i__2, &c_b29, &c_b29, &work[ir + 1], &
-			ldwrkr);
+			ldwrkr, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -5849,7 +5914,7 @@ L10:
 
 		sbdsdc_("U", "I", n, &s[1], &work[ie], &work[iu], n, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite WORK(IU) by left singular vectors of R
@@ -5859,11 +5924,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", n, n, n, &work[ir], &ldwrkr, &work[
-			itauq], &work[iu], n, &work[nwork], &i__1, &ierr);
+			itauq], &work[iu], n, &work[nwork], &i__1, &ierr, (
+			ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", n, n, n, &work[ir], &ldwrkr, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in A by left singular vectors of R in
@@ -5879,9 +5945,10 @@ L10:
 		    i__3 = *m - i__ + 1;
 		    chunk = min(i__3,ldwrkr);
 		    sgemm_("N", "N", &chunk, n, n, &c_b15, &a[i__ + a_dim1],
-			    lda, &work[iu], n, &c_b29, &work[ir], &ldwrkr);
+			    lda, &work[iu], n, &c_b29, &work[ir], &ldwrkr, (
+			    ftnlen)1, (ftnlen)1);
 		    slacpy_("F", &chunk, n, &work[ir], &ldwrkr, &a[i__ +
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)1);
 /* L10: */
 		}
 
@@ -5912,11 +5979,12 @@ L10:
 
 /*              Copy R to WORK(IR), zeroing out below it */
 
-		slacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr);
+		slacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		i__2 = *n - 1;
 		i__1 = *n - 1;
 		slaset_("L", &i__2, &i__1, &c_b29, &c_b29, &work[ir + 1], &
-			ldwrkr);
+			ldwrkr, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -5949,7 +6017,7 @@ L10:
 
 		sbdsdc_("U", "I", n, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of R and VT
@@ -5959,12 +6027,13 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", n, n, n, &work[ir], &ldwrkr, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 		i__2 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", n, n, n, &work[ir], &ldwrkr, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in A by left singular vectors of R in
@@ -5972,9 +6041,11 @@ L10:
                 (Workspace: need N*N)
 */
 
-		slacpy_("F", n, n, &u[u_offset], ldu, &work[ir], &ldwrkr);
+		slacpy_("F", n, n, &u[u_offset], ldu, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		sgemm_("N", "N", m, n, n, &c_b15, &a[a_offset], lda, &work[ir]
-			, &ldwrkr, &c_b29, &u[u_offset], ldu);
+			, &ldwrkr, &c_b29, &u[u_offset], ldu, (ftnlen)1, (
+			ftnlen)1);
 
 	    } else if (wntqa) {
 
@@ -6000,7 +6071,8 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		sgeqrf_(m, n, &a[a_offset], lda, &work[itau], &work[nwork], &
 			i__2, &ierr);
-		slacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		slacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 
 /*
                 Generate Q in U
@@ -6015,7 +6087,7 @@ L10:
 		i__2 = *n - 1;
 		i__1 = *n - 1;
 		slaset_("L", &i__2, &i__1, &c_b29, &c_b29, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 		ie = itau;
 		itauq = ie + *n;
 		itaup = itauq + *n;
@@ -6039,7 +6111,7 @@ L10:
 
 		sbdsdc_("U", "I", n, &s[1], &work[ie], &work[iu], n, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite WORK(IU) by left singular vectors of R and VT
@@ -6050,11 +6122,11 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", n, n, n, &a[a_offset], lda, &work[
 			itauq], &work[iu], &ldwrku, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in U by left singular vectors of R in
@@ -6063,11 +6135,13 @@ L10:
 */
 
 		sgemm_("N", "N", m, n, n, &c_b15, &u[u_offset], ldu, &work[iu]
-			, &ldwrku, &c_b29, &a[a_offset], lda);
+			, &ldwrku, &c_b29, &a[a_offset], lda, (ftnlen)1, (
+			ftnlen)1);
 
 /*              Copy left singular vectors of A from A to U */
 
-		slacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		slacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 
 	    }
 
@@ -6101,7 +6175,8 @@ L10:
 */
 
 		sbdsdc_("U", "N", n, &s[1], &work[ie], dum, &c__1, dum, &c__1,
-			 dum, idum, &work[nwork], &iwork[1], info);
+			 dum, idum, &work[nwork], &iwork[1], info, (ftnlen)1,
+			(ftnlen)1);
 	    } else if (wntqo) {
 		iu = nwork;
 		if (*lwork >= *m * *n + *n * 3 + bdspac) {
@@ -6110,7 +6185,8 @@ L10:
 
 		    ldwrku = *m;
 		    nwork = iu + ldwrku * *n;
-		    slaset_("F", m, n, &c_b29, &c_b29, &work[iu], &ldwrku);
+		    slaset_("F", m, n, &c_b29, &c_b29, &work[iu], &ldwrku, (
+			    ftnlen)1);
 		} else {
 
 /*                 WORK( IU ) is N by N */
@@ -6134,7 +6210,7 @@ L10:
 
 		sbdsdc_("U", "I", n, &s[1], &work[ie], &work[iu], &ldwrku, &
 			vt[vt_offset], ldvt, dum, idum, &work[nwork], &iwork[
-			1], info);
+			1], info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite VT by right singular vectors of A
@@ -6144,7 +6220,7 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 		if (*lwork >= *m * *n + *n * 3 + bdspac) {
 
@@ -6156,11 +6232,12 @@ L10:
 		    i__2 = *lwork - nwork + 1;
 		    sormbr_("Q", "L", "N", m, n, n, &a[a_offset], lda, &work[
 			    itauq], &work[iu], &ldwrku, &work[nwork], &i__2, &
-			    ierr);
+			    ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*                 Copy left singular vectors of A from WORK(IU) to A */
 
-		    slacpy_("F", m, n, &work[iu], &ldwrku, &a[a_offset], lda);
+		    slacpy_("F", m, n, &work[iu], &ldwrku, &a[a_offset], lda,
+			    (ftnlen)1);
 		} else {
 
 /*
@@ -6170,7 +6247,7 @@ L10:
 
 		    i__2 = *lwork - nwork + 1;
 		    sorgbr_("Q", m, n, n, &a[a_offset], lda, &work[itauq], &
-			    work[nwork], &i__2, &ierr);
+			    work[nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                    Multiply Q in A by left singular vectors of
@@ -6188,9 +6265,9 @@ L10:
 			chunk = min(i__3,ldwrkr);
 			sgemm_("N", "N", &chunk, n, n, &c_b15, &a[i__ +
 				a_dim1], lda, &work[iu], &ldwrku, &c_b29, &
-				work[ir], &ldwrkr);
+				work[ir], &ldwrkr, (ftnlen)1, (ftnlen)1);
 			slacpy_("F", &chunk, n, &work[ir], &ldwrkr, &a[i__ +
-				a_dim1], lda);
+				a_dim1], lda, (ftnlen)1);
 /* L20: */
 		    }
 		}
@@ -6204,10 +6281,11 @@ L10:
                 (Workspace: need N+BDSPAC)
 */
 
-		slaset_("F", m, n, &c_b29, &c_b29, &u[u_offset], ldu);
+		slaset_("F", m, n, &c_b29, &c_b29, &u[u_offset], ldu, (ftnlen)
+			1);
 		sbdsdc_("U", "I", n, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of A and VT
@@ -6217,11 +6295,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", m, n, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else if (wntqa) {
 
 /*
@@ -6231,10 +6310,11 @@ L10:
                 (Workspace: need N+BDSPAC)
 */
 
-		slaset_("F", m, m, &c_b29, &c_b29, &u[u_offset], ldu);
+		slaset_("F", m, m, &c_b29, &c_b29, &u[u_offset], ldu, (ftnlen)
+			1);
 		sbdsdc_("U", "I", n, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*              Set the right corner of U to identity matrix */
 
@@ -6242,7 +6322,7 @@ L10:
 		    i__1 = *m - *n;
 		    i__2 = *m - *n;
 		    slaset_("F", &i__1, &i__2, &c_b29, &c_b15, &u[*n + 1 + (*
-			    n + 1) * u_dim1], ldu);
+			    n + 1) * u_dim1], ldu, (ftnlen)1);
 		}
 
 /*
@@ -6253,11 +6333,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", n, n, m, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 
 	}
@@ -6296,7 +6377,7 @@ L10:
 		i__1 = *m - 1;
 		i__2 = *m - 1;
 		slaset_("U", &i__1, &i__2, &c_b29, &c_b29, &a[(a_dim1 << 1) +
-			1], lda);
+			1], lda, (ftnlen)1);
 		ie = 1;
 		itauq = ie + *m;
 		itaup = itauq + *m;
@@ -6318,7 +6399,8 @@ L10:
 */
 
 		sbdsdc_("U", "N", m, &s[1], &work[ie], dum, &c__1, dum, &c__1,
-			 dum, idum, &work[nwork], &iwork[1], info);
+			 dum, idum, &work[nwork], &iwork[1], info, (ftnlen)1,
+			(ftnlen)1);
 
 	    } else if (wntqo) {
 
@@ -6357,11 +6439,12 @@ L10:
 
 /*              Copy L to WORK(IL), zeroing about above it */
 
-		slacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl);
+		slacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl, (
+			ftnlen)1);
 		i__1 = *m - 1;
 		i__2 = *m - 1;
 		slaset_("U", &i__1, &i__2, &c_b29, &c_b29, &work[il + ldwrkl],
-			 &ldwrkl);
+			 &ldwrkl, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -6394,7 +6477,7 @@ L10:
 
 		sbdsdc_("U", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &
 			work[ivt], m, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of L and WORK(IVT)
@@ -6404,10 +6487,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", m, m, m, &work[il], &ldwrkl, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", m, m, m, &work[il], &ldwrkl, &work[
-			itaup], &work[ivt], m, &work[nwork], &i__1, &ierr);
+			itaup], &work[ivt], m, &work[nwork], &i__1, &ierr, (
+			ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply right singular vectors of L in WORK(IVT) by Q
@@ -6424,9 +6509,9 @@ L10:
 		    blk = min(i__3,chunk);
 		    sgemm_("N", "N", m, &blk, m, &c_b15, &work[ivt], m, &a[
 			    i__ * a_dim1 + 1], lda, &c_b29, &work[il], &
-			    ldwrkl);
+			    ldwrkl, (ftnlen)1, (ftnlen)1);
 		    slacpy_("F", m, &blk, &work[il], &ldwrkl, &a[i__ * a_dim1
-			    + 1], lda);
+			    + 1], lda, (ftnlen)1);
 /* L30: */
 		}
 
@@ -6457,11 +6542,12 @@ L10:
 
 /*              Copy L to WORK(IL), zeroing out above it */
 
-		slacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl);
+		slacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl, (
+			ftnlen)1);
 		i__2 = *m - 1;
 		i__1 = *m - 1;
 		slaset_("U", &i__2, &i__1, &c_b29, &c_b29, &work[il + ldwrkl],
-			 &ldwrkl);
+			 &ldwrkl, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -6494,7 +6580,7 @@ L10:
 
 		sbdsdc_("U", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of L and VT
@@ -6504,11 +6590,12 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", m, m, m, &work[il], &ldwrkl, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", m, m, m, &work[il], &ldwrkl, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply right singular vectors of L in WORK(IL) by
@@ -6516,9 +6603,11 @@ L10:
                 (Workspace: need M*M)
 */
 
-		slacpy_("F", m, m, &vt[vt_offset], ldvt, &work[il], &ldwrkl);
+		slacpy_("F", m, m, &vt[vt_offset], ldvt, &work[il], &ldwrkl, (
+			ftnlen)1);
 		sgemm_("N", "N", m, n, m, &c_b15, &work[il], &ldwrkl, &a[
-			a_offset], lda, &c_b29, &vt[vt_offset], ldvt);
+			a_offset], lda, &c_b29, &vt[vt_offset], ldvt, (ftnlen)
+			1, (ftnlen)1);
 
 	    } else if (wntqa) {
 
@@ -6544,7 +6633,8 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		sgelqf_(m, n, &a[a_offset], lda, &work[itau], &work[nwork], &
 			i__2, &ierr);
-		slacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		slacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 /*
                 Generate Q in VT
@@ -6560,7 +6650,7 @@ L10:
 		i__2 = *m - 1;
 		i__1 = *m - 1;
 		slaset_("U", &i__2, &i__1, &c_b29, &c_b29, &a[(a_dim1 << 1) +
-			1], lda);
+			1], lda, (ftnlen)1);
 		ie = itau;
 		itauq = ie + *m;
 		itaup = itauq + *m;
@@ -6584,7 +6674,7 @@ L10:
 
 		sbdsdc_("U", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &
 			work[ivt], &ldwkvt, dum, idum, &work[nwork], &iwork[1]
-			, info);
+			, info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of L and WORK(IVT)
@@ -6594,11 +6684,12 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", m, m, m, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", m, m, m, &a[a_offset], lda, &work[
 			itaup], &work[ivt], &ldwkvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply right singular vectors of L in WORK(IVT) by
@@ -6607,11 +6698,13 @@ L10:
 */
 
 		sgemm_("N", "N", m, n, m, &c_b15, &work[ivt], &ldwkvt, &vt[
-			vt_offset], ldvt, &c_b29, &a[a_offset], lda);
+			vt_offset], ldvt, &c_b29, &a[a_offset], lda, (ftnlen)
+			1, (ftnlen)1);
 
 /*              Copy right singular vectors of A from A to VT */
 
-		slacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		slacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 	    }
 
@@ -6645,7 +6738,8 @@ L10:
 */
 
 		sbdsdc_("L", "N", m, &s[1], &work[ie], dum, &c__1, dum, &c__1,
-			 dum, idum, &work[nwork], &iwork[1], info);
+			 dum, idum, &work[nwork], &iwork[1], info, (ftnlen)1,
+			(ftnlen)1);
 	    } else if (wntqo) {
 		ldwkvt = *m;
 		ivt = nwork;
@@ -6653,7 +6747,8 @@ L10:
 
 /*                 WORK( IVT ) is M by N */
 
-		    slaset_("F", m, n, &c_b29, &c_b29, &work[ivt], &ldwkvt);
+		    slaset_("F", m, n, &c_b29, &c_b29, &work[ivt], &ldwkvt, (
+			    ftnlen)1);
 		    nwork = ivt + ldwkvt * *n;
 		} else {
 
@@ -6676,7 +6771,7 @@ L10:
 
 		sbdsdc_("L", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &
 			work[ivt], &ldwkvt, dum, idum, &work[nwork], &iwork[1]
-			, info);
+			, info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of A
@@ -6685,7 +6780,8 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 		if (*lwork >= *m * *n + *m * 3 + bdspac) {
 
@@ -6697,11 +6793,12 @@ L10:
 		    i__2 = *lwork - nwork + 1;
 		    sormbr_("P", "R", "T", m, n, m, &a[a_offset], lda, &work[
 			    itaup], &work[ivt], &ldwkvt, &work[nwork], &i__2,
-			    &ierr);
+			    &ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*                 Copy right singular vectors of A from WORK(IVT) to A */
 
-		    slacpy_("F", m, n, &work[ivt], &ldwkvt, &a[a_offset], lda);
+		    slacpy_("F", m, n, &work[ivt], &ldwkvt, &a[a_offset], lda,
+			     (ftnlen)1);
 		} else {
 
 /*
@@ -6711,7 +6808,7 @@ L10:
 
 		    i__2 = *lwork - nwork + 1;
 		    sorgbr_("P", m, n, m, &a[a_offset], lda, &work[itaup], &
-			    work[nwork], &i__2, &ierr);
+			    work[nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                    Multiply Q in A by right singular vectors of
@@ -6729,9 +6826,9 @@ L10:
 			blk = min(i__3,chunk);
 			sgemm_("N", "N", m, &blk, m, &c_b15, &work[ivt], &
 				ldwkvt, &a[i__ * a_dim1 + 1], lda, &c_b29, &
-				work[il], m);
+				work[il], m, (ftnlen)1, (ftnlen)1);
 			slacpy_("F", m, &blk, &work[il], m, &a[i__ * a_dim1 +
-				1], lda);
+				1], lda, (ftnlen)1);
 /* L40: */
 		    }
 		}
@@ -6744,10 +6841,11 @@ L10:
                 (Workspace: need M+BDSPAC)
 */
 
-		slaset_("F", m, n, &c_b29, &c_b29, &vt[vt_offset], ldvt);
+		slaset_("F", m, n, &c_b29, &c_b29, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		sbdsdc_("L", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of A and VT
@@ -6757,11 +6855,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", m, n, m, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else if (wntqa) {
 
 /*
@@ -6771,10 +6870,11 @@ L10:
                 (Workspace: need M+BDSPAC)
 */
 
-		slaset_("F", n, n, &c_b29, &c_b29, &vt[vt_offset], ldvt);
+		slaset_("F", n, n, &c_b29, &c_b29, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		sbdsdc_("L", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*              Set the right corner of VT to identity matrix */
 
@@ -6782,7 +6882,7 @@ L10:
 		    i__1 = *n - *m;
 		    i__2 = *n - *m;
 		    slaset_("F", &i__1, &i__2, &c_b29, &c_b15, &vt[*m + 1 + (*
-			    m + 1) * vt_dim1], ldvt);
+			    m + 1) * vt_dim1], ldvt, (ftnlen)1);
 		}
 
 /*
@@ -6793,11 +6893,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		sormbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		sormbr_("P", "R", "T", n, n, m, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 
 	}
@@ -6809,11 +6910,11 @@ L10:
     if (iscl == 1) {
 	if (anrm > bignum) {
 	    slascl_("G", &c__0, &c__0, &bignum, &anrm, &minmn, &c__1, &s[1], &
-		    minmn, &ierr);
+		    minmn, &ierr, (ftnlen)1);
 	}
 	if (anrm < smlnum) {
 	    slascl_("G", &c__0, &c__0, &smlnum, &anrm, &minmn, &c__1, &s[1], &
-		    minmn, &ierr);
+		    minmn, &ierr, (ftnlen)1);
 	}
     }
 
@@ -6834,10 +6935,10 @@ L10:
     integer a_dim1, a_offset, b_dim1, b_offset, i__1;
 
     /* Local variables */
-    extern /* Subroutine */ int xerbla_(char *, integer *), sgetrf_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), sgetrf_(
 	    integer *, integer *, real *, integer *, integer *, integer *),
 	    sgetrs_(char *, integer *, integer *, real *, integer *, integer *
-	    , real *, integer *, integer *);
+	    , real *, integer *, integer *, ftnlen);
 
 
 /*
@@ -6926,7 +7027,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGESV ", &i__1);
+	xerbla_("SGESV ", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -6938,7 +7039,7 @@ L10:
 /*        Solve the system A*X = B, overwriting B with X. */
 
 	sgetrs_("No transpose", n, nrhs, &a[a_offset], lda, &ipiv[1], &b[
-		b_offset], ldb, info);
+		b_offset], ldb, info, (ftnlen)12);
     }
     return 0;
 
@@ -6961,8 +7062,8 @@ L10:
     static real sfmin;
     extern /* Subroutine */ int sswap_(integer *, real *, integer *, real *,
 	    integer *);
-    extern doublereal slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer isamax_(integer *, real *, integer *);
 
 
@@ -7039,7 +7140,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGETF2", &i__1);
+	xerbla_("SGETF2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -7051,7 +7152,7 @@ L10:
 
 /*     Compute machine safe minimum */
 
-    sfmin = slamch_("S");
+    sfmin = slamch_("S", (ftnlen)1);
 
     i__1 = min(*m,*n);
     for (j = 1; j <= i__1; ++j) {
@@ -7118,11 +7219,11 @@ L10:
     static integer i__, j, jb, nb, iinfo;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *), strsm_(char *, char *, char *,
+	    real *, integer *, ftnlen, ftnlen), strsm_(char *, char *, char *,
 	     char *, integer *, integer *, real *, real *, integer *, real *,
-	    integer *), sgetf2_(integer *,
+	    integer *, ftnlen, ftnlen, ftnlen, ftnlen), sgetf2_(integer *,
 	    integer *, real *, integer *, integer *, integer *), xerbla_(char
-	    *, integer *);
+	    *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slaswp_(integer *, real *, integer *, integer
@@ -7202,7 +7303,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGETRF", &i__1);
+	xerbla_("SGETRF", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -7273,7 +7374,8 @@ L10:
 		i__3 = *n - j - jb + 1;
 		strsm_("Left", "Lower", "No transpose", "Unit", &jb, &i__3, &
 			c_b15, &a[j + j * a_dim1], lda, &a[j + (j + jb) *
-			a_dim1], lda);
+			a_dim1], lda, (ftnlen)4, (ftnlen)5, (ftnlen)12, (
+			ftnlen)4);
 		if (j + jb <= *m) {
 
 /*                 Update trailing submatrix. */
@@ -7283,7 +7385,7 @@ L10:
 		    sgemm_("No transpose", "No transpose", &i__3, &i__4, &jb,
 			    &c_b151, &a[j + jb + j * a_dim1], lda, &a[j + (j
 			    + jb) * a_dim1], lda, &c_b15, &a[j + jb + (j + jb)
-			     * a_dim1], lda);
+			     * a_dim1], lda, (ftnlen)12, (ftnlen)12);
 		}
 	    }
 /* L20: */
@@ -7296,16 +7398,18 @@ L10:
 } /* sgetrf_ */
 
 /* Subroutine */ int sgetrs_(char *trans, integer *n, integer *nrhs, real *a,
-	integer *lda, integer *ipiv, real *b, integer *ldb, integer *info)
+	integer *lda, integer *ipiv, real *b, integer *ldb, integer *info,
+	ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int strsm_(char *, char *, char *, char *,
 	    integer *, integer *, real *, real *, integer *, real *, integer *
-	    ), xerbla_(char *, integer *);
+	    , ftnlen, ftnlen, ftnlen, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
     static logical notran;
     extern /* Subroutine */ int slaswp_(integer *, real *, integer *, integer
 	    *, integer *, integer *, integer *);
@@ -7381,9 +7485,9 @@ L10:
 
     /* Function Body */
     *info = 0;
-    notran = lsame_(trans, "N");
-    if (! notran && ! lsame_(trans, "T") && ! lsame_(
-	    trans, "C")) {
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
+    if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1) && ! lsame_(
+	    trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -7396,7 +7500,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SGETRS", &i__1);
+	xerbla_("SGETRS", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -7419,12 +7523,14 @@ L10:
 /*        Solve L*X = B, overwriting B with X. */
 
 	strsm_("Left", "Lower", "No transpose", "Unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)4);
 
 /*        Solve U*X = B, overwriting B with X. */
 
 	strsm_("Left", "Upper", "No transpose", "Non-unit", n, nrhs, &c_b15, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
     } else {
 
 /*
@@ -7434,12 +7540,14 @@ L10:
 */
 
 	strsm_("Left", "Upper", "Transpose", "Non-unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)9, (ftnlen)8);
 
 /*        Solve L'*X = B, overwriting B with X. */
 
 	strsm_("Left", "Lower", "Transpose", "Unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)9, (ftnlen)4);
 
 /*        Apply row interchanges to the solution vectors. */
 
@@ -7454,7 +7562,8 @@ L10:
 
 /* Subroutine */ int shseqr_(char *job, char *compz, integer *n, integer *ilo,
 	 integer *ihi, real *h__, integer *ldh, real *wr, real *wi, real *z__,
-	 integer *ldz, real *work, integer *lwork, integer *info)
+	 integer *ldz, real *work, integer *lwork, integer *info, ftnlen
+	job_len, ftnlen compz_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -7466,21 +7575,22 @@ L10:
     static integer i__;
     static real hl[2401]	/* was [49][49] */;
     static integer kbot, nmin;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical initz;
     static real workl[49];
     static logical wantt, wantz;
     extern /* Subroutine */ int slaqr0_(logical *, logical *, integer *,
 	    integer *, integer *, real *, integer *, real *, real *, integer *
 	    , integer *, real *, integer *, real *, integer *, integer *),
-	    xerbla_(char *, integer *);
+	    xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slahqr_(logical *, logical *, integer *,
 	    integer *, integer *, real *, integer *, real *, real *, integer *
 	    , integer *, real *, integer *, integer *), slacpy_(char *,
-	    integer *, integer *, real *, integer *, real *, integer *), slaset_(char *, integer *, integer *, real *, real *,
-	    real *, integer *);
+	    integer *, integer *, real *, integer *, real *, integer *,
+	    ftnlen), slaset_(char *, integer *, integer *, real *, real *,
+	    real *, integer *, ftnlen);
     static logical lquery;
 
 
@@ -7731,16 +7841,16 @@ L10:
     --work;
 
     /* Function Body */
-    wantt = lsame_(job, "S");
-    initz = lsame_(compz, "I");
-    wantz = initz || lsame_(compz, "V");
+    wantt = lsame_(job, "S", (ftnlen)1, (ftnlen)1);
+    initz = lsame_(compz, "I", (ftnlen)1, (ftnlen)1);
+    wantz = initz || lsame_(compz, "V", (ftnlen)1, (ftnlen)1);
     work[1] = (real) max(1,*n);
     lquery = *lwork == -1;
 
     *info = 0;
-    if (! lsame_(job, "E") && ! wantt) {
+    if (! lsame_(job, "E", (ftnlen)1, (ftnlen)1) && ! wantt) {
 	*info = -1;
-    } else if (! lsame_(compz, "N") && ! wantz) {
+    } else if (! lsame_(compz, "N", (ftnlen)1, (ftnlen)1) && ! wantz) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -7761,7 +7871,7 @@ L10:
 /*        ==== Quick return in case of invalid argument. ==== */
 
 	i__1 = -(*info);
-	xerbla_("SHSEQR", &i__1);
+	xerbla_("SHSEQR", &i__1, (ftnlen)6);
 	return 0;
 
     } else if (*n == 0) {
@@ -7805,7 +7915,7 @@ L10:
 /*        ==== Initialize Z, if requested ==== */
 
 	if (initz) {
-	    slaset_("A", n, n, &c_b29, &c_b15, &z__[z_offset], ldz)
+	    slaset_("A", n, n, &c_b29, &c_b15, &z__[z_offset], ldz, (ftnlen)1)
 		    ;
 	}
 
@@ -7871,16 +7981,18 @@ L10:
                    .    array before calling SLAQR0. ====
 */
 
-		    slacpy_("A", n, n, &h__[h_offset], ldh, hl, &c__49);
+		    slacpy_("A", n, n, &h__[h_offset], ldh, hl, &c__49, (
+			    ftnlen)1);
 		    hl[*n + 1 + *n * 49 - 50] = 0.f;
 		    i__1 = 49 - *n;
 		    slaset_("A", &c__49, &i__1, &c_b29, &c_b29, &hl[(*n + 1) *
-			     49 - 49], &c__49);
+			     49 - 49], &c__49, (ftnlen)1);
 		    slaqr0_(&wantt, &wantz, &c__49, ilo, &kbot, hl, &c__49, &
 			    wr[1], &wi[1], ilo, ihi, &z__[z_offset], ldz,
 			    workl, &c__49, info);
 		    if (wantt || *info != 0) {
-			slacpy_("A", n, n, hl, &c__49, &h__[h_offset], ldh);
+			slacpy_("A", n, n, hl, &c__49, &h__[h_offset], ldh, (
+				ftnlen)1);
 		    }
 		}
 	    }
@@ -7891,7 +8003,8 @@ L10:
 	if ((wantt || *info != 0) && *n > 2) {
 	    i__1 = *n - 2;
 	    i__3 = *n - 2;
-	    slaset_("L", &i__1, &i__3, &c_b29, &c_b29, &h__[h_dim1 + 3], ldh);
+	    slaset_("L", &i__1, &i__3, &c_b29, &c_b29, &h__[h_dim1 + 3], ldh,
+		    (ftnlen)1);
 	}
 
 /*
@@ -8010,7 +8123,7 @@ logical sisnan_(real *sin__)
     static integer i__;
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    sgemv_(char *, integer *, integer *, real *, real *, integer *,
-	    real *, integer *, real *, real *, integer *), slarfg_(
+	    real *, integer *, real *, real *, integer *, ftnlen), slarfg_(
 	    integer *, real *, real *, integer *, real *);
 
 
@@ -8179,12 +8292,12 @@ logical sisnan_(real *sin__)
 	    i__3 = i__ - 1;
 	    sgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + a_dim1],
 		    lda, &y[i__ + y_dim1], ldy, &c_b15, &a[i__ + i__ * a_dim1]
-		    , &c__1);
+		    , &c__1, (ftnlen)12);
 	    i__2 = *m - i__ + 1;
 	    i__3 = i__ - 1;
 	    sgemv_("No transpose", &i__2, &i__3, &c_b151, &x[i__ + x_dim1],
 		    ldx, &a[i__ * a_dim1 + 1], &c__1, &c_b15, &a[i__ + i__ *
-		    a_dim1], &c__1);
+		    a_dim1], &c__1, (ftnlen)12);
 
 /*           Generate reflection Q(i) to annihilate A(i+1:m,i) */
 
@@ -8203,27 +8316,27 @@ logical sisnan_(real *sin__)
 		i__3 = *n - i__;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + (i__ + 1) *
 			 a_dim1], lda, &a[i__ + i__ * a_dim1], &c__1, &c_b29,
-			&y[i__ + 1 + i__ * y_dim1], &c__1);
+			&y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)9);
 		i__2 = *m - i__ + 1;
 		i__3 = i__ - 1;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + a_dim1],
 			lda, &a[i__ + i__ * a_dim1], &c__1, &c_b29, &y[i__ *
-			y_dim1 + 1], &c__1);
+			y_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &y[i__ + 1 +
 			y_dim1], ldy, &y[i__ * y_dim1 + 1], &c__1, &c_b15, &y[
-			i__ + 1 + i__ * y_dim1], &c__1);
+			i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__ + 1;
 		i__3 = i__ - 1;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &x[i__ + x_dim1],
 			ldx, &a[i__ + i__ * a_dim1], &c__1, &c_b29, &y[i__ *
-			y_dim1 + 1], &c__1);
+			y_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = i__ - 1;
 		i__3 = *n - i__;
 		sgemv_("Transpose", &i__2, &i__3, &c_b151, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &y[i__ * y_dim1 + 1], &c__1, &c_b15,
-			 &y[i__ + 1 + i__ * y_dim1], &c__1);
+			 &y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		sscal_(&i__2, &tauq[i__], &y[i__ + 1 + i__ * y_dim1], &c__1);
 
@@ -8232,12 +8345,12 @@ logical sisnan_(real *sin__)
 		i__2 = *n - i__;
 		sgemv_("No transpose", &i__2, &i__, &c_b151, &y[i__ + 1 +
 			y_dim1], ldy, &a[i__ + a_dim1], lda, &c_b15, &a[i__ +
-			(i__ + 1) * a_dim1], lda);
+			(i__ + 1) * a_dim1], lda, (ftnlen)12);
 		i__2 = i__ - 1;
 		i__3 = *n - i__;
 		sgemv_("Transpose", &i__2, &i__3, &c_b151, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &x[i__ + x_dim1], ldx, &c_b15, &a[
-			i__ + (i__ + 1) * a_dim1], lda);
+			i__ + (i__ + 1) * a_dim1], lda, (ftnlen)9);
 
 /*              Generate reflection P(i) to annihilate A(i,i+2:n) */
 
@@ -8255,25 +8368,26 @@ logical sisnan_(real *sin__)
 		i__3 = *n - i__;
 		sgemv_("No transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + (
 			i__ + 1) * a_dim1], lda, &a[i__ + (i__ + 1) * a_dim1],
-			 lda, &c_b29, &x[i__ + 1 + i__ * x_dim1], &c__1);
+			 lda, &c_b29, &x[i__ + 1 + i__ * x_dim1], &c__1, (
+			ftnlen)12);
 		i__2 = *n - i__;
 		sgemv_("Transpose", &i__2, &i__, &c_b15, &y[i__ + 1 + y_dim1],
 			 ldy, &a[i__ + (i__ + 1) * a_dim1], lda, &c_b29, &x[
-			i__ * x_dim1 + 1], &c__1);
+			i__ * x_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *m - i__;
 		sgemv_("No transpose", &i__2, &i__, &c_b151, &a[i__ + 1 +
 			a_dim1], lda, &x[i__ * x_dim1 + 1], &c__1, &c_b15, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = i__ - 1;
 		i__3 = *n - i__;
 		sgemv_("No transpose", &i__2, &i__3, &c_b15, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			c_b29, &x[i__ * x_dim1 + 1], &c__1);
+			c_b29, &x[i__ * x_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &x[i__ + 1 +
 			x_dim1], ldx, &x[i__ * x_dim1 + 1], &c__1, &c_b15, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		sscal_(&i__2, &taup[i__], &x[i__ + 1 + i__ * x_dim1], &c__1);
 	    }
@@ -8292,12 +8406,12 @@ logical sisnan_(real *sin__)
 	    i__3 = i__ - 1;
 	    sgemv_("No transpose", &i__2, &i__3, &c_b151, &y[i__ + y_dim1],
 		    ldy, &a[i__ + a_dim1], lda, &c_b15, &a[i__ + i__ * a_dim1]
-		    , lda);
+		    , lda, (ftnlen)12);
 	    i__2 = i__ - 1;
 	    i__3 = *n - i__ + 1;
 	    sgemv_("Transpose", &i__2, &i__3, &c_b151, &a[i__ * a_dim1 + 1],
 		    lda, &x[i__ + x_dim1], ldx, &c_b15, &a[i__ + i__ * a_dim1]
-		    , lda);
+		    , lda, (ftnlen)9);
 
 /*           Generate reflection P(i) to annihilate A(i,i+1:n) */
 
@@ -8316,27 +8430,27 @@ logical sisnan_(real *sin__)
 		i__3 = *n - i__ + 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + i__
 			* a_dim1], lda, &a[i__ + i__ * a_dim1], lda, &c_b29, &
-			x[i__ + 1 + i__ * x_dim1], &c__1);
+			x[i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__ + 1;
 		i__3 = i__ - 1;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &y[i__ + y_dim1],
 			ldy, &a[i__ + i__ * a_dim1], lda, &c_b29, &x[i__ *
-			x_dim1 + 1], &c__1);
+			x_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + 1 +
 			a_dim1], lda, &x[i__ * x_dim1 + 1], &c__1, &c_b15, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = i__ - 1;
 		i__3 = *n - i__ + 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b15, &a[i__ * a_dim1
 			+ 1], lda, &a[i__ + i__ * a_dim1], lda, &c_b29, &x[
-			i__ * x_dim1 + 1], &c__1);
+			i__ * x_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &x[i__ + 1 +
 			x_dim1], ldx, &x[i__ * x_dim1 + 1], &c__1, &c_b15, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		sscal_(&i__2, &taup[i__], &x[i__ + 1 + i__ * x_dim1], &c__1);
 
@@ -8346,11 +8460,11 @@ logical sisnan_(real *sin__)
 		i__3 = i__ - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + 1 +
 			a_dim1], lda, &y[i__ + y_dim1], ldy, &c_b15, &a[i__ +
-			1 + i__ * a_dim1], &c__1);
+			1 + i__ * a_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		sgemv_("No transpose", &i__2, &i__, &c_b151, &x[i__ + 1 +
 			x_dim1], ldx, &a[i__ * a_dim1 + 1], &c__1, &c_b15, &a[
-			i__ + 1 + i__ * a_dim1], &c__1);
+			i__ + 1 + i__ * a_dim1], &c__1, (ftnlen)12);
 
 /*              Generate reflection Q(i) to annihilate A(i+2:m,i) */
 
@@ -8368,25 +8482,25 @@ logical sisnan_(real *sin__)
 		i__3 = *n - i__;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + (i__ +
 			1) * a_dim1], lda, &a[i__ + 1 + i__ * a_dim1], &c__1,
-			&c_b29, &y[i__ + 1 + i__ * y_dim1], &c__1);
+			&c_b29, &y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)9);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + a_dim1]
 			, lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &y[
-			i__ * y_dim1 + 1], &c__1);
+			i__ * y_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &y[i__ + 1 +
 			y_dim1], ldy, &y[i__ * y_dim1 + 1], &c__1, &c_b15, &y[
-			i__ + 1 + i__ * y_dim1], &c__1);
+			i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		sgemv_("Transpose", &i__2, &i__, &c_b15, &x[i__ + 1 + x_dim1],
 			 ldx, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &y[
-			i__ * y_dim1 + 1], &c__1);
+			i__ * y_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		sgemv_("Transpose", &i__, &i__2, &c_b151, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &y[i__ * y_dim1 + 1], &c__1, &c_b15,
-			 &y[i__ + 1 + i__ * y_dim1], &c__1);
+			 &y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		sscal_(&i__2, &tauq[i__], &y[i__ + 1 + i__ * y_dim1], &c__1);
 	    }
@@ -8400,14 +8514,14 @@ logical sisnan_(real *sin__)
 } /* slabrd_ */
 
 /* Subroutine */ int slacpy_(char *uplo, integer *m, integer *n, real *a,
-	integer *lda, real *b, integer *ldb)
+	integer *lda, real *b, integer *ldb, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2;
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
 
 
 /*
@@ -8465,7 +8579,7 @@ logical sisnan_(real *sin__)
     b -= b_offset;
 
     /* Function Body */
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    i__2 = min(j,*m);
@@ -8475,7 +8589,7 @@ logical sisnan_(real *sin__)
 	    }
 /* L20: */
 	}
-    } else if (lsame_(uplo, "L")) {
+    } else if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    i__2 = *m;
@@ -8698,7 +8812,7 @@ logical sisnan_(real *sin__)
     static integer curr;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer iperm, indxq, iwrem;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *);
@@ -8710,15 +8824,15 @@ logical sisnan_(real *sin__)
 	    , real *, integer *, integer *, integer *, integer *, integer *,
 	    real *, real *, integer *, integer *);
     static integer igivcl;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer igivnm, submat;
     extern /* Subroutine */ int slacpy_(char *, integer *, integer *, real *,
-	    integer *, real *, integer *);
+	    integer *, real *, integer *, ftnlen);
     static integer curprb, subpbs, igivpt, curlvl, matsiz, iprmpt, smlsiz;
     extern /* Subroutine */ int ssteqr_(char *, integer *, real *, real *,
-	    real *, integer *, real *, integer *);
+	    real *, integer *, real *, integer *, ftnlen);
 
 
 /*
@@ -8849,7 +8963,7 @@ logical sisnan_(real *sin__)
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAED0", &i__1);
+	xerbla_("SLAED0", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -8958,13 +9072,13 @@ L10:
 	}
 	if (*icompq == 2) {
 	    ssteqr_("I", &matsiz, &d__[submat], &e[submat], &q[submat +
-		    submat * q_dim1], ldq, &work[1], info);
+		    submat * q_dim1], ldq, &work[1], info, (ftnlen)1);
 	    if (*info != 0) {
 		goto L130;
 	    }
 	} else {
 	    ssteqr_("I", &matsiz, &d__[submat], &e[submat], &work[iq - 1 +
-		    iwork[iqptr + curr]], &matsiz, &work[1], info);
+		    iwork[iqptr + curr]], &matsiz, &work[1], info, (ftnlen)1);
 	    if (*info != 0) {
 		goto L130;
 	    }
@@ -8972,7 +9086,7 @@ L10:
 		sgemm_("N", "N", qsiz, &matsiz, &matsiz, &c_b15, &q[submat *
 			q_dim1 + 1], ldq, &work[iq - 1 + iwork[iqptr + curr]],
 			 &matsiz, &c_b29, &qstore[submat * qstore_dim1 + 1],
-			ldqs);
+			ldqs, (ftnlen)1, (ftnlen)1);
 	    }
 /* Computing 2nd power */
 	    i__2 = matsiz;
@@ -9073,7 +9187,7 @@ L80:
 /* L110: */
 	}
 	scopy_(n, &work[1], &c__1, &d__[1], &c__1);
-	slacpy_("A", n, n, &work[*n + 1], n, &q[q_offset], ldq);
+	slacpy_("A", n, n, &work[*n + 1], n, &q[q_offset], ldq, (ftnlen)1);
     } else {
 	i__1 = *n;
 	for (i__ = 1; i__ <= i__1; ++i__) {
@@ -9112,7 +9226,7 @@ L140:
 	    , real *, real *, integer *, integer *, real *, real *, integer *)
 	    ;
     static integer idlmda;
-    extern /* Subroutine */ int xerbla_(char *, integer *), slamrg_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slamrg_(
 	    integer *, integer *, real *, integer *, integer *, integer *);
     static integer coltyp;
 
@@ -9239,7 +9353,7 @@ L140:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAED1", &i__1);
+	xerbla_("SLAED1", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -9338,12 +9452,12 @@ L20:
 	    integer *, real *, real *), sscal_(integer *, real *, real *,
 	    integer *), scopy_(integer *, real *, integer *, real *, integer *
 	    );
-    extern doublereal slapy2_(real *, real *), slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slapy2_(real *, real *), slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer isamax_(integer *, real *, integer *);
     extern /* Subroutine */ int slamrg_(integer *, integer *, real *, integer
 	    *, integer *, integer *), slacpy_(char *, integer *, integer *,
-	    real *, integer *, real *, integer *);
+	    real *, integer *, real *, integer *, ftnlen);
 
 
 /*
@@ -9500,7 +9614,7 @@ L20:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAED2", &i__1);
+	xerbla_("SLAED2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -9555,7 +9669,7 @@ L20:
 
     imax = isamax_(n, &z__[1], &c__1);
     jmax = isamax_(n, &d__[1], &c__1);
-    eps = slamch_("Epsilon");
+    eps = slamch_("Epsilon", (ftnlen)7);
 /* Computing MAX */
     r__3 = (r__1 = d__[jmax], dabs(r__1)), r__4 = (r__2 = z__[imax], dabs(
 	    r__2));
@@ -9578,7 +9692,7 @@ L20:
 	    iq2 += *n;
 /* L40: */
 	}
-	slacpy_("A", n, n, &q2[1], n, &q[q_offset], ldq);
+	slacpy_("A", n, n, &q2[1], n, &q[q_offset], ldq, (ftnlen)1);
 	scopy_(n, &dlamda[1], &c__1, &d__[1], &c__1);
 	goto L190;
     }
@@ -9810,7 +9924,8 @@ L100:
        into the last N - K slots of D and Q respectively.
 */
 
-    slacpy_("A", n, &ctot[3], &q2[iq1], n, &q[(*k + 1) * q_dim1 + 1], ldq);
+    slacpy_("A", n, &ctot[3], &q2[iq1], n, &q[(*k + 1) * q_dim1 + 1], ldq, (
+	    ftnlen)1);
     i__1 = *n - *k;
     scopy_(&i__1, &z__[*k + 1], &c__1, &d__[*k + 1], &c__1);
 
@@ -9842,14 +9957,14 @@ L190:
     extern doublereal snrm2_(integer *, real *, integer *);
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *), scopy_(integer *, real *,
+	    real *, integer *, ftnlen, ftnlen), scopy_(integer *, real *,
 	    integer *, real *, integer *), slaed4_(integer *, integer *, real
 	    *, real *, real *, real *, real *, integer *);
     extern doublereal slamc3_(real *, real *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), slacpy_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slacpy_(
 	    char *, integer *, integer *, real *, integer *, real *, integer *
-	    ), slaset_(char *, integer *, integer *, real *, real *,
-	    real *, integer *);
+	    , ftnlen), slaset_(char *, integer *, integer *, real *, real *,
+	    real *, integer *, ftnlen);
 
 
 /*
@@ -9985,7 +10100,7 @@ L190:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAED3", &i__1);
+	xerbla_("SLAED3", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -10106,21 +10221,23 @@ L110:
     n12 = ctot[1] + ctot[2];
     n23 = ctot[2] + ctot[3];
 
-    slacpy_("A", &n23, k, &q[ctot[1] + 1 + q_dim1], ldq, &s[1], &n23);
+    slacpy_("A", &n23, k, &q[ctot[1] + 1 + q_dim1], ldq, &s[1], &n23, (ftnlen)
+	    1);
     iq2 = *n1 * n12 + 1;
     if (n23 != 0) {
 	sgemm_("N", "N", &n2, k, &n23, &c_b15, &q2[iq2], &n2, &s[1], &n23, &
-		c_b29, &q[*n1 + 1 + q_dim1], ldq);
+		c_b29, &q[*n1 + 1 + q_dim1], ldq, (ftnlen)1, (ftnlen)1);
     } else {
-	slaset_("A", &n2, k, &c_b29, &c_b29, &q[*n1 + 1 + q_dim1], ldq);
+	slaset_("A", &n2, k, &c_b29, &c_b29, &q[*n1 + 1 + q_dim1], ldq, (
+		ftnlen)1);
     }
 
-    slacpy_("A", &n12, k, &q[q_offset], ldq, &s[1], &n12);
+    slacpy_("A", &n12, k, &q[q_offset], ldq, &s[1], &n12, (ftnlen)1);
     if (n12 != 0) {
 	sgemm_("N", "N", n1, k, &n12, &c_b15, &q2[1], n1, &s[1], &n12, &c_b29,
-		 &q[q_offset], ldq);
+		 &q[q_offset], ldq, (ftnlen)1, (ftnlen)1);
     } else {
-	slaset_("A", n1, k, &c_b29, &c_b29, &q[q_dim1 + 1], ldq);
+	slaset_("A", n1, k, &c_b29, &c_b29, &q[q_dim1 + 1], ldq, (ftnlen)1);
     }
 
 
@@ -10156,7 +10273,7 @@ L120:
 	    real *, real *), slaed6_(integer *, logical *, real *, real *,
 	    real *, real *, real *, integer *);
     static logical swtch3;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static logical orgati;
     static real erretm, rhoinv;
 
@@ -10272,7 +10389,7 @@ L120:
 
 /*     Compute machine epsilon */
 
-    eps = slamch_("Epsilon");
+    eps = slamch_("Epsilon", (ftnlen)7);
     rhoinv = 1.f / *rho;
 
 /*     The case I = N */
@@ -11214,7 +11331,7 @@ L250:
     static logical scale;
     static integer niter;
     static real small1, small2, sminv1, sminv2, dscale[3], sclfac;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real zscale[3], erretm, sclinv;
 
 
@@ -11370,9 +11487,9 @@ L250:
        others but recomputed at each call
 */
 
-    eps = slamch_("Epsilon");
-    base = slamch_("Base");
-    i__1 = (integer) (log(slamch_("SafMin")) / log(base) / 3.f);
+    eps = slamch_("Epsilon", (ftnlen)7);
+    base = slamch_("Base", (ftnlen)4);
+    i__1 = (integer) (log(slamch_("SafMin", (ftnlen)6)) / log(base) / 3.f);
     small1 = pow_ri(&base, &i__1);
     sminv1 = 1.f / small1;
     small2 = small1 * small1;
@@ -11565,7 +11682,7 @@ L60:
 	    indxc;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer indxp;
     extern /* Subroutine */ int slaed8_(integer *, integer *, integer *,
 	    integer *, real *, real *, integer *, integer *, real *, integer *
@@ -11577,7 +11694,7 @@ L60:
 	    integer *, integer *, integer *, real *, real *, integer *, real *
 	    , real *, integer *);
     static integer idlmda;
-    extern /* Subroutine */ int xerbla_(char *, integer *), slamrg_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slamrg_(
 	    integer *, integer *, real *, integer *, integer *, integer *);
     static integer coltyp;
 
@@ -11765,7 +11882,7 @@ L60:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAED7", &i__1);
+	xerbla_("SLAED7", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -11847,7 +11964,8 @@ L60:
 	}
 	if (*icompq == 1) {
 	    sgemm_("N", "N", qsiz, &k, &k, &c_b15, &work[iq2], &ldq2, &qstore[
-		    qptr[curr]], &k, &c_b29, &q[q_offset], ldq);
+		    qptr[curr]], &k, &c_b29, &q[q_offset], ldq, (ftnlen)1, (
+		    ftnlen)1);
 	}
 /* Computing 2nd power */
 	i__1 = k;
@@ -11895,12 +12013,12 @@ L30:
 	    integer *, real *, real *), sscal_(integer *, real *, real *,
 	    integer *), scopy_(integer *, real *, integer *, real *, integer *
 	    );
-    extern doublereal slapy2_(real *, real *), slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slapy2_(real *, real *), slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer isamax_(integer *, real *, integer *);
     extern /* Subroutine */ int slamrg_(integer *, integer *, real *, integer
 	    *, integer *, integer *), slacpy_(char *, integer *, integer *,
-	    real *, integer *, real *, integer *);
+	    real *, integer *, real *, integer *, ftnlen);
 
 
 /*
@@ -12075,7 +12193,7 @@ L30:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAED8", &i__1);
+	xerbla_("SLAED8", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -12140,7 +12258,7 @@ L30:
 
     imax = isamax_(n, &z__[1], &c__1);
     jmax = isamax_(n, &d__[1], &c__1);
-    eps = slamch_("Epsilon");
+    eps = slamch_("Epsilon", (ftnlen)7);
     tol = eps * 8.f * (r__1 = d__[jmax], dabs(r__1));
 
 /*
@@ -12165,7 +12283,8 @@ L30:
 			+ 1], &c__1);
 /* L60: */
 	    }
-	    slacpy_("A", qsiz, n, &q2[q2_dim1 + 1], ldq2, &q[q_dim1 + 1], ldq);
+	    slacpy_("A", qsiz, n, &q2[q2_dim1 + 1], ldq2, &q[q_dim1 + 1], ldq,
+		     (ftnlen)1);
 	}
 	return 0;
     }
@@ -12322,7 +12441,7 @@ L110:
 	    scopy_(&i__1, &dlamda[*k + 1], &c__1, &d__[*k + 1], &c__1);
 	    i__1 = *n - *k;
 	    slacpy_("A", qsiz, &i__1, &q2[(*k + 1) * q2_dim1 + 1], ldq2, &q[(*
-		    k + 1) * q_dim1 + 1], ldq);
+		    k + 1) * q_dim1 + 1], ldq, (ftnlen)1);
 	}
     }
 
@@ -12348,7 +12467,7 @@ L110:
 	    integer *), slaed4_(integer *, integer *, real *, real *, real *,
 	    real *, real *, integer *);
     extern doublereal slamc3_(real *, real *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -12460,7 +12579,7 @@ L110:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAED9", &i__1);
+	xerbla_("SLAED9", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -12589,8 +12708,9 @@ L120:
 	    integer *, real *, real *);
     static integer bsiz1, bsiz2, psiz1, psiz2, zptr1;
     extern /* Subroutine */ int sgemv_(char *, integer *, integer *, real *,
-	    real *, integer *, real *, integer *, real *, real *, integer *), scopy_(integer *, real *, integer *, real *, integer *),
-	    xerbla_(char *, integer *);
+	    real *, integer *, real *, integer *, real *, real *, integer *,
+	    ftnlen), scopy_(integer *, real *, integer *, real *, integer *),
+	    xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -12700,7 +12820,7 @@ L120:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAEDA", &i__1);
+	xerbla_("SLAEDA", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -12808,13 +12928,14 @@ L120:
 		.5f);
 	if (bsiz1 > 0) {
 	    sgemv_("T", &bsiz1, &bsiz1, &c_b15, &q[qptr[curr]], &bsiz1, &
-		    ztemp[1], &c__1, &c_b29, &z__[zptr1], &c__1);
+		    ztemp[1], &c__1, &c_b29, &z__[zptr1], &c__1, (ftnlen)1);
 	}
 	i__2 = psiz1 - bsiz1;
 	scopy_(&i__2, &ztemp[bsiz1 + 1], &c__1, &z__[zptr1 + bsiz1], &c__1);
 	if (bsiz2 > 0) {
 	    sgemv_("T", &bsiz2, &bsiz2, &c_b15, &q[qptr[curr + 1]], &bsiz2, &
-		    ztemp[psiz1 + 1], &c__1, &c_b29, &z__[mid], &c__1);
+		    ztemp[psiz1 + 1], &c__1, &c_b29, &z__[mid], &c__1, (
+		    ftnlen)1);
 	}
 	i__2 = psiz2 - bsiz2;
 	scopy_(&i__2, &ztemp[psiz1 + bsiz2 + 1], &c__1, &z__[mid + bsiz2], &
@@ -13027,15 +13148,15 @@ L120:
 	    logical *, integer *, integer *, integer *, real *, integer *,
 	    real *, integer *, real *, integer *, real *, real *, integer *,
 	    real *, integer *);
-    extern doublereal slamch_(char *), slange_(char *, integer *,
-	    integer *, real *, integer *, real *);
+    extern doublereal slamch_(char *, ftnlen), slange_(char *, integer *,
+	    integer *, real *, integer *, real *, ftnlen);
     extern /* Subroutine */ int slarfg_(integer *, real *, real *, integer *,
 	    real *), slacpy_(char *, integer *, integer *, real *, integer *,
-	    real *, integer *), slartg_(real *, real *, real *, real *
+	    real *, integer *, ftnlen), slartg_(real *, real *, real *, real *
 	    , real *);
     static real thresh;
     extern /* Subroutine */ int slarfx_(char *, integer *, integer *, real *,
-	    real *, real *, integer *, real *);
+	    real *, real *, integer *, real *, ftnlen);
     static real smlnum;
 
 
@@ -13175,16 +13296,17 @@ L120:
 */
 
 	nd = *n1 + *n2;
-	slacpy_("Full", &nd, &nd, &t[*j1 + *j1 * t_dim1], ldt, d__, &c__4);
-	dnorm = slange_("Max", &nd, &nd, d__, &c__4, &work[1]);
+	slacpy_("Full", &nd, &nd, &t[*j1 + *j1 * t_dim1], ldt, d__, &c__4, (
+		ftnlen)4);
+	dnorm = slange_("Max", &nd, &nd, d__, &c__4, &work[1], (ftnlen)3);
 
 /*
           Compute machine-dependent threshold for test for accepting
           swap.
 */
 
-	eps = slamch_("P");
-	smlnum = slamch_("S") / eps;
+	eps = slamch_("P", (ftnlen)1);
+	smlnum = slamch_("S", (ftnlen)1) / eps;
 /* Computing MAX */
 	r__1 = eps * 10.f * dnorm;
 	thresh = dmax(r__1,smlnum);
@@ -13221,8 +13343,8 @@ L10:
 
 /*        Perform swap provisionally on diagonal block in D. */
 
-	slarfx_("L", &c__3, &c__3, u, &tau, d__, &c__4, &work[1]);
-	slarfx_("R", &c__3, &c__3, u, &tau, d__, &c__4, &work[1]);
+	slarfx_("L", &c__3, &c__3, u, &tau, d__, &c__4, &work[1], (ftnlen)1);
+	slarfx_("R", &c__3, &c__3, u, &tau, d__, &c__4, &work[1], (ftnlen)1);
 
 /*
           Test whether to reject swap.
@@ -13239,8 +13361,9 @@ L10:
 
 	i__1 = *n - *j1 + 1;
 	slarfx_("L", &c__3, &i__1, u, &tau, &t[*j1 + *j1 * t_dim1], ldt, &
-		work[1]);
-	slarfx_("R", &j2, &c__3, u, &tau, &t[*j1 * t_dim1 + 1], ldt, &work[1]);
+		work[1], (ftnlen)1);
+	slarfx_("R", &j2, &c__3, u, &tau, &t[*j1 * t_dim1 + 1], ldt, &work[1],
+		 (ftnlen)1);
 
 	t[j3 + *j1 * t_dim1] = 0.f;
 	t[j3 + j2 * t_dim1] = 0.f;
@@ -13251,7 +13374,7 @@ L10:
 /*           Accumulate transformation in the matrix Q. */
 
 	    slarfx_("R", n, &c__3, u, &tau, &q[*j1 * q_dim1 + 1], ldq, &work[
-		    1]);
+		    1], (ftnlen)1);
 	}
 	goto L40;
 
@@ -13274,8 +13397,8 @@ L20:
 
 /*        Perform swap provisionally on diagonal block in D. */
 
-	slarfx_("L", &c__3, &c__3, u, &tau, d__, &c__4, &work[1]);
-	slarfx_("R", &c__3, &c__3, u, &tau, d__, &c__4, &work[1]);
+	slarfx_("L", &c__3, &c__3, u, &tau, d__, &c__4, &work[1], (ftnlen)1);
+	slarfx_("R", &c__3, &c__3, u, &tau, d__, &c__4, &work[1], (ftnlen)1);
 
 /*
           Test whether to reject swap.
@@ -13290,10 +13413,11 @@ L20:
 
 /*        Accept swap: apply transformation to the entire matrix T. */
 
-	slarfx_("R", &j3, &c__3, u, &tau, &t[*j1 * t_dim1 + 1], ldt, &work[1]);
+	slarfx_("R", &j3, &c__3, u, &tau, &t[*j1 * t_dim1 + 1], ldt, &work[1],
+		 (ftnlen)1);
 	i__1 = *n - *j1;
 	slarfx_("L", &c__3, &i__1, u, &tau, &t[*j1 + j2 * t_dim1], ldt, &work[
-		1]);
+		1], (ftnlen)1);
 
 	t[*j1 + *j1 * t_dim1] = t33;
 	t[j2 + *j1 * t_dim1] = 0.f;
@@ -13304,7 +13428,7 @@ L20:
 /*           Accumulate transformation in the matrix Q. */
 
 	    slarfx_("R", n, &c__3, u, &tau, &q[*j1 * q_dim1 + 1], ldq, &work[
-		    1]);
+		    1], (ftnlen)1);
 	}
 	goto L40;
 
@@ -13335,12 +13459,14 @@ L30:
 
 /*        Perform swap provisionally on diagonal block in D. */
 
-	slarfx_("L", &c__3, &c__4, u1, &tau1, d__, &c__4, &work[1])
+	slarfx_("L", &c__3, &c__4, u1, &tau1, d__, &c__4, &work[1], (ftnlen)1)
 		;
-	slarfx_("R", &c__4, &c__3, u1, &tau1, d__, &c__4, &work[1])
+	slarfx_("R", &c__4, &c__3, u1, &tau1, d__, &c__4, &work[1], (ftnlen)1)
 		;
-	slarfx_("L", &c__3, &c__4, u2, &tau2, &d__[1], &c__4, &work[1]);
-	slarfx_("R", &c__4, &c__3, u2, &tau2, &d__[4], &c__4, &work[1]);
+	slarfx_("L", &c__3, &c__4, u2, &tau2, &d__[1], &c__4, &work[1], (
+		ftnlen)1);
+	slarfx_("R", &c__4, &c__3, u2, &tau2, &d__[4], &c__4, &work[1], (
+		ftnlen)1);
 
 /*
           Test whether to reject swap.
@@ -13357,14 +13483,14 @@ L30:
 
 	i__1 = *n - *j1 + 1;
 	slarfx_("L", &c__3, &i__1, u1, &tau1, &t[*j1 + *j1 * t_dim1], ldt, &
-		work[1]);
+		work[1], (ftnlen)1);
 	slarfx_("R", &j4, &c__3, u1, &tau1, &t[*j1 * t_dim1 + 1], ldt, &work[
-		1]);
+		1], (ftnlen)1);
 	i__1 = *n - *j1 + 1;
 	slarfx_("L", &c__3, &i__1, u2, &tau2, &t[j2 + *j1 * t_dim1], ldt, &
-		work[1]);
+		work[1], (ftnlen)1);
 	slarfx_("R", &j4, &c__3, u2, &tau2, &t[j2 * t_dim1 + 1], ldt, &work[1]
-		);
+		, (ftnlen)1);
 
 	t[j3 + *j1 * t_dim1] = 0.f;
 	t[j3 + j2 * t_dim1] = 0.f;
@@ -13376,9 +13502,9 @@ L30:
 /*           Accumulate transformation in the matrix Q. */
 
 	    slarfx_("R", n, &c__3, u1, &tau1, &q[*j1 * q_dim1 + 1], ldq, &
-		    work[1]);
+		    work[1], (ftnlen)1);
 	    slarfx_("R", n, &c__3, u2, &tau2, &q[j2 * q_dim1 + 1], ldq, &work[
-		    1]);
+		    1], (ftnlen)1);
 	}
 
 L40:
@@ -13465,7 +13591,7 @@ L50:
 	    real *, integer *), slanv2_(real *, real *, real *, real *, real *
 	    , real *, real *, real *, real *, real *), slabad_(real *, real *)
 	    ;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real safmin;
     extern /* Subroutine */ int slarfg_(integer *, real *, real *, integer *,
 	    real *);
@@ -13632,10 +13758,10 @@ L50:
 
 /*     Set machine-dependent constants for the stopping criterion. */
 
-    safmin = slamch_("SAFE MINIMUM");
+    safmin = slamch_("SAFE MINIMUM", (ftnlen)12);
     safmax = 1.f / safmin;
     slabad_(&safmin, &safmax);
-    ulp = slamch_("PRECISION");
+    ulp = slamch_("PRECISION", (ftnlen)9);
     smlnum = safmin * ((real) nh / ulp);
 
 /*
@@ -14074,14 +14200,18 @@ L160:
     static real ei;
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    sgemm_(char *, char *, integer *, integer *, integer *, real *,
-	    real *, integer *, real *, integer *, real *, real *, integer *), sgemv_(char *, integer *, integer *, real *,
-	    real *, integer *, real *, integer *, real *, real *, integer *), scopy_(integer *, real *, integer *, real *, integer *),
+	    real *, integer *, real *, integer *, real *, real *, integer *,
+	    ftnlen, ftnlen), sgemv_(char *, integer *, integer *, real *,
+	    real *, integer *, real *, integer *, real *, real *, integer *,
+	    ftnlen), scopy_(integer *, real *, integer *, real *, integer *),
 	    strmm_(char *, char *, char *, char *, integer *, integer *, real
-	    *, real *, integer *, real *, integer *), saxpy_(integer *, real *, real *, integer *, real *,
+	    *, real *, integer *, real *, integer *, ftnlen, ftnlen, ftnlen,
+	    ftnlen), saxpy_(integer *, real *, real *, integer *, real *,
 	    integer *), strmv_(char *, char *, char *, integer *, real *,
-	    integer *, real *, integer *), slarfg_(
+	    integer *, real *, integer *, ftnlen, ftnlen, ftnlen), slarfg_(
 	    integer *, real *, real *, integer *, real *), slacpy_(char *,
-	    integer *, integer *, real *, integer *, real *, integer *);
+	    integer *, integer *, real *, integer *, real *, integer *,
+	    ftnlen);
 
 
 /*
@@ -14229,7 +14359,7 @@ L160:
 	    i__3 = i__ - 1;
 	    sgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b151, &y[*k + 1 + y_dim1],
 		     ldy, &a[*k + i__ - 1 + a_dim1], lda, &c_b15, &a[*k + 1 +
-		    i__ * a_dim1], &c__1);
+		    i__ * a_dim1], &c__1, (ftnlen)12);
 
 /*
              Apply I - V * T' * V' to this column (call it b) from the
@@ -14248,7 +14378,8 @@ L160:
 		    1], &c__1);
 	    i__2 = i__ - 1;
 	    strmv_("Lower", "Transpose", "UNIT", &i__2, &a[*k + 1 + a_dim1],
-		    lda, &t[*nb * t_dim1 + 1], &c__1);
+		    lda, &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)9, (
+		    ftnlen)4);
 
 /*           w := w + V2'*b2 */
 
@@ -14256,13 +14387,14 @@ L160:
 	    i__3 = i__ - 1;
 	    sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[*k + i__ + a_dim1],
 		    lda, &a[*k + i__ + i__ * a_dim1], &c__1, &c_b15, &t[*nb *
-		    t_dim1 + 1], &c__1);
+		    t_dim1 + 1], &c__1, (ftnlen)9);
 
 /*           w := T'*w */
 
 	    i__2 = i__ - 1;
 	    strmv_("Upper", "Transpose", "NON-UNIT", &i__2, &t[t_offset], ldt,
-		     &t[*nb * t_dim1 + 1], &c__1);
+		     &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)9, (
+		    ftnlen)8);
 
 /*           b2 := b2 - V2*w */
 
@@ -14270,13 +14402,14 @@ L160:
 	    i__3 = i__ - 1;
 	    sgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b151, &a[*k + i__ +
 		    a_dim1], lda, &t[*nb * t_dim1 + 1], &c__1, &c_b15, &a[*k
-		    + i__ + i__ * a_dim1], &c__1);
+		    + i__ + i__ * a_dim1], &c__1, (ftnlen)12);
 
 /*           b1 := b1 - V1*w */
 
 	    i__2 = i__ - 1;
 	    strmv_("Lower", "NO TRANSPOSE", "UNIT", &i__2, &a[*k + 1 + a_dim1]
-		    , lda, &t[*nb * t_dim1 + 1], &c__1);
+		    , lda, &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12,
+		     (ftnlen)4);
 	    i__2 = i__ - 1;
 	    saxpy_(&i__2, &c_b151, &t[*nb * t_dim1 + 1], &c__1, &a[*k + 1 +
 		    i__ * a_dim1], &c__1);
@@ -14303,17 +14436,17 @@ L160:
 	i__3 = *n - *k - i__ + 1;
 	sgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b15, &a[*k + 1 + (i__ + 1) *
 		a_dim1], lda, &a[*k + i__ + i__ * a_dim1], &c__1, &c_b29, &y[*
-		k + 1 + i__ * y_dim1], &c__1);
+		k + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 	i__2 = *n - *k - i__ + 1;
 	i__3 = i__ - 1;
 	sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[*k + i__ + a_dim1], lda,
 		&a[*k + i__ + i__ * a_dim1], &c__1, &c_b29, &t[i__ * t_dim1 +
-		1], &c__1);
+		1], &c__1, (ftnlen)9);
 	i__2 = *n - *k;
 	i__3 = i__ - 1;
 	sgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b151, &y[*k + 1 + y_dim1],
 		ldy, &t[i__ * t_dim1 + 1], &c__1, &c_b15, &y[*k + 1 + i__ *
-		y_dim1], &c__1);
+		y_dim1], &c__1, (ftnlen)12);
 	i__2 = *n - *k;
 	sscal_(&i__2, &tau[i__], &y[*k + 1 + i__ * y_dim1], &c__1);
 
@@ -14324,7 +14457,7 @@ L160:
 	sscal_(&i__2, &r__1, &t[i__ * t_dim1 + 1], &c__1);
 	i__2 = i__ - 1;
 	strmv_("Upper", "No Transpose", "NON-UNIT", &i__2, &t[t_offset], ldt,
-		&t[i__ * t_dim1 + 1], &c__1)
+		&t[i__ * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)8)
 		;
 	t[i__ + i__ * t_dim1] = tau[i__];
 
@@ -14334,17 +14467,20 @@ L160:
 
 /*     Compute Y(1:K,1:NB) */
 
-    slacpy_("ALL", k, nb, &a[(a_dim1 << 1) + 1], lda, &y[y_offset], ldy);
+    slacpy_("ALL", k, nb, &a[(a_dim1 << 1) + 1], lda, &y[y_offset], ldy, (
+	    ftnlen)3);
     strmm_("RIGHT", "Lower", "NO TRANSPOSE", "UNIT", k, nb, &c_b15, &a[*k + 1
-	    + a_dim1], lda, &y[y_offset], ldy);
+	    + a_dim1], lda, &y[y_offset], ldy, (ftnlen)5, (ftnlen)5, (ftnlen)
+	    12, (ftnlen)4);
     if (*n > *k + *nb) {
 	i__1 = *n - *k - *nb;
 	sgemm_("NO TRANSPOSE", "NO TRANSPOSE", k, nb, &i__1, &c_b15, &a[(*nb
 		+ 2) * a_dim1 + 1], lda, &a[*k + 1 + *nb + a_dim1], lda, &
-		c_b15, &y[y_offset], ldy);
+		c_b15, &y[y_offset], ldy, (ftnlen)12, (ftnlen)12);
     }
     strmm_("RIGHT", "Upper", "NO TRANSPOSE", "NON-UNIT", k, nb, &c_b15, &t[
-	    t_offset], ldt, &y[y_offset], ldy);
+	    t_offset], ldt, &y[y_offset], ldy, (ftnlen)5, (ftnlen)5, (ftnlen)
+	    12, (ftnlen)8);
 
     return 0;
 
@@ -14426,7 +14562,7 @@ logical slaisnan_(real *sin1, real *sin2)
     static real bbnd, cmax, ui11r, ui12s, temp, ur11r, ur12s, u22abs;
     static integer icmax;
     static real bnorm, cnorm, smini;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real bignum;
     extern /* Subroutine */ int sladiv_(real *, real *, real *, real *, real *
 	    , real *);
@@ -14572,7 +14708,7 @@ logical slaisnan_(real *sin1, real *sin2)
 
 /*     Compute BIGNUM */
 
-    smlnum = 2.f * slamch_("Safe minimum");
+    smlnum = 2.f * slamch_("Safe minimum", (ftnlen)12);
     bignum = 1.f / smlnum;
     smini = dmax(*smin,smlnum);
 
@@ -14977,14 +15113,15 @@ logical slaisnan_(real *sin1, real *sin2)
     static real diflj, difrj, dsigj;
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    sgemv_(char *, integer *, integer *, real *, real *, integer *,
-	    real *, integer *, real *, real *, integer *), scopy_(
+	    real *, integer *, real *, real *, integer *, ftnlen), scopy_(
 	    integer *, real *, integer *, real *, integer *);
     extern doublereal slamc3_(real *, real *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static real dsigjp;
     extern /* Subroutine */ int slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *), slacpy_(char *, integer *, integer *, real *, integer *,
-	    real *, integer *);
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen), slacpy_(char *, integer *, integer *, real *, integer *,
+	    real *, integer *, ftnlen);
 
 
 /*
@@ -15198,7 +15335,7 @@ logical slaisnan_(real *sin1, real *sin2)
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLALS0", &i__1);
+	xerbla_("SLALS0", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -15286,9 +15423,9 @@ logical slaisnan_(real *sin1, real *sin2)
 		work[1] = -1.f;
 		temp = snrm2_(k, &work[1], &c__1);
 		sgemv_("T", k, nrhs, &c_b15, &bx[bx_offset], ldbx, &work[1], &
-			c__1, &c_b29, &b[j + b_dim1], ldb);
+			c__1, &c_b29, &b[j + b_dim1], ldb, (ftnlen)1);
 		slascl_("G", &c__0, &c__0, &temp, &c_b15, &c__1, nrhs, &b[j +
-			b_dim1], ldb, info);
+			b_dim1], ldb, info, (ftnlen)1);
 /* L50: */
 	    }
 	}
@@ -15298,7 +15435,7 @@ logical slaisnan_(real *sin1, real *sin2)
 	if (*k < max(m,n)) {
 	    i__1 = n - *k;
 	    slacpy_("A", &i__1, nrhs, &bx[*k + 1 + bx_dim1], ldbx, &b[*k + 1
-		    + b_dim1], ldb);
+		    + b_dim1], ldb, (ftnlen)1);
 	}
     } else {
 
@@ -15346,7 +15483,7 @@ logical slaisnan_(real *sin1, real *sin2)
 /* L70: */
 		}
 		sgemv_("T", k, nrhs, &c_b15, &b[b_offset], ldb, &work[1], &
-			c__1, &c_b29, &bx[j + bx_dim1], ldbx);
+			c__1, &c_b29, &bx[j + bx_dim1], ldbx, (ftnlen)1);
 /* L80: */
 	    }
 	}
@@ -15364,7 +15501,7 @@ logical slaisnan_(real *sin1, real *sin2)
 	if (*k < max(m,n)) {
 	    i__1 = n - *k;
 	    slacpy_("A", &i__1, nrhs, &b[*k + 1 + b_dim1], ldb, &bx[*k + 1 +
-		    bx_dim1], ldbx);
+		    bx_dim1], ldbx, (ftnlen)1);
 	}
 
 /*        Step (3R): permute rows of B. */
@@ -15416,14 +15553,14 @@ logical slaisnan_(real *sin1, real *sin2)
 	    ndb1, nlp1, lvl2, nrp1, nlvl, sqre, inode, ndiml;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer ndimr;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *), slals0_(integer *, integer *, integer *, integer *,
 	    integer *, real *, integer *, real *, integer *, integer *,
 	    integer *, integer *, integer *, real *, integer *, real *, real *
 	    , real *, real *, integer *, real *, real *, real *, integer *),
-	    xerbla_(char *, integer *), slasdt_(integer *, integer *,
+	    xerbla_(char *, integer *, ftnlen), slasdt_(integer *, integer *,
 	    integer *, integer *, integer *, integer *, integer *);
 
 
@@ -15637,7 +15774,7 @@ logical slaisnan_(real *sin1, real *sin2)
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLALSA", &i__1);
+	xerbla_("SLALSA", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -15685,9 +15822,11 @@ logical slaisnan_(real *sin1, real *sin2)
 	nlf = ic - nl;
 	nrf = ic + 1;
 	sgemm_("T", "N", &nl, nrhs, &nl, &c_b15, &u[nlf + u_dim1], ldu, &b[
-		nlf + b_dim1], ldb, &c_b29, &bx[nlf + bx_dim1], ldbx);
+		nlf + b_dim1], ldb, &c_b29, &bx[nlf + bx_dim1], ldbx, (ftnlen)
+		1, (ftnlen)1);
 	sgemm_("T", "N", &nr, nrhs, &nr, &c_b15, &u[nrf + u_dim1], ldu, &b[
-		nrf + b_dim1], ldb, &c_b29, &bx[nrf + bx_dim1], ldbx);
+		nrf + b_dim1], ldb, &c_b29, &bx[nrf + bx_dim1], ldbx, (ftnlen)
+		1, (ftnlen)1);
 /* L10: */
     }
 
@@ -15824,9 +15963,11 @@ L50:
 	nlf = ic - nl;
 	nrf = ic + 1;
 	sgemm_("T", "N", &nlp1, nrhs, &nlp1, &c_b15, &vt[nlf + vt_dim1], ldu,
-		&b[nlf + b_dim1], ldb, &c_b29, &bx[nlf + bx_dim1], ldbx);
+		&b[nlf + b_dim1], ldb, &c_b29, &bx[nlf + bx_dim1], ldbx, (
+		ftnlen)1, (ftnlen)1);
 	sgemm_("T", "N", &nrp1, nrhs, &nrp1, &c_b15, &vt[nrf + vt_dim1], ldu,
-		&b[nrf + b_dim1], ldb, &c_b29, &bx[nrf + bx_dim1], ldbx);
+		&b[nrf + b_dim1], ldb, &c_b29, &bx[nrf + bx_dim1], ldbx, (
+		ftnlen)1, (ftnlen)1);
 /* L80: */
     }
 
@@ -15840,7 +15981,8 @@ L90:
 
 /* Subroutine */ int slalsd_(char *uplo, integer *smlsiz, integer *n, integer
 	*nrhs, real *d__, real *e, real *b, integer *ldb, real *rcond,
-	integer *rank, real *work, integer *iwork, integer *info)
+	integer *rank, real *work, integer *iwork, integer *info, ftnlen
+	uplo_len)
 {
     /* System generated locals */
     integer b_dim1, b_offset, i__1, i__2;
@@ -15863,36 +16005,37 @@ L90:
     extern /* Subroutine */ int srot_(integer *, real *, integer *, real *,
 	    integer *, real *, real *), sgemm_(char *, char *, integer *,
 	    integer *, integer *, real *, real *, integer *, real *, integer *
-	    , real *, real *, integer *);
+	    , real *, real *, integer *, ftnlen, ftnlen);
     static integer poles, sizei, nsize;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *);
     static integer nwork, icmpq1, icmpq2;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     extern /* Subroutine */ int slasda_(integer *, integer *, integer *,
 	    integer *, real *, real *, real *, integer *, real *, integer *,
 	    real *, real *, real *, real *, integer *, integer *, integer *,
 	    integer *, real *, real *, real *, real *, integer *, integer *),
-	    xerbla_(char *, integer *), slalsa_(integer *, integer *,
+	    xerbla_(char *, integer *, ftnlen), slalsa_(integer *, integer *,
 	    integer *, integer *, real *, integer *, real *, integer *, real *
 	    , integer *, real *, integer *, real *, real *, real *, real *,
 	    integer *, integer *, integer *, integer *, real *, real *, real *
 	    , real *, integer *, integer *), slascl_(char *, integer *,
 	    integer *, real *, real *, integer *, integer *, real *, integer *
-	    , integer *);
+	    , integer *, ftnlen);
     static integer givcol;
     extern integer isamax_(integer *, real *, integer *);
     extern /* Subroutine */ int slasdq_(char *, integer *, integer *, integer
 	    *, integer *, integer *, real *, real *, real *, integer *, real *
-	    , integer *, real *, integer *, real *, integer *),
+	    , integer *, real *, integer *, real *, integer *, ftnlen),
 	    slacpy_(char *, integer *, integer *, real *, integer *, real *,
-	    integer *), slartg_(real *, real *, real *, real *, real *
+	    integer *, ftnlen), slartg_(real *, real *, real *, real *, real *
 	    ), slaset_(char *, integer *, integer *, real *, real *, real *,
-	    integer *);
+	    integer *, ftnlen);
     static real orgnrm;
     static integer givnum;
-    extern doublereal slanst_(char *, integer *, real *, real *);
-    extern /* Subroutine */ int slasrt_(char *, integer *, real *, integer *);
+    extern doublereal slanst_(char *, integer *, real *, real *, ftnlen);
+    extern /* Subroutine */ int slasrt_(char *, integer *, real *, integer *,
+	    ftnlen);
     static integer givptr, smlszp;
 
 
@@ -16020,11 +16163,11 @@ L90:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLALSD", &i__1);
+	xerbla_("SLALSD", &i__1, (ftnlen)6);
 	return 0;
     }
 
-    eps = slamch_("Epsilon");
+    eps = slamch_("Epsilon", (ftnlen)7);
 
 /*     Set up the tolerance. */
 
@@ -16042,11 +16185,12 @@ L90:
 	return 0;
     } else if (*n == 1) {
 	if (d__[1] == 0.f) {
-	    slaset_("A", &c__1, nrhs, &c_b29, &c_b29, &b[b_offset], ldb);
+	    slaset_("A", &c__1, nrhs, &c_b29, &c_b29, &b[b_offset], ldb, (
+		    ftnlen)1);
 	} else {
 	    *rank = 1;
 	    slascl_("G", &c__0, &c__0, &d__[1], &c_b15, &c__1, nrhs, &b[
-		    b_offset], ldb, info);
+		    b_offset], ldb, info, (ftnlen)1);
 	    d__[1] = dabs(d__[1]);
 	}
 	return 0;
@@ -16089,15 +16233,16 @@ L90:
 /*     Scale. */
 
     nm1 = *n - 1;
-    orgnrm = slanst_("M", n, &d__[1], &e[1]);
+    orgnrm = slanst_("M", n, &d__[1], &e[1], (ftnlen)1);
     if (orgnrm == 0.f) {
-	slaset_("A", n, nrhs, &c_b29, &c_b29, &b[b_offset], ldb);
+	slaset_("A", n, nrhs, &c_b29, &c_b29, &b[b_offset], ldb, (ftnlen)1);
 	return 0;
     }
 
-    slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, &c__1, &d__[1], n, info);
+    slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, &c__1, &d__[1], n, info, (
+	    ftnlen)1);
     slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &nm1, &c__1, &e[1], &nm1,
-	    info);
+	    info, (ftnlen)1);
 
 /*
        If N is smaller than the minimum divide size SMLSIZ, then solve
@@ -16106,9 +16251,9 @@ L90:
 
     if (*n <= *smlsiz) {
 	nwork = *n * *n + 1;
-	slaset_("A", n, n, &c_b29, &c_b15, &work[1], n);
+	slaset_("A", n, n, &c_b29, &c_b15, &work[1], n, (ftnlen)1);
 	slasdq_("U", &c__0, n, n, &c__0, nrhs, &d__[1], &e[1], &work[1], n, &
-		work[1], n, &b[b_offset], ldb, &work[nwork], info);
+		work[1], n, &b[b_offset], ldb, &work[nwork], info, (ftnlen)1);
 	if (*info != 0) {
 	    return 0;
 	}
@@ -16117,25 +16262,25 @@ L90:
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    if (d__[i__] <= tol) {
 		slaset_("A", &c__1, nrhs, &c_b29, &c_b29, &b[i__ + b_dim1],
-			ldb);
+			ldb, (ftnlen)1);
 	    } else {
 		slascl_("G", &c__0, &c__0, &d__[i__], &c_b15, &c__1, nrhs, &b[
-			i__ + b_dim1], ldb, info);
+			i__ + b_dim1], ldb, info, (ftnlen)1);
 		++(*rank);
 	    }
 /* L40: */
 	}
 	sgemm_("T", "N", n, nrhs, n, &c_b15, &work[1], n, &b[b_offset], ldb, &
-		c_b29, &work[nwork], n);
-	slacpy_("A", n, nrhs, &work[nwork], n, &b[b_offset], ldb);
+		c_b29, &work[nwork], n, (ftnlen)1, (ftnlen)1);
+	slacpy_("A", n, nrhs, &work[nwork], n, &b[b_offset], ldb, (ftnlen)1);
 
 /*        Unscale. */
 
 	slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n,
-		info);
-	slasrt_("D", n, &d__[1], info);
+		info, (ftnlen)1);
+	slasrt_("D", n, &d__[1], info, (ftnlen)1);
 	slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, nrhs, &b[b_offset],
-		ldb, info);
+		ldb, info, (ftnlen)1);
 
 	return 0;
     }
@@ -16231,15 +16376,15 @@ L90:
 /*              This is a small subproblem and is solved by SLASDQ. */
 
 		slaset_("A", &nsize, &nsize, &c_b29, &c_b15, &work[vt + st1],
-			n);
+			n, (ftnlen)1);
 		slasdq_("U", &c__0, &nsize, &nsize, &c__0, nrhs, &d__[st], &e[
 			st], &work[vt + st1], n, &work[nwork], n, &b[st +
-			b_dim1], ldb, &work[nwork], info);
+			b_dim1], ldb, &work[nwork], info, (ftnlen)1);
 		if (*info != 0) {
 		    return 0;
 		}
 		slacpy_("A", &nsize, nrhs, &b[st + b_dim1], ldb, &work[bx +
-			st1], n);
+			st1], n, (ftnlen)1);
 	    } else {
 
 /*              A large problem. Solve it using divide and conquer. */
@@ -16284,11 +16429,12 @@ L90:
 */
 
 	if ((r__1 = d__[i__], dabs(r__1)) <= tol) {
-	    slaset_("A", &c__1, nrhs, &c_b29, &c_b29, &work[bx + i__ - 1], n);
+	    slaset_("A", &c__1, nrhs, &c_b29, &c_b29, &work[bx + i__ - 1], n,
+		    (ftnlen)1);
 	} else {
 	    ++(*rank);
 	    slascl_("G", &c__0, &c__0, &d__[i__], &c_b15, &c__1, nrhs, &work[
-		    bx + i__ - 1], n, info);
+		    bx + i__ - 1], n, info, (ftnlen)1);
 	}
 	d__[i__] = (r__1 = d__[i__], dabs(r__1));
 /* L70: */
@@ -16307,7 +16453,8 @@ L90:
 	    scopy_(nrhs, &work[bxst], n, &b[st + b_dim1], ldb);
 	} else if (nsize <= *smlsiz) {
 	    sgemm_("T", "N", &nsize, nrhs, &nsize, &c_b15, &work[vt + st1], n,
-		     &work[bxst], n, &c_b29, &b[st + b_dim1], ldb);
+		     &work[bxst], n, &c_b29, &b[st + b_dim1], ldb, (ftnlen)1,
+		    (ftnlen)1);
 	} else {
 	    slalsa_(&icmpq2, smlsiz, &nsize, nrhs, &work[bxst], n, &b[st +
 		    b_dim1], ldb, &work[u + st1], n, &work[vt + st1], &iwork[
@@ -16325,10 +16472,11 @@ L90:
 
 /*     Unscale and sort the singular values. */
 
-    slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n, info);
-    slasrt_("D", n, &d__[1], info);
+    slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n, info, (
+	    ftnlen)1);
+    slasrt_("D", n, &d__[1], info, (ftnlen)1);
     slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, nrhs, &b[b_offset], ldb,
-	    info);
+	    info, (ftnlen)1);
 
     return 0;
 
@@ -16450,7 +16598,7 @@ L10:
 } /* slamrg_ */
 
 doublereal slange_(char *norm, integer *m, integer *n, real *a, integer *lda,
-	real *work)
+	real *work, ftnlen norm_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -16459,7 +16607,7 @@ doublereal slange_(char *norm, integer *m, integer *n, real *a, integer *lda,
     /* Local variables */
     static integer i__, j;
     static real sum, scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static real value;
     extern /* Subroutine */ int slassq_(integer *, real *, integer *, real *,
 	    real *);
@@ -16535,7 +16683,7 @@ doublereal slange_(char *norm, integer *m, integer *n, real *a, integer *lda,
     /* Function Body */
     if (min(*m,*n) == 0) {
 	value = 0.f;
-    } else if (lsame_(norm, "M")) {
+    } else if (lsame_(norm, "M", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find max(abs(A(i,j))). */
 
@@ -16551,7 +16699,7 @@ doublereal slange_(char *norm, integer *m, integer *n, real *a, integer *lda,
 	    }
 /* L20: */
 	}
-    } else if (lsame_(norm, "O") || *(unsigned char *)
+    } else if (lsame_(norm, "O", (ftnlen)1, (ftnlen)1) || *(unsigned char *)
 	    norm == '1') {
 
 /*        Find norm1(A). */
@@ -16568,7 +16716,7 @@ doublereal slange_(char *norm, integer *m, integer *n, real *a, integer *lda,
 	    value = dmax(value,sum);
 /* L40: */
 	}
-    } else if (lsame_(norm, "I")) {
+    } else if (lsame_(norm, "I", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find normI(A). */
 
@@ -16594,7 +16742,8 @@ doublereal slange_(char *norm, integer *m, integer *n, real *a, integer *lda,
 	    value = dmax(r__1,r__2);
 /* L80: */
 	}
-    } else if (lsame_(norm, "F") || lsame_(norm, "E")) {
+    } else if (lsame_(norm, "F", (ftnlen)1, (ftnlen)1) || lsame_(norm, "E", (
+	    ftnlen)1, (ftnlen)1)) {
 
 /*        Find normF(A). */
 
@@ -16615,7 +16764,8 @@ doublereal slange_(char *norm, integer *m, integer *n, real *a, integer *lda,
 
 } /* slange_ */
 
-doublereal slanst_(char *norm, integer *n, real *d__, real *e)
+doublereal slanst_(char *norm, integer *n, real *d__, real *e, ftnlen
+	norm_len)
 {
     /* System generated locals */
     integer i__1;
@@ -16624,7 +16774,7 @@ doublereal slanst_(char *norm, integer *n, real *d__, real *e)
     /* Local variables */
     static integer i__;
     static real sum, scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static real anorm;
     extern /* Subroutine */ int slassq_(integer *, real *, integer *, real *,
 	    real *);
@@ -16690,7 +16840,7 @@ doublereal slanst_(char *norm, integer *n, real *d__, real *e)
     /* Function Body */
     if (*n <= 0) {
 	anorm = 0.f;
-    } else if (lsame_(norm, "M")) {
+    } else if (lsame_(norm, "M", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find max(abs(A(i,j))). */
 
@@ -16705,8 +16855,8 @@ doublereal slanst_(char *norm, integer *n, real *d__, real *e)
 	    anorm = dmax(r__2,r__3);
 /* L10: */
 	}
-    } else if (lsame_(norm, "O") || *(unsigned char *)
-	    norm == '1' || lsame_(norm, "I")) {
+    } else if (lsame_(norm, "O", (ftnlen)1, (ftnlen)1) || *(unsigned char *)
+	    norm == '1' || lsame_(norm, "I", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find norm1(A). */
 
@@ -16726,7 +16876,8 @@ doublereal slanst_(char *norm, integer *n, real *d__, real *e)
 /* L20: */
 	    }
 	}
-    } else if (lsame_(norm, "F") || lsame_(norm, "E")) {
+    } else if (lsame_(norm, "F", (ftnlen)1, (ftnlen)1) || lsame_(norm, "E", (
+	    ftnlen)1, (ftnlen)1)) {
 
 /*        Find normF(A). */
 
@@ -16749,7 +16900,7 @@ doublereal slanst_(char *norm, integer *n, real *d__, real *e)
 } /* slanst_ */
 
 doublereal slansy_(char *norm, char *uplo, integer *n, real *a, integer *lda,
-	real *work)
+	real *work, ftnlen norm_len, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -16758,7 +16909,7 @@ doublereal slansy_(char *norm, char *uplo, integer *n, real *a, integer *lda,
     /* Local variables */
     static integer i__, j;
     static real sum, absa, scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static real value;
     extern /* Subroutine */ int slassq_(integer *, real *, integer *, real *,
 	    real *);
@@ -16842,12 +16993,12 @@ doublereal slansy_(char *norm, char *uplo, integer *n, real *a, integer *lda,
     /* Function Body */
     if (*n == 0) {
 	value = 0.f;
-    } else if (lsame_(norm, "M")) {
+    } else if (lsame_(norm, "M", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find max(abs(A(i,j))). */
 
 	value = 0.f;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = j;
@@ -16874,12 +17025,13 @@ doublereal slansy_(char *norm, char *uplo, integer *n, real *a, integer *lda,
 /* L40: */
 	    }
 	}
-    } else if (lsame_(norm, "I") || lsame_(norm, "O") || *(unsigned char *)norm == '1') {
+    } else if (lsame_(norm, "I", (ftnlen)1, (ftnlen)1) || lsame_(norm, "O", (
+	    ftnlen)1, (ftnlen)1) || *(unsigned char *)norm == '1') {
 
 /*        Find normI(A) ( = norm1(A), since A is symmetric). */
 
 	value = 0.f;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		sum = 0.f;
@@ -16920,13 +17072,14 @@ doublereal slansy_(char *norm, char *uplo, integer *n, real *a, integer *lda,
 /* L100: */
 	    }
 	}
-    } else if (lsame_(norm, "F") || lsame_(norm, "E")) {
+    } else if (lsame_(norm, "F", (ftnlen)1, (ftnlen)1) || lsame_(norm, "E", (
+	    ftnlen)1, (ftnlen)1)) {
 
 /*        Find normF(A). */
 
 	scale = 0.f;
 	sum = 1.f;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 2; j <= i__1; ++j) {
 		i__2 = j - 1;
@@ -16963,7 +17116,7 @@ doublereal slansy_(char *norm, char *uplo, integer *n, real *a, integer *lda,
     /* Local variables */
     static real p, z__, aa, bb, cc, dd, cs1, sn1, sab, sac, eps, tau, temp,
 	    scale, bcmax, bcmis, sigma;
-    extern doublereal slapy2_(real *, real *), slamch_(char *);
+    extern doublereal slapy2_(real *, real *), slamch_(char *, ftnlen);
 
 
 /*
@@ -17021,7 +17174,7 @@ doublereal slansy_(char *norm, char *uplo, integer *n, real *a, integer *lda,
 */
 
 
-    eps = slamch_("P");
+    eps = slamch_("P", (ftnlen)1);
     if (*c__ == 0.f) {
 	*cs = 1.f;
 	*sn = 0.f;
@@ -17323,7 +17476,8 @@ doublereal slapy3_(real *x, real *y, real *z__)
     extern /* Subroutine */ int slahqr_(logical *, logical *, integer *,
 	    integer *, integer *, real *, integer *, real *, real *, integer *
 	    , integer *, real *, integer *, integer *), slacpy_(char *,
-	    integer *, integer *, real *, integer *, real *, integer *);
+	    integer *, integer *, real *, integer *, real *, integer *,
+	    ftnlen);
     static integer nwupbd;
     static logical sorted;
     static integer lwkopt;
@@ -17854,7 +18008,7 @@ L20:
 			ks = kbot - ns + 1;
 			kt = *n - ns + 1;
 			slacpy_("A", &ns, &ns, &h__[ks + ks * h_dim1], ldh, &
-				h__[kt + h_dim1], ldh);
+				h__[kt + h_dim1], ldh, (ftnlen)1);
 			if (ns > nmin) {
 			    slaqr4_(&c_false, &c_false, &ns, &c__1, &ns, &h__[
 				    kt + h_dim1], ldh, &wr[ks], &wi[ks], &
@@ -18169,9 +18323,10 @@ L90:
     static integer kend, kcol, info, ifst, ilst, ltop, krow;
     static logical bulge;
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), sgemm_(
+	    integer *, real *, real *, integer *, real *, ftnlen), sgemm_(
 	    char *, char *, integer *, integer *, integer *, real *, real *,
-	    integer *, real *, integer *, real *, real *, integer *);
+	    integer *, real *, integer *, real *, real *, integer *, ftnlen,
+	    ftnlen);
     static integer infqr;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *);
@@ -18179,7 +18334,7 @@ L90:
     extern /* Subroutine */ int slanv2_(real *, real *, real *, real *, real *
 	    , real *, real *, real *, real *, real *), slabad_(real *, real *)
 	    ;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     extern /* Subroutine */ int sgehrd_(integer *, integer *, integer *, real
 	    *, integer *, real *, real *, integer *, integer *);
     static real safmin;
@@ -18189,13 +18344,15 @@ L90:
     extern /* Subroutine */ int slahqr_(logical *, logical *, integer *,
 	    integer *, integer *, real *, integer *, real *, real *, integer *
 	    , integer *, real *, integer *, integer *), slacpy_(char *,
-	    integer *, integer *, real *, integer *, real *, integer *), slaset_(char *, integer *, integer *, real *, real *,
-	    real *, integer *);
+	    integer *, integer *, real *, integer *, real *, integer *,
+	    ftnlen), slaset_(char *, integer *, integer *, real *, real *,
+	    real *, integer *, ftnlen);
     static logical sorted;
     extern /* Subroutine */ int strexc_(char *, integer *, real *, integer *,
-	    real *, integer *, integer *, integer *, real *, integer *), sormhr_(char *, char *, integer *, integer *, integer *,
+	    real *, integer *, integer *, integer *, real *, integer *,
+	    ftnlen), sormhr_(char *, char *, integer *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
     static real smlnum;
     static integer lwkopt;
 
@@ -18390,7 +18547,8 @@ L90:
 
 	i__1 = jw - 1;
 	sormhr_("R", "N", &jw, &jw, &c__1, &i__1, &t[t_offset], ldt, &work[1],
-		 &v[v_offset], ldv, &work[1], &c_n1, &info);
+		 &v[v_offset], ldv, &work[1], &c_n1, &info, (ftnlen)1, (
+		ftnlen)1);
 	lwk2 = (integer) work[1];
 
 /*        ==== Optimal workspace ==== */
@@ -18422,10 +18580,10 @@ L90:
 
 /*     ==== Machine constants ==== */
 
-    safmin = slamch_("SAFE MINIMUM");
+    safmin = slamch_("SAFE MINIMUM", (ftnlen)12);
     safmax = 1.f / safmin;
     slabad_(&safmin, &safmax);
-    ulp = slamch_("PRECISION");
+    ulp = slamch_("PRECISION", (ftnlen)9);
     smlnum = safmin * ((real) (*n) / ulp);
 
 /*
@@ -18473,14 +18631,14 @@ L90:
 */
 
     slacpy_("U", &jw, &jw, &h__[kwtop + kwtop * h_dim1], ldh, &t[t_offset],
-	    ldt);
+	    ldt, (ftnlen)1);
     i__1 = jw - 1;
     i__2 = *ldh + 1;
     i__3 = *ldt + 1;
     scopy_(&i__1, &h__[kwtop + 1 + kwtop * h_dim1], &i__2, &t[t_dim1 + 2], &
 	    i__3);
 
-    slaset_("A", &jw, &jw, &c_b29, &c_b15, &v[v_offset], ldv);
+    slaset_("A", &jw, &jw, &c_b29, &c_b15, &v[v_offset], ldv, (ftnlen)1);
     slahqr_(&c_true, &c_true, &jw, &c__1, &jw, &t[t_offset], ldt, &sr[kwtop],
 	    &si[kwtop], &c__1, &jw, &v[v_offset], ldv, &infqr);
 
@@ -18535,7 +18693,7 @@ L20:
 
 		ifst = *ns;
 		strexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		++ilst;
 	    }
 	} else {
@@ -18568,7 +18726,7 @@ L20:
 
 		ifst = *ns;
 		strexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		ilst += 2;
 	    }
 	}
@@ -18636,7 +18794,7 @@ L40:
 		ifst = i__;
 		ilst = k;
 		strexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		if (info == 0) {
 		    i__ = ilst;
 		} else {
@@ -18695,14 +18853,15 @@ L60:
 
 	    i__1 = jw - 2;
 	    i__2 = jw - 2;
-	    slaset_("L", &i__1, &i__2, &c_b29, &c_b29, &t[t_dim1 + 3], ldt);
+	    slaset_("L", &i__1, &i__2, &c_b29, &c_b29, &t[t_dim1 + 3], ldt, (
+		    ftnlen)1);
 
 	    slarf_("L", ns, &jw, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    slarf_("R", ns, ns, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    slarf_("R", &jw, ns, &work[1], &c__1, &tau, &v[v_offset], ldv, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 
 	    i__1 = *lwork - jw;
 	    sgehrd_(&jw, &c__1, ns, &t[t_offset], ldt, &work[1], &work[jw + 1]
@@ -18715,7 +18874,7 @@ L60:
 	    h__[kwtop + (kwtop - 1) * h_dim1] = s * v[v_dim1 + 1];
 	}
 	slacpy_("U", &jw, &jw, &t[t_offset], ldt, &h__[kwtop + kwtop * h_dim1]
-		, ldh);
+		, ldh, (ftnlen)1);
 	i__1 = jw - 1;
 	i__2 = *ldt + 1;
 	i__3 = *ldh + 1;
@@ -18730,7 +18889,8 @@ L60:
 	if (*ns > 1 && s != 0.f) {
 	    i__1 = *lwork - jw;
 	    sormhr_("R", "N", &jw, ns, &c__1, ns, &t[t_offset], ldt, &work[1],
-		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info);
+		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info, (ftnlen)
+		    1, (ftnlen)1);
 	}
 
 /*        ==== Update vertical slab in H ==== */
@@ -18749,9 +18909,9 @@ L60:
 	    kln = min(i__3,i__4);
 	    sgemm_("N", "N", &kln, &jw, &jw, &c_b15, &h__[krow + kwtop *
 		    h_dim1], ldh, &v[v_offset], ldv, &c_b29, &wv[wv_offset],
-		    ldwv);
+		    ldwv, (ftnlen)1, (ftnlen)1);
 	    slacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &h__[krow + kwtop *
-		    h_dim1], ldh);
+		    h_dim1], ldh, (ftnlen)1);
 /* L70: */
 	}
 
@@ -18767,9 +18927,9 @@ L60:
 		kln = min(i__3,i__4);
 		sgemm_("C", "N", &jw, &kln, &jw, &c_b15, &v[v_offset], ldv, &
 			h__[kwtop + kcol * h_dim1], ldh, &c_b29, &t[t_offset],
-			 ldt);
+			 ldt, (ftnlen)1, (ftnlen)1);
 		slacpy_("A", &jw, &kln, &t[t_offset], ldt, &h__[kwtop + kcol *
-			 h_dim1], ldh);
+			 h_dim1], ldh, (ftnlen)1);
 /* L80: */
 	    }
 	}
@@ -18786,9 +18946,9 @@ L60:
 		kln = min(i__3,i__4);
 		sgemm_("N", "N", &kln, &jw, &jw, &c_b15, &z__[krow + kwtop *
 			z_dim1], ldz, &v[v_offset], ldv, &c_b29, &wv[
-			wv_offset], ldwv);
+			wv_offset], ldwv, (ftnlen)1, (ftnlen)1);
 		slacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &z__[krow +
-			kwtop * z_dim1], ldz);
+			kwtop * z_dim1], ldz, (ftnlen)1);
 /* L90: */
 	    }
 	}
@@ -18841,9 +19001,10 @@ L60:
     static integer kend, kcol, info, nmin, ifst, ilst, ltop, krow;
     static logical bulge;
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), sgemm_(
+	    integer *, real *, real *, integer *, real *, ftnlen), sgemm_(
 	    char *, char *, integer *, integer *, integer *, real *, real *,
-	    integer *, real *, integer *, real *, real *, integer *);
+	    integer *, real *, integer *, real *, real *, integer *, ftnlen,
+	    ftnlen);
     static integer infqr;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *);
@@ -18853,7 +19014,7 @@ L60:
 	    logical *, integer *, integer *, integer *, real *, integer *,
 	    real *, real *, integer *, integer *, real *, integer *, real *,
 	    integer *, integer *), slabad_(real *, real *);
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     extern /* Subroutine */ int sgehrd_(integer *, integer *, integer *, real
 	    *, integer *, real *, real *, integer *, integer *);
     static real safmin;
@@ -18864,13 +19025,15 @@ L60:
 	    real *), slahqr_(logical *, logical *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, integer *
 	    , real *, integer *, integer *), slacpy_(char *, integer *,
-	    integer *, real *, integer *, real *, integer *), slaset_(
-	    char *, integer *, integer *, real *, real *, real *, integer *);
+	    integer *, real *, integer *, real *, integer *, ftnlen), slaset_(
+	    char *, integer *, integer *, real *, real *, real *, integer *,
+	    ftnlen);
     static logical sorted;
     extern /* Subroutine */ int strexc_(char *, integer *, real *, integer *,
-	    real *, integer *, integer *, integer *, real *, integer *), sormhr_(char *, char *, integer *, integer *, integer *,
+	    real *, integer *, integer *, integer *, real *, integer *,
+	    ftnlen), sormhr_(char *, char *, integer *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
     static real smlnum;
     static integer lwkopt;
 
@@ -19061,7 +19224,8 @@ L60:
 
 	i__1 = jw - 1;
 	sormhr_("R", "N", &jw, &jw, &c__1, &i__1, &t[t_offset], ldt, &work[1],
-		 &v[v_offset], ldv, &work[1], &c_n1, &info);
+		 &v[v_offset], ldv, &work[1], &c_n1, &info, (ftnlen)1, (
+		ftnlen)1);
 	lwk2 = (integer) work[1];
 
 /*        ==== Workspace query call to SLAQR4 ==== */
@@ -19104,10 +19268,10 @@ L60:
 
 /*     ==== Machine constants ==== */
 
-    safmin = slamch_("SAFE MINIMUM");
+    safmin = slamch_("SAFE MINIMUM", (ftnlen)12);
     safmax = 1.f / safmin;
     slabad_(&safmin, &safmax);
-    ulp = slamch_("PRECISION");
+    ulp = slamch_("PRECISION", (ftnlen)9);
     smlnum = safmin * ((real) (*n) / ulp);
 
 /*
@@ -19155,14 +19319,14 @@ L60:
 */
 
     slacpy_("U", &jw, &jw, &h__[kwtop + kwtop * h_dim1], ldh, &t[t_offset],
-	    ldt);
+	    ldt, (ftnlen)1);
     i__1 = jw - 1;
     i__2 = *ldh + 1;
     i__3 = *ldt + 1;
     scopy_(&i__1, &h__[kwtop + 1 + kwtop * h_dim1], &i__2, &t[t_dim1 + 2], &
 	    i__3);
 
-    slaset_("A", &jw, &jw, &c_b29, &c_b15, &v[v_offset], ldv);
+    slaset_("A", &jw, &jw, &c_b29, &c_b15, &v[v_offset], ldv, (ftnlen)1);
     nmin = ilaenv_(&c__12, "SLAQR3", "SV", &jw, &c__1, &jw, lwork, (ftnlen)6,
 	    (ftnlen)2);
     if (jw > nmin) {
@@ -19225,7 +19389,7 @@ L20:
 
 		ifst = *ns;
 		strexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		++ilst;
 	    }
 	} else {
@@ -19258,7 +19422,7 @@ L20:
 
 		ifst = *ns;
 		strexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		ilst += 2;
 	    }
 	}
@@ -19326,7 +19490,7 @@ L40:
 		ifst = i__;
 		ilst = k;
 		strexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		if (info == 0) {
 		    i__ = ilst;
 		} else {
@@ -19385,14 +19549,15 @@ L60:
 
 	    i__1 = jw - 2;
 	    i__2 = jw - 2;
-	    slaset_("L", &i__1, &i__2, &c_b29, &c_b29, &t[t_dim1 + 3], ldt);
+	    slaset_("L", &i__1, &i__2, &c_b29, &c_b29, &t[t_dim1 + 3], ldt, (
+		    ftnlen)1);
 
 	    slarf_("L", ns, &jw, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    slarf_("R", ns, ns, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    slarf_("R", &jw, ns, &work[1], &c__1, &tau, &v[v_offset], ldv, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 
 	    i__1 = *lwork - jw;
 	    sgehrd_(&jw, &c__1, ns, &t[t_offset], ldt, &work[1], &work[jw + 1]
@@ -19405,7 +19570,7 @@ L60:
 	    h__[kwtop + (kwtop - 1) * h_dim1] = s * v[v_dim1 + 1];
 	}
 	slacpy_("U", &jw, &jw, &t[t_offset], ldt, &h__[kwtop + kwtop * h_dim1]
-		, ldh);
+		, ldh, (ftnlen)1);
 	i__1 = jw - 1;
 	i__2 = *ldt + 1;
 	i__3 = *ldh + 1;
@@ -19420,7 +19585,8 @@ L60:
 	if (*ns > 1 && s != 0.f) {
 	    i__1 = *lwork - jw;
 	    sormhr_("R", "N", &jw, ns, &c__1, ns, &t[t_offset], ldt, &work[1],
-		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info);
+		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info, (ftnlen)
+		    1, (ftnlen)1);
 	}
 
 /*        ==== Update vertical slab in H ==== */
@@ -19439,9 +19605,9 @@ L60:
 	    kln = min(i__3,i__4);
 	    sgemm_("N", "N", &kln, &jw, &jw, &c_b15, &h__[krow + kwtop *
 		    h_dim1], ldh, &v[v_offset], ldv, &c_b29, &wv[wv_offset],
-		    ldwv);
+		    ldwv, (ftnlen)1, (ftnlen)1);
 	    slacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &h__[krow + kwtop *
-		    h_dim1], ldh);
+		    h_dim1], ldh, (ftnlen)1);
 /* L70: */
 	}
 
@@ -19457,9 +19623,9 @@ L60:
 		kln = min(i__3,i__4);
 		sgemm_("C", "N", &jw, &kln, &jw, &c_b15, &v[v_offset], ldv, &
 			h__[kwtop + kcol * h_dim1], ldh, &c_b29, &t[t_offset],
-			 ldt);
+			 ldt, (ftnlen)1, (ftnlen)1);
 		slacpy_("A", &jw, &kln, &t[t_offset], ldt, &h__[kwtop + kcol *
-			 h_dim1], ldh);
+			 h_dim1], ldh, (ftnlen)1);
 /* L80: */
 	    }
 	}
@@ -19476,9 +19642,9 @@ L60:
 		kln = min(i__3,i__4);
 		sgemm_("N", "N", &kln, &jw, &jw, &c_b15, &z__[krow + kwtop *
 			z_dim1], ldz, &v[v_offset], ldv, &c_b29, &wv[
-			wv_offset], ldwv);
+			wv_offset], ldwv, (ftnlen)1, (ftnlen)1);
 		slacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &z__[krow +
-			kwtop * z_dim1], ldz);
+			kwtop * z_dim1], ldz, (ftnlen)1);
 /* L90: */
 	    }
 	}
@@ -19549,7 +19715,8 @@ L60:
     extern /* Subroutine */ int slahqr_(logical *, logical *, integer *,
 	    integer *, integer *, real *, integer *, real *, real *, integer *
 	    , integer *, real *, integer *, integer *), slacpy_(char *,
-	    integer *, integer *, real *, integer *, real *, integer *);
+	    integer *, integer *, real *, integer *, real *, integer *,
+	    ftnlen);
     static integer nwupbd;
     static logical sorted;
     static integer lwkopt;
@@ -20087,7 +20254,7 @@ L20:
 			ks = kbot - ns + 1;
 			kt = *n - ns + 1;
 			slacpy_("A", &ns, &ns, &h__[ks + ks * h_dim1], ldh, &
-				h__[kt + h_dim1], ldh);
+				h__[kt + h_dim1], ldh, (ftnlen)1);
 			slahqr_(&c_false, &c_false, &ns, &c__1, &ns, &h__[kt
 				+ h_dim1], ldh, &wr[ks], &wi[ks], &c__1, &
 				c__1, zdum, &c__1, &inf);
@@ -20299,21 +20466,21 @@ L90:
     static integer ndcol, incol;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer krcol, nbmps;
     extern /* Subroutine */ int strmm_(char *, char *, char *, char *,
 	    integer *, integer *, real *, real *, integer *, real *, integer *
-	    ), slaqr1_(integer *, real *,
+	    , ftnlen, ftnlen, ftnlen, ftnlen), slaqr1_(integer *, real *,
 	    integer *, real *, real *, real *, real *, real *), slabad_(real *
 	    , real *);
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real safmin;
     extern /* Subroutine */ int slarfg_(integer *, real *, real *, integer *,
 	    real *);
     static real safmax;
     extern /* Subroutine */ int slacpy_(char *, integer *, integer *, real *,
-	    integer *, real *, integer *), slaset_(char *, integer *,
-	    integer *, real *, real *, real *, integer *);
+	    integer *, real *, integer *, ftnlen), slaset_(char *, integer *,
+	    integer *, real *, real *, real *, integer *, ftnlen);
     static real refsum;
     static integer mstart;
     static real smlnum;
@@ -20523,10 +20690,10 @@ L90:
 
 /*     ==== Machine constants for deflation ==== */
 
-    safmin = slamch_("SAFE MINIMUM");
+    safmin = slamch_("SAFE MINIMUM", (ftnlen)12);
     safmax = 1.f / safmin;
     slabad_(&safmin, &safmax);
-    ulp = slamch_("PRECISION");
+    ulp = slamch_("PRECISION", (ftnlen)9);
     smlnum = safmin * ((real) (*n) / ulp);
 
 /*
@@ -20562,7 +20729,8 @@ L90:
 	    incol <= i__1; incol += i__2) {
 	ndcol = incol + kdu;
 	if (accum) {
-	    slaset_("ALL", &kdu, &kdu, &c_b29, &c_b15, &u[u_offset], ldu);
+	    slaset_("ALL", &kdu, &kdu, &c_b29, &c_b15, &u[u_offset], ldu, (
+		    ftnlen)3);
 	}
 
 /*
@@ -21051,9 +21219,10 @@ L90:
 		    jlen = min(i__5,i__7);
 		    sgemm_("C", "N", &nu, &jlen, &nu, &c_b15, &u[k1 + k1 *
 			    u_dim1], ldu, &h__[incol + k1 + jcol * h_dim1],
-			    ldh, &c_b29, &wh[wh_offset], ldwh);
+			    ldh, &c_b29, &wh[wh_offset], ldwh, (ftnlen)1, (
+			    ftnlen)1);
 		    slacpy_("ALL", &nu, &jlen, &wh[wh_offset], ldwh, &h__[
-			    incol + k1 + jcol * h_dim1], ldh);
+			    incol + k1 + jcol * h_dim1], ldh, (ftnlen)3);
 /* L160: */
 		}
 
@@ -21068,9 +21237,10 @@ L90:
 		    jlen = min(i__5,i__7);
 		    sgemm_("N", "N", &jlen, &nu, &nu, &c_b15, &h__[jrow + (
 			    incol + k1) * h_dim1], ldh, &u[k1 + k1 * u_dim1],
-			    ldu, &c_b29, &wv[wv_offset], ldwv);
+			    ldu, &c_b29, &wv[wv_offset], ldwv, (ftnlen)1, (
+			    ftnlen)1);
 		    slacpy_("ALL", &jlen, &nu, &wv[wv_offset], ldwv, &h__[
-			    jrow + (incol + k1) * h_dim1], ldh);
+			    jrow + (incol + k1) * h_dim1], ldh, (ftnlen)3);
 /* L170: */
 		}
 
@@ -21086,9 +21256,10 @@ L90:
 			jlen = min(i__5,i__7);
 			sgemm_("N", "N", &jlen, &nu, &nu, &c_b15, &z__[jrow +
 				(incol + k1) * z_dim1], ldz, &u[k1 + k1 *
-				u_dim1], ldu, &c_b29, &wv[wv_offset], ldwv);
+				u_dim1], ldu, &c_b29, &wv[wv_offset], ldwv, (
+				ftnlen)1, (ftnlen)1);
 			slacpy_("ALL", &jlen, &nu, &wv[wv_offset], ldwv, &z__[
-				jrow + (incol + k1) * z_dim1], ldz)
+				jrow + (incol + k1) * z_dim1], ldz, (ftnlen)3)
 				;
 /* L180: */
 		    }
@@ -21131,31 +21302,34 @@ L90:
 */
 
 		    slacpy_("ALL", &knz, &jlen, &h__[incol + 1 + j2 + jcol *
-			    h_dim1], ldh, &wh[kzs + 1 + wh_dim1], ldwh);
+			    h_dim1], ldh, &wh[kzs + 1 + wh_dim1], ldwh, (
+			    ftnlen)3);
 
 /*                 ==== Multiply by U21' ==== */
 
 		    slaset_("ALL", &kzs, &jlen, &c_b29, &c_b29, &wh[wh_offset]
-			    , ldwh);
+			    , ldwh, (ftnlen)3);
 		    strmm_("L", "U", "C", "N", &knz, &jlen, &c_b15, &u[j2 + 1
 			    + (kzs + 1) * u_dim1], ldu, &wh[kzs + 1 + wh_dim1]
-			    , ldwh);
+			    , ldwh, (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1);
 
 /*                 ==== Multiply top of H by U11' ==== */
 
 		    sgemm_("C", "N", &i2, &jlen, &j2, &c_b15, &u[u_offset],
 			    ldu, &h__[incol + 1 + jcol * h_dim1], ldh, &c_b15,
-			     &wh[wh_offset], ldwh);
+			     &wh[wh_offset], ldwh, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy top of H to bottom of WH ==== */
 
 		    slacpy_("ALL", &j2, &jlen, &h__[incol + 1 + jcol * h_dim1]
-			    , ldh, &wh[i2 + 1 + wh_dim1], ldwh);
+			    , ldh, &wh[i2 + 1 + wh_dim1], ldwh, (ftnlen)3);
 
 /*                 ==== Multiply by U21' ==== */
 
 		    strmm_("L", "L", "C", "N", &j2, &jlen, &c_b15, &u[(i2 + 1)
-			     * u_dim1 + 1], ldu, &wh[i2 + 1 + wh_dim1], ldwh);
+			     * u_dim1 + 1], ldu, &wh[i2 + 1 + wh_dim1], ldwh,
+			    (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Multiply by U22 ==== */
 
@@ -21164,12 +21338,12 @@ L90:
 		    sgemm_("C", "N", &i__5, &jlen, &i__7, &c_b15, &u[j2 + 1 +
 			    (i2 + 1) * u_dim1], ldu, &h__[incol + 1 + j2 +
 			    jcol * h_dim1], ldh, &c_b15, &wh[i2 + 1 + wh_dim1]
-			    , ldwh);
+			    , ldwh, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy it back ==== */
 
 		    slacpy_("ALL", &kdu, &jlen, &wh[wh_offset], ldwh, &h__[
-			    incol + 1 + jcol * h_dim1], ldh);
+			    incol + 1 + jcol * h_dim1], ldh, (ftnlen)3);
 /* L190: */
 		}
 
@@ -21189,34 +21363,38 @@ L90:
 */
 
 		    slacpy_("ALL", &jlen, &knz, &h__[jrow + (incol + 1 + j2) *
-			     h_dim1], ldh, &wv[(kzs + 1) * wv_dim1 + 1], ldwv);
+			     h_dim1], ldh, &wv[(kzs + 1) * wv_dim1 + 1], ldwv,
+			     (ftnlen)3);
 
 /*                 ==== Multiply by U21 ==== */
 
 		    slaset_("ALL", &jlen, &kzs, &c_b29, &c_b29, &wv[wv_offset]
-			    , ldwv);
+			    , ldwv, (ftnlen)3);
 		    strmm_("R", "U", "N", "N", &jlen, &knz, &c_b15, &u[j2 + 1
 			    + (kzs + 1) * u_dim1], ldu, &wv[(kzs + 1) *
-			    wv_dim1 + 1], ldwv);
+			    wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1, (ftnlen)1);
 
 /*                 ==== Multiply by U11 ==== */
 
 		    sgemm_("N", "N", &jlen, &i2, &j2, &c_b15, &h__[jrow + (
 			    incol + 1) * h_dim1], ldh, &u[u_offset], ldu, &
-			    c_b15, &wv[wv_offset], ldwv)
+			    c_b15, &wv[wv_offset], ldwv, (ftnlen)1, (ftnlen)1)
 			    ;
 
 /*                 ==== Copy left of H to right of scratch ==== */
 
 		    slacpy_("ALL", &jlen, &j2, &h__[jrow + (incol + 1) *
-			    h_dim1], ldh, &wv[(i2 + 1) * wv_dim1 + 1], ldwv);
+			    h_dim1], ldh, &wv[(i2 + 1) * wv_dim1 + 1], ldwv, (
+			    ftnlen)3);
 
 /*                 ==== Multiply by U21 ==== */
 
 		    i__5 = i4 - i2;
 		    strmm_("R", "L", "N", "N", &jlen, &i__5, &c_b15, &u[(i2 +
 			    1) * u_dim1 + 1], ldu, &wv[(i2 + 1) * wv_dim1 + 1]
-			    , ldwv);
+			    , ldwv, (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1);
 
 /*                 ==== Multiply by U22 ==== */
 
@@ -21225,12 +21403,12 @@ L90:
 		    sgemm_("N", "N", &jlen, &i__5, &i__7, &c_b15, &h__[jrow +
 			    (incol + 1 + j2) * h_dim1], ldh, &u[j2 + 1 + (i2
 			    + 1) * u_dim1], ldu, &c_b15, &wv[(i2 + 1) *
-			    wv_dim1 + 1], ldwv);
+			    wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy it back ==== */
 
 		    slacpy_("ALL", &jlen, &kdu, &wv[wv_offset], ldwv, &h__[
-			    jrow + (incol + 1) * h_dim1], ldh);
+			    jrow + (incol + 1) * h_dim1], ldh, (ftnlen)3);
 /* L200: */
 		}
 
@@ -21252,34 +21430,37 @@ L90:
 
 			slacpy_("ALL", &jlen, &knz, &z__[jrow + (incol + 1 +
 				j2) * z_dim1], ldz, &wv[(kzs + 1) * wv_dim1 +
-				1], ldwv);
+				1], ldwv, (ftnlen)3);
 
 /*                    ==== Multiply by U12 ==== */
 
 			slaset_("ALL", &jlen, &kzs, &c_b29, &c_b29, &wv[
-				wv_offset], ldwv);
+				wv_offset], ldwv, (ftnlen)3);
 			strmm_("R", "U", "N", "N", &jlen, &knz, &c_b15, &u[j2
 				+ 1 + (kzs + 1) * u_dim1], ldu, &wv[(kzs + 1)
-				* wv_dim1 + 1], ldwv);
+				* wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (
+				ftnlen)1, (ftnlen)1);
 
 /*                    ==== Multiply by U11 ==== */
 
 			sgemm_("N", "N", &jlen, &i2, &j2, &c_b15, &z__[jrow +
 				(incol + 1) * z_dim1], ldz, &u[u_offset], ldu,
-				 &c_b15, &wv[wv_offset], ldwv);
+				 &c_b15, &wv[wv_offset], ldwv, (ftnlen)1, (
+				ftnlen)1);
 
 /*                    ==== Copy left of Z to right of scratch ==== */
 
 			slacpy_("ALL", &jlen, &j2, &z__[jrow + (incol + 1) *
 				z_dim1], ldz, &wv[(i2 + 1) * wv_dim1 + 1],
-				ldwv);
+				ldwv, (ftnlen)3);
 
 /*                    ==== Multiply by U21 ==== */
 
 			i__5 = i4 - i2;
 			strmm_("R", "L", "N", "N", &jlen, &i__5, &c_b15, &u[(
 				i2 + 1) * u_dim1 + 1], ldu, &wv[(i2 + 1) *
-				wv_dim1 + 1], ldwv);
+				wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (
+				ftnlen)1, (ftnlen)1);
 
 /*                    ==== Multiply by U22 ==== */
 
@@ -21288,12 +21469,14 @@ L90:
 			sgemm_("N", "N", &jlen, &i__5, &i__7, &c_b15, &z__[
 				jrow + (incol + 1 + j2) * z_dim1], ldz, &u[j2
 				+ 1 + (i2 + 1) * u_dim1], ldu, &c_b15, &wv[(
-				i2 + 1) * wv_dim1 + 1], ldwv);
+				i2 + 1) * wv_dim1 + 1], ldwv, (ftnlen)1, (
+				ftnlen)1);
 
 /*                    ==== Copy the result back to Z ==== */
 
 			slacpy_("ALL", &jlen, &kdu, &wv[wv_offset], ldwv, &
-				z__[jrow + (incol + 1) * z_dim1], ldz);
+				z__[jrow + (incol + 1) * z_dim1], ldz, (
+				ftnlen)3);
 /* L210: */
 		    }
 		}
@@ -21308,7 +21491,8 @@ L90:
 } /* slaqr5_ */
 
 /* Subroutine */ int slarf_(char *side, integer *m, integer *n, real *v,
-	integer *incv, real *tau, real *c__, integer *ldc, real *work)
+	integer *incv, real *tau, real *c__, integer *ldc, real *work, ftnlen
+	side_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset;
@@ -21319,10 +21503,11 @@ L90:
     static logical applyleft;
     extern /* Subroutine */ int sger_(integer *, integer *, real *, real *,
 	    integer *, real *, integer *, real *, integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer lastc;
     extern /* Subroutine */ int sgemv_(char *, integer *, integer *, real *,
-	    real *, integer *, real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, integer *, real *, real *, integer *,
+	    ftnlen);
     static integer lastv;
     extern integer ilaslc_(integer *, integer *, real *, integer *), ilaslr_(
 	    integer *, integer *, real *, integer *);
@@ -21396,7 +21581,7 @@ L90:
     --work;
 
     /* Function Body */
-    applyleft = lsame_(side, "L");
+    applyleft = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     lastv = 0;
     lastc = 0;
     if (*tau != 0.f) {
@@ -21440,7 +21625,7 @@ L90:
 /*           w(1:lastc,1) := C(1:lastv,1:lastc)' * v(1:lastv,1) */
 
 	    sgemv_("Transpose", &lastv, &lastc, &c_b15, &c__[c_offset], ldc, &
-		    v[1], incv, &c_b29, &work[1], &c__1);
+		    v[1], incv, &c_b29, &work[1], &c__1, (ftnlen)9);
 
 /*           C(1:lastv,1:lastc) := C(...) - v(1:lastv,1) * w(1:lastc,1)' */
 
@@ -21457,7 +21642,7 @@ L90:
 /*           w(1:lastc,1) := C(1:lastc,1:lastv) * v(1:lastv,1) */
 
 	    sgemv_("No transpose", &lastc, &lastv, &c_b15, &c__[c_offset],
-		    ldc, &v[1], incv, &c_b29, &work[1], &c__1);
+		    ldc, &v[1], incv, &c_b29, &work[1], &c__1, (ftnlen)12);
 
 /*           C(1:lastc,1:lastv) := C(...) - w(1:lastc,1) * v(1:lastv,1)' */
 
@@ -21475,7 +21660,8 @@ L90:
 /* Subroutine */ int slarfb_(char *side, char *trans, char *direct, char *
 	storev, integer *m, integer *n, integer *k, real *v, integer *ldv,
 	real *t, integer *ldt, real *c__, integer *ldc, real *work, integer *
-	ldwork)
+	ldwork, ftnlen side_len, ftnlen trans_len, ftnlen direct_len, ftnlen
+	storev_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, t_dim1, t_offset, v_dim1, v_offset, work_dim1,
@@ -21483,15 +21669,16 @@ L90:
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer lastc;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer lastv;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *), strmm_(char *, char *, char *, char *, integer *,
-	    integer *, real *, real *, integer *, real *, integer *);
+	    integer *, real *, real *, integer *, real *, integer *, ftnlen,
+	    ftnlen, ftnlen, ftnlen);
     extern integer ilaslc_(integer *, integer *, real *, integer *), ilaslr_(
 	    integer *, integer *, real *, integer *);
     static char transt[1];
@@ -21601,15 +21788,15 @@ L90:
 	return 0;
     }
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	*(unsigned char *)transt = 'T';
     } else {
 	*(unsigned char *)transt = 'N';
     }
 
-    if (lsame_(storev, "C")) {
+    if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 
-	if (lsame_(direct, "F")) {
+	if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 
 /*
              Let  V =  ( V1 )    (first K rows)
@@ -21617,7 +21804,7 @@ L90:
              where  V1  is unit lower triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -21645,7 +21832,8 @@ L90:
 /*              W := W * V1 */
 
 		strmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2'*V2 */
@@ -21653,13 +21841,15 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("Transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[*k + 1 + c_dim1], ldc, &v[*k + 1 +
-			    v_dim1], ldv, &c_b15, &work[work_offset], ldwork);
+			    v_dim1], ldv, &c_b15, &work[work_offset], ldwork,
+			    (ftnlen)9, (ftnlen)12);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		strmm_("Right", "Upper", transt, "Non-unit", &lastc, k, &
-			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V * W' */
 
@@ -21671,13 +21861,14 @@ L90:
 		    sgemm_("No transpose", "Transpose", &i__1, &lastc, k, &
 			    c_b151, &v[*k + 1 + v_dim1], ldv, &work[
 			    work_offset], ldwork, &c_b15, &c__[*k + 1 +
-			    c_dim1], ldc);
+			    c_dim1], ldc, (ftnlen)12, (ftnlen)9);
 		}
 
 /*              W := W * V1' */
 
 		strmm_("Right", "Lower", "Transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 
 /*              C1 := C1 - W' */
 
@@ -21691,7 +21882,7 @@ L90:
 /* L30: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -21718,7 +21909,8 @@ L90:
 /*              W := W * V1 */
 
 		strmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2 * V2 */
@@ -21727,13 +21919,14 @@ L90:
 		    sgemm_("No transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[(*k + 1) * c_dim1 + 1], ldc, &v[*k +
 			    1 + v_dim1], ldv, &c_b15, &work[work_offset],
-			    ldwork);
+			    ldwork, (ftnlen)12, (ftnlen)12);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		strmm_("Right", "Upper", trans, "Non-unit", &lastc, k, &c_b15,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V' */
 
@@ -21745,13 +21938,14 @@ L90:
 		    sgemm_("No transpose", "Transpose", &lastc, &i__1, k, &
 			    c_b151, &work[work_offset], ldwork, &v[*k + 1 +
 			    v_dim1], ldv, &c_b15, &c__[(*k + 1) * c_dim1 + 1],
-			     ldc);
+			     ldc, (ftnlen)12, (ftnlen)9);
 		}
 
 /*              W := W * V1' */
 
 		strmm_("Right", "Lower", "Transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -21774,7 +21968,7 @@ L90:
              where  V2  is unit upper triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -21803,7 +21997,8 @@ L90:
 
 		strmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
 			c_b15, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1'*V1 */
@@ -21811,13 +22006,15 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("Transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[c_offset], ldc, &v[v_offset], ldv, &
-			    c_b15, &work[work_offset], ldwork);
+			    c_b15, &work[work_offset], ldwork, (ftnlen)9, (
+			    ftnlen)12);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		strmm_("Right", "Lower", transt, "Non-unit", &lastc, k, &
-			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V * W' */
 
@@ -21828,14 +22025,16 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("No transpose", "Transpose", &i__1, &lastc, k, &
 			    c_b151, &v[v_offset], ldv, &work[work_offset],
-			    ldwork, &c_b15, &c__[c_offset], ldc);
+			    ldwork, &c_b15, &c__[c_offset], ldc, (ftnlen)12, (
+			    ftnlen)9);
 		}
 
 /*              W := W * V2' */
 
 		strmm_("Right", "Upper", "Transpose", "Unit", &lastc, k, &
 			c_b15, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			 (ftnlen)4);
 
 /*              C2 := C2 - W' */
 
@@ -21850,7 +22049,7 @@ L90:
 /* L90: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -21878,7 +22077,8 @@ L90:
 
 		strmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
 			c_b15, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1 * V1 */
@@ -21886,13 +22086,15 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("No transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[c_offset], ldc, &v[v_offset], ldv, &
-			    c_b15, &work[work_offset], ldwork);
+			    c_b15, &work[work_offset], ldwork, (ftnlen)12, (
+			    ftnlen)12);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		strmm_("Right", "Lower", trans, "Non-unit", &lastc, k, &c_b15,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V' */
 
@@ -21903,14 +22105,16 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("No transpose", "Transpose", &lastc, &i__1, k, &
 			    c_b151, &work[work_offset], ldwork, &v[v_offset],
-			    ldv, &c_b15, &c__[c_offset], ldc);
+			    ldv, &c_b15, &c__[c_offset], ldc, (ftnlen)12, (
+			    ftnlen)9);
 		}
 
 /*              W := W * V2' */
 
 		strmm_("Right", "Upper", "Transpose", "Unit", &lastc, k, &
 			c_b15, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			 (ftnlen)4);
 
 /*              C2 := C2 - W */
 
@@ -21927,16 +22131,16 @@ L90:
 	    }
 	}
 
-    } else if (lsame_(storev, "R")) {
+    } else if (lsame_(storev, "R", (ftnlen)1, (ftnlen)1)) {
 
-	if (lsame_(direct, "F")) {
+	if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 
 /*
              Let  V =  ( V1  V2 )    (V1: first K columns)
              where  V1  is unit upper triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -21964,7 +22168,8 @@ L90:
 /*              W := W * V1' */
 
 		strmm_("Right", "Upper", "Transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2'*V2' */
@@ -21972,13 +22177,15 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("Transpose", "Transpose", &lastc, k, &i__1, &c_b15,
 			     &c__[*k + 1 + c_dim1], ldc, &v[(*k + 1) * v_dim1
-			    + 1], ldv, &c_b15, &work[work_offset], ldwork);
+			    + 1], ldv, &c_b15, &work[work_offset], ldwork, (
+			    ftnlen)9, (ftnlen)9);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		strmm_("Right", "Upper", transt, "Non-unit", &lastc, k, &
-			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V' * W' */
 
@@ -21990,13 +22197,14 @@ L90:
 		    sgemm_("Transpose", "Transpose", &i__1, &lastc, k, &
 			    c_b151, &v[(*k + 1) * v_dim1 + 1], ldv, &work[
 			    work_offset], ldwork, &c_b15, &c__[*k + 1 +
-			    c_dim1], ldc);
+			    c_dim1], ldc, (ftnlen)9, (ftnlen)9);
 		}
 
 /*              W := W * V1 */
 
 		strmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 
 /*              C1 := C1 - W' */
 
@@ -22010,7 +22218,7 @@ L90:
 /* L150: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -22037,7 +22245,8 @@ L90:
 /*              W := W * V1' */
 
 		strmm_("Right", "Upper", "Transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2 * V2' */
@@ -22046,13 +22255,14 @@ L90:
 		    sgemm_("No transpose", "Transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[(*k + 1) * c_dim1 + 1], ldc, &v[(*k +
 			    1) * v_dim1 + 1], ldv, &c_b15, &work[work_offset],
-			     ldwork);
+			     ldwork, (ftnlen)12, (ftnlen)9);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		strmm_("Right", "Upper", trans, "Non-unit", &lastc, k, &c_b15,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V */
 
@@ -22064,13 +22274,14 @@ L90:
 		    sgemm_("No transpose", "No transpose", &lastc, &i__1, k, &
 			    c_b151, &work[work_offset], ldwork, &v[(*k + 1) *
 			    v_dim1 + 1], ldv, &c_b15, &c__[(*k + 1) * c_dim1
-			    + 1], ldc);
+			    + 1], ldc, (ftnlen)12, (ftnlen)12);
 		}
 
 /*              W := W * V1 */
 
 		strmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -22093,7 +22304,7 @@ L90:
              where  V2  is unit lower triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -22122,7 +22333,8 @@ L90:
 
 		strmm_("Right", "Lower", "Transpose", "Unit", &lastc, k, &
 			c_b15, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			 (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1'*V1' */
@@ -22130,13 +22342,14 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("Transpose", "Transpose", &lastc, k, &i__1, &c_b15,
 			     &c__[c_offset], ldc, &v[v_offset], ldv, &c_b15, &
-			    work[work_offset], ldwork);
+			    work[work_offset], ldwork, (ftnlen)9, (ftnlen)9);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		strmm_("Right", "Lower", transt, "Non-unit", &lastc, k, &
-			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V' * W' */
 
@@ -22147,14 +22360,16 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("Transpose", "Transpose", &i__1, &lastc, k, &
 			    c_b151, &v[v_offset], ldv, &work[work_offset],
-			    ldwork, &c_b15, &c__[c_offset], ldc);
+			    ldwork, &c_b15, &c__[c_offset], ldc, (ftnlen)9, (
+			    ftnlen)9);
 		}
 
 /*              W := W * V2 */
 
 		strmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
 			c_b15, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 
 /*              C2 := C2 - W' */
 
@@ -22169,7 +22384,7 @@ L90:
 /* L210: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -22197,7 +22412,8 @@ L90:
 
 		strmm_("Right", "Lower", "Transpose", "Unit", &lastc, k, &
 			c_b15, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			 (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1 * V1' */
@@ -22205,13 +22421,15 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("No transpose", "Transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[c_offset], ldc, &v[v_offset], ldv, &
-			    c_b15, &work[work_offset], ldwork);
+			    c_b15, &work[work_offset], ldwork, (ftnlen)12, (
+			    ftnlen)9);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		strmm_("Right", "Lower", trans, "Non-unit", &lastc, k, &c_b15,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V */
 
@@ -22222,14 +22440,16 @@ L90:
 		    i__1 = lastv - *k;
 		    sgemm_("No transpose", "No transpose", &lastc, &i__1, k, &
 			    c_b151, &work[work_offset], ldwork, &v[v_offset],
-			    ldv, &c_b15, &c__[c_offset], ldc);
+			    ldv, &c_b15, &c__[c_offset], ldc, (ftnlen)12, (
+			    ftnlen)12);
 		}
 
 /*              W := W * V2 */
 
 		strmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
 			c_b15, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -22268,7 +22488,7 @@ L90:
     extern doublereal snrm2_(integer *, real *, integer *);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *);
     static real xnorm;
-    extern doublereal slapy2_(real *, real *), slamch_(char *);
+    extern doublereal slapy2_(real *, real *), slamch_(char *, ftnlen);
     static real safmin, rsafmn;
 
 
@@ -22350,7 +22570,7 @@ L90:
 
 	r__1 = slapy2_(alpha, &xnorm);
 	beta = -r_sign(&r__1, alpha);
-	safmin = slamch_("S") / slamch_("E");
+	safmin = slamch_("S", (ftnlen)1) / slamch_("E", (ftnlen)1);
 	knt = 0;
 	if (dabs(beta) < safmin) {
 
@@ -22396,7 +22616,8 @@ L10:
 } /* slarfg_ */
 
 /* Subroutine */ int slarft_(char *direct, char *storev, integer *n, integer *
-	k, real *v, integer *ldv, real *tau, real *t, integer *ldt)
+	k, real *v, integer *ldv, real *tau, real *t, integer *ldt, ftnlen
+	direct_len, ftnlen storev_len)
 {
     /* System generated locals */
     integer t_dim1, t_offset, v_dim1, v_offset, i__1, i__2, i__3;
@@ -22405,12 +22626,13 @@ L10:
     /* Local variables */
     static integer i__, j, prevlastv;
     static real vii;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sgemv_(char *, integer *, integer *, real *,
-	    real *, integer *, real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, integer *, real *, real *, integer *,
+	    ftnlen);
     static integer lastv;
     extern /* Subroutine */ int strmv_(char *, char *, char *, integer *,
-	    real *, integer *, real *, integer *);
+	    real *, integer *, real *, integer *, ftnlen, ftnlen, ftnlen);
 
 
 /*
@@ -22528,7 +22750,7 @@ L10:
 	return 0;
     }
 
-    if (lsame_(direct, "F")) {
+    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 	prevlastv = *n;
 	i__1 = *k;
 	for (i__ = 1; i__ <= i__1; ++i__) {
@@ -22548,7 +22770,7 @@ L10:
 
 		vii = v[i__ + i__ * v_dim1];
 		v[i__ + i__ * v_dim1] = 1.f;
-		if (lsame_(storev, "C")) {
+		if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 /*                 Skip any trailing zeros. */
 		    i__2 = i__ + 1;
 		    for (lastv = *n; lastv >= i__2; --lastv) {
@@ -22566,7 +22788,7 @@ L15:
 		    r__1 = -tau[i__];
 		    sgemv_("Transpose", &i__2, &i__3, &r__1, &v[i__ + v_dim1],
 			     ldv, &v[i__ + i__ * v_dim1], &c__1, &c_b29, &t[
-			    i__ * t_dim1 + 1], &c__1);
+			    i__ * t_dim1 + 1], &c__1, (ftnlen)9);
 		} else {
 /*                 Skip any trailing zeros. */
 		    i__2 = i__ + 1;
@@ -22585,7 +22807,7 @@ L16:
 		    r__1 = -tau[i__];
 		    sgemv_("No transpose", &i__2, &i__3, &r__1, &v[i__ *
 			    v_dim1 + 1], ldv, &v[i__ + i__ * v_dim1], ldv, &
-			    c_b29, &t[i__ * t_dim1 + 1], &c__1);
+			    c_b29, &t[i__ * t_dim1 + 1], &c__1, (ftnlen)12);
 		}
 		v[i__ + i__ * v_dim1] = vii;
 
@@ -22593,7 +22815,8 @@ L16:
 
 		i__2 = i__ - 1;
 		strmv_("Upper", "No transpose", "Non-unit", &i__2, &t[
-			t_offset], ldt, &t[i__ * t_dim1 + 1], &c__1);
+			t_offset], ldt, &t[i__ * t_dim1 + 1], &c__1, (ftnlen)
+			5, (ftnlen)12, (ftnlen)8);
 		t[i__ + i__ * t_dim1] = tau[i__];
 		if (i__ > 1) {
 		    prevlastv = max(prevlastv,lastv);
@@ -22620,7 +22843,7 @@ L16:
 /*              general case */
 
 		if (i__ < *k) {
-		    if (lsame_(storev, "C")) {
+		    if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 			vii = v[*n - *k + i__ + i__ * v_dim1];
 			v[*n - *k + i__ + i__ * v_dim1] = 1.f;
 /*                    Skip any leading zeros. */
@@ -22644,7 +22867,7 @@ L35:
 			sgemv_("Transpose", &i__1, &i__2, &r__1, &v[j + (i__
 				+ 1) * v_dim1], ldv, &v[j + i__ * v_dim1], &
 				c__1, &c_b29, &t[i__ + 1 + i__ * t_dim1], &
-				c__1);
+				c__1, (ftnlen)9);
 			v[*n - *k + i__ + i__ * v_dim1] = vii;
 		    } else {
 			vii = v[i__ + (*n - *k + i__) * v_dim1];
@@ -22670,7 +22893,7 @@ L36:
 			sgemv_("No transpose", &i__1, &i__2, &r__1, &v[i__ +
 				1 + j * v_dim1], ldv, &v[i__ + j * v_dim1],
 				ldv, &c_b29, &t[i__ + 1 + i__ * t_dim1], &
-				c__1);
+				c__1, (ftnlen)12);
 			v[i__ + (*n - *k + i__) * v_dim1] = vii;
 		    }
 
@@ -22679,7 +22902,7 @@ L36:
 		    i__1 = *k - i__;
 		    strmv_("Lower", "No transpose", "Non-unit", &i__1, &t[i__
 			    + 1 + (i__ + 1) * t_dim1], ldt, &t[i__ + 1 + i__ *
-			     t_dim1], &c__1)
+			     t_dim1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)8)
 			    ;
 		    if (i__ > 1) {
 			prevlastv = min(prevlastv,lastv);
@@ -22699,7 +22922,7 @@ L36:
 } /* slarft_ */
 
 /* Subroutine */ int slarfx_(char *side, integer *m, integer *n, real *v,
-	real *tau, real *c__, integer *ldc, real *work)
+	real *tau, real *c__, integer *ldc, real *work, ftnlen side_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, i__1;
@@ -22708,9 +22931,9 @@ L36:
     static integer j;
     static real t1, t2, t3, t4, t5, t6, t7, t8, t9, v1, v2, v3, v4, v5, v6,
 	    v7, v8, v9, t10, v10, sum;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *);
+	    integer *, real *, real *, integer *, real *, ftnlen);
 
 
 /*
@@ -22783,7 +23006,7 @@ L36:
     if (*tau == 0.f) {
 	return 0;
     }
-    if (lsame_(side, "L")) {
+    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  H * C, where H has order m. */
 
@@ -22802,7 +23025,8 @@ L36:
 
 /*        Code for general M */
 
-	slarf_(side, m, n, &v[1], &c__1, tau, &c__[c_offset], ldc, &work[1]);
+	slarf_(side, m, n, &v[1], &c__1, tau, &c__[c_offset], ldc, &work[1], (
+		ftnlen)1);
 	goto L410;
 L10:
 
@@ -23106,7 +23330,8 @@ L190:
 
 /*        Code for general N */
 
-	slarf_(side, m, n, &v[1], &c__1, tau, &c__[c_offset], ldc, &work[1]);
+	slarf_(side, m, n, &v[1], &c__1, tau, &c__[c_offset], ldc, &work[1], (
+		ftnlen)1);
 	goto L410;
 L210:
 
@@ -23410,7 +23635,7 @@ L410:
     static real f1, g1, eps, scale;
     static integer count;
     static real safmn2, safmx2;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real safmin;
 
 
@@ -23468,10 +23693,10 @@ L410:
 
        IF( FIRST ) THEN
 */
-    safmin = slamch_("S");
-    eps = slamch_("E");
-    r__1 = slamch_("B");
-    i__1 = (integer) (log(safmin / eps) / log(slamch_("B")) / 2.f);
+    safmin = slamch_("S", (ftnlen)1);
+    eps = slamch_("E", (ftnlen)1);
+    r__1 = slamch_("B", (ftnlen)1);
+    i__1 = (integer) (log(safmin / eps) / log(slamch_("B", (ftnlen)1)) / 2.f);
     safmn2 = pow_ri(&r__1, &i__1);
     safmx2 = 1.f / safmn2;
 /*
@@ -23687,7 +23912,7 @@ L30:
 
 /* Subroutine */ int slascl_(char *type__, integer *kl, integer *ku, real *
 	cfrom, real *cto, integer *m, integer *n, real *a, integer *lda,
-	integer *info)
+	integer *info, ftnlen type_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -23697,12 +23922,12 @@ L30:
     static real mul, cto1;
     static logical done;
     static real ctoc;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer itype;
     static real cfrom1;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real cfromc;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static real bignum;
     extern logical sisnan_(real *);
     static real smlnum;
@@ -23788,19 +24013,19 @@ L30:
     /* Function Body */
     *info = 0;
 
-    if (lsame_(type__, "G")) {
+    if (lsame_(type__, "G", (ftnlen)1, (ftnlen)1)) {
 	itype = 0;
-    } else if (lsame_(type__, "L")) {
+    } else if (lsame_(type__, "L", (ftnlen)1, (ftnlen)1)) {
 	itype = 1;
-    } else if (lsame_(type__, "U")) {
+    } else if (lsame_(type__, "U", (ftnlen)1, (ftnlen)1)) {
 	itype = 2;
-    } else if (lsame_(type__, "H")) {
+    } else if (lsame_(type__, "H", (ftnlen)1, (ftnlen)1)) {
 	itype = 3;
-    } else if (lsame_(type__, "B")) {
+    } else if (lsame_(type__, "B", (ftnlen)1, (ftnlen)1)) {
 	itype = 4;
-    } else if (lsame_(type__, "Q")) {
+    } else if (lsame_(type__, "Q", (ftnlen)1, (ftnlen)1)) {
 	itype = 5;
-    } else if (lsame_(type__, "Z")) {
+    } else if (lsame_(type__, "Z", (ftnlen)1, (ftnlen)1)) {
 	itype = 6;
     } else {
 	itype = -1;
@@ -23838,7 +24063,7 @@ L30:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASCL", &i__1);
+	xerbla_("SLASCL", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -23850,7 +24075,7 @@ L30:
 
 /*     Get machine parameters */
 
-    smlnum = slamch_("S");
+    smlnum = slamch_("S", (ftnlen)1);
     bignum = 1.f / smlnum;
 
     cfromc = *cfrom;
@@ -24034,9 +24259,10 @@ L10:
     static integer inode, ndiml, idxqc, ndimr, itemp, sqrei;
     extern /* Subroutine */ int slasd1_(integer *, integer *, integer *, real
 	    *, real *, real *, real *, integer *, real *, integer *, integer *
-	    , integer *, real *, integer *), xerbla_(char *, integer *), slasdq_(char *, integer *, integer *, integer *, integer
+	    , integer *, real *, integer *), xerbla_(char *, integer *,
+	    ftnlen), slasdq_(char *, integer *, integer *, integer *, integer
 	    *, integer *, real *, real *, real *, integer *, real *, integer *
-	    , real *, integer *, real *, integer *), slasdt_(integer *
+	    , real *, integer *, real *, integer *, ftnlen), slasdt_(integer *
 	    , integer *, integer *, integer *, integer *, integer *, integer *
 	    );
 
@@ -24151,7 +24377,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASD0", &i__1);
+	xerbla_("SLASD0", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -24159,7 +24385,8 @@ L10:
 
     if (*n <= *smlsiz) {
 	slasdq_("U", sqre, n, &m, n, &c__0, &d__[1], &e[1], &vt[vt_offset],
-		ldvt, &u[u_offset], ldu, &u[u_offset], ldu, &work[1], info);
+		ldvt, &u[u_offset], ldu, &u[u_offset], ldu, &work[1], info, (
+		ftnlen)1);
 	return 0;
     }
 
@@ -24202,7 +24429,7 @@ L10:
 	sqrei = 1;
 	slasdq_("U", &sqrei, &nl, &nlp1, &nl, &ncc, &d__[nlf], &e[nlf], &vt[
 		nlf + nlf * vt_dim1], ldvt, &u[nlf + nlf * u_dim1], ldu, &u[
-		nlf + nlf * u_dim1], ldu, &work[1], info);
+		nlf + nlf * u_dim1], ldu, &work[1], info, (ftnlen)1);
 	if (*info != 0) {
 	    return 0;
 	}
@@ -24220,7 +24447,7 @@ L10:
 	nrp1 = nr + sqrei;
 	slasdq_("U", &sqrei, &nr, &nrp1, &nr, &ncc, &d__[nrf], &e[nrf], &vt[
 		nrf + nrf * vt_dim1], ldvt, &u[nrf + nrf * u_dim1], ldu, &u[
-		nrf + nrf * u_dim1], ldu, &work[1], info);
+		nrf + nrf * u_dim1], ldu, &work[1], info, (ftnlen)1);
 	if (*info != 0) {
 	    return 0;
 	}
@@ -24303,9 +24530,9 @@ L10:
 	    , integer *, real *, integer *, integer *, integer *, real *,
 	    integer *);
     static integer isigma;
-    extern /* Subroutine */ int xerbla_(char *, integer *), slascl_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slascl_(
 	    char *, integer *, integer *, real *, real *, integer *, integer *
-	    , real *, integer *, integer *), slamrg_(integer *,
+	    , real *, integer *, integer *, ftnlen), slamrg_(integer *,
 	    integer *, real *, integer *, integer *, integer *);
     static real orgnrm;
     static integer coltyp;
@@ -24461,7 +24688,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASD1", &i__1);
+	xerbla_("SLASD1", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -24503,7 +24730,8 @@ L10:
 	}
 /* L10: */
     }
-    slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &n, &c__1, &d__[1], &n, info);
+    slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &n, &c__1, &d__[1], &n, info,
+	    (ftnlen)1);
     *alpha /= orgnrm;
     *beta /= orgnrm;
 
@@ -24526,7 +24754,8 @@ L10:
 
 /*     Unscale. */
 
-    slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &n, &c__1, &d__[1], &n, info);
+    slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &n, &c__1, &d__[1], &n, info,
+	    (ftnlen)1);
 
 /*     Prepare the IDXQ sorting permutation. */
 
@@ -24565,13 +24794,13 @@ L10:
     static integer idxjp, jprev;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *);
-    extern doublereal slapy2_(real *, real *), slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), slamrg_(
+    extern doublereal slapy2_(real *, real *), slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slamrg_(
 	    integer *, integer *, real *, integer *, integer *, integer *);
     static real hlftol;
     extern /* Subroutine */ int slacpy_(char *, integer *, integer *, real *,
-	    integer *, real *, integer *), slaset_(char *, integer *,
-	    integer *, real *, real *, real *, integer *);
+	    integer *, real *, integer *, ftnlen), slaset_(char *, integer *,
+	    integer *, real *, real *, real *, integer *, ftnlen);
 
 
 /*
@@ -24780,7 +25009,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASD2", &i__1);
+	xerbla_("SLASD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -24856,7 +25085,7 @@ L10:
 
 /*     Calculate the allowable deflation tolerance */
 
-    eps = slamch_("Epsilon");
+    eps = slamch_("Epsilon", (ftnlen)7);
 /* Computing MAX */
     r__1 = dabs(*alpha), r__2 = dabs(*beta);
     tol = dmax(r__1,r__2);
@@ -25083,7 +25312,7 @@ L120:
        last row of VT.
 */
 
-    slaset_("A", &n, &c__1, &c_b29, &c_b29, &u2[u2_offset], ldu2);
+    slaset_("A", &n, &c__1, &c_b29, &c_b29, &u2[u2_offset], ldu2, (ftnlen)1);
     u2[nlp1 + u2_dim1] = 1.f;
     if (m > n) {
 	i__1 = nlp1;
@@ -25115,10 +25344,10 @@ L120:
 	scopy_(&i__1, &dsigma[*k + 1], &c__1, &d__[*k + 1], &c__1);
 	i__1 = n - *k;
 	slacpy_("A", &n, &i__1, &u2[(*k + 1) * u2_dim1 + 1], ldu2, &u[(*k + 1)
-		 * u_dim1 + 1], ldu);
+		 * u_dim1 + 1], ldu, (ftnlen)1);
 	i__1 = n - *k;
 	slacpy_("A", &i__1, &m, &vt2[*k + 1 + vt2_dim1], ldvt2, &vt[*k + 1 +
-		vt_dim1], ldvt);
+		vt_dim1], ldvt, (ftnlen)1);
     }
 
 /*     Copy CTOT into COLTYP for referencing in SLASD3. */
@@ -25154,16 +25383,17 @@ L120:
     static integer ctemp;
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer ktemp;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *);
     extern doublereal slamc3_(real *, real *);
     extern /* Subroutine */ int slasd4_(integer *, integer *, real *, real *,
 	    real *, real *, real *, real *, integer *), xerbla_(char *,
-	    integer *), slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *), slacpy_(char *, integer *, integer *, real *, integer *,
-	    real *, integer *);
+	    integer *, ftnlen), slascl_(char *, integer *, integer *, real *,
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen), slacpy_(char *, integer *, integer *, real *, integer *,
+	    real *, integer *, ftnlen);
 
 
 /*
@@ -25344,7 +25574,7 @@ L120:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASD3", &i__1);
+	xerbla_("SLASD3", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -25397,7 +25627,8 @@ L120:
 /*     Normalize Z. */
 
     rho = snrm2_(k, &z__[1], &c__1);
-    slascl_("G", &c__0, &c__0, &rho, &c_b15, k, &c__1, &z__[1], k, info);
+    slascl_("G", &c__0, &c__0, &rho, &c_b15, k, &c__1, &z__[1], k, info, (
+	    ftnlen)1);
     rho *= rho;
 
 /*     Find the new singular values. */
@@ -25469,30 +25700,34 @@ L120:
 
     if (*k == 2) {
 	sgemm_("N", "N", &n, k, k, &c_b15, &u2[u2_offset], ldu2, &q[q_offset],
-		 ldq, &c_b29, &u[u_offset], ldu);
+		 ldq, &c_b29, &u[u_offset], ldu, (ftnlen)1, (ftnlen)1);
 	goto L100;
     }
     if (ctot[1] > 0) {
 	sgemm_("N", "N", nl, k, &ctot[1], &c_b15, &u2[(u2_dim1 << 1) + 1],
-		ldu2, &q[q_dim1 + 2], ldq, &c_b29, &u[u_dim1 + 1], ldu);
+		ldu2, &q[q_dim1 + 2], ldq, &c_b29, &u[u_dim1 + 1], ldu, (
+		ftnlen)1, (ftnlen)1);
 	if (ctot[3] > 0) {
 	    ktemp = ctot[1] + 2 + ctot[2];
 	    sgemm_("N", "N", nl, k, &ctot[3], &c_b15, &u2[ktemp * u2_dim1 + 1]
 		    , ldu2, &q[ktemp + q_dim1], ldq, &c_b15, &u[u_dim1 + 1],
-		    ldu);
+		    ldu, (ftnlen)1, (ftnlen)1);
 	}
     } else if (ctot[3] > 0) {
 	ktemp = ctot[1] + 2 + ctot[2];
 	sgemm_("N", "N", nl, k, &ctot[3], &c_b15, &u2[ktemp * u2_dim1 + 1],
-		ldu2, &q[ktemp + q_dim1], ldq, &c_b29, &u[u_dim1 + 1], ldu);
+		ldu2, &q[ktemp + q_dim1], ldq, &c_b29, &u[u_dim1 + 1], ldu, (
+		ftnlen)1, (ftnlen)1);
     } else {
-	slacpy_("F", nl, k, &u2[u2_offset], ldu2, &u[u_offset], ldu);
+	slacpy_("F", nl, k, &u2[u2_offset], ldu2, &u[u_offset], ldu, (ftnlen)
+		1);
     }
     scopy_(k, &q[q_dim1 + 1], ldq, &u[nlp1 + u_dim1], ldu);
     ktemp = ctot[1] + 2;
     ctemp = ctot[2] + ctot[3];
     sgemm_("N", "N", nr, k, &ctemp, &c_b15, &u2[nlp2 + ktemp * u2_dim1], ldu2,
-	     &q[ktemp + q_dim1], ldq, &c_b29, &u[nlp2 + u_dim1], ldu);
+	     &q[ktemp + q_dim1], ldq, &c_b29, &u[nlp2 + u_dim1], ldu, (ftnlen)
+	    1, (ftnlen)1);
 
 /*     Generate the right singular vectors. */
 
@@ -25514,17 +25749,18 @@ L100:
 
     if (*k == 2) {
 	sgemm_("N", "N", k, &m, k, &c_b15, &q[q_offset], ldq, &vt2[vt2_offset]
-		, ldvt2, &c_b29, &vt[vt_offset], ldvt);
+		, ldvt2, &c_b29, &vt[vt_offset], ldvt, (ftnlen)1, (ftnlen)1);
 	return 0;
     }
     ktemp = ctot[1] + 1;
     sgemm_("N", "N", k, &nlp1, &ktemp, &c_b15, &q[q_dim1 + 1], ldq, &vt2[
-	    vt2_dim1 + 1], ldvt2, &c_b29, &vt[vt_dim1 + 1], ldvt);
+	    vt2_dim1 + 1], ldvt2, &c_b29, &vt[vt_dim1 + 1], ldvt, (ftnlen)1, (
+	    ftnlen)1);
     ktemp = ctot[1] + 2 + ctot[2];
     if (ktemp <= *ldvt2) {
 	sgemm_("N", "N", k, &nlp1, &ctot[3], &c_b15, &q[ktemp * q_dim1 + 1],
 		ldq, &vt2[ktemp + vt2_dim1], ldvt2, &c_b15, &vt[vt_dim1 + 1],
-		ldvt);
+		ldvt, (ftnlen)1, (ftnlen)1);
     }
 
     ktemp = ctot[1] + 1;
@@ -25544,7 +25780,7 @@ L100:
     ctemp = ctot[2] + 1 + ctot[3];
     sgemm_("N", "N", k, &nrp1, &ctemp, &c_b15, &q[ktemp * q_dim1 + 1], ldq, &
 	    vt2[ktemp + nlp2 * vt2_dim1], ldvt2, &c_b29, &vt[nlp2 * vt_dim1 +
-	    1], ldvt);
+	    1], ldvt, (ftnlen)1, (ftnlen)1);
 
     return 0;
 
@@ -25582,7 +25818,7 @@ L100:
 	    real *, real *, real *);
     static real dtnsq1;
     static logical swtch3;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static logical orgati;
     static real erretm, dtipsq, rhoinv;
 
@@ -25705,7 +25941,7 @@ L100:
 
 /*     Compute machine epsilon */
 
-    eps = slamch_("Epsilon");
+    eps = slamch_("Epsilon", (ftnlen)7);
     rhoinv = 1.f / *rho;
 
 /*     The case I = N */
@@ -26756,9 +26992,9 @@ L240:
 	    real *, real *, real *, real *, integer *, real *, real *,
 	    integer *);
     static integer isigma;
-    extern /* Subroutine */ int xerbla_(char *, integer *), slascl_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slascl_(
 	    char *, integer *, integer *, real *, real *, integer *, integer *
-	    , real *, integer *, integer *), slamrg_(integer *,
+	    , real *, integer *, integer *, ftnlen), slamrg_(integer *,
 	    integer *, real *, integer *, integer *, integer *);
     static real orgnrm;
 
@@ -26996,7 +27232,7 @@ L240:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASD6", &i__1);
+	xerbla_("SLASD6", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -27030,7 +27266,8 @@ L240:
 	}
 /* L10: */
     }
-    slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &n, &c__1, &d__[1], &n, info);
+    slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &n, &c__1, &d__[1], &n, info,
+	    (ftnlen)1);
     *alpha /= orgnrm;
     *beta /= orgnrm;
 
@@ -27056,7 +27293,8 @@ L240:
 
 /*     Unscale. */
 
-    slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &n, &c__1, &d__[1], &n, info);
+    slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &n, &c__1, &d__[1], &n, info,
+	    (ftnlen)1);
 
 /*     Prepare the IDXQ sorting permutation. */
 
@@ -27092,8 +27330,8 @@ L240:
     static integer idxjp, jprev;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *);
-    extern doublereal slapy2_(real *, real *), slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), slamrg_(
+    extern doublereal slapy2_(real *, real *), slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slamrg_(
 	    integer *, integer *, real *, integer *, integer *, integer *);
     static real hlftol;
 
@@ -27293,7 +27531,7 @@ L240:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASD7", &i__1);
+	xerbla_("SLASD7", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -27363,7 +27601,7 @@ L240:
 
 /*     Calculate the allowable deflation tolerence */
 
-    eps = slamch_("Epsilon");
+    eps = slamch_("Epsilon", (ftnlen)7);
 /* Computing MAX */
     r__1 = dabs(*alpha), r__2 = dabs(*beta);
     tol = dmax(r__1,r__2);
@@ -27589,11 +27827,12 @@ L100:
     extern doublereal slamc3_(real *, real *);
     extern /* Subroutine */ int slasd4_(integer *, integer *, real *, real *,
 	    real *, real *, real *, real *, integer *), xerbla_(char *,
-	    integer *);
+	    integer *, ftnlen);
     static real dsigjp;
     extern /* Subroutine */ int slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *), slaset_(char *, integer *, integer *, real *, real *,
-	    real *, integer *);
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen), slaset_(char *, integer *, integer *, real *, real *,
+	    real *, integer *, ftnlen);
 
 
 /*
@@ -27714,7 +27953,7 @@ L100:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASD8", &i__1);
+	xerbla_("SLASD8", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -27766,12 +28005,13 @@ L100:
 /*     Normalize Z. */
 
     rho = snrm2_(k, &z__[1], &c__1);
-    slascl_("G", &c__0, &c__0, &rho, &c_b15, k, &c__1, &z__[1], k, info);
+    slascl_("G", &c__0, &c__0, &rho, &c_b15, k, &c__1, &z__[1], k, info, (
+	    ftnlen)1);
     rho *= rho;
 
 /*     Initialize WORK(IWK3). */
 
-    slaset_("A", k, &c__1, &c_b15, &c_b15, &work[iwk3], k);
+    slaset_("A", k, &c__1, &c_b15, &c_b15, &work[iwk3], k, (ftnlen)1);
 
 /*
        Compute the updated singular values, the arrays DIFL, DIFR,
@@ -27885,13 +28125,13 @@ L100:
 	    , real *, real *, integer *, real *, real *, real *, integer *,
 	    integer *);
     static integer nwork1, nwork2;
-    extern /* Subroutine */ int xerbla_(char *, integer *), slasdq_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slasdq_(
 	    char *, integer *, integer *, integer *, integer *, integer *,
 	    real *, real *, real *, integer *, real *, integer *, real *,
-	    integer *, real *, integer *), slasdt_(integer *, integer
+	    integer *, real *, integer *, ftnlen), slasdt_(integer *, integer
 	    *, integer *, integer *, integer *, integer *, integer *),
 	    slaset_(char *, integer *, integer *, real *, real *, real *,
-	    integer *);
+	    integer *, ftnlen);
     static integer smlszp;
 
 
@@ -28110,7 +28350,7 @@ L100:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASDA", &i__1);
+	xerbla_("SLASDA", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -28122,11 +28362,11 @@ L100:
 	if (*icompq == 0) {
 	    slasdq_("U", sqre, n, &c__0, &c__0, &c__0, &d__[1], &e[1], &vt[
 		    vt_offset], ldu, &u[u_offset], ldu, &u[u_offset], ldu, &
-		    work[1], info);
+		    work[1], info, (ftnlen)1);
 	} else {
 	    slasdq_("U", sqre, n, &m, n, &c__0, &d__[1], &e[1], &vt[vt_offset]
 		    , ldu, &u[u_offset], ldu, &u[u_offset], ldu, &work[1],
-		    info);
+		    info, (ftnlen)1);
 	}
 	return 0;
     }
@@ -28180,20 +28420,22 @@ L100:
 	vli = vl + nlf - 1;
 	sqrei = 1;
 	if (*icompq == 0) {
-	    slaset_("A", &nlp1, &nlp1, &c_b29, &c_b15, &work[nwork1], &smlszp);
+	    slaset_("A", &nlp1, &nlp1, &c_b29, &c_b15, &work[nwork1], &smlszp,
+		     (ftnlen)1);
 	    slasdq_("U", &sqrei, &nl, &nlp1, &nru, &ncc, &d__[nlf], &e[nlf], &
 		    work[nwork1], &smlszp, &work[nwork2], &nl, &work[nwork2],
-		    &nl, &work[nwork2], info);
+		    &nl, &work[nwork2], info, (ftnlen)1);
 	    itemp = nwork1 + nl * smlszp;
 	    scopy_(&nlp1, &work[nwork1], &c__1, &work[vfi], &c__1);
 	    scopy_(&nlp1, &work[itemp], &c__1, &work[vli], &c__1);
 	} else {
-	    slaset_("A", &nl, &nl, &c_b29, &c_b15, &u[nlf + u_dim1], ldu);
+	    slaset_("A", &nl, &nl, &c_b29, &c_b15, &u[nlf + u_dim1], ldu, (
+		    ftnlen)1);
 	    slaset_("A", &nlp1, &nlp1, &c_b29, &c_b15, &vt[nlf + vt_dim1],
-		    ldu);
+		    ldu, (ftnlen)1);
 	    slasdq_("U", &sqrei, &nl, &nlp1, &nl, &ncc, &d__[nlf], &e[nlf], &
 		    vt[nlf + vt_dim1], ldu, &u[nlf + u_dim1], ldu, &u[nlf +
-		    u_dim1], ldu, &work[nwork1], info);
+		    u_dim1], ldu, &work[nwork1], info, (ftnlen)1);
 	    scopy_(&nlp1, &vt[nlf + vt_dim1], &c__1, &work[vfi], &c__1);
 	    scopy_(&nlp1, &vt[nlf + nlp1 * vt_dim1], &c__1, &work[vli], &c__1)
 		    ;
@@ -28216,20 +28458,22 @@ L100:
 	vli += nlp1;
 	nrp1 = nr + sqrei;
 	if (*icompq == 0) {
-	    slaset_("A", &nrp1, &nrp1, &c_b29, &c_b15, &work[nwork1], &smlszp);
+	    slaset_("A", &nrp1, &nrp1, &c_b29, &c_b15, &work[nwork1], &smlszp,
+		     (ftnlen)1);
 	    slasdq_("U", &sqrei, &nr, &nrp1, &nru, &ncc, &d__[nrf], &e[nrf], &
 		    work[nwork1], &smlszp, &work[nwork2], &nr, &work[nwork2],
-		    &nr, &work[nwork2], info);
+		    &nr, &work[nwork2], info, (ftnlen)1);
 	    itemp = nwork1 + (nrp1 - 1) * smlszp;
 	    scopy_(&nrp1, &work[nwork1], &c__1, &work[vfi], &c__1);
 	    scopy_(&nrp1, &work[itemp], &c__1, &work[vli], &c__1);
 	} else {
-	    slaset_("A", &nr, &nr, &c_b29, &c_b15, &u[nrf + u_dim1], ldu);
+	    slaset_("A", &nr, &nr, &c_b29, &c_b15, &u[nrf + u_dim1], ldu, (
+		    ftnlen)1);
 	    slaset_("A", &nrp1, &nrp1, &c_b29, &c_b15, &vt[nrf + vt_dim1],
-		    ldu);
+		    ldu, (ftnlen)1);
 	    slasdq_("U", &sqrei, &nr, &nrp1, &nr, &ncc, &d__[nrf], &e[nrf], &
 		    vt[nrf + vt_dim1], ldu, &u[nrf + u_dim1], ldu, &u[nrf +
-		    u_dim1], ldu, &work[nwork1], info);
+		    u_dim1], ldu, &work[nwork1], info, (ftnlen)1);
 	    scopy_(&nrp1, &vt[nrf + vt_dim1], &c__1, &work[vfi], &c__1);
 	    scopy_(&nrp1, &vt[nrf + nrp1 * vt_dim1], &c__1, &work[vli], &c__1)
 		    ;
@@ -28318,7 +28562,7 @@ L100:
 /* Subroutine */ int slasdq_(char *uplo, integer *sqre, integer *n, integer *
 	ncvt, integer *nru, integer *ncc, real *d__, real *e, real *vt,
 	integer *ldvt, real *u, integer *ldu, real *c__, integer *ldc, real *
-	work, integer *info)
+	work, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, u_dim1, u_offset, vt_dim1, vt_offset, i__1,
@@ -28330,17 +28574,18 @@ L100:
     static integer np1, isub;
     static real smin;
     static integer sqre1;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int slasr_(char *, char *, char *, integer *,
-	    integer *, real *, real *, real *, integer *);
+	    integer *, real *, real *, real *, integer *, ftnlen, ftnlen,
+	    ftnlen);
     static integer iuplo;
     extern /* Subroutine */ int sswap_(integer *, real *, integer *, real *,
-	    integer *), xerbla_(char *, integer *), slartg_(real *,
+	    integer *), xerbla_(char *, integer *, ftnlen), slartg_(real *,
 	    real *, real *, real *, real *);
     static logical rotate;
     extern /* Subroutine */ int sbdsqr_(char *, integer *, integer *, integer
 	    *, integer *, real *, real *, real *, integer *, real *, integer *
-	    , real *, integer *, real *, integer *);
+	    , real *, integer *, real *, integer *, ftnlen);
 
 
 /*
@@ -28487,10 +28732,10 @@ L100:
     /* Function Body */
     *info = 0;
     iuplo = 0;
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	iuplo = 1;
     }
-    if (lsame_(uplo, "L")) {
+    if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	iuplo = 2;
     }
     if (iuplo == 0) {
@@ -28514,7 +28759,7 @@ L100:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASDQ", &i__1);
+	xerbla_("SLASDQ", &i__1, (ftnlen)6);
 	return 0;
     }
     if (*n == 0) {
@@ -28559,7 +28804,7 @@ L100:
 
 	if (*ncvt > 0) {
 	    slasr_("L", "V", "F", &np1, ncvt, &work[1], &work[np1], &vt[
-		    vt_offset], ldvt);
+		    vt_offset], ldvt, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
     }
 
@@ -28601,19 +28846,19 @@ L100:
 	if (*nru > 0) {
 	    if (sqre1 == 0) {
 		slasr_("R", "V", "F", nru, n, &work[1], &work[np1], &u[
-			u_offset], ldu);
+			u_offset], ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else {
 		slasr_("R", "V", "F", nru, &np1, &work[1], &work[np1], &u[
-			u_offset], ldu);
+			u_offset], ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	}
 	if (*ncc > 0) {
 	    if (sqre1 == 0) {
 		slasr_("L", "V", "F", n, ncc, &work[1], &work[np1], &c__[
-			c_offset], ldc);
+			c_offset], ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else {
 		slasr_("L", "V", "F", &np1, ncc, &work[1], &work[np1], &c__[
-			c_offset], ldc);
+			c_offset], ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	}
     }
@@ -28624,7 +28869,7 @@ L100:
 */
 
     sbdsqr_("U", n, ncvt, nru, ncc, &d__[1], &e[1], &vt[vt_offset], ldvt, &u[
-	    u_offset], ldu, &c__[c_offset], ldc, &work[1], info);
+	    u_offset], ldu, &c__[c_offset], ldc, &work[1], info, (ftnlen)1);
 
 /*
        Sort the singular values into ascending order (insertion sort on
@@ -28788,14 +29033,14 @@ L100:
 } /* slasdt_ */
 
 /* Subroutine */ int slaset_(char *uplo, integer *m, integer *n, real *alpha,
-	real *beta, real *a, integer *lda)
+	real *beta, real *a, integer *lda, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
 
 
 /*
@@ -28856,7 +29101,7 @@ L100:
     a -= a_offset;
 
     /* Function Body */
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*
           Set the strictly upper triangular or trapezoidal part of the
@@ -28875,7 +29120,7 @@ L100:
 /* L20: */
 	}
 
-    } else if (lsame_(uplo, "L")) {
+    } else if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
           Set the strictly lower triangular or trapezoidal part of the
@@ -28938,12 +29183,12 @@ L100:
     static real sigmn, sigmx;
     extern /* Subroutine */ int scopy_(integer *, real *, integer *, real *,
 	    integer *), slasq2_(integer *, real *, integer *);
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real safmin;
-    extern /* Subroutine */ int xerbla_(char *, integer *), slascl_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slascl_(
 	    char *, integer *, integer *, real *, real *, integer *, integer *
-	    , real *, integer *, integer *), slasrt_(char *, integer *
-	    , real *, integer *);
+	    , real *, integer *, integer *, ftnlen), slasrt_(char *, integer *
+	    , real *, integer *, ftnlen);
 
 
 /*
@@ -29016,7 +29261,7 @@ L100:
     if (*n < 0) {
 	*info = -2;
 	i__1 = -(*info);
-	xerbla_("SLASQ1", &i__1);
+	xerbla_("SLASQ1", &i__1, (ftnlen)6);
 	return 0;
     } else if (*n == 0) {
 	return 0;
@@ -29046,7 +29291,7 @@ L100:
 /*     Early return if SIGMX is zero (matrix is already diagonal). */
 
     if (sigmx == 0.f) {
-	slasrt_("D", n, &d__[1], &iinfo);
+	slasrt_("D", n, &d__[1], &iinfo, (ftnlen)1);
 	return 0;
     }
 
@@ -29063,8 +29308,8 @@ L100:
        input data makes scaling by a power of the radix pointless).
 */
 
-    eps = slamch_("Precision");
-    safmin = slamch_("Safe minimum");
+    eps = slamch_("Precision", (ftnlen)9);
+    safmin = slamch_("Safe minimum", (ftnlen)12);
     scale = sqrt(eps / safmin);
     scopy_(n, &d__[1], &c__1, &work[1], &c__2);
     i__1 = *n - 1;
@@ -29072,7 +29317,7 @@ L100:
     i__1 = (*n << 1) - 1;
     i__2 = (*n << 1) - 1;
     slascl_("G", &c__0, &c__0, &sigmx, &scale, &i__1, &c__1, &work[1], &i__2,
-	    &iinfo);
+	    &iinfo, (ftnlen)1);
 
 /*     Compute the q's and e's. */
 
@@ -29094,7 +29339,7 @@ L100:
 /* L40: */
 	}
 	slascl_("G", &c__0, &c__0, &scale, &sigmx, n, &c__1, &d__[1], n, &
-		iinfo);
+		iinfo, (ftnlen)1);
     }
 
     return 0;
@@ -29134,11 +29379,11 @@ L100:
 	    , logical *, integer *, real *, real *, real *, real *, real *,
 	    real *, real *);
     static real deemin;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static integer iwhila, iwhilb;
     static real oldemn, safmin;
-    extern /* Subroutine */ int xerbla_(char *, integer *), slasrt_(
-	    char *, integer *, real *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slasrt_(
+	    char *, integer *, real *, integer *, ftnlen);
 
 
 /*
@@ -29217,8 +29462,8 @@ L100:
 
     /* Function Body */
     *info = 0;
-    eps = slamch_("Precision");
-    safmin = slamch_("Safe minimum");
+    eps = slamch_("Precision", (ftnlen)9);
+    safmin = slamch_("Safe minimum", (ftnlen)12);
     tol = eps * 100.f;
 /* Computing 2nd power */
     r__1 = tol;
@@ -29226,7 +29471,7 @@ L100:
 
     if (*n < 0) {
 	*info = -1;
-	xerbla_("SLASQ2", &c__1);
+	xerbla_("SLASQ2", &c__1, (ftnlen)6);
 	return 0;
     } else if (*n == 0) {
 	return 0;
@@ -29236,7 +29481,7 @@ L100:
 
 	if (z__[1] < 0.f) {
 	    *info = -201;
-	    xerbla_("SLASQ2", &c__2);
+	    xerbla_("SLASQ2", &c__2, (ftnlen)6);
 	}
 	return 0;
     } else if (*n == 2) {
@@ -29245,7 +29490,7 @@ L100:
 
 	if (z__[2] < 0.f || z__[3] < 0.f) {
 	    *info = -2;
-	    xerbla_("SLASQ2", &c__2);
+	    xerbla_("SLASQ2", &c__2, (ftnlen)6);
 	    return 0;
 	} else if (z__[3] > z__[1]) {
 	    d__ = z__[3];
@@ -29283,11 +29528,11 @@ L100:
     for (k = 1; k <= i__1; k += 2) {
 	if (z__[k] < 0.f) {
 	    *info = -(k + 200);
-	    xerbla_("SLASQ2", &c__2);
+	    xerbla_("SLASQ2", &c__2, (ftnlen)6);
 	    return 0;
 	} else if (z__[k + 1] < 0.f) {
 	    *info = -(k + 201);
-	    xerbla_("SLASQ2", &c__2);
+	    xerbla_("SLASQ2", &c__2, (ftnlen)6);
 	    return 0;
 	}
 	d__ += z__[k];
@@ -29305,7 +29550,7 @@ L100:
     }
     if (z__[(*n << 1) - 1] < 0.f) {
 	*info = -((*n << 1) + 199);
-	xerbla_("SLASQ2", &c__2);
+	xerbla_("SLASQ2", &c__2, (ftnlen)6);
 	return 0;
     }
     d__ += z__[(*n << 1) - 1];
@@ -29322,7 +29567,7 @@ L100:
 	    z__[k] = z__[(k << 1) - 1];
 /* L20: */
 	}
-	slasrt_("D", n, &z__[1], &iinfo);
+	slasrt_("D", n, &z__[1], &iinfo, (ftnlen)1);
 	z__[(*n << 1) - 1] = d__;
 	return 0;
     }
@@ -29654,7 +29899,7 @@ L170:
 
 /*     Sort and compute sum of eigenvalues. */
 
-    slasrt_("D", n, &z__[1], &iinfo);
+    slasrt_("D", n, &z__[1], &iinfo, (ftnlen)1);
 
     e = 0.f;
     for (k = *n; k >= 1; --k) {
@@ -29699,7 +29944,7 @@ L170:
 	    integer *, real *, real *, real *, real *, real *, real *, real *,
 	     logical *), slasq6_(integer *, integer *, real *, integer *,
 	    real *, real *, real *, real *, real *, real *);
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     extern logical sisnan_(real *);
 
 
@@ -29793,7 +30038,7 @@ L170:
 
     /* Function Body */
     n0in = *n0;
-    eps = slamch_("Precision");
+    eps = slamch_("Precision", (ftnlen)9);
     tol = eps * 100.f;
 /* Computing 2nd power */
     r__1 = tol;
@@ -30612,7 +30857,7 @@ L80:
     static real d__;
     static integer j4, j4p2;
     static real emin, temp;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real safmin;
 
 
@@ -30680,7 +30925,7 @@ L80:
 	return 0;
     }
 
-    safmin = slamch_("Safe minimum");
+    safmin = slamch_("Safe minimum", (ftnlen)12);
     j4 = (*i0 << 2) + *pp - 3;
     emin = z__[j4 + 4];
     d__ = z__[j4];
@@ -30788,7 +31033,8 @@ L80:
 } /* slasq6_ */
 
 /* Subroutine */ int slasr_(char *side, char *pivot, char *direct, integer *m,
-	 integer *n, real *c__, real *s, real *a, integer *lda)
+	 integer *n, real *c__, real *s, real *a, integer *lda, ftnlen
+	side_len, ftnlen pivot_len, ftnlen direct_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -30796,9 +31042,9 @@ L80:
     /* Local variables */
     static integer i__, j, info;
     static real temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static real ctemp, stemp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -30948,13 +31194,15 @@ L80:
 
     /* Function Body */
     info = 0;
-    if (! (lsame_(side, "L") || lsame_(side, "R"))) {
+    if (! (lsame_(side, "L", (ftnlen)1, (ftnlen)1) || lsame_(side, "R", (
+	    ftnlen)1, (ftnlen)1))) {
 	info = 1;
-    } else if (! (lsame_(pivot, "V") || lsame_(pivot,
-	    "T") || lsame_(pivot, "B"))) {
+    } else if (! (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1) || lsame_(pivot,
+	    "T", (ftnlen)1, (ftnlen)1) || lsame_(pivot, "B", (ftnlen)1, (
+	    ftnlen)1))) {
 	info = 2;
-    } else if (! (lsame_(direct, "F") || lsame_(direct,
-	    "B"))) {
+    } else if (! (lsame_(direct, "F", (ftnlen)1, (ftnlen)1) || lsame_(direct,
+	    "B", (ftnlen)1, (ftnlen)1))) {
 	info = 3;
     } else if (*m < 0) {
 	info = 4;
@@ -30964,7 +31212,7 @@ L80:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("SLASR ", &info);
+	xerbla_("SLASR ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -30973,12 +31221,12 @@ L80:
     if (*m == 0 || *n == 0) {
 	return 0;
     }
-    if (lsame_(side, "L")) {
+    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  P * A */
 
-	if (lsame_(pivot, "V")) {
-	    if (lsame_(direct, "F")) {
+	if (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -30996,7 +31244,7 @@ L80:
 		    }
 /* L20: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -31014,8 +31262,8 @@ L80:
 /* L40: */
 		}
 	    }
-	} else if (lsame_(pivot, "T")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "T", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m;
 		for (j = 2; j <= i__1; ++j) {
 		    ctemp = c__[j - 1];
@@ -31033,7 +31281,7 @@ L80:
 		    }
 /* L60: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m; j >= 2; --j) {
 		    ctemp = c__[j - 1];
 		    stemp = s[j - 1];
@@ -31051,8 +31299,8 @@ L80:
 /* L80: */
 		}
 	    }
-	} else if (lsame_(pivot, "B")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "B", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -31070,7 +31318,7 @@ L80:
 		    }
 /* L100: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -31089,12 +31337,12 @@ L80:
 		}
 	    }
 	}
-    } else if (lsame_(side, "R")) {
+    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form A * P' */
 
-	if (lsame_(pivot, "V")) {
-	    if (lsame_(direct, "F")) {
+	if (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -31112,7 +31360,7 @@ L80:
 		    }
 /* L140: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -31130,8 +31378,8 @@ L80:
 /* L160: */
 		}
 	    }
-	} else if (lsame_(pivot, "T")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "T", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n;
 		for (j = 2; j <= i__1; ++j) {
 		    ctemp = c__[j - 1];
@@ -31149,7 +31397,7 @@ L80:
 		    }
 /* L180: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n; j >= 2; --j) {
 		    ctemp = c__[j - 1];
 		    stemp = s[j - 1];
@@ -31167,8 +31415,8 @@ L80:
 /* L200: */
 		}
 	    }
-	} else if (lsame_(pivot, "B")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "B", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -31186,7 +31434,7 @@ L80:
 		    }
 /* L220: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -31213,7 +31461,8 @@ L80:
 
 } /* slasr_ */
 
-/* Subroutine */ int slasrt_(char *id, integer *n, real *d__, integer *info)
+/* Subroutine */ int slasrt_(char *id, integer *n, real *d__, integer *info,
+	ftnlen id_len)
 {
     /* System generated locals */
     integer i__1, i__2;
@@ -31224,11 +31473,11 @@ L80:
     static integer dir;
     static real tmp;
     static integer endd;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer stack[64]	/* was [2][32] */;
     static real dmnmx;
     static integer start;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static integer stkpnt;
 
 
@@ -31280,9 +31529,9 @@ L80:
     /* Function Body */
     *info = 0;
     dir = -1;
-    if (lsame_(id, "D")) {
+    if (lsame_(id, "D", (ftnlen)1, (ftnlen)1)) {
 	dir = 0;
-    } else if (lsame_(id, "I")) {
+    } else if (lsame_(id, "I", (ftnlen)1, (ftnlen)1)) {
 	dir = 1;
     }
     if (dir == -1) {
@@ -31292,7 +31541,7 @@ L80:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLASRT", &i__1);
+	xerbla_("SLASRT", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -31582,7 +31831,7 @@ L110:
     static logical swap;
     static real tsign;
     static logical gasmal;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
 
 
 /*
@@ -31701,7 +31950,7 @@ L110:
 	gasmal = TRUE_;
 	if (ga > fa) {
 	    pmax = 2;
-	    if (fa / ga < slamch_("EPS")) {
+	    if (fa / ga < slamch_("EPS", (ftnlen)3)) {
 
 /*              Case of very large GA */
 
@@ -31988,7 +32237,7 @@ L110:
 	    integer *), sswap_(integer *, real *, integer *, real *, integer *
 	    );
     static logical xswap;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     extern integer isamax_(integer *, real *, integer *);
     static real smlnum;
 
@@ -32106,8 +32355,8 @@ L110:
 
 /*     Set constants to control overflow */
 
-    eps = slamch_("P");
-    smlnum = slamch_("S") / eps;
+    eps = slamch_("P", (ftnlen)1);
+    smlnum = slamch_("S", (ftnlen)1) / eps;
     sgn = (real) (*isgn);
 
     k = *n1 + *n1 + *n2 - 2;
@@ -32409,7 +32658,8 @@ L50:
 } /* slasy2_ */
 
 /* Subroutine */ int slatrd_(char *uplo, integer *n, integer *nb, real *a,
-	integer *lda, real *e, real *tau, real *w, integer *ldw)
+	integer *lda, real *e, real *tau, real *w, integer *ldw, ftnlen
+	uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, w_dim1, w_offset, i__1, i__2, i__3;
@@ -32418,13 +32668,13 @@ L50:
     static integer i__, iw;
     extern doublereal sdot_(integer *, real *, integer *, real *, integer *);
     static real alpha;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    sgemv_(char *, integer *, integer *, real *, real *, integer *,
-	    real *, integer *, real *, real *, integer *), saxpy_(
+	    real *, integer *, real *, real *, integer *, ftnlen), saxpy_(
 	    integer *, real *, real *, integer *, real *, integer *), ssymv_(
 	    char *, integer *, real *, real *, integer *, real *, integer *,
-	    real *, real *, integer *), slarfg_(integer *, real *,
+	    real *, real *, integer *, ftnlen), slarfg_(integer *, real *,
 	    real *, integer *, real *);
 
 
@@ -32577,7 +32827,7 @@ L50:
 	return 0;
     }
 
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Reduce last NB columns of upper triangle */
 
@@ -32591,11 +32841,11 @@ L50:
 		i__2 = *n - i__;
 		sgemv_("No transpose", &i__, &i__2, &c_b151, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &w[i__ + (iw + 1) * w_dim1], ldw, &
-			c_b15, &a[i__ * a_dim1 + 1], &c__1);
+			c_b15, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		sgemv_("No transpose", &i__, &i__2, &c_b151, &w[(iw + 1) *
 			w_dim1 + 1], ldw, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			c_b15, &a[i__ * a_dim1 + 1], &c__1);
+			c_b15, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 	    }
 	    if (i__ > 1) {
 
@@ -32615,28 +32865,32 @@ L50:
 		i__2 = i__ - 1;
 		ssymv_("Upper", &i__2, &c_b15, &a[a_offset], lda, &a[i__ *
 			a_dim1 + 1], &c__1, &c_b29, &w[iw * w_dim1 + 1], &
-			c__1);
+			c__1, (ftnlen)5);
 		if (i__ < *n) {
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    sgemv_("Transpose", &i__2, &i__3, &c_b15, &w[(iw + 1) *
 			    w_dim1 + 1], ldw, &a[i__ * a_dim1 + 1], &c__1, &
-			    c_b29, &w[i__ + 1 + iw * w_dim1], &c__1);
+			    c_b29, &w[i__ + 1 + iw * w_dim1], &c__1, (ftnlen)
+			    9);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    sgemv_("No transpose", &i__2, &i__3, &c_b151, &a[(i__ + 1)
 			     * a_dim1 + 1], lda, &w[i__ + 1 + iw * w_dim1], &
-			    c__1, &c_b15, &w[iw * w_dim1 + 1], &c__1);
+			    c__1, &c_b15, &w[iw * w_dim1 + 1], &c__1, (ftnlen)
+			    12);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[(i__ + 1) *
 			    a_dim1 + 1], lda, &a[i__ * a_dim1 + 1], &c__1, &
-			    c_b29, &w[i__ + 1 + iw * w_dim1], &c__1);
+			    c_b29, &w[i__ + 1 + iw * w_dim1], &c__1, (ftnlen)
+			    9);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    sgemv_("No transpose", &i__2, &i__3, &c_b151, &w[(iw + 1)
 			    * w_dim1 + 1], ldw, &w[i__ + 1 + iw * w_dim1], &
-			    c__1, &c_b15, &w[iw * w_dim1 + 1], &c__1);
+			    c__1, &c_b15, &w[iw * w_dim1 + 1], &c__1, (ftnlen)
+			    12);
 		}
 		i__2 = i__ - 1;
 		sscal_(&i__2, &tau[i__ - 1], &w[iw * w_dim1 + 1], &c__1);
@@ -32663,12 +32917,12 @@ L50:
 	    i__3 = i__ - 1;
 	    sgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + a_dim1],
 		    lda, &w[i__ + w_dim1], ldw, &c_b15, &a[i__ + i__ * a_dim1]
-		    , &c__1);
+		    , &c__1, (ftnlen)12);
 	    i__2 = *n - i__ + 1;
 	    i__3 = i__ - 1;
 	    sgemv_("No transpose", &i__2, &i__3, &c_b151, &w[i__ + w_dim1],
 		    ldw, &a[i__ + a_dim1], lda, &c_b15, &a[i__ + i__ * a_dim1]
-		    , &c__1);
+		    , &c__1, (ftnlen)12);
 	    if (i__ < *n) {
 
 /*
@@ -32689,27 +32943,27 @@ L50:
 		i__2 = *n - i__;
 		ssymv_("Lower", &i__2, &c_b15, &a[i__ + 1 + (i__ + 1) *
 			a_dim1], lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &
-			c_b29, &w[i__ + 1 + i__ * w_dim1], &c__1);
+			c_b29, &w[i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)5);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &w[i__ + 1 + w_dim1]
 			, ldw, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &w[
-			i__ * w_dim1 + 1], &c__1);
+			i__ * w_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + 1 +
 			a_dim1], lda, &w[i__ * w_dim1 + 1], &c__1, &c_b15, &w[
-			i__ + 1 + i__ * w_dim1], &c__1);
+			i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + a_dim1]
 			, lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &w[
-			i__ * w_dim1 + 1], &c__1);
+			i__ * w_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &w[i__ + 1 +
 			w_dim1], ldw, &w[i__ * w_dim1 + 1], &c__1, &c_b15, &w[
-			i__ + 1 + i__ * w_dim1], &c__1);
+			i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		sscal_(&i__2, &tau[i__], &w[i__ + 1 + i__ * w_dim1], &c__1);
 		i__2 = *n - i__;
@@ -32731,7 +32985,7 @@ L50:
 } /* slatrd_ */
 
 /* Subroutine */ int slauu2_(char *uplo, integer *n, real *a, integer *lda,
-	integer *info)
+	integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -32740,12 +32994,12 @@ L50:
     static integer i__;
     static real aii;
     extern doublereal sdot_(integer *, real *, integer *, real *, integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    sgemv_(char *, integer *, integer *, real *, real *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen);
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -32808,8 +33062,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -32818,7 +33072,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAUU2", &i__1);
+	xerbla_("SLAUU2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -32843,7 +33097,7 @@ L50:
 		i__3 = *n - i__;
 		sgemv_("No transpose", &i__2, &i__3, &c_b15, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			aii, &a[i__ * a_dim1 + 1], &c__1);
+			aii, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 	    } else {
 		sscal_(&i__, &aii, &a[i__ * a_dim1 + 1], &c__1);
 	    }
@@ -32865,7 +33119,7 @@ L50:
 		i__3 = i__ - 1;
 		sgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + a_dim1]
 			, lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &aii, &a[
-			i__ + a_dim1], lda);
+			i__ + a_dim1], lda, (ftnlen)9);
 	    } else {
 		sscal_(&i__, &aii, &a[i__ + a_dim1], lda);
 	    }
@@ -32880,24 +33134,24 @@ L50:
 } /* slauu2_ */
 
 /* Subroutine */ int slauum_(char *uplo, integer *n, real *a, integer *lda,
-	integer *info)
+	integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
 
     /* Local variables */
     static integer i__, ib, nb;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int strmm_(char *, char *, char *, char *,
 	    integer *, integer *, real *, real *, integer *, real *, integer *
-	    ), ssyrk_(char *, char *, integer
+	    , ftnlen, ftnlen, ftnlen, ftnlen), ssyrk_(char *, char *, integer
 	    *, integer *, real *, real *, integer *, real *, real *, integer *
-	    ), slauu2_(char *, integer *, real *, integer *,
-	    integer *), xerbla_(char *, integer *);
+	    , ftnlen, ftnlen), slauu2_(char *, integer *, real *, integer *,
+	    integer *, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
 
@@ -32962,8 +33216,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -32972,7 +33226,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SLAUUM", &i__1);
+	xerbla_("SLAUUM", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -32991,7 +33245,7 @@ L50:
 
 /*        Use unblocked code */
 
-	slauu2_(uplo, n, &a[a_offset], lda, info);
+	slauu2_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -33009,20 +33263,21 @@ L50:
 		i__3 = i__ - 1;
 		strmm_("Right", "Upper", "Transpose", "Non-unit", &i__3, &ib,
 			&c_b15, &a[i__ + i__ * a_dim1], lda, &a[i__ * a_dim1
-			+ 1], lda)
+			+ 1], lda, (ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)8)
 			;
-		slauu2_("Upper", &ib, &a[i__ + i__ * a_dim1], lda, info);
+		slauu2_("Upper", &ib, &a[i__ + i__ * a_dim1], lda, info, (
+			ftnlen)5);
 		if (i__ + ib <= *n) {
 		    i__3 = i__ - 1;
 		    i__4 = *n - i__ - ib + 1;
 		    sgemm_("No transpose", "Transpose", &i__3, &ib, &i__4, &
 			    c_b15, &a[(i__ + ib) * a_dim1 + 1], lda, &a[i__ +
 			    (i__ + ib) * a_dim1], lda, &c_b15, &a[i__ *
-			    a_dim1 + 1], lda);
+			    a_dim1 + 1], lda, (ftnlen)12, (ftnlen)9);
 		    i__3 = *n - i__ - ib + 1;
 		    ssyrk_("Upper", "No transpose", &ib, &i__3, &c_b15, &a[
 			    i__ + (i__ + ib) * a_dim1], lda, &c_b15, &a[i__ +
-			    i__ * a_dim1], lda);
+			    i__ * a_dim1], lda, (ftnlen)5, (ftnlen)12);
 		}
 /* L10: */
 	    }
@@ -33039,18 +33294,20 @@ L50:
 		i__3 = i__ - 1;
 		strmm_("Left", "Lower", "Transpose", "Non-unit", &ib, &i__3, &
 			c_b15, &a[i__ + i__ * a_dim1], lda, &a[i__ + a_dim1],
-			lda);
-		slauu2_("Lower", &ib, &a[i__ + i__ * a_dim1], lda, info);
+			lda, (ftnlen)4, (ftnlen)5, (ftnlen)9, (ftnlen)8);
+		slauu2_("Lower", &ib, &a[i__ + i__ * a_dim1], lda, info, (
+			ftnlen)5);
 		if (i__ + ib <= *n) {
 		    i__3 = i__ - 1;
 		    i__4 = *n - i__ - ib + 1;
 		    sgemm_("Transpose", "No transpose", &ib, &i__3, &i__4, &
 			    c_b15, &a[i__ + ib + i__ * a_dim1], lda, &a[i__ +
-			    ib + a_dim1], lda, &c_b15, &a[i__ + a_dim1], lda);
+			    ib + a_dim1], lda, &c_b15, &a[i__ + a_dim1], lda,
+			    (ftnlen)9, (ftnlen)12);
 		    i__3 = *n - i__ - ib + 1;
 		    ssyrk_("Lower", "Transpose", &ib, &i__3, &c_b15, &a[i__ +
 			    ib + i__ * a_dim1], lda, &c_b15, &a[i__ + i__ *
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)5, (ftnlen)9);
 		}
 /* L20: */
 	    }
@@ -33074,7 +33331,8 @@ L50:
     static integer i__, j, l;
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    slarf_(char *, integer *, integer *, real *, integer *, real *,
-	    real *, integer *, real *), xerbla_(char *, integer *);
+	    real *, integer *, real *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
 
 
 /*
@@ -33154,7 +33412,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORG2R", &i__1);
+	xerbla_("SORG2R", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -33186,7 +33444,8 @@ L50:
 	    i__1 = *m - i__ + 1;
 	    i__2 = *n - i__;
 	    slarf_("Left", &i__1, &i__2, &a[i__ + i__ * a_dim1], &c__1, &tau[
-		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]);
+		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1], (
+		    ftnlen)4);
 	}
 	if (i__ < *m) {
 	    i__1 = *m - i__;
@@ -33212,17 +33471,17 @@ L50:
 
 /* Subroutine */ int sorgbr_(char *vect, integer *m, integer *n, integer *k,
 	real *a, integer *lda, real *tau, real *work, integer *lwork, integer
-	*info)
+	*info, ftnlen vect_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
     static integer i__, j, nb, mn;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
     static logical wantq;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int sorglq_(integer *, integer *, integer *, real
@@ -33335,10 +33594,10 @@ L50:
 
     /* Function Body */
     *info = 0;
-    wantq = lsame_(vect, "Q");
+    wantq = lsame_(vect, "Q", (ftnlen)1, (ftnlen)1);
     mn = min(*m,*n);
     lquery = *lwork == -1;
-    if (! wantq && ! lsame_(vect, "P")) {
+    if (! wantq && ! lsame_(vect, "P", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*m < 0) {
 	*info = -2;
@@ -33367,7 +33626,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORGBR", &i__1);
+	xerbla_("SORGBR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -33496,7 +33755,7 @@ L50:
 
     /* Local variables */
     static integer i__, j, nb, nh, iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int sorgqr_(integer *, integer *, integer *, real
@@ -33601,7 +33860,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORGHR", &i__1);
+	xerbla_("SORGHR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -33685,7 +33944,8 @@ L50:
     static integer i__, j, l;
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    slarf_(char *, integer *, integer *, real *, integer *, real *,
-	    real *, integer *, real *), xerbla_(char *, integer *);
+	    real *, integer *, real *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
 
 
 /*
@@ -33764,7 +34024,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORGL2", &i__1);
+	xerbla_("SORGL2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -33802,7 +34062,8 @@ L50:
 		i__1 = *m - i__;
 		i__2 = *n - i__ + 1;
 		slarf_("Right", &i__1, &i__2, &a[i__ + i__ * a_dim1], lda, &
-			tau[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+			tau[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1], (
+			ftnlen)5);
 	    }
 	    i__1 = *n - i__;
 	    r__1 = -tau[i__];
@@ -33836,11 +34097,12 @@ L50:
     extern /* Subroutine */ int sorgl2_(integer *, integer *, integer *, real
 	    *, integer *, real *, real *, integer *), slarfb_(char *, char *,
 	    char *, char *, integer *, integer *, integer *, real *, integer *
-	    , real *, integer *, real *, integer *, real *, integer *), xerbla_(char *, integer *);
+	    , real *, integer *, real *, integer *, real *, integer *, ftnlen,
+	     ftnlen, ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarft_(char *, char *, integer *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
     static logical lquery;
 
@@ -33938,7 +34200,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORGLQ", &i__1);
+	xerbla_("SORGLQ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -34041,7 +34303,8 @@ L50:
 
 		i__2 = *n - i__ + 1;
 		slarft_("Forward", "Rowwise", &i__2, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)7);
 
 /*              Apply H' to A(i+ib:m,i:n) from the right */
 
@@ -34050,7 +34313,8 @@ L50:
 		slarfb_("Right", "Transpose", "Forward", "Rowwise", &i__2, &
 			i__3, &ib, &a[i__ + i__ * a_dim1], lda, &work[1], &
 			ldwork, &a[i__ + ib + i__ * a_dim1], lda, &work[ib +
-			1], &ldwork);
+			1], &ldwork, (ftnlen)5, (ftnlen)9, (ftnlen)7, (ftnlen)
+			7);
 	    }
 
 /*           Apply H' to columns i:n of current block */
@@ -34092,11 +34356,12 @@ L50:
     extern /* Subroutine */ int sorg2r_(integer *, integer *, integer *, real
 	    *, integer *, real *, real *, integer *), slarfb_(char *, char *,
 	    char *, char *, integer *, integer *, integer *, real *, integer *
-	    , real *, integer *, real *, integer *, real *, integer *), xerbla_(char *, integer *);
+	    , real *, integer *, real *, integer *, real *, integer *, ftnlen,
+	     ftnlen, ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarft_(char *, char *, integer *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
     static logical lquery;
 
@@ -34195,7 +34460,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORGQR", &i__1);
+	xerbla_("SORGQR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -34298,7 +34563,8 @@ L50:
 
 		i__2 = *m - i__ + 1;
 		slarft_("Forward", "Columnwise", &i__2, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)10);
 
 /*              Apply H to A(i:m,i+ib:n) from the left */
 
@@ -34307,7 +34573,8 @@ L50:
 		slarfb_("Left", "No transpose", "Forward", "Columnwise", &
 			i__2, &i__3, &ib, &a[i__ + i__ * a_dim1], lda, &work[
 			1], &ldwork, &a[i__ + (i__ + ib) * a_dim1], lda, &
-			work[ib + 1], &ldwork);
+			work[ib + 1], &ldwork, (ftnlen)4, (ftnlen)12, (ftnlen)
+			7, (ftnlen)10);
 	    }
 
 /*           Apply H to rows i:m of current block */
@@ -34340,7 +34607,7 @@ L50:
 
 /* Subroutine */ int sorm2l_(char *side, char *trans, integer *m, integer *n,
 	integer *k, real *a, integer *lda, real *tau, real *c__, integer *ldc,
-	 real *work, integer *info)
+	 real *work, integer *info, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2;
@@ -34349,10 +34616,10 @@ L50:
     static integer i__, i1, i2, i3, mi, ni, nq;
     static real aii;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), xerbla_(
-	    char *, integer *);
+	    integer *, real *, real *, integer *, real *, ftnlen), xerbla_(
+	    char *, integer *, ftnlen);
     static logical notran;
 
 
@@ -34455,8 +34722,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -34465,9 +34732,9 @@ L50:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -34482,7 +34749,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORM2L", &i__1);
+	xerbla_("SORM2L", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -34528,7 +34795,7 @@ L50:
 	aii = a[nq - *k + i__ + i__ * a_dim1];
 	a[nq - *k + i__ + i__ * a_dim1] = 1.f;
 	slarf_(side, &mi, &ni, &a[i__ * a_dim1 + 1], &c__1, &tau[i__], &c__[
-		c_offset], ldc, &work[1]);
+		c_offset], ldc, &work[1], (ftnlen)1);
 	a[nq - *k + i__ + i__ * a_dim1] = aii;
 /* L10: */
     }
@@ -34540,7 +34807,7 @@ L50:
 
 /* Subroutine */ int sorm2r_(char *side, char *trans, integer *m, integer *n,
 	integer *k, real *a, integer *lda, real *tau, real *c__, integer *ldc,
-	 real *work, integer *info)
+	 real *work, integer *info, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2;
@@ -34549,10 +34816,10 @@ L50:
     static integer i__, i1, i2, i3, ic, jc, mi, ni, nq;
     static real aii;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), xerbla_(
-	    char *, integer *);
+	    integer *, real *, real *, integer *, real *, ftnlen), xerbla_(
+	    char *, integer *, ftnlen);
     static logical notran;
 
 
@@ -34655,8 +34922,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -34665,9 +34932,9 @@ L50:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -34682,7 +34949,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORM2R", &i__1);
+	xerbla_("SORM2R", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -34732,7 +34999,7 @@ L50:
 	aii = a[i__ + i__ * a_dim1];
 	a[i__ + i__ * a_dim1] = 1.f;
 	slarf_(side, &mi, &ni, &a[i__ + i__ * a_dim1], &c__1, &tau[i__], &c__[
-		ic + jc * c_dim1], ldc, &work[1]);
+		ic + jc * c_dim1], ldc, &work[1], (ftnlen)1);
 	a[i__ + i__ * a_dim1] = aii;
 /* L10: */
     }
@@ -34744,7 +35011,8 @@ L50:
 
 /* Subroutine */ int sormbr_(char *vect, char *side, char *trans, integer *m,
 	integer *n, integer *k, real *a, integer *lda, real *tau, real *c__,
-	integer *ldc, real *work, integer *lwork, integer *info)
+	integer *ldc, real *work, integer *lwork, integer *info, ftnlen
+	vect_len, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -34754,21 +35022,21 @@ L50:
     /* Local variables */
     static integer i1, i2, nb, mi, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical notran, applyq;
     static char transt[1];
     extern /* Subroutine */ int sormlq_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
     extern /* Subroutine */ int sormqr_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
 
 
 /*
@@ -34900,9 +35168,9 @@ L50:
 
     /* Function Body */
     *info = 0;
-    applyq = lsame_(vect, "Q");
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    applyq = lsame_(vect, "Q", (ftnlen)1, (ftnlen)1);
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q or P and NW is the minimum dimension of WORK */
@@ -34914,11 +35182,11 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! applyq && ! lsame_(vect, "P")) {
+    if (! applyq && ! lsame_(vect, "P", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! left && ! lsame_(side, "R")) {
+    } else if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -3;
     } else if (*m < 0) {
 	*info = -4;
@@ -34986,7 +35254,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORMBR", &i__1);
+	xerbla_("SORMBR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -35008,7 +35276,8 @@ L50:
 /*           Q was determined by a call to SGEBRD with nq >= k */
 
 	    sormqr_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		    c_offset], ldc, &work[1], lwork, &iinfo);
+		    c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)1, (
+		    ftnlen)1);
 	} else if (nq > 1) {
 
 /*           Q was determined by a call to SGEBRD with nq < k */
@@ -35026,7 +35295,8 @@ L50:
 	    }
 	    i__1 = nq - 1;
 	    sormqr_(side, trans, &mi, &ni, &i__1, &a[a_dim1 + 2], lda, &tau[1]
-		    , &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+		    , &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (
+		    ftnlen)1, (ftnlen)1);
 	}
     } else {
 
@@ -35042,7 +35312,8 @@ L50:
 /*           P was determined by a call to SGEBRD with nq > k */
 
 	    sormlq_(side, transt, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		    c_offset], ldc, &work[1], lwork, &iinfo);
+		    c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)1, (
+		    ftnlen)1);
 	} else if (nq > 1) {
 
 /*           P was determined by a call to SGEBRD with nq <= k */
@@ -35061,7 +35332,7 @@ L50:
 	    i__1 = nq - 1;
 	    sormlq_(side, transt, &mi, &ni, &i__1, &a[(a_dim1 << 1) + 1], lda,
 		     &tau[1], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &
-		    iinfo);
+		    iinfo, (ftnlen)1, (ftnlen)1);
 	}
     }
     work[1] = (real) lwkopt;
@@ -35073,7 +35344,8 @@ L50:
 
 /* Subroutine */ int sormhr_(char *side, char *trans, integer *m, integer *n,
 	integer *ilo, integer *ihi, real *a, integer *lda, real *tau, real *
-	c__, integer *ldc, real *work, integer *lwork, integer *info)
+	c__, integer *ldc, real *work, integer *lwork, integer *info, ftnlen
+	side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -35083,16 +35355,16 @@ L50:
     /* Local variables */
     static integer i1, i2, nb, mi, nh, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
     extern /* Subroutine */ int sormqr_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
 
 
 /*
@@ -35206,7 +35478,7 @@ L50:
     /* Function Body */
     *info = 0;
     nh = *ihi - *ilo;
-    left = lsame_(side, "L");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -35218,10 +35490,10 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -35261,7 +35533,7 @@ L50:
 
     if (*info != 0) {
 	i__2 = -(*info);
-	xerbla_("SORMHR", &i__2);
+	xerbla_("SORMHR", &i__2, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -35287,7 +35559,8 @@ L50:
     }
 
     sormqr_(side, trans, &mi, &ni, &nh, &a[*ilo + 1 + *ilo * a_dim1], lda, &
-	    tau[*ilo], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+	    tau[*ilo], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (
+	    ftnlen)1, (ftnlen)1);
 
     work[1] = (real) lwkopt;
     return 0;
@@ -35298,7 +35571,7 @@ L50:
 
 /* Subroutine */ int sorml2_(char *side, char *trans, integer *m, integer *n,
 	integer *k, real *a, integer *lda, real *tau, real *c__, integer *ldc,
-	 real *work, integer *info)
+	 real *work, integer *info, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2;
@@ -35307,10 +35580,10 @@ L50:
     static integer i__, i1, i2, i3, ic, jc, mi, ni, nq;
     static real aii;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarf_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, integer *, real *), xerbla_(
-	    char *, integer *);
+	    integer *, real *, real *, integer *, real *, ftnlen), xerbla_(
+	    char *, integer *, ftnlen);
     static logical notran;
 
 
@@ -35413,8 +35686,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -35423,9 +35696,9 @@ L50:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -35440,7 +35713,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORML2", &i__1);
+	xerbla_("SORML2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -35490,7 +35763,7 @@ L50:
 	aii = a[i__ + i__ * a_dim1];
 	a[i__ + i__ * a_dim1] = 1.f;
 	slarf_(side, &mi, &ni, &a[i__ + i__ * a_dim1], lda, &tau[i__], &c__[
-		ic + jc * c_dim1], ldc, &work[1]);
+		ic + jc * c_dim1], ldc, &work[1], (ftnlen)1);
 	a[i__ + i__ * a_dim1] = aii;
 /* L10: */
     }
@@ -35502,7 +35775,8 @@ L50:
 
 /* Subroutine */ int sormlq_(char *side, char *trans, integer *m, integer *n,
 	integer *k, real *a, integer *lda, real *tau, real *c__, integer *ldc,
-	 real *work, integer *lwork, integer *info)
+	 real *work, integer *lwork, integer *info, ftnlen side_len, ftnlen
+	trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -35515,17 +35789,18 @@ L50:
     static real t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, ic, jc, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int sorml2_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *), slarfb_(char *, char *, char *, char *
+	    integer *, ftnlen, ftnlen), slarfb_(char *, char *, char *, char *
 	    , integer *, integer *, integer *, real *, integer *, real *,
-	    integer *, real *, integer *, real *, integer *), xerbla_(char *, integer *);
+	    integer *, real *, integer *, real *, integer *, ftnlen, ftnlen,
+	    ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarft_(char *, char *, integer *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen, ftnlen);
     static logical notran;
     static integer ldwork;
     static char transt[1];
@@ -35640,8 +35915,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -35653,9 +35928,9 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -35692,7 +35967,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORMLQ", &i__1);
+	xerbla_("SORMLQ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -35731,7 +36006,7 @@ L50:
 /*        Use unblocked code */
 
 	sorml2_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -35774,7 +36049,7 @@ L50:
 
 	    i__4 = nq - i__ + 1;
 	    slarft_("Forward", "Rowwise", &i__4, &ib, &a[i__ + i__ * a_dim1],
-		    lda, &tau[i__], t, &c__65);
+		    lda, &tau[i__], t, &c__65, (ftnlen)7, (ftnlen)7);
 	    if (left) {
 
 /*              H or H' is applied to C(i:m,1:n) */
@@ -35793,7 +36068,8 @@ L50:
 
 	    slarfb_(side, transt, "Forward", "Rowwise", &mi, &ni, &ib, &a[i__
 		    + i__ * a_dim1], lda, t, &c__65, &c__[ic + jc * c_dim1],
-		    ldc, &work[1], &ldwork);
+		    ldc, &work[1], &ldwork, (ftnlen)1, (ftnlen)1, (ftnlen)7, (
+		    ftnlen)7);
 /* L10: */
 	}
     }
@@ -35806,7 +36082,8 @@ L50:
 
 /* Subroutine */ int sormql_(char *side, char *trans, integer *m, integer *n,
 	integer *k, real *a, integer *lda, real *tau, real *c__, integer *ldc,
-	 real *work, integer *lwork, integer *info)
+	 real *work, integer *lwork, integer *info, ftnlen side_len, ftnlen
+	trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -35819,17 +36096,18 @@ L50:
     static real t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int sorm2l_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *), slarfb_(char *, char *, char *, char *
+	    integer *, ftnlen, ftnlen), slarfb_(char *, char *, char *, char *
 	    , integer *, integer *, integer *, real *, integer *, real *,
-	    integer *, real *, integer *, real *, integer *), xerbla_(char *, integer *);
+	    integer *, real *, integer *, real *, integer *, ftnlen, ftnlen,
+	    ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarft_(char *, char *, integer *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen, ftnlen);
     static logical notran;
     static integer ldwork, lwkopt;
     static logical lquery;
@@ -35942,8 +36220,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -35955,9 +36233,9 @@ L50:
 	nq = *n;
 	nw = max(1,*m);
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -36001,7 +36279,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORMQL", &i__1);
+	xerbla_("SORMQL", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -36039,7 +36317,7 @@ L50:
 /*        Use unblocked code */
 
 	sorm2l_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -36074,7 +36352,7 @@ L50:
 
 	    i__4 = nq - *k + i__ + ib - 1;
 	    slarft_("Backward", "Columnwise", &i__4, &ib, &a[i__ * a_dim1 + 1]
-		    , lda, &tau[i__], t, &c__65);
+		    , lda, &tau[i__], t, &c__65, (ftnlen)8, (ftnlen)10);
 	    if (left) {
 
 /*              H or H' is applied to C(1:m-k+i+ib-1,1:n) */
@@ -36091,7 +36369,8 @@ L50:
 
 	    slarfb_(side, trans, "Backward", "Columnwise", &mi, &ni, &ib, &a[
 		    i__ * a_dim1 + 1], lda, t, &c__65, &c__[c_offset], ldc, &
-		    work[1], &ldwork);
+		    work[1], &ldwork, (ftnlen)1, (ftnlen)1, (ftnlen)8, (
+		    ftnlen)10);
 /* L10: */
 	}
     }
@@ -36104,7 +36383,8 @@ L50:
 
 /* Subroutine */ int sormqr_(char *side, char *trans, integer *m, integer *n,
 	integer *k, real *a, integer *lda, real *tau, real *c__, integer *ldc,
-	 real *work, integer *lwork, integer *info)
+	 real *work, integer *lwork, integer *info, ftnlen side_len, ftnlen
+	trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -36117,17 +36397,18 @@ L50:
     static real t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, ic, jc, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int sorm2r_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *), slarfb_(char *, char *, char *, char *
+	    integer *, ftnlen, ftnlen), slarfb_(char *, char *, char *, char *
 	    , integer *, integer *, integer *, real *, integer *, real *,
-	    integer *, real *, integer *, real *, integer *), xerbla_(char *, integer *);
+	    integer *, real *, integer *, real *, integer *, ftnlen, ftnlen,
+	    ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slarft_(char *, char *, integer *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen, ftnlen);
     static logical notran;
     static integer ldwork, lwkopt;
     static logical lquery;
@@ -36240,8 +36521,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -36253,9 +36534,9 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -36292,7 +36573,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SORMQR", &i__1);
+	xerbla_("SORMQR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -36331,7 +36612,7 @@ L50:
 /*        Use unblocked code */
 
 	sorm2r_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -36368,7 +36649,7 @@ L50:
 
 	    i__4 = nq - i__ + 1;
 	    slarft_("Forward", "Columnwise", &i__4, &ib, &a[i__ + i__ *
-		    a_dim1], lda, &tau[i__], t, &c__65)
+		    a_dim1], lda, &tau[i__], t, &c__65, (ftnlen)7, (ftnlen)10)
 		    ;
 	    if (left) {
 
@@ -36388,7 +36669,8 @@ L50:
 
 	    slarfb_(side, trans, "Forward", "Columnwise", &mi, &ni, &ib, &a[
 		    i__ + i__ * a_dim1], lda, t, &c__65, &c__[ic + jc *
-		    c_dim1], ldc, &work[1], &ldwork);
+		    c_dim1], ldc, &work[1], &ldwork, (ftnlen)1, (ftnlen)1, (
+		    ftnlen)7, (ftnlen)10);
 /* L10: */
 	}
     }
@@ -36401,7 +36683,8 @@ L50:
 
 /* Subroutine */ int sormtr_(char *side, char *uplo, char *trans, integer *m,
 	integer *n, real *a, integer *lda, real *tau, real *c__, integer *ldc,
-	 real *work, integer *lwork, integer *info)
+	 real *work, integer *lwork, integer *info, ftnlen side_len, ftnlen
+	uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -36411,20 +36694,20 @@ L50:
     /* Local variables */
     static integer i1, i2, nb, mi, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int sormql_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
     extern /* Subroutine */ int sormqr_(char *, char *, integer *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen, ftnlen);
 
 
 /*
@@ -36535,8 +36818,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    upper = lsame_(uplo, "U");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -36548,12 +36831,12 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -3;
     } else if (*m < 0) {
 	*info = -4;
@@ -36615,7 +36898,7 @@ L50:
 
     if (*info != 0) {
 	i__2 = -(*info);
-	xerbla_("SORMTR", &i__2);
+	xerbla_("SORMTR", &i__2, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -36642,7 +36925,8 @@ L50:
 
 	i__2 = nq - 1;
 	sormql_(side, trans, &mi, &ni, &i__2, &a[(a_dim1 << 1) + 1], lda, &
-		tau[1], &c__[c_offset], ldc, &work[1], lwork, &iinfo);
+		tau[1], &c__[c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)
+		1, (ftnlen)1);
     } else {
 
 /*        Q was determined by a call to SSYTRD with UPLO = 'L' */
@@ -36656,7 +36940,8 @@ L50:
 	}
 	i__2 = nq - 1;
 	sormqr_(side, trans, &mi, &ni, &i__2, &a[a_dim1 + 2], lda, &tau[1], &
-		c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+		c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (ftnlen)
+		1, (ftnlen)1);
     }
     work[1] = (real) lwkopt;
     return 0;
@@ -36666,7 +36951,7 @@ L50:
 } /* sormtr_ */
 
 /* Subroutine */ int spotf2_(char *uplo, integer *n, real *a, integer *lda,
-	integer *info)
+	integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -36676,12 +36961,12 @@ L50:
     static integer j;
     static real ajj;
     extern doublereal sdot_(integer *, real *, integer *, real *, integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *),
 	    sgemv_(char *, integer *, integer *, real *, real *, integer *,
-	    real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, real *, integer *, ftnlen);
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern logical sisnan_(real *);
 
 
@@ -36752,8 +37037,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -36762,7 +37047,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SPOTF2", &i__1);
+	xerbla_("SPOTF2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -36798,7 +37083,7 @@ L50:
 		i__3 = *n - j;
 		sgemv_("Transpose", &i__2, &i__3, &c_b151, &a[(j + 1) *
 			a_dim1 + 1], lda, &a[j * a_dim1 + 1], &c__1, &c_b15, &
-			a[j + (j + 1) * a_dim1], lda);
+			a[j + (j + 1) * a_dim1], lda, (ftnlen)9);
 		i__2 = *n - j;
 		r__1 = 1.f / ajj;
 		sscal_(&i__2, &r__1, &a[j + (j + 1) * a_dim1], lda);
@@ -36831,7 +37116,7 @@ L50:
 		i__3 = j - 1;
 		sgemv_("No transpose", &i__2, &i__3, &c_b151, &a[j + 1 +
 			a_dim1], lda, &a[j + a_dim1], lda, &c_b15, &a[j + 1 +
-			j * a_dim1], &c__1);
+			j * a_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - j;
 		r__1 = 1.f / ajj;
 		sscal_(&i__2, &r__1, &a[j + 1 + j * a_dim1], &c__1);
@@ -36852,24 +37137,24 @@ L40:
 } /* spotf2_ */
 
 /* Subroutine */ int spotrf_(char *uplo, integer *n, real *a, integer *lda,
-	integer *info)
+	integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
 
     /* Local variables */
     static integer j, jb, nb;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int strsm_(char *, char *, char *, char *,
 	    integer *, integer *, real *, real *, integer *, real *, integer *
-	    ), ssyrk_(char *, char *, integer
+	    , ftnlen, ftnlen, ftnlen, ftnlen), ssyrk_(char *, char *, integer
 	    *, integer *, real *, real *, integer *, real *, real *, integer *
-	    ), spotf2_(char *, integer *, real *, integer *,
-	    integer *), xerbla_(char *, integer *);
+	    , ftnlen, ftnlen), spotf2_(char *, integer *, real *, integer *,
+	    integer *, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
 
@@ -36939,8 +37224,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -36949,7 +37234,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SPOTRF", &i__1);
+	xerbla_("SPOTRF", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -36967,7 +37252,7 @@ L40:
 
 /*        Use unblocked code. */
 
-	spotf2_(uplo, n, &a[a_offset], lda, info);
+	spotf2_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
     } else {
 
 /*        Use blocked code. */
@@ -36990,8 +37275,10 @@ L40:
 		jb = min(i__3,i__4);
 		i__3 = j - 1;
 		ssyrk_("Upper", "Transpose", &jb, &i__3, &c_b151, &a[j *
-			a_dim1 + 1], lda, &c_b15, &a[j + j * a_dim1], lda);
-		spotf2_("Upper", &jb, &a[j + j * a_dim1], lda, info);
+			a_dim1 + 1], lda, &c_b15, &a[j + j * a_dim1], lda, (
+			ftnlen)5, (ftnlen)9);
+		spotf2_("Upper", &jb, &a[j + j * a_dim1], lda, info, (ftnlen)
+			5);
 		if (*info != 0) {
 		    goto L30;
 		}
@@ -37004,11 +37291,12 @@ L40:
 		    sgemm_("Transpose", "No transpose", &jb, &i__3, &i__4, &
 			    c_b151, &a[j * a_dim1 + 1], lda, &a[(j + jb) *
 			    a_dim1 + 1], lda, &c_b15, &a[j + (j + jb) *
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)9, (ftnlen)12);
 		    i__3 = *n - j - jb + 1;
 		    strsm_("Left", "Upper", "Transpose", "Non-unit", &jb, &
 			    i__3, &c_b15, &a[j + j * a_dim1], lda, &a[j + (j
-			    + jb) * a_dim1], lda);
+			    + jb) * a_dim1], lda, (ftnlen)4, (ftnlen)5, (
+			    ftnlen)9, (ftnlen)8);
 		}
 /* L10: */
 	    }
@@ -37031,8 +37319,10 @@ L40:
 		jb = min(i__3,i__4);
 		i__3 = j - 1;
 		ssyrk_("Lower", "No transpose", &jb, &i__3, &c_b151, &a[j +
-			a_dim1], lda, &c_b15, &a[j + j * a_dim1], lda);
-		spotf2_("Lower", &jb, &a[j + j * a_dim1], lda, info);
+			a_dim1], lda, &c_b15, &a[j + j * a_dim1], lda, (
+			ftnlen)5, (ftnlen)12);
+		spotf2_("Lower", &jb, &a[j + j * a_dim1], lda, info, (ftnlen)
+			5);
 		if (*info != 0) {
 		    goto L30;
 		}
@@ -37044,11 +37334,13 @@ L40:
 		    i__4 = j - 1;
 		    sgemm_("No transpose", "Transpose", &i__3, &jb, &i__4, &
 			    c_b151, &a[j + jb + a_dim1], lda, &a[j + a_dim1],
-			    lda, &c_b15, &a[j + jb + j * a_dim1], lda);
+			    lda, &c_b15, &a[j + jb + j * a_dim1], lda, (
+			    ftnlen)12, (ftnlen)9);
 		    i__3 = *n - j - jb + 1;
 		    strsm_("Right", "Lower", "Transpose", "Non-unit", &i__3, &
 			    jb, &c_b15, &a[j + j * a_dim1], lda, &a[j + jb +
-			    j * a_dim1], lda);
+			    j * a_dim1], lda, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			     (ftnlen)8);
 		}
 /* L20: */
 	    }
@@ -37067,16 +37359,17 @@ L40:
 } /* spotrf_ */
 
 /* Subroutine */ int spotri_(char *uplo, integer *n, real *a, integer *lda,
-	integer *info)
+	integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), slauum_(
-	    char *, integer *, real *, integer *, integer *), strtri_(
-	    char *, char *, integer *, real *, integer *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slauum_(
+	    char *, integer *, real *, integer *, integer *, ftnlen), strtri_(
+	    char *, char *, integer *, real *, integer *, integer *, ftnlen,
+	    ftnlen);
 
 
 /*
@@ -37132,7 +37425,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -37141,7 +37435,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SPOTRI", &i__1);
+	xerbla_("SPOTRI", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -37153,14 +37447,15 @@ L40:
 
 /*     Invert the triangular Cholesky factor U or L. */
 
-    strtri_(uplo, "Non-unit", n, &a[a_offset], lda, info);
+    strtri_(uplo, "Non-unit", n, &a[a_offset], lda, info, (ftnlen)1, (ftnlen)
+	    8);
     if (*info > 0) {
 	return 0;
     }
 
 /*     Form inv(U)*inv(U)' or inv(L)'*inv(L). */
 
-    slauum_(uplo, n, &a[a_offset], lda, info);
+    slauum_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
 
     return 0;
 
@@ -37169,17 +37464,18 @@ L40:
 } /* spotri_ */
 
 /* Subroutine */ int spotrs_(char *uplo, integer *n, integer *nrhs, real *a,
-	integer *lda, real *b, integer *ldb, integer *info)
+	integer *lda, real *b, integer *ldb, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int strsm_(char *, char *, char *, char *,
 	    integer *, integer *, real *, real *, integer *, real *, integer *
-	    ), xerbla_(char *, integer *);
+	    , ftnlen, ftnlen, ftnlen, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
 
 
 /*
@@ -37244,8 +37540,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -37258,7 +37554,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SPOTRS", &i__1);
+	xerbla_("SPOTRS", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -37277,12 +37573,14 @@ L40:
 */
 
 	strsm_("Left", "Upper", "Transpose", "Non-unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)9, (ftnlen)8);
 
 /*        Solve U*X = B, overwriting B with X. */
 
 	strsm_("Left", "Upper", "No transpose", "Non-unit", n, nrhs, &c_b15, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
     } else {
 
 /*
@@ -37292,12 +37590,14 @@ L40:
 */
 
 	strsm_("Left", "Lower", "No transpose", "Non-unit", n, nrhs, &c_b15, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
 
 /*        Solve L'*X = B, overwriting B with X. */
 
 	strsm_("Left", "Lower", "Transpose", "Non-unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)9, (ftnlen)8);
     }
 
     return 0;
@@ -37308,7 +37608,7 @@ L40:
 
 /* Subroutine */ int sstedc_(char *compz, integer *n, real *d__, real *e,
 	real *z__, integer *ldz, real *work, integer *lwork, integer *iwork,
-	integer *liwork, integer *info)
+	integer *liwork, integer *info, ftnlen compz_len)
 {
     /* System generated locals */
     integer z_dim1, z_offset, i__1, i__2;
@@ -37319,33 +37619,34 @@ L40:
     static real p;
     static integer ii, lgn;
     static real eps, tiny;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sgemm_(char *, char *, integer *, integer *,
 	    integer *, real *, real *, integer *, real *, integer *, real *,
-	    real *, integer *);
+	    real *, integer *, ftnlen, ftnlen);
     static integer lwmin, start;
     extern /* Subroutine */ int sswap_(integer *, real *, integer *, real *,
 	    integer *), slaed0_(integer *, integer *, integer *, real *, real
 	    *, real *, integer *, real *, integer *, real *, integer *,
 	    integer *);
-    extern doublereal slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer finish;
     extern /* Subroutine */ int slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *), slacpy_(char *, integer *, integer *, real *, integer *,
-	    real *, integer *), slaset_(char *, integer *, integer *,
-	    real *, real *, real *, integer *);
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen), slacpy_(char *, integer *, integer *, real *, integer *,
+	    real *, integer *, ftnlen), slaset_(char *, integer *, integer *,
+	    real *, real *, real *, integer *, ftnlen);
     static integer liwmin, icompz;
     static real orgnrm;
-    extern doublereal slanst_(char *, integer *, real *, real *);
+    extern doublereal slanst_(char *, integer *, real *, real *, ftnlen);
     extern /* Subroutine */ int ssterf_(integer *, real *, real *, integer *),
-	     slasrt_(char *, integer *, real *, integer *);
+	     slasrt_(char *, integer *, real *, integer *, ftnlen);
     static logical lquery;
     static integer smlsiz;
     extern /* Subroutine */ int ssteqr_(char *, integer *, real *, real *,
-	    real *, integer *, real *, integer *);
+	    real *, integer *, real *, integer *, ftnlen);
     static integer storez, strtrw;
 
 
@@ -37481,11 +37782,11 @@ L40:
     *info = 0;
     lquery = *lwork == -1 || *liwork == -1;
 
-    if (lsame_(compz, "N")) {
+    if (lsame_(compz, "N", (ftnlen)1, (ftnlen)1)) {
 	icompz = 0;
-    } else if (lsame_(compz, "V")) {
+    } else if (lsame_(compz, "V", (ftnlen)1, (ftnlen)1)) {
 	icompz = 1;
-    } else if (lsame_(compz, "I")) {
+    } else if (lsame_(compz, "I", (ftnlen)1, (ftnlen)1)) {
 	icompz = 2;
     } else {
 	icompz = -1;
@@ -37542,7 +37843,7 @@ L40:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SSTEDC", &i__1);
+	xerbla_("SSTEDC", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -37585,7 +37886,8 @@ L40:
 
     if (*n <= smlsiz) {
 
-	ssteqr_(compz, n, &d__[1], &e[1], &z__[z_offset], ldz, &work[1], info);
+	ssteqr_(compz, n, &d__[1], &e[1], &z__[z_offset], ldz, &work[1], info,
+		 (ftnlen)1);
 
     } else {
 
@@ -37601,17 +37903,18 @@ L40:
 	}
 
 	if (icompz == 2) {
-	    slaset_("Full", n, n, &c_b29, &c_b15, &z__[z_offset], ldz);
+	    slaset_("Full", n, n, &c_b29, &c_b15, &z__[z_offset], ldz, (
+		    ftnlen)4);
 	}
 
 /*        Scale. */
 
-	orgnrm = slanst_("M", n, &d__[1], &e[1]);
+	orgnrm = slanst_("M", n, &d__[1], &e[1], (ftnlen)1);
 	if (orgnrm == 0.f) {
 	    goto L50;
 	}
 
-	eps = slamch_("Epsilon");
+	eps = slamch_("Epsilon", (ftnlen)7);
 
 	start = 1;
 
@@ -37650,13 +37953,13 @@ L20:
 
 /*              Scale. */
 
-		orgnrm = slanst_("M", &m, &d__[start], &e[start]);
+		orgnrm = slanst_("M", &m, &d__[start], &e[start], (ftnlen)1);
 		slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &m, &c__1, &d__[
-			start], &m, info);
+			start], &m, info, (ftnlen)1);
 		i__1 = m - 1;
 		i__2 = m - 1;
 		slascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &i__1, &c__1, &e[
-			start], &i__2, info);
+			start], &i__2, info, (ftnlen)1);
 
 		if (icompz == 1) {
 		    strtrw = 1;
@@ -37675,7 +37978,7 @@ L20:
 /*              Scale back. */
 
 		slascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &m, &c__1, &d__[
-			start], &m, info);
+			start], &m, info, (ftnlen)1);
 
 	    } else {
 		if (icompz == 1) {
@@ -37687,15 +37990,15 @@ L20:
 */
 
 		    ssteqr_("I", &m, &d__[start], &e[start], &work[1], &m, &
-			    work[m * m + 1], info);
+			    work[m * m + 1], info, (ftnlen)1);
 		    slacpy_("A", n, &m, &z__[start * z_dim1 + 1], ldz, &work[
-			    storez], n);
+			    storez], n, (ftnlen)1);
 		    sgemm_("N", "N", n, &m, &m, &c_b15, &work[storez], n, &
 			    work[1], &m, &c_b29, &z__[start * z_dim1 + 1],
-			    ldz);
+			    ldz, (ftnlen)1, (ftnlen)1);
 		} else if (icompz == 2) {
 		    ssteqr_("I", &m, &d__[start], &e[start], &z__[start +
-			    start * z_dim1], ldz, &work[1], info);
+			    start * z_dim1], ldz, &work[1], info, (ftnlen)1);
 		} else {
 		    ssterf_(&m, &d__[start], &e[start], info);
 		}
@@ -37722,7 +38025,7 @@ L20:
 
 /*              Use Quick Sort */
 
-		slasrt_("I", n, &d__[1], info);
+		slasrt_("I", n, &d__[1], info, (ftnlen)1);
 
 	    } else {
 
@@ -37764,7 +38067,7 @@ L50:
 } /* sstedc_ */
 
 /* Subroutine */ int ssteqr_(char *compz, integer *n, real *d__, real *e,
-	real *z__, integer *ldz, real *work, integer *info)
+	real *z__, integer *ldz, real *work, integer *info, ftnlen compz_len)
 {
     /* System generated locals */
     integer z_dim1, z_offset, i__1, i__2;
@@ -37781,30 +38084,33 @@ L50:
     static integer lend, jtot;
     extern /* Subroutine */ int slae2_(real *, real *, real *, real *, real *)
 	    ;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static real anorm;
     extern /* Subroutine */ int slasr_(char *, char *, char *, integer *,
-	    integer *, real *, real *, real *, integer *), sswap_(integer *, real *, integer *, real *, integer *);
+	    integer *, real *, real *, real *, integer *, ftnlen, ftnlen,
+	    ftnlen), sswap_(integer *, real *, integer *, real *, integer *);
     static integer lendm1, lendp1;
     extern /* Subroutine */ int slaev2_(real *, real *, real *, real *, real *
 	    , real *, real *);
     extern doublereal slapy2_(real *, real *);
     static integer iscale;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real safmin;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static real safmax;
     extern /* Subroutine */ int slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *);
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen);
     static integer lendsv;
     extern /* Subroutine */ int slartg_(real *, real *, real *, real *, real *
 	    ), slaset_(char *, integer *, integer *, real *, real *, real *,
-	    integer *);
+	    integer *, ftnlen);
     static real ssfmin;
     static integer nmaxit, icompz;
     static real ssfmax;
-    extern doublereal slanst_(char *, integer *, real *, real *);
-    extern /* Subroutine */ int slasrt_(char *, integer *, real *, integer *);
+    extern doublereal slanst_(char *, integer *, real *, real *, ftnlen);
+    extern /* Subroutine */ int slasrt_(char *, integer *, real *, integer *,
+	    ftnlen);
 
 
 /*
@@ -37891,11 +38197,11 @@ L50:
     /* Function Body */
     *info = 0;
 
-    if (lsame_(compz, "N")) {
+    if (lsame_(compz, "N", (ftnlen)1, (ftnlen)1)) {
 	icompz = 0;
-    } else if (lsame_(compz, "V")) {
+    } else if (lsame_(compz, "V", (ftnlen)1, (ftnlen)1)) {
 	icompz = 1;
-    } else if (lsame_(compz, "I")) {
+    } else if (lsame_(compz, "I", (ftnlen)1, (ftnlen)1)) {
 	icompz = 2;
     } else {
 	icompz = -1;
@@ -37909,7 +38215,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SSTEQR", &i__1);
+	xerbla_("SSTEQR", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -37928,11 +38234,11 @@ L50:
 
 /*     Determine the unit roundoff and over/underflow thresholds. */
 
-    eps = slamch_("E");
+    eps = slamch_("E", (ftnlen)1);
 /* Computing 2nd power */
     r__1 = eps;
     eps2 = r__1 * r__1;
-    safmin = slamch_("S");
+    safmin = slamch_("S", (ftnlen)1);
     safmax = 1.f / safmin;
     ssfmax = sqrt(safmax) / 3.f;
     ssfmin = sqrt(safmin) / eps2;
@@ -37943,7 +38249,7 @@ L50:
 */
 
     if (icompz == 2) {
-	slaset_("Full", n, n, &c_b29, &c_b15, &z__[z_offset], ldz);
+	slaset_("Full", n, n, &c_b29, &c_b15, &z__[z_offset], ldz, (ftnlen)4);
     }
 
     nmaxit = *n * 30;
@@ -37995,7 +38301,7 @@ L30:
 /*     Scale submatrix in rows and columns L to LEND */
 
     i__1 = lend - l + 1;
-    anorm = slanst_("I", &i__1, &d__[l], &e[l]);
+    anorm = slanst_("I", &i__1, &d__[l], &e[l], (ftnlen)1);
     iscale = 0;
     if (anorm == 0.f) {
 	goto L10;
@@ -38004,18 +38310,18 @@ L30:
 	iscale = 1;
 	i__1 = lend - l + 1;
 	slascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	slascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     } else if (anorm < ssfmin) {
 	iscale = 2;
 	i__1 = lend - l + 1;
 	slascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	slascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     }
 
 /*     Choose between QL and QR iteration */
@@ -38071,7 +38377,8 @@ L60:
 		work[l] = c__;
 		work[*n - 1 + l] = s;
 		slasr_("R", "V", "B", n, &c__2, &work[l], &work[*n - 1 + l], &
-			z__[l * z_dim1 + 1], ldz);
+			z__[l * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (
+			ftnlen)1);
 	    } else {
 		slae2_(&d__[l], &e[l], &d__[l + 1], &rt1, &rt2);
 	    }
@@ -38132,7 +38439,7 @@ L60:
 	if (icompz > 0) {
 	    mm = m - l + 1;
 	    slasr_("R", "V", "B", n, &mm, &work[l], &work[*n - 1 + l], &z__[l
-		    * z_dim1 + 1], ldz);
+		    * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
 
 	d__[l] -= p;
@@ -38197,7 +38504,8 @@ L110:
 		work[m] = c__;
 		work[*n - 1 + m] = s;
 		slasr_("R", "V", "F", n, &c__2, &work[m], &work[*n - 1 + m], &
-			z__[(l - 1) * z_dim1 + 1], ldz);
+			z__[(l - 1) * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1,
+			(ftnlen)1);
 	    } else {
 		slae2_(&d__[l - 1], &e[l - 1], &d__[l], &rt1, &rt2);
 	    }
@@ -38258,7 +38566,7 @@ L110:
 	if (icompz > 0) {
 	    mm = l - m + 1;
 	    slasr_("R", "V", "F", n, &mm, &work[m], &work[*n - 1 + m], &z__[m
-		    * z_dim1 + 1], ldz);
+		    * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
 
 	d__[l] -= p;
@@ -38284,17 +38592,17 @@ L140:
     if (iscale == 1) {
 	i__1 = lendsv - lsv + 1;
 	slascl_("G", &c__0, &c__0, &ssfmax, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
 	i__1 = lendsv - lsv;
 	slascl_("G", &c__0, &c__0, &ssfmax, &anorm, &i__1, &c__1, &e[lsv], n,
-		info);
+		info, (ftnlen)1);
     } else if (iscale == 2) {
 	i__1 = lendsv - lsv + 1;
 	slascl_("G", &c__0, &c__0, &ssfmin, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
 	i__1 = lendsv - lsv;
 	slascl_("G", &c__0, &c__0, &ssfmin, &anorm, &i__1, &c__1, &e[lsv], n,
-		info);
+		info, (ftnlen)1);
     }
 
 /*
@@ -38321,7 +38629,7 @@ L160:
 
 /*        Use Quick Sort */
 
-	slasrt_("I", n, &d__[1], info);
+	slasrt_("I", n, &d__[1], info, (ftnlen)1);
 
     } else {
 
@@ -38378,18 +38686,20 @@ L190:
     extern doublereal slapy2_(real *, real *);
     static integer iscale;
     static real oldgam;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real safmin;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static real safmax;
     extern /* Subroutine */ int slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *);
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen);
     static integer lendsv;
     static real ssfmin;
     static integer nmaxit;
     static real ssfmax;
-    extern doublereal slanst_(char *, integer *, real *, real *);
-    extern /* Subroutine */ int slasrt_(char *, integer *, real *, integer *);
+    extern doublereal slanst_(char *, integer *, real *, real *, ftnlen);
+    extern /* Subroutine */ int slasrt_(char *, integer *, real *, integer *,
+	    ftnlen);
 
 
 /*
@@ -38445,7 +38755,7 @@ L190:
     if (*n < 0) {
 	*info = -1;
 	i__1 = -(*info);
-	xerbla_("SSTERF", &i__1);
+	xerbla_("SSTERF", &i__1, (ftnlen)6);
 	return 0;
     }
     if (*n <= 1) {
@@ -38454,11 +38764,11 @@ L190:
 
 /*     Determine the unit roundoff for this environment. */
 
-    eps = slamch_("E");
+    eps = slamch_("E", (ftnlen)1);
 /* Computing 2nd power */
     r__1 = eps;
     eps2 = r__1 * r__1;
-    safmin = slamch_("S");
+    safmin = slamch_("S", (ftnlen)1);
     safmax = 1.f / safmin;
     ssfmax = sqrt(safmax) / 3.f;
     ssfmin = sqrt(safmin) / eps2;
@@ -38508,24 +38818,24 @@ L30:
 /*     Scale submatrix in rows and columns L to LEND */
 
     i__1 = lend - l + 1;
-    anorm = slanst_("I", &i__1, &d__[l], &e[l]);
+    anorm = slanst_("I", &i__1, &d__[l], &e[l], (ftnlen)1);
     iscale = 0;
     if (anorm > ssfmax) {
 	iscale = 1;
 	i__1 = lend - l + 1;
 	slascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	slascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     } else if (anorm < ssfmin) {
 	iscale = 2;
 	i__1 = lend - l + 1;
 	slascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	slascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     }
 
     i__1 = lend - 1;
@@ -38757,12 +39067,12 @@ L150:
     if (iscale == 1) {
 	i__1 = lendsv - lsv + 1;
 	slascl_("G", &c__0, &c__0, &ssfmax, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
     }
     if (iscale == 2) {
 	i__1 = lendsv - lsv + 1;
 	slascl_("G", &c__0, &c__0, &ssfmin, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
     }
 
 /*
@@ -38785,7 +39095,7 @@ L150:
 /*     Sort eigenvalues in increasing order. */
 
 L170:
-    slasrt_("I", n, &d__[1], info);
+    slasrt_("I", n, &d__[1], info, (ftnlen)1);
 
 L180:
     return 0;
@@ -38796,7 +39106,7 @@ L180:
 
 /* Subroutine */ int ssyevd_(char *jobz, char *uplo, integer *n, real *a,
 	integer *lda, real *w, real *work, integer *lwork, integer *iwork,
-	integer *liwork, integer *info)
+	integer *liwork, integer *info, ftnlen jobz_len, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -38808,37 +39118,38 @@ L180:
     static real anrm, rmin, rmax;
     static integer lopt;
     static real sigma;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *);
     static integer lwmin, liopt;
     static logical lower, wantz;
     static integer indwk2, llwrk2, iscale;
-    extern doublereal slamch_(char *);
+    extern doublereal slamch_(char *, ftnlen);
     static real safmin;
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static real bignum;
     extern /* Subroutine */ int slascl_(char *, integer *, integer *, real *,
-	    real *, integer *, integer *, real *, integer *, integer *);
+	    real *, integer *, integer *, real *, integer *, integer *,
+	    ftnlen);
     static integer indtau;
     extern /* Subroutine */ int sstedc_(char *, integer *, real *, real *,
 	    real *, integer *, real *, integer *, integer *, integer *,
-	    integer *), slacpy_(char *, integer *, integer *, real *,
-	    integer *, real *, integer *);
+	    integer *, ftnlen), slacpy_(char *, integer *, integer *, real *,
+	    integer *, real *, integer *, ftnlen);
     static integer indwrk, liwmin;
     extern /* Subroutine */ int ssterf_(integer *, real *, real *, integer *);
     extern doublereal slansy_(char *, char *, integer *, real *, integer *,
-	    real *);
+	    real *, ftnlen, ftnlen);
     static integer llwork;
     static real smlnum;
     static logical lquery;
     extern /* Subroutine */ int sormtr_(char *, char *, char *, integer *,
 	    integer *, real *, integer *, real *, real *, integer *, real *,
-	    integer *, integer *), ssytrd_(char *,
+	    integer *, integer *, ftnlen, ftnlen, ftnlen), ssytrd_(char *,
 	    integer *, real *, integer *, real *, real *, real *, real *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen);
 
 
 /*
@@ -38964,14 +39275,14 @@ L180:
     --iwork;
 
     /* Function Body */
-    wantz = lsame_(jobz, "V");
-    lower = lsame_(uplo, "L");
+    wantz = lsame_(jobz, "V", (ftnlen)1, (ftnlen)1);
+    lower = lsame_(uplo, "L", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1 || *liwork == -1;
 
     *info = 0;
-    if (! (wantz || lsame_(jobz, "N"))) {
+    if (! (wantz || lsame_(jobz, "N", (ftnlen)1, (ftnlen)1))) {
 	*info = -1;
-    } else if (! (lower || lsame_(uplo, "U"))) {
+    } else if (! (lower || lsame_(uplo, "U", (ftnlen)1, (ftnlen)1))) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -39013,7 +39324,7 @@ L180:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SSYEVD", &i__1);
+	xerbla_("SSYEVD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -39035,8 +39346,8 @@ L180:
 
 /*     Get machine constants. */
 
-    safmin = slamch_("Safe minimum");
-    eps = slamch_("Precision");
+    safmin = slamch_("Safe minimum", (ftnlen)12);
+    eps = slamch_("Precision", (ftnlen)9);
     smlnum = safmin / eps;
     bignum = 1.f / smlnum;
     rmin = sqrt(smlnum);
@@ -39044,7 +39355,8 @@ L180:
 
 /*     Scale matrix to allowable range, if necessary. */
 
-    anrm = slansy_("M", uplo, n, &a[a_offset], lda, &work[1]);
+    anrm = slansy_("M", uplo, n, &a[a_offset], lda, &work[1], (ftnlen)1, (
+	    ftnlen)1);
     iscale = 0;
     if (anrm > 0.f && anrm < rmin) {
 	iscale = 1;
@@ -39055,7 +39367,7 @@ L180:
     }
     if (iscale == 1) {
 	slascl_(uplo, &c__0, &c__0, &c_b15, &sigma, n, n, &a[a_offset], lda,
-		info);
+		info, (ftnlen)1);
     }
 
 /*     Call SSYTRD to reduce symmetric matrix to tridiagonal form. */
@@ -39068,7 +39380,7 @@ L180:
     llwrk2 = *lwork - indwk2 + 1;
 
     ssytrd_(uplo, n, &a[a_offset], lda, &w[1], &work[inde], &work[indtau], &
-	    work[indwrk], &llwork, &iinfo);
+	    work[indwrk], &llwork, &iinfo, (ftnlen)1);
 
 /*
        For eigenvalues only, call SSTERF.  For eigenvectors, first call
@@ -39081,10 +39393,11 @@ L180:
 	ssterf_(n, &w[1], &work[inde], info);
     } else {
 	sstedc_("I", n, &w[1], &work[inde], &work[indwrk], n, &work[indwk2], &
-		llwrk2, &iwork[1], liwork, info);
+		llwrk2, &iwork[1], liwork, info, (ftnlen)1);
 	sormtr_("L", uplo, "N", n, n, &a[a_offset], lda, &work[indtau], &work[
-		indwrk], n, &work[indwk2], &llwrk2, &iinfo);
-	slacpy_("A", n, n, &work[indwrk], n, &a[a_offset], lda);
+		indwrk], n, &work[indwk2], &llwrk2, &iinfo, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
+	slacpy_("A", n, n, &work[indwrk], n, &a[a_offset], lda, (ftnlen)1);
     }
 
 /*     If matrix was scaled, then rescale eigenvalues appropriately. */
@@ -39104,7 +39417,7 @@ L180:
 } /* ssyevd_ */
 
 /* Subroutine */ int ssytd2_(char *uplo, integer *n, real *a, integer *lda,
-	real *d__, real *e, real *tau, integer *info)
+	real *d__, real *e, real *tau, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -39114,14 +39427,14 @@ L180:
     static real taui;
     extern doublereal sdot_(integer *, real *, integer *, real *, integer *);
     extern /* Subroutine */ int ssyr2_(char *, integer *, real *, real *,
-	    integer *, real *, integer *, real *, integer *);
+	    integer *, real *, integer *, real *, integer *, ftnlen);
     static real alpha;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int saxpy_(integer *, real *, real *, integer *,
 	    real *, integer *), ssymv_(char *, integer *, real *, real *,
-	    integer *, real *, integer *, real *, real *, integer *),
-	    xerbla_(char *, integer *), slarfg_(integer *, real *,
+	    integer *, real *, integer *, real *, real *, integer *, ftnlen),
+	    xerbla_(char *, integer *, ftnlen), slarfg_(integer *, real *,
 	    real *, integer *, real *);
 
 
@@ -39247,8 +39560,8 @@ L180:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -39257,7 +39570,7 @@ L180:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SSYTD2", &i__1);
+	xerbla_("SSYTD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -39291,7 +39604,7 @@ L180:
 /*              Compute  x := tau * A * v  storing x in TAU(1:i) */
 
 		ssymv_(uplo, &i__, &taui, &a[a_offset], lda, &a[(i__ + 1) *
-			a_dim1 + 1], &c__1, &c_b29, &tau[1], &c__1)
+			a_dim1 + 1], &c__1, &c_b29, &tau[1], &c__1, (ftnlen)1)
 			;
 
 /*              Compute  w := x - 1/2 * tau * (x'*v) * v */
@@ -39307,7 +39620,7 @@ L180:
 */
 
 		ssyr2_(uplo, &i__, &c_b151, &a[(i__ + 1) * a_dim1 + 1], &c__1,
-			 &tau[1], &c__1, &a[a_offset], lda);
+			 &tau[1], &c__1, &a[a_offset], lda, (ftnlen)1);
 
 		a[i__ + (i__ + 1) * a_dim1] = e[i__];
 	    }
@@ -39346,7 +39659,7 @@ L180:
 		i__2 = *n - i__;
 		ssymv_(uplo, &i__2, &taui, &a[i__ + 1 + (i__ + 1) * a_dim1],
 			lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &tau[
-			i__], &c__1);
+			i__], &c__1, (ftnlen)1);
 
 /*              Compute  w := x - 1/2 * tau * (x'*v) * v */
 
@@ -39365,7 +39678,7 @@ L180:
 		i__2 = *n - i__;
 		ssyr2_(uplo, &i__2, &c_b151, &a[i__ + 1 + i__ * a_dim1], &
 			c__1, &tau[i__], &c__1, &a[i__ + 1 + (i__ + 1) *
-			a_dim1], lda);
+			a_dim1], lda, (ftnlen)1);
 
 		a[i__ + 1 + i__ * a_dim1] = e[i__];
 	    }
@@ -39384,25 +39697,25 @@ L180:
 
 /* Subroutine */ int ssytrd_(char *uplo, integer *n, real *a, integer *lda,
 	real *d__, real *e, real *tau, real *work, integer *lwork, integer *
-	info)
+	info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
     static integer i__, j, nb, kk, nx, iws;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     static logical upper;
     extern /* Subroutine */ int ssytd2_(char *, integer *, real *, integer *,
-	    real *, real *, real *, integer *), ssyr2k_(char *, char *
+	    real *, real *, real *, integer *, ftnlen), ssyr2k_(char *, char *
 	    , integer *, integer *, real *, real *, integer *, real *,
-	    integer *, real *, real *, integer *), xerbla_(
-	    char *, integer *);
+	    integer *, real *, real *, integer *, ftnlen, ftnlen), xerbla_(
+	    char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int slatrd_(char *, integer *, integer *, real *,
-	    integer *, real *, real *, real *, integer *);
+	    integer *, real *, real *, real *, integer *, ftnlen);
     static integer ldwork, lwkopt;
     static logical lquery;
 
@@ -39542,9 +39855,9 @@ L180:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -39566,7 +39879,7 @@ L180:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("SSYTRD", &i__1);
+	xerbla_("SSYTRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -39643,7 +39956,7 @@ L180:
 
 	    i__3 = i__ + nb - 1;
 	    slatrd_(uplo, &i__3, &nb, &a[a_offset], lda, &e[1], &tau[1], &
-		    work[1], &ldwork);
+		    work[1], &ldwork, (ftnlen)1);
 
 /*
              Update the unreduced submatrix A(1:i-1,1:i-1), using an
@@ -39653,7 +39966,7 @@ L180:
 	    i__3 = i__ - 1;
 	    ssyr2k_(uplo, "No transpose", &i__3, &nb, &c_b151, &a[i__ *
 		    a_dim1 + 1], lda, &work[1], &ldwork, &c_b15, &a[a_offset],
-		     lda);
+		     lda, (ftnlen)1, (ftnlen)12);
 
 /*
              Copy superdiagonal elements back into A, and diagonal
@@ -39671,7 +39984,8 @@ L180:
 
 /*        Use unblocked code to reduce the last or only block */
 
-	ssytd2_(uplo, &kk, &a[a_offset], lda, &d__[1], &e[1], &tau[1], &iinfo);
+	ssytd2_(uplo, &kk, &a[a_offset], lda, &d__[1], &e[1], &tau[1], &iinfo,
+		 (ftnlen)1);
     } else {
 
 /*        Reduce the lower triangle of A */
@@ -39688,7 +40002,7 @@ L180:
 
 	    i__3 = *n - i__ + 1;
 	    slatrd_(uplo, &i__3, &nb, &a[i__ + i__ * a_dim1], lda, &e[i__], &
-		    tau[i__], &work[1], &ldwork);
+		    tau[i__], &work[1], &ldwork, (ftnlen)1);
 
 /*
              Update the unreduced submatrix A(i+ib:n,i+ib:n), using
@@ -39698,7 +40012,8 @@ L180:
 	    i__3 = *n - i__ - nb + 1;
 	    ssyr2k_(uplo, "No transpose", &i__3, &nb, &c_b151, &a[i__ + nb +
 		    i__ * a_dim1], lda, &work[nb + 1], &ldwork, &c_b15, &a[
-		    i__ + nb + (i__ + nb) * a_dim1], lda);
+		    i__ + nb + (i__ + nb) * a_dim1], lda, (ftnlen)1, (ftnlen)
+		    12);
 
 /*
              Copy subdiagonal elements back into A, and diagonal
@@ -39718,7 +40033,7 @@ L180:
 
 	i__1 = *n - i__ + 1;
 	ssytd2_(uplo, &i__1, &a[i__ + i__ * a_dim1], lda, &d__[i__], &e[i__],
-		&tau[i__], &iinfo);
+		&tau[i__], &iinfo, (ftnlen)1);
     }
 
     work[1] = (real) lwkopt;
@@ -39730,7 +40045,8 @@ L180:
 
 /* Subroutine */ int strevc_(char *side, char *howmny, logical *select,
 	integer *n, real *t, integer *ldt, real *vl, integer *ldvl, real *vr,
-	integer *ldvr, integer *mm, integer *m, real *work, integer *info)
+	integer *ldvr, integer *mm, integer *m, real *work, integer *info,
+	ftnlen side_len, ftnlen howmny_len)
 {
     /* System generated locals */
     integer t_dim1, t_offset, vl_dim1, vl_offset, vr_dim1, vr_offset, i__1,
@@ -39750,12 +40066,13 @@ L180:
     static real vmax;
     static integer jnxt;
     static real scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *);
     static real remax;
     static logical leftv;
     extern /* Subroutine */ int sgemv_(char *, integer *, integer *, real *,
-	    real *, integer *, real *, integer *, real *, real *, integer *);
+	    real *, integer *, real *, integer *, real *, real *, integer *,
+	    ftnlen);
     static logical bothv;
     static real vcrit;
     static logical somev;
@@ -39767,8 +40084,8 @@ L180:
 	    *, real *, real *, integer *, real *, real *, real *, integer *,
 	    real *, real *, real *, integer *, real *, real *, integer *),
 	    slabad_(real *, real *);
-    extern doublereal slamch_(char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern doublereal slamch_(char *, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static real bignum;
     extern integer isamax_(integer *, real *, integer *);
     static logical rightv;
@@ -39928,13 +40245,13 @@ L180:
     --work;
 
     /* Function Body */
-    bothv = lsame_(side, "B");
-    rightv = lsame_(side, "R") || bothv;
-    leftv = lsame_(side, "L") || bothv;
+    bothv = lsame_(side, "B", (ftnlen)1, (ftnlen)1);
+    rightv = lsame_(side, "R", (ftnlen)1, (ftnlen)1) || bothv;
+    leftv = lsame_(side, "L", (ftnlen)1, (ftnlen)1) || bothv;
 
-    allv = lsame_(howmny, "A");
-    over = lsame_(howmny, "B");
-    somev = lsame_(howmny, "S");
+    allv = lsame_(howmny, "A", (ftnlen)1, (ftnlen)1);
+    over = lsame_(howmny, "B", (ftnlen)1, (ftnlen)1);
+    somev = lsame_(howmny, "S", (ftnlen)1, (ftnlen)1);
 
     *info = 0;
     if (! rightv && ! leftv) {
@@ -39996,7 +40313,7 @@ L180:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("STREVC", &i__1);
+	xerbla_("STREVC", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -40008,10 +40325,10 @@ L180:
 
 /*     Set the constants to control overflow. */
 
-    unfl = slamch_("Safe minimum");
+    unfl = slamch_("Safe minimum", (ftnlen)12);
     ovfl = 1.f / unfl;
     slabad_(&unfl, &ovfl);
-    ulp = slamch_("Precision");
+    ulp = slamch_("Precision", (ftnlen)9);
     smlnum = unfl * (*n / ulp);
     bignum = (1.f - ulp) / smlnum;
 
@@ -40222,7 +40539,7 @@ L60:
 			i__1 = ki - 1;
 			sgemv_("N", n, &i__1, &c_b15, &vr[vr_offset], ldvr, &
 				work[*n + 1], &c__1, &work[ki + *n], &vr[ki *
-				vr_dim1 + 1], &c__1);
+				vr_dim1 + 1], &c__1, (ftnlen)1);
 		    }
 
 		    ii = isamax_(n, &vr[ki * vr_dim1 + 1], &c__1);
@@ -40421,11 +40738,11 @@ L90:
 			i__1 = ki - 2;
 			sgemv_("N", n, &i__1, &c_b15, &vr[vr_offset], ldvr, &
 				work[*n + 1], &c__1, &work[ki - 1 + *n], &vr[(
-				ki - 1) * vr_dim1 + 1], &c__1);
+				ki - 1) * vr_dim1 + 1], &c__1, (ftnlen)1);
 			i__1 = ki - 2;
 			sgemv_("N", n, &i__1, &c_b15, &vr[vr_offset], ldvr, &
 				work[n2 + 1], &c__1, &work[ki + n2], &vr[ki *
-				vr_dim1 + 1], &c__1);
+				vr_dim1 + 1], &c__1, (ftnlen)1);
 		    } else {
 			sscal_(n, &work[ki - 1 + *n], &vr[(ki - 1) * vr_dim1
 				+ 1], &c__1);
@@ -40667,7 +40984,8 @@ L170:
 			i__2 = *n - ki;
 			sgemv_("N", n, &i__2, &c_b15, &vl[(ki + 1) * vl_dim1
 				+ 1], ldvl, &work[ki + 1 + *n], &c__1, &work[
-				ki + *n], &vl[ki * vl_dim1 + 1], &c__1);
+				ki + *n], &vl[ki * vl_dim1 + 1], &c__1, (
+				ftnlen)1);
 		    }
 
 		    ii = isamax_(n, &vl[ki * vl_dim1 + 1], &c__1);
@@ -40895,12 +41213,13 @@ L200:
 			i__2 = *n - ki - 1;
 			sgemv_("N", n, &i__2, &c_b15, &vl[(ki + 2) * vl_dim1
 				+ 1], ldvl, &work[ki + 2 + *n], &c__1, &work[
-				ki + *n], &vl[ki * vl_dim1 + 1], &c__1);
+				ki + *n], &vl[ki * vl_dim1 + 1], &c__1, (
+				ftnlen)1);
 			i__2 = *n - ki - 1;
 			sgemv_("N", n, &i__2, &c_b15, &vl[(ki + 2) * vl_dim1
 				+ 1], ldvl, &work[ki + 2 + n2], &c__1, &work[
 				ki + 1 + n2], &vl[(ki + 1) * vl_dim1 + 1], &
-				c__1);
+				c__1, (ftnlen)1);
 		    } else {
 			sscal_(n, &work[ki + *n], &vl[ki * vl_dim1 + 1], &
 				c__1);
@@ -40951,16 +41270,16 @@ L250:
 
 /* Subroutine */ int strexc_(char *compq, integer *n, real *t, integer *ldt,
 	real *q, integer *ldq, integer *ifst, integer *ilst, real *work,
-	integer *info)
+	integer *info, ftnlen compq_len)
 {
     /* System generated locals */
     integer q_dim1, q_offset, t_dim1, t_offset, i__1;
 
     /* Local variables */
     static integer nbf, nbl, here;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical wantq;
-    extern /* Subroutine */ int xerbla_(char *, integer *), slaexc_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), slaexc_(
 	    logical *, integer *, real *, integer *, real *, integer *,
 	    integer *, integer *, integer *, real *, integer *);
     static integer nbnext;
@@ -41055,8 +41374,8 @@ L250:
 
     /* Function Body */
     *info = 0;
-    wantq = lsame_(compq, "V");
-    if (! wantq && ! lsame_(compq, "N")) {
+    wantq = lsame_(compq, "V", (ftnlen)1, (ftnlen)1);
+    if (! wantq && ! lsame_(compq, "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -41071,7 +41390,7 @@ L250:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("STREXC", &i__1);
+	xerbla_("STREXC", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -41330,7 +41649,7 @@ L20:
 } /* strexc_ */
 
 /* Subroutine */ int strti2_(char *uplo, char *diag, integer *n, real *a,
-	integer *lda, integer *info)
+	integer *lda, integer *info, ftnlen uplo_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -41338,12 +41657,12 @@ L20:
     /* Local variables */
     static integer j;
     static real ajj;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *);
     static logical upper;
     extern /* Subroutine */ int strmv_(char *, char *, char *, integer *,
-	    real *, integer *, real *, integer *),
-	    xerbla_(char *, integer *);
+	    real *, integer *, real *, integer *, ftnlen, ftnlen, ftnlen),
+	    xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -41412,11 +41731,11 @@ L20:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    nounit = lsame_(diag, "N");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! nounit && ! lsame_(diag, "U")) {
+    } else if (! nounit && ! lsame_(diag, "U", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -41425,7 +41744,7 @@ L20:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("STRTI2", &i__1);
+	xerbla_("STRTI2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -41446,7 +41765,8 @@ L20:
 
 	    i__2 = j - 1;
 	    strmv_("Upper", "No transpose", diag, &i__2, &a[a_offset], lda, &
-		    a[j * a_dim1 + 1], &c__1);
+		    a[j * a_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)
+		    1);
 	    i__2 = j - 1;
 	    sscal_(&i__2, &ajj, &a[j * a_dim1 + 1], &c__1);
 /* L10: */
@@ -41468,7 +41788,8 @@ L20:
 
 		i__1 = *n - j;
 		strmv_("Lower", "No transpose", diag, &i__1, &a[j + 1 + (j +
-			1) * a_dim1], lda, &a[j + 1 + j * a_dim1], &c__1);
+			1) * a_dim1], lda, &a[j + 1 + j * a_dim1], &c__1, (
+			ftnlen)5, (ftnlen)12, (ftnlen)1);
 		i__1 = *n - j;
 		sscal_(&i__1, &ajj, &a[j + 1 + j * a_dim1], &c__1);
 	    }
@@ -41483,7 +41804,7 @@ L20:
 } /* strti2_ */
 
 /* Subroutine */ int strtri_(char *uplo, char *diag, integer *n, real *a,
-	integer *lda, integer *info)
+	integer *lda, integer *info, ftnlen uplo_len, ftnlen diag_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -41492,15 +41813,15 @@ L20:
 
     /* Local variables */
     static integer j, jb, nb, nn;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int strmm_(char *, char *, char *, char *,
 	    integer *, integer *, real *, real *, integer *, real *, integer *
-	    ), strsm_(char *, char *, char *,
+	    , ftnlen, ftnlen, ftnlen, ftnlen), strsm_(char *, char *, char *,
 	    char *, integer *, integer *, real *, real *, integer *, real *,
-	    integer *), strti2_(char *, char *
-	    , integer *, real *, integer *, integer *),
-	    xerbla_(char *, integer *);
+	    integer *, ftnlen, ftnlen, ftnlen, ftnlen), strti2_(char *, char *
+	    , integer *, real *, integer *, integer *, ftnlen, ftnlen),
+	    xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical nounit;
@@ -41570,11 +41891,11 @@ L20:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    nounit = lsame_(diag, "N");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! nounit && ! lsame_(diag, "U")) {
+    } else if (! nounit && ! lsame_(diag, "U", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -41583,7 +41904,7 @@ L20:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("STRTRI", &i__1);
+	xerbla_("STRTRI", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -41620,7 +41941,7 @@ L20:
 
 /*        Use unblocked code */
 
-	strti2_(uplo, diag, n, &a[a_offset], lda, info);
+	strti2_(uplo, diag, n, &a[a_offset], lda, info, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -41640,15 +41961,17 @@ L20:
 
 		i__4 = j - 1;
 		strmm_("Left", "Upper", "No transpose", diag, &i__4, &jb, &
-			c_b15, &a[a_offset], lda, &a[j * a_dim1 + 1], lda);
+			c_b15, &a[a_offset], lda, &a[j * a_dim1 + 1], lda, (
+			ftnlen)4, (ftnlen)5, (ftnlen)12, (ftnlen)1);
 		i__4 = j - 1;
 		strsm_("Right", "Upper", "No transpose", diag, &i__4, &jb, &
 			c_b151, &a[j + j * a_dim1], lda, &a[j * a_dim1 + 1],
-			lda);
+			lda, (ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)1);
 
 /*              Compute inverse of current diagonal block */
 
-		strti2_("Upper", diag, &jb, &a[j + j * a_dim1], lda, info);
+		strti2_("Upper", diag, &jb, &a[j + j * a_dim1], lda, info, (
+			ftnlen)5, (ftnlen)1);
 /* L20: */
 	    }
 	} else {
@@ -41668,16 +41991,19 @@ L20:
 		    i__1 = *n - j - jb + 1;
 		    strmm_("Left", "Lower", "No transpose", diag, &i__1, &jb,
 			    &c_b15, &a[j + jb + (j + jb) * a_dim1], lda, &a[j
-			    + jb + j * a_dim1], lda);
+			    + jb + j * a_dim1], lda, (ftnlen)4, (ftnlen)5, (
+			    ftnlen)12, (ftnlen)1);
 		    i__1 = *n - j - jb + 1;
 		    strsm_("Right", "Lower", "No transpose", diag, &i__1, &jb,
 			     &c_b151, &a[j + j * a_dim1], lda, &a[j + jb + j *
-			     a_dim1], lda);
+			     a_dim1], lda, (ftnlen)5, (ftnlen)5, (ftnlen)12, (
+			    ftnlen)1);
 		}
 
 /*              Compute inverse of current diagonal block */
 
-		strti2_("Lower", diag, &jb, &a[j + j * a_dim1], lda, info);
+		strti2_("Lower", diag, &jb, &a[j + j * a_dim1], lda, info, (
+			ftnlen)5, (ftnlen)1);
 /* L30: */
 	    }
 	}

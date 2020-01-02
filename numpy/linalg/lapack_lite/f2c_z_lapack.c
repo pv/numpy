@@ -4,15 +4,11 @@ NOTE: This is generated code. Look in Misc/lapack_lite for information on
 */
 #include "f2c.h"
 
-#ifdef HAVE_CONFIG
-#include "config.h"
-#else
-extern doublereal dlamch_(char *);
-#define EPSILON dlamch_("Epsilon")
-#define SAFEMINIMUM dlamch_("Safe minimum")
-#define PRECISION dlamch_("Precision")
-#define BASE dlamch_("Base")
-#endif
+extern doublereal dlamch_(char *, ftnlen);
+#define EPSILON dlamch_("Epsilon", 1)
+#define SAFEMINIMUM dlamch_("Safe minimum", 1)
+#define PRECISION dlamch_("Precision", 1)
+#define BASE dlamch_("Base", 1)
 
 extern doublereal dlapy2_(doublereal *x, doublereal *y);
 
@@ -54,7 +50,7 @@ static doublereal c_b2435 = .5;
 
 /* Subroutine */ int zgebak_(char *job, char *side, integer *n, integer *ilo,
 	integer *ihi, doublereal *scale, integer *m, doublecomplex *v,
-	integer *ldv, integer *info)
+	integer *ldv, integer *info, ftnlen job_len, ftnlen side_len)
 {
     /* System generated locals */
     integer v_dim1, v_offset, i__1;
@@ -63,10 +59,10 @@ static doublereal c_b2435 = .5;
     static integer i__, k;
     static doublereal s;
     static integer ii;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical leftv;
     extern /* Subroutine */ int zswap_(integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *), xerbla_(char *, integer *),
+	    doublecomplex *, integer *), xerbla_(char *, integer *, ftnlen),
 	    zdscal_(integer *, doublereal *, doublecomplex *, integer *);
     static logical rightv;
 
@@ -141,12 +137,13 @@ static doublereal c_b2435 = .5;
     v -= v_offset;
 
     /* Function Body */
-    rightv = lsame_(side, "R");
-    leftv = lsame_(side, "L");
+    rightv = lsame_(side, "R", (ftnlen)1, (ftnlen)1);
+    leftv = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
 
     *info = 0;
-    if (! lsame_(job, "N") && ! lsame_(job, "P") && ! lsame_(job, "S")
-	    && ! lsame_(job, "B")) {
+    if (! lsame_(job, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(job, "P", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(job, "S", (ftnlen)1, (ftnlen)1)
+	    && ! lsame_(job, "B", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (! rightv && ! leftv) {
 	*info = -2;
@@ -163,7 +160,7 @@ static doublereal c_b2435 = .5;
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEBAK", &i__1);
+	xerbla_("ZGEBAK", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -175,7 +172,7 @@ static doublereal c_b2435 = .5;
     if (*m == 0) {
 	return 0;
     }
-    if (lsame_(job, "N")) {
+    if (lsame_(job, "N", (ftnlen)1, (ftnlen)1)) {
 	return 0;
     }
 
@@ -185,7 +182,8 @@ static doublereal c_b2435 = .5;
 
 /*     Backward balance */
 
-    if (lsame_(job, "S") || lsame_(job, "B")) {
+    if (lsame_(job, "S", (ftnlen)1, (ftnlen)1) || lsame_(job, "B", (ftnlen)1,
+	    (ftnlen)1)) {
 
 	if (rightv) {
 	    i__1 = *ihi;
@@ -215,7 +213,8 @@ static doublereal c_b2435 = .5;
 */
 
 L30:
-    if (lsame_(job, "P") || lsame_(job, "B")) {
+    if (lsame_(job, "P", (ftnlen)1, (ftnlen)1) || lsame_(job, "B", (ftnlen)1,
+	    (ftnlen)1)) {
 	if (rightv) {
 	    i__1 = *n;
 	    for (ii = 1; ii <= i__1; ++ii) {
@@ -264,7 +263,8 @@ L50:
 } /* zgebak_ */
 
 /* Subroutine */ int zgebal_(char *job, integer *n, doublecomplex *a, integer
-	*lda, integer *ilo, integer *ihi, doublereal *scale, integer *info)
+	*lda, integer *ilo, integer *ihi, doublereal *scale, integer *info,
+	ftnlen job_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -275,13 +275,13 @@ L50:
     static integer i__, j, k, l, m;
     static doublereal r__, s, ca, ra;
     static integer ica, ira, iexc;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zswap_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *);
     static doublereal sfmin1, sfmin2, sfmax1, sfmax2;
 
     extern logical disnan_(doublereal *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), zdscal_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), zdscal_(
 	    integer *, doublereal *, doublecomplex *, integer *);
     extern integer izamax_(integer *, doublecomplex *, integer *);
     static logical noconv;
@@ -394,8 +394,9 @@ L50:
 
     /* Function Body */
     *info = 0;
-    if (! lsame_(job, "N") && ! lsame_(job, "P") && ! lsame_(job, "S")
-	    && ! lsame_(job, "B")) {
+    if (! lsame_(job, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(job, "P", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(job, "S", (ftnlen)1, (ftnlen)1)
+	    && ! lsame_(job, "B", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -404,7 +405,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEBAL", &i__1);
+	xerbla_("ZGEBAL", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -415,7 +416,7 @@ L50:
 	goto L210;
     }
 
-    if (lsame_(job, "N")) {
+    if (lsame_(job, "N", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    scale[i__] = 1.;
@@ -424,7 +425,7 @@ L50:
 	goto L210;
     }
 
-    if (lsame_(job, "S")) {
+    if (lsame_(job, "S", (ftnlen)1, (ftnlen)1)) {
 	goto L120;
     }
 
@@ -519,7 +520,7 @@ L120:
 /* L130: */
     }
 
-    if (lsame_(job, "P")) {
+    if (lsame_(job, "P", (ftnlen)1, (ftnlen)1)) {
 	goto L210;
     }
 
@@ -584,7 +585,7 @@ L160:
 
 	    *info = -3;
 	    i__2 = -(*info);
-	    xerbla_("ZGEBAL", &i__2);
+	    xerbla_("ZGEBAL", &i__2, (ftnlen)6);
 	    return 0;
 	}
 	f *= 2.;
@@ -666,7 +667,8 @@ L210:
     static doublecomplex alpha;
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *), zlarfg_(integer *, doublecomplex *, doublecomplex *,
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen), zlarfg_(integer *, doublecomplex *, doublecomplex *,
 	    integer *, doublecomplex *), zlacgv_(integer *, doublecomplex *,
 	    integer *);
 
@@ -814,7 +816,7 @@ L210:
     }
     if (*info < 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEBD2", &i__1);
+	xerbla_("ZGEBD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -846,7 +848,8 @@ L210:
 		i__3 = *n - i__;
 		d_cnjg(&z__1, &tauq[i__]);
 		zlarf_("Left", &i__2, &i__3, &a[i__ + i__ * a_dim1], &c__1, &
-			z__1, &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]);
+			z__1, &a[i__ + (i__ + 1) * a_dim1], lda, &work[1], (
+			ftnlen)4);
 	    }
 	    i__2 = i__ + i__ * a_dim1;
 	    i__3 = i__;
@@ -879,7 +882,7 @@ L210:
 		i__3 = *n - i__;
 		zlarf_("Right", &i__2, &i__3, &a[i__ + (i__ + 1) * a_dim1],
 			lda, &taup[i__], &a[i__ + 1 + (i__ + 1) * a_dim1],
-			lda, &work[1]);
+			lda, &work[1], (ftnlen)5);
 		i__2 = *n - i__;
 		zlacgv_(&i__2, &a[i__ + (i__ + 1) * a_dim1], lda);
 		i__2 = i__ + (i__ + 1) * a_dim1;
@@ -920,7 +923,8 @@ L210:
 		i__2 = *m - i__;
 		i__3 = *n - i__ + 1;
 		zlarf_("Right", &i__2, &i__3, &a[i__ + i__ * a_dim1], lda, &
-			taup[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+			taup[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1],
+			(ftnlen)5);
 	    }
 	    i__2 = *n - i__ + 1;
 	    zlacgv_(&i__2, &a[i__ + i__ * a_dim1], lda);
@@ -954,7 +958,7 @@ L210:
 		d_cnjg(&z__1, &tauq[i__]);
 		zlarf_("Left", &i__2, &i__3, &a[i__ + 1 + i__ * a_dim1], &
 			c__1, &z__1, &a[i__ + 1 + (i__ + 1) * a_dim1], lda, &
-			work[1]);
+			work[1], (ftnlen)4);
 		i__2 = i__ + 1 + i__ * a_dim1;
 		i__3 = i__;
 		a[i__2].r = e[i__3], a[i__2].i = 0.;
@@ -988,10 +992,10 @@ L210:
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), zgebd2_(integer *, integer *,
+	    integer *, ftnlen, ftnlen), zgebd2_(integer *, integer *,
 	    doublecomplex *, integer *, doublereal *, doublereal *,
 	    doublecomplex *, doublecomplex *, doublecomplex *, integer *),
-	    xerbla_(char *, integer *), zlabrd_(integer *, integer *,
+	    xerbla_(char *, integer *, ftnlen), zlabrd_(integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublereal *, doublereal *,
 	     doublecomplex *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *);
@@ -1169,7 +1173,7 @@ L210:
     }
     if (*info < 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEBRD", &i__1);
+	xerbla_("ZGEBRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -1250,13 +1254,14 @@ L210:
 	zgemm_("No transpose", "Conjugate transpose", &i__3, &i__4, &nb, &
 		z__1, &a[i__ + nb + i__ * a_dim1], lda, &work[ldwrkx * nb +
 		nb + 1], &ldwrky, &c_b57, &a[i__ + nb + (i__ + nb) * a_dim1],
-		lda);
+		lda, (ftnlen)12, (ftnlen)19);
 	i__3 = *m - i__ - nb + 1;
 	i__4 = *n - i__ - nb + 1;
 	z__1.r = -1., z__1.i = -0.;
 	zgemm_("No transpose", "No transpose", &i__3, &i__4, &nb, &z__1, &
 		work[nb + 1], &ldwrkx, &a[i__ + (i__ + nb) * a_dim1], lda, &
-		c_b57, &a[i__ + nb + (i__ + nb) * a_dim1], lda);
+		c_b57, &a[i__ + nb + (i__ + nb) * a_dim1], lda, (ftnlen)12, (
+		ftnlen)12);
 
 /*        Copy diagonal and off-diagonal elements of B back into A */
 
@@ -1302,7 +1307,8 @@ L210:
 /* Subroutine */ int zgeev_(char *jobvl, char *jobvr, integer *n,
 	doublecomplex *a, integer *lda, doublecomplex *w, doublecomplex *vl,
 	integer *ldvl, doublecomplex *vr, integer *ldvr, doublecomplex *work,
-	integer *lwork, doublereal *rwork, integer *info)
+	integer *lwork, doublereal *rwork, integer *info, ftnlen jobvl_len,
+	ftnlen jobvr_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, vl_dim1, vl_offset, vr_dim1, vr_offset, i__1,
@@ -1320,7 +1326,7 @@ L210:
     static char side[1];
     static doublereal anrm;
     static integer ierr, itau, iwrk, nout;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zscal_(integer *, doublecomplex *,
 	    doublecomplex *, integer *), dlabad_(doublereal *, doublereal *);
     extern doublereal dznrm2_(integer *, doublecomplex *, integer *);
@@ -1329,11 +1335,11 @@ L210:
     static doublereal cscale;
     extern /* Subroutine */ int zgebak_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublecomplex *, integer *,
-	    integer *), zgebal_(char *, integer *,
+	    integer *, ftnlen, ftnlen), zgebal_(char *, integer *,
 	    doublecomplex *, integer *, integer *, integer *, doublereal *,
-	    integer *);
+	    integer *, ftnlen);
     extern integer idamax_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical select[1];
@@ -1341,23 +1347,25 @@ L210:
 	    doublecomplex *, integer *);
     static doublereal bignum;
     extern doublereal zlange_(char *, integer *, integer *, doublecomplex *,
-	    integer *, doublereal *);
+	    integer *, doublereal *, ftnlen);
     extern /* Subroutine */ int zgehrd_(integer *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
 	    integer *, integer *), zlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublecomplex *,
-	     integer *, integer *), zlacpy_(char *, integer *,
-	    integer *, doublecomplex *, integer *, doublecomplex *, integer *);
+	     integer *, integer *, ftnlen), zlacpy_(char *, integer *,
+	    integer *, doublecomplex *, integer *, doublecomplex *, integer *,
+	     ftnlen);
     static integer minwrk, maxwrk;
     static logical wantvl;
     static doublereal smlnum;
     static integer hswork, irwork;
     extern /* Subroutine */ int zhseqr_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *), ztrevc_(char *, char *, logical *, integer *,
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen), ztrevc_(char *, char *, logical *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, integer *, integer *, doublecomplex *,
-	     doublereal *, integer *);
+	     doublereal *, integer *, ftnlen, ftnlen);
     static logical lquery, wantvr;
     extern /* Subroutine */ int zunghr_(integer *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
@@ -1478,11 +1486,11 @@ L210:
     /* Function Body */
     *info = 0;
     lquery = *lwork == -1;
-    wantvl = lsame_(jobvl, "V");
-    wantvr = lsame_(jobvr, "V");
-    if (! wantvl && ! lsame_(jobvl, "N")) {
+    wantvl = lsame_(jobvl, "V", (ftnlen)1, (ftnlen)1);
+    wantvr = lsame_(jobvr, "V", (ftnlen)1, (ftnlen)1);
+    if (! wantvl && ! lsame_(jobvl, "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! wantvr && ! lsame_(jobvr, "N")) {
+    } else if (! wantvr && ! lsame_(jobvr, "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -1521,17 +1529,20 @@ L210:
 			 " ", n, &c__1, n, &c_n1, (ftnlen)6, (ftnlen)1);
 		maxwrk = max(i__1,i__2);
 		zhseqr_("S", "V", n, &c__1, n, &a[a_offset], lda, &w[1], &vl[
-			vl_offset], ldvl, &work[1], &c_n1, info);
+			vl_offset], ldvl, &work[1], &c_n1, info, (ftnlen)1, (
+			ftnlen)1);
 	    } else if (wantvr) {
 /* Computing MAX */
 		i__1 = maxwrk, i__2 = *n + (*n - 1) * ilaenv_(&c__1, "ZUNGHR",
 			 " ", n, &c__1, n, &c_n1, (ftnlen)6, (ftnlen)1);
 		maxwrk = max(i__1,i__2);
 		zhseqr_("S", "V", n, &c__1, n, &a[a_offset], lda, &w[1], &vr[
-			vr_offset], ldvr, &work[1], &c_n1, info);
+			vr_offset], ldvr, &work[1], &c_n1, info, (ftnlen)1, (
+			ftnlen)1);
 	    } else {
 		zhseqr_("E", "N", n, &c__1, n, &a[a_offset], lda, &w[1], &vr[
-			vr_offset], ldvr, &work[1], &c_n1, info);
+			vr_offset], ldvr, &work[1], &c_n1, info, (ftnlen)1, (
+			ftnlen)1);
 	    }
 	    hswork = (integer) work[1].r;
 /* Computing MAX */
@@ -1547,7 +1558,7 @@ L210:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEEV ", &i__1);
+	xerbla_("ZGEEV ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -1570,7 +1581,7 @@ L210:
 
 /*     Scale A if max element outside range [SMLNUM,BIGNUM] */
 
-    anrm = zlange_("M", n, n, &a[a_offset], lda, dum);
+    anrm = zlange_("M", n, n, &a[a_offset], lda, dum, (ftnlen)1);
     scalea = FALSE_;
     if (anrm > 0. && anrm < smlnum) {
 	scalea = TRUE_;
@@ -1581,7 +1592,7 @@ L210:
     }
     if (scalea) {
 	zlascl_("G", &c__0, &c__0, &anrm, &cscale, n, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     }
 
 /*
@@ -1591,7 +1602,8 @@ L210:
 */
 
     ibal = 1;
-    zgebal_("B", n, &a[a_offset], lda, &ilo, &ihi, &rwork[ibal], &ierr);
+    zgebal_("B", n, &a[a_offset], lda, &ilo, &ihi, &rwork[ibal], &ierr, (
+	    ftnlen)1);
 
 /*
        Reduce to upper Hessenberg form
@@ -1613,7 +1625,7 @@ L210:
 */
 
 	*(unsigned char *)side = 'L';
-	zlacpy_("L", n, n, &a[a_offset], lda, &vl[vl_offset], ldvl)
+	zlacpy_("L", n, n, &a[a_offset], lda, &vl[vl_offset], ldvl, (ftnlen)1)
 		;
 
 /*
@@ -1635,7 +1647,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	zhseqr_("S", "V", n, &ilo, &ihi, &a[a_offset], lda, &w[1], &vl[
-		vl_offset], ldvl, &work[iwrk], &i__1, info);
+		vl_offset], ldvl, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
 
 	if (wantvr) {
 
@@ -1645,7 +1658,8 @@ L210:
 */
 
 	    *(unsigned char *)side = 'B';
-	    zlacpy_("F", n, n, &vl[vl_offset], ldvl, &vr[vr_offset], ldvr);
+	    zlacpy_("F", n, n, &vl[vl_offset], ldvl, &vr[vr_offset], ldvr, (
+		    ftnlen)1);
 	}
 
     } else if (wantvr) {
@@ -1656,7 +1670,7 @@ L210:
 */
 
 	*(unsigned char *)side = 'R';
-	zlacpy_("L", n, n, &a[a_offset], lda, &vr[vr_offset], ldvr)
+	zlacpy_("L", n, n, &a[a_offset], lda, &vr[vr_offset], ldvr, (ftnlen)1)
 		;
 
 /*
@@ -1678,7 +1692,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	zhseqr_("S", "V", n, &ilo, &ihi, &a[a_offset], lda, &w[1], &vr[
-		vr_offset], ldvr, &work[iwrk], &i__1, info);
+		vr_offset], ldvr, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
 
     } else {
 
@@ -1691,7 +1706,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	zhseqr_("E", "N", n, &ilo, &ihi, &a[a_offset], lda, &w[1], &vr[
-		vr_offset], ldvr, &work[iwrk], &i__1, info);
+		vr_offset], ldvr, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
     }
 
 /*     If INFO > 0 from ZHSEQR, then quit */
@@ -1711,7 +1727,7 @@ L210:
 	irwork = ibal + *n;
 	ztrevc_(side, "B", select, n, &a[a_offset], lda, &vl[vl_offset], ldvl,
 		 &vr[vr_offset], ldvr, n, &nout, &work[iwrk], &rwork[irwork],
-		&ierr);
+		&ierr, (ftnlen)1, (ftnlen)1);
     }
 
     if (wantvl) {
@@ -1723,7 +1739,7 @@ L210:
 */
 
 	zgebak_("B", "L", n, &ilo, &ihi, &rwork[ibal], n, &vl[vl_offset],
-		ldvl, &ierr);
+		ldvl, &ierr, (ftnlen)1, (ftnlen)1);
 
 /*        Normalize left eigenvectors and make largest component real */
 
@@ -1765,7 +1781,7 @@ L210:
 */
 
 	zgebak_("B", "R", n, &ilo, &ihi, &rwork[ibal], n, &vr[vr_offset],
-		ldvr, &ierr);
+		ldvr, &ierr, (ftnlen)1, (ftnlen)1);
 
 /*        Normalize right eigenvectors and make largest component real */
 
@@ -1807,11 +1823,11 @@ L50:
 	i__3 = *n - *info;
 	i__2 = max(i__3,1);
 	zlascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &w[*info + 1]
-		, &i__2, &ierr);
+		, &i__2, &ierr, (ftnlen)1);
 	if (*info > 0) {
 	    i__1 = ilo - 1;
 	    zlascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &w[1], n,
-		     &ierr);
+		     &ierr, (ftnlen)1);
 	}
     }
 
@@ -1835,7 +1851,8 @@ L50:
     static doublecomplex alpha;
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *), zlarfg_(integer *, doublecomplex *, doublecomplex *,
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen), zlarfg_(integer *, doublecomplex *, doublecomplex *,
 	    integer *, doublecomplex *);
 
 
@@ -1946,7 +1963,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEHD2", &i__1);
+	xerbla_("ZGEHD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -1969,7 +1986,7 @@ L50:
 
 	i__2 = *ihi - i__;
 	zlarf_("Right", ihi, &i__2, &a[i__ + 1 + i__ * a_dim1], &c__1, &tau[
-		i__], &a[(i__ + 1) * a_dim1 + 1], lda, &work[1]);
+		i__], &a[(i__ + 1) * a_dim1 + 1], lda, &work[1], (ftnlen)5);
 
 /*        Apply H(i)' to A(i+1:ihi,i+1:n) from the left */
 
@@ -1977,7 +1994,7 @@ L50:
 	i__3 = *n - i__;
 	d_cnjg(&z__1, &tau[i__]);
 	zlarf_("Left", &i__2, &i__3, &a[i__ + 1 + i__ * a_dim1], &c__1, &z__1,
-		 &a[i__ + 1 + (i__ + 1) * a_dim1], lda, &work[1]);
+		 &a[i__ + 1 + (i__ + 1) * a_dim1], lda, &work[1], (ftnlen)4);
 
 	i__2 = i__ + 1 + i__ * a_dim1;
 	a[i__2].r = alpha.r, a[i__2].i = alpha.i;
@@ -2007,22 +2024,22 @@ L50:
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), ztrmm_(char *, char *, char *, char *,
+	    integer *, ftnlen, ftnlen), ztrmm_(char *, char *, char *, char *,
 	     integer *, integer *, doublecomplex *, doublecomplex *, integer *
-	    , doublecomplex *, integer *),
+	    , doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
 	    zaxpy_(integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), zgehd2_(integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
 	    doublecomplex *, integer *), zlahr2_(integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
 	    doublecomplex *, integer *, doublecomplex *, integer *), xerbla_(
-	    char *, integer *);
+	    char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarfb_(char *, char *, char *, char *,
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
     static logical lquery;
 
@@ -2159,7 +2176,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEHRD", &i__1);
+	xerbla_("ZGEHRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -2276,7 +2293,8 @@ L50:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemm_("No transpose", "Conjugate transpose", ihi, &i__3, &ib, &
 		    z__1, &work[1], &ldwork, &a[i__ + ib + i__ * a_dim1], lda,
-		     &c_b57, &a[(i__ + ib) * a_dim1 + 1], lda);
+		     &c_b57, &a[(i__ + ib) * a_dim1 + 1], lda, (ftnlen)12, (
+		    ftnlen)19);
 	    i__3 = i__ + ib + (i__ + ib - 1) * a_dim1;
 	    a[i__3].r = ei.r, a[i__3].i = ei.i;
 
@@ -2288,7 +2306,7 @@ L50:
 	    i__3 = ib - 1;
 	    ztrmm_("Right", "Lower", "Conjugate transpose", "Unit", &i__, &
 		    i__3, &c_b57, &a[i__ + 1 + i__ * a_dim1], lda, &work[1], &
-		    ldwork);
+		    ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)19, (ftnlen)4);
 	    i__3 = ib - 2;
 	    for (j = 0; j <= i__3; ++j) {
 		z__1.r = -1., z__1.i = -0.;
@@ -2307,7 +2325,7 @@ L50:
 	    zlarfb_("Left", "Conjugate transpose", "Forward", "Columnwise", &
 		    i__3, &i__4, &ib, &a[i__ + 1 + i__ * a_dim1], lda, t, &
 		    c__65, &a[i__ + 1 + (i__ + ib) * a_dim1], lda, &work[1], &
-		    ldwork);
+		    ldwork, (ftnlen)4, (ftnlen)19, (ftnlen)7, (ftnlen)10);
 /* L40: */
 	}
     }
@@ -2334,7 +2352,8 @@ L50:
     static doublecomplex alpha;
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *), zlarfg_(integer *, doublecomplex *, doublecomplex *,
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen), zlarfg_(integer *, doublecomplex *, doublecomplex *,
 	    integer *, doublecomplex *), zlacgv_(integer *, doublecomplex *,
 	    integer *);
 
@@ -2421,7 +2440,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGELQ2", &i__1);
+	xerbla_("ZGELQ2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -2450,7 +2469,8 @@ L50:
 	    i__2 = *m - i__;
 	    i__3 = *n - i__ + 1;
 	    zlarf_("Right", &i__2, &i__3, &a[i__ + i__ * a_dim1], lda, &tau[
-		    i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+		    i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1], (ftnlen)
+		    5);
 	}
 	i__2 = i__ + i__ * a_dim1;
 	a[i__2].r = alpha.r, a[i__2].i = alpha.i;
@@ -2475,17 +2495,17 @@ L50:
     static integer i__, k, ib, nb, nx, iws, nbmin, iinfo;
     extern /* Subroutine */ int zgelq2_(integer *, integer *, doublecomplex *,
 	     integer *, doublecomplex *, doublecomplex *, integer *), xerbla_(
-	    char *, integer *);
+	    char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarfb_(char *, char *, char *, char *,
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static integer ldwork;
     extern /* Subroutine */ int zlarft_(char *, char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
 
@@ -2590,7 +2610,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGELQF", &i__1);
+	xerbla_("ZGELQF", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -2667,7 +2687,8 @@ L50:
 
 		i__3 = *n - i__ + 1;
 		zlarft_("Forward", "Rowwise", &i__3, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)7);
 
 /*              Apply H to A(i+ib:m,i:n) from the right */
 
@@ -2676,7 +2697,8 @@ L50:
 		zlarfb_("Right", "No transpose", "Forward", "Rowwise", &i__3,
 			&i__4, &ib, &a[i__ + i__ * a_dim1], lda, &work[1], &
 			ldwork, &a[i__ + ib + i__ * a_dim1], lda, &work[ib +
-			1], &ldwork);
+			1], &ldwork, (ftnlen)5, (ftnlen)12, (ftnlen)7, (
+			ftnlen)7);
 	    }
 /* L10: */
 	}
@@ -2718,44 +2740,47 @@ L50:
 
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dlaset_(char *, integer *, integer
-	    *, doublereal *, doublereal *, doublereal *, integer *),
-	    xerbla_(char *, integer *), zgebrd_(integer *, integer *,
+	    integer *, integer *, ftnlen), dlaset_(char *, integer *, integer
+	    *, doublereal *, doublereal *, doublereal *, integer *, ftnlen),
+	    xerbla_(char *, integer *, ftnlen), zgebrd_(integer *, integer *,
 	    doublecomplex *, integer *, doublereal *, doublereal *,
 	    doublecomplex *, doublecomplex *, doublecomplex *, integer *,
 	    integer *);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern doublereal zlange_(char *, integer *, integer *, doublecomplex *,
-	    integer *, doublereal *);
+	    integer *, doublereal *, ftnlen);
     static doublereal bignum;
     extern /* Subroutine */ int zgelqf_(integer *, integer *, doublecomplex *,
 	     integer *, doublecomplex *, doublecomplex *, integer *, integer *
 	    ), zlalsd_(char *, integer *, integer *, integer *, doublereal *,
 	    doublereal *, doublecomplex *, integer *, doublereal *, integer *,
-	     doublecomplex *, doublereal *, integer *, integer *),
+	     doublecomplex *, doublereal *, integer *, integer *, ftnlen),
 	    zlascl_(char *, integer *, integer *, doublereal *, doublereal *,
-	    integer *, integer *, doublecomplex *, integer *, integer *), zgeqrf_(integer *, integer *, doublecomplex *, integer *,
+	    integer *, integer *, doublecomplex *, integer *, integer *,
+	    ftnlen), zgeqrf_(integer *, integer *, doublecomplex *, integer *,
 	     doublecomplex *, doublecomplex *, integer *, integer *);
     static integer ldwork;
     extern /* Subroutine */ int zlacpy_(char *, integer *, integer *,
-	    doublecomplex *, integer *, doublecomplex *, integer *),
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen),
 	    zlaset_(char *, integer *, integer *, doublecomplex *,
-	    doublecomplex *, doublecomplex *, integer *);
+	    doublecomplex *, doublecomplex *, integer *, ftnlen);
     static integer liwork, minwrk, maxwrk;
     static doublereal smlnum;
     extern /* Subroutine */ int zunmbr_(char *, char *, char *, integer *,
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
 	     doublecomplex *, integer *, doublecomplex *, integer *, integer *
-	    );
+	    , ftnlen, ftnlen, ftnlen);
     static integer lrwork;
     static logical lquery;
     static integer nrwork, smlsiz;
     extern /* Subroutine */ int zunmlq_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *), zunmqr_(char *, char *, integer *, integer *,
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen), zunmqr_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen);
 
 
 /*
@@ -3099,7 +3124,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGELSD", &i__1);
+	xerbla_("ZGELSD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -3122,29 +3147,30 @@ L50:
 
 /*     Scale A if max entry outside range [SMLNUM,BIGNUM]. */
 
-    anrm = zlange_("M", m, n, &a[a_offset], lda, &rwork[1]);
+    anrm = zlange_("M", m, n, &a[a_offset], lda, &rwork[1], (ftnlen)1);
     iascl = 0;
     if (anrm > 0. && anrm < smlnum) {
 
 /*        Scale matrix norm up to SMLNUM */
 
 	zlascl_("G", &c__0, &c__0, &anrm, &smlnum, m, n, &a[a_offset], lda,
-		info);
+		info, (ftnlen)1);
 	iascl = 1;
     } else if (anrm > bignum) {
 
 /*        Scale matrix norm down to BIGNUM. */
 
 	zlascl_("G", &c__0, &c__0, &anrm, &bignum, m, n, &a[a_offset], lda,
-		info);
+		info, (ftnlen)1);
 	iascl = 2;
     } else if (anrm == 0.) {
 
 /*        Matrix all zero. Return zero solution. */
 
 	i__1 = max(*m,*n);
-	zlaset_("F", &i__1, nrhs, &c_b56, &c_b56, &b[b_offset], ldb);
-	dlaset_("F", &minmn, &c__1, &c_b328, &c_b328, &s[1], &c__1)
+	zlaset_("F", &i__1, nrhs, &c_b56, &c_b56, &b[b_offset], ldb, (ftnlen)
+		1);
+	dlaset_("F", &minmn, &c__1, &c_b328, &c_b328, &s[1], &c__1, (ftnlen)1)
 		;
 	*rank = 0;
 	goto L10;
@@ -3152,21 +3178,21 @@ L50:
 
 /*     Scale B if max entry outside range [SMLNUM,BIGNUM]. */
 
-    bnrm = zlange_("M", m, nrhs, &b[b_offset], ldb, &rwork[1]);
+    bnrm = zlange_("M", m, nrhs, &b[b_offset], ldb, &rwork[1], (ftnlen)1);
     ibscl = 0;
     if (bnrm > 0. && bnrm < smlnum) {
 
 /*        Scale matrix norm up to SMLNUM. */
 
 	zlascl_("G", &c__0, &c__0, &bnrm, &smlnum, m, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	ibscl = 1;
     } else if (bnrm > bignum) {
 
 /*        Scale matrix norm down to BIGNUM. */
 
 	zlascl_("G", &c__0, &c__0, &bnrm, &bignum, m, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	ibscl = 2;
     }
 
@@ -3174,7 +3200,8 @@ L50:
 
     if (*m < *n) {
 	i__1 = *n - *m;
-	zlaset_("F", &i__1, nrhs, &c_b56, &c_b56, &b[*m + 1 + b_dim1], ldb);
+	zlaset_("F", &i__1, nrhs, &c_b56, &c_b56, &b[*m + 1 + b_dim1], ldb, (
+		ftnlen)1);
     }
 
 /*     Overdetermined case. */
@@ -3210,7 +3237,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    zunmqr_("L", "C", m, nrhs, n, &a[a_offset], lda, &work[itau], &b[
-		    b_offset], ldb, &work[nwork], &i__1, info);
+		    b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		    ftnlen)1);
 
 /*           Zero out below R. */
 
@@ -3218,7 +3246,7 @@ L50:
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 	    }
 	}
 
@@ -3245,12 +3273,14 @@ L50:
 
 	i__1 = *lwork - nwork + 1;
 	zunmbr_("Q", "L", "C", &mm, nrhs, n, &a[a_offset], lda, &work[itauq],
-		&b[b_offset], ldb, &work[nwork], &i__1, info);
+		&b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	zlalsd_("U", &smlsiz, n, nrhs, &s[1], &rwork[ie], &b[b_offset], ldb,
-		rcond, rank, &work[nwork], &rwork[nrwork], &iwork[1], info);
+		rcond, rank, &work[nwork], &rwork[nrwork], &iwork[1], info, (
+		ftnlen)1);
 	if (*info != 0) {
 	    goto L10;
 	}
@@ -3259,7 +3289,8 @@ L50:
 
 	i__1 = *lwork - nwork + 1;
 	zunmbr_("P", "L", "N", n, nrhs, n, &a[a_offset], lda, &work[itaup], &
-		b[b_offset], ldb, &work[nwork], &i__1, info);
+		b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
 
     } else /* if(complicated condition) */ {
 /* Computing MAX */
@@ -3299,11 +3330,12 @@ L50:
 
 /*        Copy L to WORK(IL), zeroing out above its diagonal. */
 
-	    zlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwork);
+	    zlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwork, (ftnlen)
+		    1);
 	    i__1 = *m - 1;
 	    i__2 = *m - 1;
 	    zlaset_("U", &i__1, &i__2, &c_b56, &c_b56, &work[il + ldwork], &
-		    ldwork);
+		    ldwork, (ftnlen)1);
 	    itauq = il + ldwork * *m;
 	    itaup = itauq + *m;
 	    nwork = itaup + *m;
@@ -3327,13 +3359,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    zunmbr_("Q", "L", "C", m, nrhs, m, &work[il], &ldwork, &work[
-		    itauq], &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    itauq], &b[b_offset], ldb, &work[nwork], &i__1, info, (
+		    ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	    zlalsd_("U", &smlsiz, m, nrhs, &s[1], &rwork[ie], &b[b_offset],
 		    ldb, rcond, rank, &work[nwork], &rwork[nrwork], &iwork[1],
-		     info);
+		     info, (ftnlen)1);
 	    if (*info != 0) {
 		goto L10;
 	    }
@@ -3342,13 +3375,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    zunmbr_("P", "L", "N", m, nrhs, m, &work[il], &ldwork, &work[
-		    itaup], &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    itaup], &b[b_offset], ldb, &work[nwork], &i__1, info, (
+		    ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*        Zero out below first M rows of B. */
 
 	    i__1 = *n - *m;
 	    zlaset_("F", &i__1, nrhs, &c_b56, &c_b56, &b[*m + 1 + b_dim1],
-		    ldb);
+		    ldb, (ftnlen)1);
 	    nwork = itau + *m;
 
 /*
@@ -3358,7 +3392,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    zunmlq_("L", "C", n, nrhs, m, &a[a_offset], lda, &work[itau], &b[
-		    b_offset], ldb, &work[nwork], &i__1, info);
+		    b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		    ftnlen)1);
 
 	} else {
 
@@ -3387,13 +3422,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    zunmbr_("Q", "L", "C", m, nrhs, n, &a[a_offset], lda, &work[itauq]
-		    , &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    , &b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1,
+		     (ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	    zlalsd_("L", &smlsiz, m, nrhs, &s[1], &rwork[ie], &b[b_offset],
 		    ldb, rcond, rank, &work[nwork], &rwork[nrwork], &iwork[1],
-		     info);
+		     info, (ftnlen)1);
 	    if (*info != 0) {
 		goto L10;
 	    }
@@ -3402,7 +3438,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    zunmbr_("P", "L", "N", n, nrhs, m, &a[a_offset], lda, &work[itaup]
-		    , &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    , &b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1,
+		     (ftnlen)1, (ftnlen)1);
 
 	}
     }
@@ -3411,21 +3448,21 @@ L50:
 
     if (iascl == 1) {
 	zlascl_("G", &c__0, &c__0, &anrm, &smlnum, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	dlascl_("G", &c__0, &c__0, &smlnum, &anrm, &minmn, &c__1, &s[1], &
-		minmn, info);
+		minmn, info, (ftnlen)1);
     } else if (iascl == 2) {
 	zlascl_("G", &c__0, &c__0, &anrm, &bignum, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	dlascl_("G", &c__0, &c__0, &bignum, &anrm, &minmn, &c__1, &s[1], &
-		minmn, info);
+		minmn, info, (ftnlen)1);
     }
     if (ibscl == 1) {
 	zlascl_("G", &c__0, &c__0, &smlnum, &bnrm, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
     } else if (ibscl == 2) {
 	zlascl_("G", &c__0, &c__0, &bignum, &bnrm, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
     }
 
 L10:
@@ -3450,7 +3487,8 @@ L10:
     static doublecomplex alpha;
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *), zlarfg_(integer *, doublecomplex *, doublecomplex *,
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen), zlarfg_(integer *, doublecomplex *, doublecomplex *,
 	    integer *, doublecomplex *);
 
 
@@ -3536,7 +3574,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEQR2", &i__1);
+	xerbla_("ZGEQR2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -3564,7 +3602,7 @@ L10:
 	    i__3 = *n - i__;
 	    d_cnjg(&z__1, &tau[i__]);
 	    zlarf_("Left", &i__2, &i__3, &a[i__ + i__ * a_dim1], &c__1, &z__1,
-		     &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]);
+		     &a[i__ + (i__ + 1) * a_dim1], lda, &work[1], (ftnlen)4);
 	    i__2 = i__ + i__ * a_dim1;
 	    a[i__2].r = alpha.r, a[i__2].i = alpha.i;
 	}
@@ -3587,17 +3625,17 @@ L10:
     static integer i__, k, ib, nb, nx, iws, nbmin, iinfo;
     extern /* Subroutine */ int zgeqr2_(integer *, integer *, doublecomplex *,
 	     integer *, doublecomplex *, doublecomplex *, integer *), xerbla_(
-	    char *, integer *);
+	    char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarfb_(char *, char *, char *, char *,
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static integer ldwork;
     extern /* Subroutine */ int zlarft_(char *, char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
 
@@ -3703,7 +3741,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGEQRF", &i__1);
+	xerbla_("ZGEQRF", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -3780,7 +3818,8 @@ L10:
 
 		i__3 = *m - i__ + 1;
 		zlarft_("Forward", "Columnwise", &i__3, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)10);
 
 /*              Apply H' to A(i:m,i+ib:n) from the left */
 
@@ -3789,7 +3828,8 @@ L10:
 		zlarfb_("Left", "Conjugate transpose", "Forward", "Columnwise"
 			, &i__3, &i__4, &ib, &a[i__ + i__ * a_dim1], lda, &
 			work[1], &ldwork, &a[i__ + (i__ + ib) * a_dim1], lda,
-			&work[ib + 1], &ldwork);
+			&work[ib + 1], &ldwork, (ftnlen)4, (ftnlen)19, (
+			ftnlen)7, (ftnlen)10);
 	    }
 /* L10: */
 	}
@@ -3816,7 +3856,8 @@ L10:
 /* Subroutine */ int zgesdd_(char *jobz, integer *m, integer *n,
 	doublecomplex *a, integer *lda, doublereal *s, doublecomplex *u,
 	integer *ldu, doublecomplex *vt, integer *ldvt, doublecomplex *work,
-	integer *lwork, doublereal *rwork, integer *iwork, integer *info)
+	integer *lwork, doublereal *rwork, integer *iwork, integer *info,
+	ftnlen jobz_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, u_dim1, u_offset, vt_dim1, vt_offset, i__1,
@@ -3828,26 +3869,27 @@ L10:
     static integer iru, ivt, iscl;
     static doublereal anrm;
     static integer idum[1], ierr, itau, irvt;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer chunk, minmn;
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer wrkbl, itaup, itauq;
     static logical wntqa;
     static integer nwork;
     static logical wntqn, wntqo, wntqs;
     extern /* Subroutine */ int zlacp2_(char *, integer *, integer *,
-	    doublereal *, integer *, doublecomplex *, integer *);
+	    doublereal *, integer *, doublecomplex *, integer *, ftnlen);
     static integer mnthr1, mnthr2;
     extern /* Subroutine */ int dbdsdc_(char *, char *, integer *, doublereal
 	    *, doublereal *, doublereal *, integer *, doublereal *, integer *,
-	     doublereal *, integer *, doublereal *, integer *, integer *);
+	     doublereal *, integer *, doublereal *, integer *, integer *,
+	    ftnlen, ftnlen);
 
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), xerbla_(char *, integer *),
+	    integer *, integer *, ftnlen), xerbla_(char *, integer *, ftnlen),
 	     zgebrd_(integer *, integer *, doublecomplex *, integer *,
 	    doublereal *, doublereal *, doublecomplex *, doublecomplex *,
 	    doublecomplex *, integer *, integer *);
@@ -3855,7 +3897,7 @@ L10:
 	    integer *, integer *, ftnlen, ftnlen);
     static doublereal bignum;
     extern doublereal zlange_(char *, integer *, integer *, doublecomplex *,
-	    integer *, doublereal *);
+	    integer *, doublereal *, ftnlen);
     extern /* Subroutine */ int zgelqf_(integer *, integer *, doublecomplex *,
 	     integer *, doublecomplex *, doublecomplex *, integer *, integer *
 	    ), zlacrm_(integer *, integer *, doublecomplex *, integer *,
@@ -3864,25 +3906,25 @@ L10:
 	    doublecomplex *, integer *, doublecomplex *, integer *,
 	    doublereal *), zlascl_(char *, integer *, integer *, doublereal *,
 	     doublereal *, integer *, integer *, doublecomplex *, integer *,
-	    integer *), zgeqrf_(integer *, integer *, doublecomplex *,
+	    integer *, ftnlen), zgeqrf_(integer *, integer *, doublecomplex *,
 	     integer *, doublecomplex *, doublecomplex *, integer *, integer *
 	    );
     static integer ldwrkl;
     extern /* Subroutine */ int zlacpy_(char *, integer *, integer *,
-	    doublecomplex *, integer *, doublecomplex *, integer *),
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen),
 	    zlaset_(char *, integer *, integer *, doublecomplex *,
-	    doublecomplex *, doublecomplex *, integer *);
+	    doublecomplex *, doublecomplex *, integer *, ftnlen);
     static integer ldwrkr, minwrk, ldwrku, maxwrk;
     extern /* Subroutine */ int zungbr_(char *, integer *, integer *, integer
 	    *, doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen);
     static integer ldwkvt;
     static doublereal smlnum;
     static logical wntqas;
     extern /* Subroutine */ int zunmbr_(char *, char *, char *, integer *,
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
 	     doublecomplex *, integer *, doublecomplex *, integer *, integer *
-	    ), zunglq_(integer *, integer *, integer *
+	    , ftnlen, ftnlen, ftnlen), zunglq_(integer *, integer *, integer *
 	    , doublecomplex *, integer *, doublecomplex *, doublecomplex *,
 	    integer *, integer *);
     static integer nrwork;
@@ -4051,11 +4093,11 @@ L10:
     minmn = min(*m,*n);
     mnthr1 = (integer) (minmn * 17. / 9.);
     mnthr2 = (integer) (minmn * 5. / 3.);
-    wntqa = lsame_(jobz, "A");
-    wntqs = lsame_(jobz, "S");
+    wntqa = lsame_(jobz, "A", (ftnlen)1, (ftnlen)1);
+    wntqs = lsame_(jobz, "S", (ftnlen)1, (ftnlen)1);
     wntqas = wntqa || wntqs;
-    wntqo = lsame_(jobz, "O");
-    wntqn = lsame_(jobz, "N");
+    wntqo = lsame_(jobz, "O", (ftnlen)1, (ftnlen)1);
+    wntqn = lsame_(jobz, "N", (ftnlen)1, (ftnlen)1);
     minwrk = 1;
     maxwrk = 1;
 
@@ -4486,7 +4528,7 @@ L10:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGESDD", &i__1);
+	xerbla_("ZGESDD", &i__1, (ftnlen)6);
 	return 0;
     }
     if (*lwork == -1) {
@@ -4504,16 +4546,16 @@ L10:
 
 /*     Scale A if max element outside range [SMLNUM,BIGNUM] */
 
-    anrm = zlange_("M", m, n, &a[a_offset], lda, dum);
+    anrm = zlange_("M", m, n, &a[a_offset], lda, dum, (ftnlen)1);
     iscl = 0;
     if (anrm > 0. && anrm < smlnum) {
 	iscl = 1;
 	zlascl_("G", &c__0, &c__0, &anrm, &smlnum, m, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     } else if (anrm > bignum) {
 	iscl = 1;
 	zlascl_("G", &c__0, &c__0, &anrm, &bignum, m, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     }
 
     if (*m >= *n) {
@@ -4551,7 +4593,7 @@ L10:
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 		ie = 1;
 		itauq = 1;
 		itaup = itauq + *n;
@@ -4575,7 +4617,8 @@ L10:
 */
 
 		dbdsdc_("U", "N", n, &s[1], &rwork[ie], dum, &c__1, dum, &
-			c__1, dum, idum, &rwork[nrwork], &iwork[1], info);
+			c__1, dum, idum, &rwork[nrwork], &iwork[1], info, (
+			ftnlen)1, (ftnlen)1);
 
 	    } else if (wntqo) {
 
@@ -4614,11 +4657,12 @@ L10:
 
 /*              Copy R to WORK( IR ), zeroing out below it */
 
-		zlacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr);
+		zlacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &work[ir + 1], &
-			ldwrkr);
+			ldwrkr, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -4657,7 +4701,7 @@ L10:
 		nrwork = irvt + *n * *n;
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix WORK(IU)
@@ -4666,11 +4710,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[iru], n, &work[iu], &ldwrku);
+		zlacp2_("F", n, n, &rwork[iru], n, &work[iu], &ldwrku, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", n, n, n, &work[ir], &ldwrkr, &work[
 			itauq], &work[iu], &ldwrku, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -4679,11 +4724,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt);
+		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", n, n, n, &work[ir], &ldwrkr, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in A by left singular vectors of R in
@@ -4701,9 +4747,9 @@ L10:
 		    chunk = min(i__3,ldwrkr);
 		    zgemm_("N", "N", &chunk, n, n, &c_b57, &a[i__ + a_dim1],
 			    lda, &work[iu], &ldwrku, &c_b56, &work[ir], &
-			    ldwrkr);
+			    ldwrkr, (ftnlen)1, (ftnlen)1);
 		    zlacpy_("F", &chunk, n, &work[ir], &ldwrkr, &a[i__ +
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)1);
 /* L10: */
 		}
 
@@ -4735,11 +4781,12 @@ L10:
 
 /*              Copy R to WORK(IR), zeroing out below it */
 
-		zlacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr);
+		zlacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		i__2 = *n - 1;
 		i__1 = *n - 1;
 		zlaset_("L", &i__2, &i__1, &c_b56, &c_b56, &work[ir + 1], &
-			ldwrkr);
+			ldwrkr, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -4778,7 +4825,7 @@ L10:
 		nrwork = irvt + *n * *n;
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix U
@@ -4787,10 +4834,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[iru], n, &u[u_offset], ldu);
+		zlacp2_("F", n, n, &rwork[iru], n, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", n, n, n, &work[ir], &ldwrkr, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -4799,11 +4848,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt);
+		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", n, n, n, &work[ir], &ldwrkr, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in A by left singular vectors of R in
@@ -4812,9 +4862,11 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacpy_("F", n, n, &u[u_offset], ldu, &work[ir], &ldwrkr);
+		zlacpy_("F", n, n, &u[u_offset], ldu, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		zgemm_("N", "N", m, n, n, &c_b57, &a[a_offset], lda, &work[ir]
-			, &ldwrkr, &c_b56, &u[u_offset], ldu);
+			, &ldwrkr, &c_b56, &u[u_offset], ldu, (ftnlen)1, (
+			ftnlen)1);
 
 	    } else if (wntqa) {
 
@@ -4841,7 +4893,8 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		zgeqrf_(m, n, &a[a_offset], lda, &work[itau], &work[nwork], &
 			i__2, &ierr);
-		zlacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 
 /*
                 Generate Q in U
@@ -4858,7 +4911,7 @@ L10:
 		i__2 = *n - 1;
 		i__1 = *n - 1;
 		zlaset_("L", &i__2, &i__1, &c_b56, &c_b56, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 		ie = 1;
 		itauq = itau;
 		itaup = itauq + *n;
@@ -4887,7 +4940,7 @@ L10:
 
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix WORK(IU)
@@ -4896,11 +4949,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[iru], n, &work[iu], &ldwrku);
+		zlacp2_("F", n, n, &rwork[iru], n, &work[iu], &ldwrku, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", n, n, n, &a[a_offset], lda, &work[
 			itauq], &work[iu], &ldwrku, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -4909,11 +4963,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt);
+		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in U by left singular vectors of R in
@@ -4923,11 +4978,13 @@ L10:
 */
 
 		zgemm_("N", "N", m, n, n, &c_b57, &u[u_offset], ldu, &work[iu]
-			, &ldwrku, &c_b56, &a[a_offset], lda);
+			, &ldwrku, &c_b56, &a[a_offset], lda, (ftnlen)1, (
+			ftnlen)1);
 
 /*              Copy left singular vectors of A from A to U */
 
-		zlacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 
 	    }
 
@@ -4965,7 +5022,8 @@ L10:
 */
 
 		dbdsdc_("U", "N", n, &s[1], &rwork[ie], dum, &c__1, dum, &
-			c__1, dum, idum, &rwork[nrwork], &iwork[1], info);
+			c__1, dum, idum, &rwork[nrwork], &iwork[1], info, (
+			ftnlen)1, (ftnlen)1);
 	    } else if (wntqo) {
 		iu = nwork;
 		iru = nrwork;
@@ -4978,10 +5036,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("U", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("U", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zungbr_("P", n, n, n, &vt[vt_offset], ldvt, &work[itaup], &
-			work[nwork], &i__2, &ierr);
+			work[nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -4991,7 +5050,7 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		zungbr_("Q", m, n, n, &a[a_offset], lda, &work[itauq], &work[
-			nwork], &i__2, &ierr);
+			nwork], &i__2, &ierr, (ftnlen)1);
 
 		if (*lwork >= *m * *n + *n * 3) {
 
@@ -5016,7 +5075,7 @@ L10:
 
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply real matrix RWORK(IRVT) by P**H in VT,
@@ -5027,7 +5086,8 @@ L10:
 
 		zlarcm_(n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, &work[iu]
 			, &ldwrku, &rwork[nrwork]);
-		zlacpy_("F", n, n, &work[iu], &ldwrku, &vt[vt_offset], ldvt);
+		zlacpy_("F", n, n, &work[iu], &ldwrku, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 /*
                 Multiply Q in A by real matrix RWORK(IRU), storing the
@@ -5047,7 +5107,7 @@ L10:
 		    zlacrm_(&chunk, n, &a[i__ + a_dim1], lda, &rwork[iru], n,
 			    &work[iu], &ldwrku, &rwork[nrwork]);
 		    zlacpy_("F", &chunk, n, &work[iu], &ldwrku, &a[i__ +
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)1);
 /* L20: */
 		}
 
@@ -5059,10 +5119,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("U", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("U", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zungbr_("P", n, n, n, &vt[vt_offset], ldvt, &work[itaup], &
-			work[nwork], &i__1, &ierr);
+			work[nwork], &i__1, &ierr, (ftnlen)1);
 
 /*
                 Copy A to U, generate Q
@@ -5070,10 +5131,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zungbr_("Q", m, n, n, &u[u_offset], ldu, &work[itauq], &work[
-			nwork], &i__1, &ierr);
+			nwork], &i__1, &ierr, (ftnlen)1);
 
 /*
                 Perform bidiagonal SVD, computing left singular vectors
@@ -5088,7 +5150,7 @@ L10:
 		nrwork = irvt + *n * *n;
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply real matrix RWORK(IRVT) by P**H in VT,
@@ -5099,7 +5161,8 @@ L10:
 
 		zlarcm_(n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, &a[
 			a_offset], lda, &rwork[nrwork]);
-		zlacpy_("F", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("F", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 /*
                 Multiply Q in U by real matrix RWORK(IRU), storing the
@@ -5111,7 +5174,8 @@ L10:
 		nrwork = irvt;
 		zlacrm_(m, n, &u[u_offset], ldu, &rwork[iru], n, &a[a_offset],
 			 lda, &rwork[nrwork]);
-		zlacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 	    } else {
 
 /*
@@ -5120,10 +5184,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("U", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("U", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zungbr_("P", n, n, n, &vt[vt_offset], ldvt, &work[itaup], &
-			work[nwork], &i__1, &ierr);
+			work[nwork], &i__1, &ierr, (ftnlen)1);
 
 /*
                 Copy A to U, generate Q
@@ -5131,10 +5196,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zungbr_("Q", m, m, n, &u[u_offset], ldu, &work[itauq], &work[
-			nwork], &i__1, &ierr);
+			nwork], &i__1, &ierr, (ftnlen)1);
 
 /*
                 Perform bidiagonal SVD, computing left singular vectors
@@ -5149,7 +5215,7 @@ L10:
 		nrwork = irvt + *n * *n;
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply real matrix RWORK(IRVT) by P**H in VT,
@@ -5160,7 +5226,8 @@ L10:
 
 		zlarcm_(n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, &a[
 			a_offset], lda, &rwork[nrwork]);
-		zlacpy_("F", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("F", n, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 /*
                 Multiply Q in U by real matrix RWORK(IRU), storing the
@@ -5172,7 +5239,8 @@ L10:
 		nrwork = irvt;
 		zlacrm_(m, n, &u[u_offset], ldu, &rwork[iru], n, &a[a_offset],
 			 lda, &rwork[nrwork]);
-		zlacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 	    }
 
 	} else {
@@ -5209,7 +5277,8 @@ L10:
 */
 
 		dbdsdc_("U", "N", n, &s[1], &rwork[ie], dum, &c__1, dum, &
-			c__1, dum, idum, &rwork[nrwork], &iwork[1], info);
+			c__1, dum, idum, &rwork[nrwork], &iwork[1], info, (
+			ftnlen)1, (ftnlen)1);
 	    } else if (wntqo) {
 		iu = nwork;
 		iru = nrwork;
@@ -5238,7 +5307,7 @@ L10:
 
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -5247,11 +5316,12 @@ L10:
                 (Rworkspace: need 0)
 */
 
-		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt);
+		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 		if (*lwork >= *m * *n + *n * 3) {
 
@@ -5263,13 +5333,16 @@ L10:
                 (Rworkspace: need 0)
 */
 
-		    zlaset_("F", m, n, &c_b56, &c_b56, &work[iu], &ldwrku);
-		    zlacp2_("F", n, n, &rwork[iru], n, &work[iu], &ldwrku);
+		    zlaset_("F", m, n, &c_b56, &c_b56, &work[iu], &ldwrku, (
+			    ftnlen)1);
+		    zlacp2_("F", n, n, &rwork[iru], n, &work[iu], &ldwrku, (
+			    ftnlen)1);
 		    i__1 = *lwork - nwork + 1;
 		    zunmbr_("Q", "L", "N", m, n, n, &a[a_offset], lda, &work[
 			    itauq], &work[iu], &ldwrku, &work[nwork], &i__1, &
-			    ierr);
-		    zlacpy_("F", m, n, &work[iu], &ldwrku, &a[a_offset], lda);
+			    ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
+		    zlacpy_("F", m, n, &work[iu], &ldwrku, &a[a_offset], lda,
+			    (ftnlen)1);
 		} else {
 
 /*
@@ -5280,7 +5353,7 @@ L10:
 
 		    i__1 = *lwork - nwork + 1;
 		    zungbr_("Q", m, n, n, &a[a_offset], lda, &work[itauq], &
-			    work[nwork], &i__1, &ierr);
+			    work[nwork], &i__1, &ierr, (ftnlen)1);
 
 /*
                    Multiply Q in A by real matrix RWORK(IRU), storing the
@@ -5300,7 +5373,7 @@ L10:
 			zlacrm_(&chunk, n, &a[i__ + a_dim1], lda, &rwork[iru],
 				 n, &work[iu], &ldwrku, &rwork[nrwork]);
 			zlacpy_("F", &chunk, n, &work[iu], &ldwrku, &a[i__ +
-				a_dim1], lda);
+				a_dim1], lda, (ftnlen)1);
 /* L30: */
 		    }
 		}
@@ -5320,7 +5393,7 @@ L10:
 		nrwork = irvt + *n * *n;
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix U
@@ -5329,11 +5402,14 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlaset_("F", m, n, &c_b56, &c_b56, &u[u_offset], ldu);
-		zlacp2_("F", n, n, &rwork[iru], n, &u[u_offset], ldu);
+		zlaset_("F", m, n, &c_b56, &c_b56, &u[u_offset], ldu, (ftnlen)
+			1);
+		zlacp2_("F", n, n, &rwork[iru], n, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", m, n, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -5342,11 +5418,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt);
+		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else {
 
 /*
@@ -5362,16 +5439,17 @@ L10:
 		nrwork = irvt + *n * *n;
 		dbdsdc_("U", "I", n, &s[1], &rwork[ie], &rwork[iru], n, &
 			rwork[irvt], n, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*              Set the right corner of U to identity matrix */
 
-		zlaset_("F", m, m, &c_b56, &c_b56, &u[u_offset], ldu);
+		zlaset_("F", m, m, &c_b56, &c_b56, &u[u_offset], ldu, (ftnlen)
+			1);
 		if (*m > *n) {
 		    i__2 = *m - *n;
 		    i__1 = *m - *n;
 		    zlaset_("F", &i__2, &i__1, &c_b56, &c_b57, &u[*n + 1 + (*
-			    n + 1) * u_dim1], ldu);
+			    n + 1) * u_dim1], ldu, (ftnlen)1);
 		}
 
 /*
@@ -5381,10 +5459,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[iru], n, &u[u_offset], ldu);
+		zlacp2_("F", n, n, &rwork[iru], n, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -5393,11 +5473,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt);
+		zlacp2_("F", n, n, &rwork[irvt], n, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 
 	}
@@ -5437,7 +5518,7 @@ L10:
 		i__2 = *m - 1;
 		i__1 = *m - 1;
 		zlaset_("U", &i__2, &i__1, &c_b56, &c_b56, &a[(a_dim1 << 1) +
-			1], lda);
+			1], lda, (ftnlen)1);
 		ie = 1;
 		itauq = 1;
 		itaup = itauq + *m;
@@ -5461,7 +5542,8 @@ L10:
 */
 
 		dbdsdc_("U", "N", m, &s[1], &rwork[ie], dum, &c__1, dum, &
-			c__1, dum, idum, &rwork[nrwork], &iwork[1], info);
+			c__1, dum, idum, &rwork[nrwork], &iwork[1], info, (
+			ftnlen)1, (ftnlen)1);
 
 	    } else if (wntqo) {
 
@@ -5505,11 +5587,12 @@ L10:
 
 /*              Copy L to WORK(IL), zeroing about above it */
 
-		zlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl);
+		zlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl, (
+			ftnlen)1);
 		i__2 = *m - 1;
 		i__1 = *m - 1;
 		zlaset_("U", &i__2, &i__1, &c_b56, &c_b56, &work[il + ldwrkl],
-			 &ldwrkl);
+			 &ldwrkl, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -5548,7 +5631,7 @@ L10:
 		nrwork = irvt + *m * *m;
 		dbdsdc_("U", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix WORK(IU)
@@ -5557,10 +5640,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu);
+		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", m, m, m, &work[il], &ldwrkl, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix WORK(IVT)
@@ -5569,11 +5654,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", m, m, &rwork[irvt], m, &work[ivt], &ldwkvt);
+		zlacp2_("F", m, m, &rwork[irvt], m, &work[ivt], &ldwkvt, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", m, m, m, &work[il], &ldwrkl, &work[
 			itaup], &work[ivt], &ldwkvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply right singular vectors of L in WORK(IL) by Q
@@ -5591,9 +5677,9 @@ L10:
 		    blk = min(i__3,chunk);
 		    zgemm_("N", "N", m, &blk, m, &c_b57, &work[ivt], m, &a[
 			    i__ * a_dim1 + 1], lda, &c_b56, &work[il], &
-			    ldwrkl);
+			    ldwrkl, (ftnlen)1, (ftnlen)1);
 		    zlacpy_("F", m, &blk, &work[il], &ldwrkl, &a[i__ * a_dim1
-			    + 1], lda);
+			    + 1], lda, (ftnlen)1);
 /* L40: */
 		}
 
@@ -5625,11 +5711,12 @@ L10:
 
 /*              Copy L to WORK(IL), zeroing out above it */
 
-		zlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl);
+		zlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl, (
+			ftnlen)1);
 		i__1 = *m - 1;
 		i__2 = *m - 1;
 		zlaset_("U", &i__1, &i__2, &c_b56, &c_b56, &work[il + ldwrkl],
-			 &ldwrkl);
+			 &ldwrkl, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -5668,7 +5755,7 @@ L10:
 		nrwork = irvt + *m * *m;
 		dbdsdc_("U", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix U
@@ -5677,10 +5764,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu);
+		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", m, m, m, &work[il], &ldwrkl, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -5689,11 +5778,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", m, m, &rwork[irvt], m, &vt[vt_offset], ldvt);
+		zlacp2_("F", m, m, &rwork[irvt], m, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", m, m, m, &work[il], &ldwrkl, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy VT to WORK(IL), multiply right singular vectors of L
@@ -5702,9 +5792,11 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacpy_("F", m, m, &vt[vt_offset], ldvt, &work[il], &ldwrkl);
+		zlacpy_("F", m, m, &vt[vt_offset], ldvt, &work[il], &ldwrkl, (
+			ftnlen)1);
 		zgemm_("N", "N", m, n, m, &c_b57, &work[il], &ldwrkl, &a[
-			a_offset], lda, &c_b56, &vt[vt_offset], ldvt);
+			a_offset], lda, &c_b56, &vt[vt_offset], ldvt, (ftnlen)
+			1, (ftnlen)1);
 
 	    } else if (wntqa) {
 
@@ -5731,7 +5823,8 @@ L10:
 		i__1 = *lwork - nwork + 1;
 		zgelqf_(m, n, &a[a_offset], lda, &work[itau], &work[nwork], &
 			i__1, &ierr);
-		zlacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 /*
                 Generate Q in VT
@@ -5748,7 +5841,7 @@ L10:
 		i__1 = *m - 1;
 		i__2 = *m - 1;
 		zlaset_("U", &i__1, &i__2, &c_b56, &c_b56, &a[(a_dim1 << 1) +
-			1], lda);
+			1], lda, (ftnlen)1);
 		ie = 1;
 		itauq = itau;
 		itaup = itauq + *m;
@@ -5777,7 +5870,7 @@ L10:
 		nrwork = irvt + *m * *m;
 		dbdsdc_("U", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix U
@@ -5786,10 +5879,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu);
+		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", m, m, m, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix WORK(IVT)
@@ -5798,11 +5893,12 @@ L10:
                 (RWorkspace: 0)
 */
 
-		zlacp2_("F", m, m, &rwork[irvt], m, &work[ivt], &ldwkvt);
+		zlacp2_("F", m, m, &rwork[irvt], m, &work[ivt], &ldwkvt, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", m, m, m, &a[a_offset], lda, &work[
 			itaup], &work[ivt], &ldwkvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply right singular vectors of L in WORK(IVT) by
@@ -5812,11 +5908,13 @@ L10:
 */
 
 		zgemm_("N", "N", m, n, m, &c_b57, &work[ivt], &ldwkvt, &vt[
-			vt_offset], ldvt, &c_b56, &a[a_offset], lda);
+			vt_offset], ldvt, &c_b56, &a[a_offset], lda, (ftnlen)
+			1, (ftnlen)1);
 
 /*              Copy right singular vectors of A from A to VT */
 
-		zlacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 	    }
 
@@ -5856,7 +5954,8 @@ L10:
 */
 
 		dbdsdc_("L", "N", m, &s[1], &rwork[ie], dum, &c__1, dum, &
-			c__1, dum, idum, &rwork[nrwork], &iwork[1], info);
+			c__1, dum, idum, &rwork[nrwork], &iwork[1], info, (
+			ftnlen)1, (ftnlen)1);
 	    } else if (wntqo) {
 		irvt = nrwork;
 		iru = irvt + *m * *m;
@@ -5869,10 +5968,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("L", m, m, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("L", m, m, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zungbr_("Q", m, m, n, &u[u_offset], ldu, &work[itauq], &work[
-			nwork], &i__1, &ierr);
+			nwork], &i__1, &ierr, (ftnlen)1);
 
 /*
                 Generate P**H in A
@@ -5882,7 +5982,7 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		zungbr_("P", m, n, m, &a[a_offset], lda, &work[itaup], &work[
-			nwork], &i__1, &ierr);
+			nwork], &i__1, &ierr, (ftnlen)1);
 
 		ldwkvt = *m;
 		if (*lwork >= *m * *n + *m * 3) {
@@ -5909,7 +6009,7 @@ L10:
 
 		dbdsdc_("L", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in U by real matrix RWORK(IRVT)
@@ -5920,7 +6020,8 @@ L10:
 
 		zlacrm_(m, m, &u[u_offset], ldu, &rwork[iru], m, &work[ivt], &
 			ldwkvt, &rwork[nrwork]);
-		zlacpy_("F", m, m, &work[ivt], &ldwkvt, &u[u_offset], ldu);
+		zlacpy_("F", m, m, &work[ivt], &ldwkvt, &u[u_offset], ldu, (
+			ftnlen)1);
 
 /*
                 Multiply RWORK(IRVT) by P**H in A, storing the
@@ -5940,7 +6041,7 @@ L10:
 		    zlarcm_(m, &blk, &rwork[irvt], m, &a[i__ * a_dim1 + 1],
 			    lda, &work[ivt], &ldwkvt, &rwork[nrwork]);
 		    zlacpy_("F", m, &blk, &work[ivt], &ldwkvt, &a[i__ *
-			    a_dim1 + 1], lda);
+			    a_dim1 + 1], lda, (ftnlen)1);
 /* L50: */
 		}
 	    } else if (wntqs) {
@@ -5951,10 +6052,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("L", m, m, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("L", m, m, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zungbr_("Q", m, m, n, &u[u_offset], ldu, &work[itauq], &work[
-			nwork], &i__2, &ierr);
+			nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                 Copy A to VT, generate P**H
@@ -5962,10 +6064,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zungbr_("P", m, n, m, &vt[vt_offset], ldvt, &work[itaup], &
-			work[nwork], &i__2, &ierr);
+			work[nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                 Perform bidiagonal SVD, computing left singular vectors
@@ -5980,7 +6083,7 @@ L10:
 		nrwork = iru + *m * *m;
 		dbdsdc_("L", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in U by real matrix RWORK(IRU), storing the
@@ -5991,7 +6094,8 @@ L10:
 
 		zlacrm_(m, m, &u[u_offset], ldu, &rwork[iru], m, &a[a_offset],
 			 lda, &rwork[nrwork]);
-		zlacpy_("F", m, m, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("F", m, m, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 
 /*
                 Multiply real matrix RWORK(IRVT) by P**H in VT,
@@ -6003,7 +6107,8 @@ L10:
 		nrwork = iru;
 		zlarcm_(m, n, &rwork[irvt], m, &vt[vt_offset], ldvt, &a[
 			a_offset], lda, &rwork[nrwork]);
-		zlacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 	    } else {
 
 /*
@@ -6012,10 +6117,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("L", m, m, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("L", m, m, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zungbr_("Q", m, m, n, &u[u_offset], ldu, &work[itauq], &work[
-			nwork], &i__2, &ierr);
+			nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                 Copy A to VT, generate P**H
@@ -6023,10 +6129,11 @@ L10:
                 (Rworkspace: 0)
 */
 
-		zlacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		zungbr_("P", n, n, m, &vt[vt_offset], ldvt, &work[itaup], &
-			work[nwork], &i__2, &ierr);
+			work[nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                 Perform bidiagonal SVD, computing left singular vectors
@@ -6041,7 +6148,7 @@ L10:
 		nrwork = iru + *m * *m;
 		dbdsdc_("L", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in U by real matrix RWORK(IRU), storing the
@@ -6052,7 +6159,8 @@ L10:
 
 		zlacrm_(m, m, &u[u_offset], ldu, &rwork[iru], m, &a[a_offset],
 			 lda, &rwork[nrwork]);
-		zlacpy_("F", m, m, &a[a_offset], lda, &u[u_offset], ldu);
+		zlacpy_("F", m, m, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 
 /*
                 Multiply real matrix RWORK(IRVT) by P**H in VT,
@@ -6063,7 +6171,8 @@ L10:
 
 		zlarcm_(m, n, &rwork[irvt], m, &vt[vt_offset], ldvt, &a[
 			a_offset], lda, &rwork[nrwork]);
-		zlacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		zlacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 	    }
 
 	} else {
@@ -6100,7 +6209,8 @@ L10:
 */
 
 		dbdsdc_("L", "N", m, &s[1], &rwork[ie], dum, &c__1, dum, &
-			c__1, dum, idum, &rwork[nrwork], &iwork[1], info);
+			c__1, dum, idum, &rwork[nrwork], &iwork[1], info, (
+			ftnlen)1, (ftnlen)1);
 	    } else if (wntqo) {
 		ldwkvt = *m;
 		ivt = nwork;
@@ -6108,7 +6218,8 @@ L10:
 
 /*                 WORK( IVT ) is M by N */
 
-		    zlaset_("F", m, n, &c_b56, &c_b56, &work[ivt], &ldwkvt);
+		    zlaset_("F", m, n, &c_b56, &c_b56, &work[ivt], &ldwkvt, (
+			    ftnlen)1);
 		    nwork = ivt + ldwkvt * *n;
 		} else {
 
@@ -6131,7 +6242,7 @@ L10:
 		nrwork = iru + *m * *m;
 		dbdsdc_("L", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix U
@@ -6140,10 +6251,12 @@ L10:
                 (Rworkspace: need 0)
 */
 
-		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu);
+		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__2 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 		if (*lwork >= *m * *n + *m * 3) {
 
@@ -6155,12 +6268,14 @@ L10:
                 (Rworkspace: need 0)
 */
 
-		    zlacp2_("F", m, m, &rwork[irvt], m, &work[ivt], &ldwkvt);
+		    zlacp2_("F", m, m, &rwork[irvt], m, &work[ivt], &ldwkvt, (
+			    ftnlen)1);
 		    i__2 = *lwork - nwork + 1;
 		    zunmbr_("P", "R", "C", m, n, m, &a[a_offset], lda, &work[
 			    itaup], &work[ivt], &ldwkvt, &work[nwork], &i__2,
-			    &ierr);
-		    zlacpy_("F", m, n, &work[ivt], &ldwkvt, &a[a_offset], lda);
+			    &ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
+		    zlacpy_("F", m, n, &work[ivt], &ldwkvt, &a[a_offset], lda,
+			     (ftnlen)1);
 		} else {
 
 /*
@@ -6171,7 +6286,7 @@ L10:
 
 		    i__2 = *lwork - nwork + 1;
 		    zungbr_("P", m, n, m, &a[a_offset], lda, &work[itaup], &
-			    work[nwork], &i__2, &ierr);
+			    work[nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                    Multiply Q in A by real matrix RWORK(IRU), storing the
@@ -6191,7 +6306,7 @@ L10:
 			zlarcm_(m, &blk, &rwork[irvt], m, &a[i__ * a_dim1 + 1]
 				, lda, &work[ivt], &ldwkvt, &rwork[nrwork]);
 			zlacpy_("F", m, &blk, &work[ivt], &ldwkvt, &a[i__ *
-				a_dim1 + 1], lda);
+				a_dim1 + 1], lda, (ftnlen)1);
 /* L60: */
 		    }
 		}
@@ -6210,7 +6325,7 @@ L10:
 		nrwork = iru + *m * *m;
 		dbdsdc_("L", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix U
@@ -6219,10 +6334,12 @@ L10:
                 (RWorkspace: M*M)
 */
 
-		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu);
+		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -6231,12 +6348,14 @@ L10:
                 (RWorkspace: M*M)
 */
 
-		zlaset_("F", m, n, &c_b56, &c_b56, &vt[vt_offset], ldvt);
-		zlacp2_("F", m, m, &rwork[irvt], m, &vt[vt_offset], ldvt);
+		zlaset_("F", m, n, &c_b56, &c_b56, &vt[vt_offset], ldvt, (
+			ftnlen)1);
+		zlacp2_("F", m, m, &rwork[irvt], m, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", m, n, m, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else {
 
 /*
@@ -6253,7 +6372,7 @@ L10:
 
 		dbdsdc_("L", "I", m, &s[1], &rwork[ie], &rwork[iru], m, &
 			rwork[irvt], m, dum, idum, &rwork[nrwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRU) to complex matrix U
@@ -6262,14 +6381,17 @@ L10:
                 (RWorkspace: M*M)
 */
 
-		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu);
+		zlacp2_("F", m, m, &rwork[iru], m, &u[u_offset], ldu, (ftnlen)
+			1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*              Set all of VT to identity matrix */
 
-		zlaset_("F", n, n, &c_b56, &c_b57, &vt[vt_offset], ldvt);
+		zlaset_("F", n, n, &c_b56, &c_b57, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 /*
                 Copy real matrix RWORK(IRVT) to complex matrix VT
@@ -6278,11 +6400,12 @@ L10:
                 (RWorkspace: M*M)
 */
 
-		zlacp2_("F", m, m, &rwork[irvt], m, &vt[vt_offset], ldvt);
+		zlacp2_("F", m, m, &rwork[irvt], m, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		zunmbr_("P", "R", "C", n, n, m, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 
 	}
@@ -6294,21 +6417,21 @@ L10:
     if (iscl == 1) {
 	if (anrm > bignum) {
 	    dlascl_("G", &c__0, &c__0, &bignum, &anrm, &minmn, &c__1, &s[1], &
-		    minmn, &ierr);
+		    minmn, &ierr, (ftnlen)1);
 	}
 	if (*info != 0 && anrm > bignum) {
 	    i__1 = minmn - 1;
 	    dlascl_("G", &c__0, &c__0, &bignum, &anrm, &i__1, &c__1, &rwork[
-		    ie], &minmn, &ierr);
+		    ie], &minmn, &ierr, (ftnlen)1);
 	}
 	if (anrm < smlnum) {
 	    dlascl_("G", &c__0, &c__0, &smlnum, &anrm, &minmn, &c__1, &s[1], &
-		    minmn, &ierr);
+		    minmn, &ierr, (ftnlen)1);
 	}
 	if (*info != 0 && anrm < smlnum) {
 	    i__1 = minmn - 1;
 	    dlascl_("G", &c__0, &c__0, &smlnum, &anrm, &i__1, &c__1, &rwork[
-		    ie], &minmn, &ierr);
+		    ie], &minmn, &ierr, (ftnlen)1);
 	}
     }
 
@@ -6330,10 +6453,11 @@ L10:
     integer a_dim1, a_offset, b_dim1, b_offset, i__1;
 
     /* Local variables */
-    extern /* Subroutine */ int xerbla_(char *, integer *), zgetrf_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), zgetrf_(
 	    integer *, integer *, doublecomplex *, integer *, integer *,
 	    integer *), zgetrs_(char *, integer *, integer *, doublecomplex *,
-	     integer *, integer *, doublecomplex *, integer *, integer *);
+	     integer *, integer *, doublecomplex *, integer *, integer *,
+	    ftnlen);
 
 
 /*
@@ -6422,7 +6546,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGESV ", &i__1);
+	xerbla_("ZGESV ", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -6434,7 +6558,7 @@ L10:
 /*        Solve the system A*X = B, overwriting B with X. */
 
 	zgetrs_("No transpose", n, nrhs, &a[a_offset], lda, &ipiv[1], &b[
-		b_offset], ldb, info);
+		b_offset], ldb, info, (ftnlen)12);
     }
     return 0;
 
@@ -6458,7 +6582,7 @@ L10:
 	    integer *, doublecomplex *, integer *), zswap_(integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *);
 
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer izamax_(integer *, doublecomplex *, integer *);
 
 
@@ -6535,7 +6659,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGETF2", &i__1);
+	xerbla_("ZGETF2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -6621,11 +6745,11 @@ L10:
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), ztrsm_(char *, char *, char *, char *,
+	    integer *, ftnlen, ftnlen), ztrsm_(char *, char *, char *, char *,
 	     integer *, integer *, doublecomplex *, doublecomplex *, integer *
-	    , doublecomplex *, integer *),
+	    , doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
 	    zgetf2_(integer *, integer *, doublecomplex *, integer *, integer
-	    *, integer *), xerbla_(char *, integer *);
+	    *, integer *), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlaswp_(integer *, doublecomplex *, integer *,
@@ -6705,7 +6829,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGETRF", &i__1);
+	xerbla_("ZGETRF", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -6776,7 +6900,8 @@ L10:
 		i__3 = *n - j - jb + 1;
 		ztrsm_("Left", "Lower", "No transpose", "Unit", &jb, &i__3, &
 			c_b57, &a[j + j * a_dim1], lda, &a[j + (j + jb) *
-			a_dim1], lda);
+			a_dim1], lda, (ftnlen)4, (ftnlen)5, (ftnlen)12, (
+			ftnlen)4);
 		if (j + jb <= *m) {
 
 /*                 Update trailing submatrix. */
@@ -6787,7 +6912,7 @@ L10:
 		    zgemm_("No transpose", "No transpose", &i__3, &i__4, &jb,
 			    &z__1, &a[j + jb + j * a_dim1], lda, &a[j + (j +
 			    jb) * a_dim1], lda, &c_b57, &a[j + jb + (j + jb) *
-			     a_dim1], lda);
+			     a_dim1], lda, (ftnlen)12, (ftnlen)12);
 		}
 	    }
 /* L20: */
@@ -6801,17 +6926,17 @@ L10:
 
 /* Subroutine */ int zgetrs_(char *trans, integer *n, integer *nrhs,
 	doublecomplex *a, integer *lda, integer *ipiv, doublecomplex *b,
-	integer *ldb, integer *info)
+	integer *ldb, integer *info, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int ztrsm_(char *, char *, char *, char *,
 	    integer *, integer *, doublecomplex *, doublecomplex *, integer *,
-	     doublecomplex *, integer *),
-	    xerbla_(char *, integer *);
+	     doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
+	    xerbla_(char *, integer *, ftnlen);
     static logical notran;
     extern /* Subroutine */ int zlaswp_(integer *, doublecomplex *, integer *,
 	     integer *, integer *, integer *, integer *);
@@ -6887,9 +7012,9 @@ L10:
 
     /* Function Body */
     *info = 0;
-    notran = lsame_(trans, "N");
-    if (! notran && ! lsame_(trans, "T") && ! lsame_(
-	    trans, "C")) {
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
+    if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1) && ! lsame_(
+	    trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -6902,7 +7027,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZGETRS", &i__1);
+	xerbla_("ZGETRS", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -6925,12 +7050,14 @@ L10:
 /*        Solve L*X = B, overwriting B with X. */
 
 	ztrsm_("Left", "Lower", "No transpose", "Unit", n, nrhs, &c_b57, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)4);
 
 /*        Solve U*X = B, overwriting B with X. */
 
 	ztrsm_("Left", "Upper", "No transpose", "Non-unit", n, nrhs, &c_b57, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
     } else {
 
 /*
@@ -6940,12 +7067,14 @@ L10:
 */
 
 	ztrsm_("Left", "Upper", trans, "Non-unit", n, nrhs, &c_b57, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)1, (ftnlen)8);
 
 /*        Solve L'*X = B, overwriting B with X. */
 
 	ztrsm_("Left", "Lower", trans, "Unit", n, nrhs, &c_b57, &a[a_offset],
-		lda, &b[b_offset], ldb);
+		lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (ftnlen)1, (
+		ftnlen)4);
 
 /*        Apply row interchanges to the solution vectors. */
 
@@ -6961,7 +7090,7 @@ L10:
 /* Subroutine */ int zheevd_(char *jobz, char *uplo, integer *n,
 	doublecomplex *a, integer *lda, doublereal *w, doublecomplex *work,
 	integer *lwork, doublereal *rwork, integer *lrwork, integer *iwork,
-	integer *liwork, integer *info)
+	integer *liwork, integer *info, ftnlen jobz_len, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -6977,7 +7106,7 @@ L10:
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
     static doublereal sigma;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo, lwmin, liopt;
     static logical lower;
     static integer llrwk, lropt;
@@ -6988,30 +7117,31 @@ L10:
     static doublereal safmin;
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static doublereal bignum;
     extern doublereal zlanhe_(char *, char *, integer *, doublecomplex *,
-	    integer *, doublereal *);
+	    integer *, doublereal *, ftnlen, ftnlen);
     static integer indtau;
     extern /* Subroutine */ int dsterf_(integer *, doublereal *, doublereal *,
 	     integer *), zlascl_(char *, integer *, integer *, doublereal *,
 	    doublereal *, integer *, integer *, doublecomplex *, integer *,
-	    integer *), zstedc_(char *, integer *, doublereal *,
+	    integer *, ftnlen), zstedc_(char *, integer *, doublereal *,
 	    doublereal *, doublecomplex *, integer *, doublecomplex *,
 	    integer *, doublereal *, integer *, integer *, integer *, integer
-	    *);
+	    *, ftnlen);
     static integer indrwk, indwrk, liwmin;
     extern /* Subroutine */ int zhetrd_(char *, integer *, doublecomplex *,
 	    integer *, doublereal *, doublereal *, doublecomplex *,
-	    doublecomplex *, integer *, integer *), zlacpy_(char *,
+	    doublecomplex *, integer *, integer *, ftnlen), zlacpy_(char *,
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
-	     integer *);
+	     integer *, ftnlen);
     static integer lrwmin, llwork;
     static doublereal smlnum;
     static logical lquery;
     extern /* Subroutine */ int zunmtr_(char *, char *, char *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen, ftnlen);
 
 
 /*
@@ -7149,14 +7279,14 @@ L10:
     --iwork;
 
     /* Function Body */
-    wantz = lsame_(jobz, "V");
-    lower = lsame_(uplo, "L");
+    wantz = lsame_(jobz, "V", (ftnlen)1, (ftnlen)1);
+    lower = lsame_(uplo, "L", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1 || *lrwork == -1 || *liwork == -1;
 
     *info = 0;
-    if (! (wantz || lsame_(jobz, "N"))) {
+    if (! (wantz || lsame_(jobz, "N", (ftnlen)1, (ftnlen)1))) {
 	*info = -1;
-    } else if (! (lower || lsame_(uplo, "U"))) {
+    } else if (! (lower || lsame_(uplo, "U", (ftnlen)1, (ftnlen)1))) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -7206,7 +7336,7 @@ L10:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZHEEVD", &i__1);
+	xerbla_("ZHEEVD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -7239,7 +7369,8 @@ L10:
 
 /*     Scale matrix to allowable range, if necessary. */
 
-    anrm = zlanhe_("M", uplo, n, &a[a_offset], lda, &rwork[1]);
+    anrm = zlanhe_("M", uplo, n, &a[a_offset], lda, &rwork[1], (ftnlen)1, (
+	    ftnlen)1);
     iscale = 0;
     if (anrm > 0. && anrm < rmin) {
 	iscale = 1;
@@ -7250,7 +7381,7 @@ L10:
     }
     if (iscale == 1) {
 	zlascl_(uplo, &c__0, &c__0, &c_b1034, &sigma, n, n, &a[a_offset], lda,
-		 info);
+		 info, (ftnlen)1);
     }
 
 /*     Call ZHETRD to reduce Hermitian matrix to tridiagonal form. */
@@ -7264,7 +7395,7 @@ L10:
     llwrk2 = *lwork - indwk2 + 1;
     llrwk = *lrwork - indrwk + 1;
     zhetrd_(uplo, n, &a[a_offset], lda, &w[1], &rwork[inde], &work[indtau], &
-	    work[indwrk], &llwork, &iinfo);
+	    work[indwrk], &llwork, &iinfo, (ftnlen)1);
 
 /*
        For eigenvalues only, call DSTERF.  For eigenvectors, first call
@@ -7278,10 +7409,12 @@ L10:
 	dsterf_(n, &w[1], &rwork[inde], info);
     } else {
 	zstedc_("I", n, &w[1], &rwork[inde], &work[indwrk], n, &work[indwk2],
-		&llwrk2, &rwork[indrwk], &llrwk, &iwork[1], liwork, info);
+		&llwrk2, &rwork[indrwk], &llrwk, &iwork[1], liwork, info, (
+		ftnlen)1);
 	zunmtr_("L", uplo, "N", n, n, &a[a_offset], lda, &work[indtau], &work[
-		indwrk], n, &work[indwk2], &llwrk2, &iinfo);
-	zlacpy_("A", n, n, &work[indwrk], n, &a[a_offset], lda);
+		indwrk], n, &work[indwk2], &llwrk2, &iinfo, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
+	zlacpy_("A", n, n, &work[indwrk], n, &a[a_offset], lda, (ftnlen)1);
     }
 
 /*     If matrix was scaled, then rescale eigenvalues appropriately. */
@@ -7308,7 +7441,7 @@ L10:
 
 /* Subroutine */ int zhetd2_(char *uplo, integer *n, doublecomplex *a,
 	integer *lda, doublereal *d__, doublereal *e, doublecomplex *tau,
-	integer *info)
+	integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -7320,18 +7453,18 @@ L10:
     static doublecomplex taui;
     extern /* Subroutine */ int zher2_(char *, integer *, doublecomplex *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen);
     static doublecomplex alpha;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Double Complex */ VOID zdotc_(doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *);
     extern /* Subroutine */ int zhemv_(char *, integer *, doublecomplex *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, doublecomplex *, integer *);
+	    doublecomplex *, doublecomplex *, integer *, ftnlen);
     static logical upper;
     extern /* Subroutine */ int zaxpy_(integer *, doublecomplex *,
 	    doublecomplex *, integer *, doublecomplex *, integer *), xerbla_(
-	    char *, integer *), zlarfg_(integer *, doublecomplex *,
+	    char *, integer *, ftnlen), zlarfg_(integer *, doublecomplex *,
 	    doublecomplex *, integer *, doublecomplex *);
 
 
@@ -7458,8 +7591,8 @@ L10:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -7468,7 +7601,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZHETD2", &i__1);
+	xerbla_("ZHETD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -7509,7 +7642,7 @@ L10:
 /*              Compute  x := tau * A * v  storing x in TAU(1:i) */
 
 		zhemv_(uplo, &i__, &taui, &a[a_offset], lda, &a[(i__ + 1) *
-			a_dim1 + 1], &c__1, &c_b56, &tau[1], &c__1)
+			a_dim1 + 1], &c__1, &c_b56, &tau[1], &c__1, (ftnlen)1)
 			;
 
 /*              Compute  w := x - 1/2 * tau * (x'*v) * v */
@@ -7532,7 +7665,7 @@ L10:
 
 		z__1.r = -1., z__1.i = -0.;
 		zher2_(uplo, &i__, &z__1, &a[(i__ + 1) * a_dim1 + 1], &c__1, &
-			tau[1], &c__1, &a[a_offset], lda);
+			tau[1], &c__1, &a[a_offset], lda, (ftnlen)1);
 
 	    } else {
 		i__1 = i__ + i__ * a_dim1;
@@ -7590,7 +7723,7 @@ L10:
 		i__2 = *n - i__;
 		zhemv_(uplo, &i__2, &taui, &a[i__ + 1 + (i__ + 1) * a_dim1],
 			lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b56, &tau[
-			i__], &c__1);
+			i__], &c__1, (ftnlen)1);
 
 /*              Compute  w := x - 1/2 * tau * (x'*v) * v */
 
@@ -7616,7 +7749,7 @@ L10:
 		z__1.r = -1., z__1.i = -0.;
 		zher2_(uplo, &i__2, &z__1, &a[i__ + 1 + i__ * a_dim1], &c__1,
 			&tau[i__], &c__1, &a[i__ + 1 + (i__ + 1) * a_dim1],
-			lda);
+			lda, (ftnlen)1);
 
 	    } else {
 		i__2 = i__ + 1 + (i__ + 1) * a_dim1;
@@ -7647,7 +7780,7 @@ L10:
 
 /* Subroutine */ int zhetrd_(char *uplo, integer *n, doublecomplex *a,
 	integer *lda, doublereal *d__, doublereal *e, doublecomplex *tau,
-	doublecomplex *work, integer *lwork, integer *info)
+	doublecomplex *work, integer *lwork, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -7655,18 +7788,20 @@ L10:
 
     /* Local variables */
     static integer i__, j, nb, kk, nx, iws;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     static logical upper;
     extern /* Subroutine */ int zhetd2_(char *, integer *, doublecomplex *,
-	    integer *, doublereal *, doublereal *, doublecomplex *, integer *), zher2k_(char *, char *, integer *, integer *,
+	    integer *, doublereal *, doublereal *, doublecomplex *, integer *,
+	     ftnlen), zher2k_(char *, char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublereal *, doublecomplex *, integer *), xerbla_(char *, integer *);
+	    integer *, doublereal *, doublecomplex *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlatrd_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublereal *, doublecomplex *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen);
     static integer ldwork, lwkopt;
     static logical lquery;
 
@@ -7806,9 +7941,9 @@ L10:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -7830,7 +7965,7 @@ L10:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZHETRD", &i__1);
+	xerbla_("ZHETRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -7907,7 +8042,7 @@ L10:
 
 	    i__3 = i__ + nb - 1;
 	    zlatrd_(uplo, &i__3, &nb, &a[a_offset], lda, &e[1], &tau[1], &
-		    work[1], &ldwork);
+		    work[1], &ldwork, (ftnlen)1);
 
 /*
              Update the unreduced submatrix A(1:i-1,1:i-1), using an
@@ -7917,7 +8052,8 @@ L10:
 	    i__3 = i__ - 1;
 	    z__1.r = -1., z__1.i = -0.;
 	    zher2k_(uplo, "No transpose", &i__3, &nb, &z__1, &a[i__ * a_dim1
-		    + 1], lda, &work[1], &ldwork, &c_b1034, &a[a_offset], lda);
+		    + 1], lda, &work[1], &ldwork, &c_b1034, &a[a_offset], lda,
+		     (ftnlen)1, (ftnlen)12);
 
 /*
              Copy superdiagonal elements back into A, and diagonal
@@ -7939,7 +8075,8 @@ L10:
 
 /*        Use unblocked code to reduce the last or only block */
 
-	zhetd2_(uplo, &kk, &a[a_offset], lda, &d__[1], &e[1], &tau[1], &iinfo);
+	zhetd2_(uplo, &kk, &a[a_offset], lda, &d__[1], &e[1], &tau[1], &iinfo,
+		 (ftnlen)1);
     } else {
 
 /*        Reduce the lower triangle of A */
@@ -7956,7 +8093,7 @@ L10:
 
 	    i__3 = *n - i__ + 1;
 	    zlatrd_(uplo, &i__3, &nb, &a[i__ + i__ * a_dim1], lda, &e[i__], &
-		    tau[i__], &work[1], &ldwork);
+		    tau[i__], &work[1], &ldwork, (ftnlen)1);
 
 /*
              Update the unreduced submatrix A(i+nb:n,i+nb:n), using
@@ -7967,7 +8104,8 @@ L10:
 	    z__1.r = -1., z__1.i = -0.;
 	    zher2k_(uplo, "No transpose", &i__3, &nb, &z__1, &a[i__ + nb +
 		    i__ * a_dim1], lda, &work[nb + 1], &ldwork, &c_b1034, &a[
-		    i__ + nb + (i__ + nb) * a_dim1], lda);
+		    i__ + nb + (i__ + nb) * a_dim1], lda, (ftnlen)1, (ftnlen)
+		    12);
 
 /*
              Copy subdiagonal elements back into A, and diagonal
@@ -7991,7 +8129,7 @@ L10:
 
 	i__1 = *n - i__ + 1;
 	zhetd2_(uplo, &i__1, &a[i__ + i__ * a_dim1], lda, &d__[i__], &e[i__],
-		&tau[i__], &iinfo);
+		&tau[i__], &iinfo, (ftnlen)1);
     }
 
     work[1].r = (doublereal) lwkopt, work[1].i = 0.;
@@ -8004,7 +8142,7 @@ L10:
 /* Subroutine */ int zhseqr_(char *job, char *compz, integer *n, integer *ilo,
 	 integer *ihi, doublecomplex *h__, integer *ldh, doublecomplex *w,
 	doublecomplex *z__, integer *ldz, doublecomplex *work, integer *lwork,
-	 integer *info)
+	 integer *info, ftnlen job_len, ftnlen compz_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -8016,7 +8154,7 @@ L10:
     /* Local variables */
     static doublecomplex hl[2401]	/* was [49][49] */;
     static integer kbot, nmin;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical initz;
     static doublecomplex workl[49];
     static logical wantt, wantz;
@@ -8025,16 +8163,16 @@ L10:
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, integer *, doublecomplex *, integer *,
 	     doublecomplex *, integer *, integer *), xerbla_(char *, integer *
-	    );
+	    , ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlahqr_(logical *, logical *, integer *,
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
 	     integer *, integer *, doublecomplex *, integer *, integer *),
 	    zlacpy_(char *, integer *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *), zlaset_(char *, integer *,
+	    doublecomplex *, integer *, ftnlen), zlaset_(char *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen);
     static logical lquery;
 
 
@@ -8273,18 +8411,18 @@ L10:
     --work;
 
     /* Function Body */
-    wantt = lsame_(job, "S");
-    initz = lsame_(compz, "I");
-    wantz = initz || lsame_(compz, "V");
+    wantt = lsame_(job, "S", (ftnlen)1, (ftnlen)1);
+    initz = lsame_(compz, "I", (ftnlen)1, (ftnlen)1);
+    wantz = initz || lsame_(compz, "V", (ftnlen)1, (ftnlen)1);
     d__1 = (doublereal) max(1,*n);
     z__1.r = d__1, z__1.i = 0.;
     work[1].r = z__1.r, work[1].i = z__1.i;
     lquery = *lwork == -1;
 
     *info = 0;
-    if (! lsame_(job, "E") && ! wantt) {
+    if (! lsame_(job, "E", (ftnlen)1, (ftnlen)1) && ! wantt) {
 	*info = -1;
-    } else if (! lsame_(compz, "N") && ! wantz) {
+    } else if (! lsame_(compz, "N", (ftnlen)1, (ftnlen)1) && ! wantz) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -8305,7 +8443,7 @@ L10:
 /*        ==== Quick return in case of invalid argument. ==== */
 
 	i__1 = -(*info);
-	xerbla_("ZHSEQR", &i__1);
+	xerbla_("ZHSEQR", &i__1, (ftnlen)6);
 	return 0;
 
     } else if (*n == 0) {
@@ -8350,7 +8488,7 @@ L10:
 /*        ==== Initialize Z, if requested ==== */
 
 	if (initz) {
-	    zlaset_("A", n, n, &c_b56, &c_b57, &z__[z_offset], ldz)
+	    zlaset_("A", n, n, &c_b56, &c_b57, &z__[z_offset], ldz, (ftnlen)1)
 		    ;
 	}
 
@@ -8416,17 +8554,19 @@ L10:
                    .    array before calling ZLAQR0. ====
 */
 
-		    zlacpy_("A", n, n, &h__[h_offset], ldh, hl, &c__49);
+		    zlacpy_("A", n, n, &h__[h_offset], ldh, hl, &c__49, (
+			    ftnlen)1);
 		    i__1 = *n + 1 + *n * 49 - 50;
 		    hl[i__1].r = 0., hl[i__1].i = 0.;
 		    i__1 = 49 - *n;
 		    zlaset_("A", &c__49, &i__1, &c_b56, &c_b56, &hl[(*n + 1) *
-			     49 - 49], &c__49);
+			     49 - 49], &c__49, (ftnlen)1);
 		    zlaqr0_(&wantt, &wantz, &c__49, ilo, &kbot, hl, &c__49, &
 			    w[1], ilo, ihi, &z__[z_offset], ldz, workl, &
 			    c__49, info);
 		    if (wantt || *info != 0) {
-			zlacpy_("A", n, n, hl, &c__49, &h__[h_offset], ldh);
+			zlacpy_("A", n, n, hl, &c__49, &h__[h_offset], ldh, (
+				ftnlen)1);
 		    }
 		}
 	    }
@@ -8437,7 +8577,8 @@ L10:
 	if ((wantt || *info != 0) && *n > 2) {
 	    i__1 = *n - 2;
 	    i__2 = *n - 2;
-	    zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &h__[h_dim1 + 3], ldh);
+	    zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &h__[h_dim1 + 3], ldh,
+		    (ftnlen)1);
 	}
 
 /*
@@ -8473,7 +8614,7 @@ L10:
     extern /* Subroutine */ int zscal_(integer *, doublecomplex *,
 	    doublecomplex *, integer *), zgemv_(char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, doublecomplex *, integer *),
+	    integer *, doublecomplex *, doublecomplex *, integer *, ftnlen),
 	    zlarfg_(integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *), zlacgv_(integer *, doublecomplex *, integer *);
 
@@ -8647,7 +8788,7 @@ L10:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemv_("No transpose", &i__2, &i__3, &z__1, &a[i__ + a_dim1], lda,
 		     &y[i__ + y_dim1], ldy, &c_b57, &a[i__ + i__ * a_dim1], &
-		    c__1);
+		    c__1, (ftnlen)12);
 	    i__2 = i__ - 1;
 	    zlacgv_(&i__2, &y[i__ + y_dim1], ldy);
 	    i__2 = *m - i__ + 1;
@@ -8655,7 +8796,7 @@ L10:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemv_("No transpose", &i__2, &i__3, &z__1, &x[i__ + x_dim1], ldx,
 		     &a[i__ * a_dim1 + 1], &c__1, &c_b57, &a[i__ + i__ *
-		    a_dim1], &c__1);
+		    a_dim1], &c__1, (ftnlen)12);
 
 /*           Generate reflection Q(i) to annihilate A(i+1:m,i) */
 
@@ -8678,29 +8819,30 @@ L10:
 		i__3 = *n - i__;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[i__ + (
 			i__ + 1) * a_dim1], lda, &a[i__ + i__ * a_dim1], &
-			c__1, &c_b56, &y[i__ + 1 + i__ * y_dim1], &c__1);
+			c__1, &c_b56, &y[i__ + 1 + i__ * y_dim1], &c__1, (
+			ftnlen)19);
 		i__2 = *m - i__ + 1;
 		i__3 = i__ - 1;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[i__ +
 			a_dim1], lda, &a[i__ + i__ * a_dim1], &c__1, &c_b56, &
-			y[i__ * y_dim1 + 1], &c__1);
+			y[i__ * y_dim1 + 1], &c__1, (ftnlen)19);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &y[i__ + 1 +
 			y_dim1], ldy, &y[i__ * y_dim1 + 1], &c__1, &c_b57, &y[
-			i__ + 1 + i__ * y_dim1], &c__1);
+			i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__ + 1;
 		i__3 = i__ - 1;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &x[i__ +
 			x_dim1], ldx, &a[i__ + i__ * a_dim1], &c__1, &c_b56, &
-			y[i__ * y_dim1 + 1], &c__1);
+			y[i__ * y_dim1 + 1], &c__1, (ftnlen)19);
 		i__2 = i__ - 1;
 		i__3 = *n - i__;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &z__1, &a[(i__ +
 			1) * a_dim1 + 1], lda, &y[i__ * y_dim1 + 1], &c__1, &
-			c_b57, &y[i__ + 1 + i__ * y_dim1], &c__1);
+			c_b57, &y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)19);
 		i__2 = *n - i__;
 		zscal_(&i__2, &tauq[i__], &y[i__ + 1 + i__ * y_dim1], &c__1);
 
@@ -8713,7 +8855,7 @@ L10:
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__, &z__1, &y[i__ + 1 +
 			y_dim1], ldy, &a[i__ + a_dim1], lda, &c_b57, &a[i__ +
-			(i__ + 1) * a_dim1], lda);
+			(i__ + 1) * a_dim1], lda, (ftnlen)12);
 		zlacgv_(&i__, &a[i__ + a_dim1], lda);
 		i__2 = i__ - 1;
 		zlacgv_(&i__2, &x[i__ + x_dim1], ldx);
@@ -8722,7 +8864,7 @@ L10:
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &z__1, &a[(i__ +
 			1) * a_dim1 + 1], lda, &x[i__ + x_dim1], ldx, &c_b57,
-			&a[i__ + (i__ + 1) * a_dim1], lda);
+			&a[i__ + (i__ + 1) * a_dim1], lda, (ftnlen)19);
 		i__2 = i__ - 1;
 		zlacgv_(&i__2, &x[i__ + x_dim1], ldx);
 
@@ -8746,27 +8888,28 @@ L10:
 		i__3 = *n - i__;
 		zgemv_("No transpose", &i__2, &i__3, &c_b57, &a[i__ + 1 + (
 			i__ + 1) * a_dim1], lda, &a[i__ + (i__ + 1) * a_dim1],
-			 lda, &c_b56, &x[i__ + 1 + i__ * x_dim1], &c__1);
+			 lda, &c_b56, &x[i__ + 1 + i__ * x_dim1], &c__1, (
+			ftnlen)12);
 		i__2 = *n - i__;
 		zgemv_("Conjugate transpose", &i__2, &i__, &c_b57, &y[i__ + 1
 			+ y_dim1], ldy, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			c_b56, &x[i__ * x_dim1 + 1], &c__1);
+			c_b56, &x[i__ * x_dim1 + 1], &c__1, (ftnlen)19);
 		i__2 = *m - i__;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__, &z__1, &a[i__ + 1 +
 			a_dim1], lda, &x[i__ * x_dim1 + 1], &c__1, &c_b57, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = i__ - 1;
 		i__3 = *n - i__;
 		zgemv_("No transpose", &i__2, &i__3, &c_b57, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			c_b56, &x[i__ * x_dim1 + 1], &c__1);
+			c_b56, &x[i__ * x_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &x[i__ + 1 +
 			x_dim1], ldx, &x[i__ * x_dim1 + 1], &c__1, &c_b57, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		zscal_(&i__2, &taup[i__], &x[i__ + 1 + i__ * x_dim1], &c__1);
 		i__2 = *n - i__;
@@ -8792,7 +8935,7 @@ L10:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemv_("No transpose", &i__2, &i__3, &z__1, &y[i__ + y_dim1], ldy,
 		     &a[i__ + a_dim1], lda, &c_b57, &a[i__ + i__ * a_dim1],
-		    lda);
+		    lda, (ftnlen)12);
 	    i__2 = i__ - 1;
 	    zlacgv_(&i__2, &a[i__ + a_dim1], lda);
 	    i__2 = i__ - 1;
@@ -8802,7 +8945,7 @@ L10:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemv_("Conjugate transpose", &i__2, &i__3, &z__1, &a[i__ *
 		    a_dim1 + 1], lda, &x[i__ + x_dim1], ldx, &c_b57, &a[i__ +
-		    i__ * a_dim1], lda);
+		    i__ * a_dim1], lda, (ftnlen)19);
 	    i__2 = i__ - 1;
 	    zlacgv_(&i__2, &x[i__ + x_dim1], ldx);
 
@@ -8827,29 +8970,29 @@ L10:
 		i__3 = *n - i__ + 1;
 		zgemv_("No transpose", &i__2, &i__3, &c_b57, &a[i__ + 1 + i__
 			* a_dim1], lda, &a[i__ + i__ * a_dim1], lda, &c_b56, &
-			x[i__ + 1 + i__ * x_dim1], &c__1);
+			x[i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__ + 1;
 		i__3 = i__ - 1;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &y[i__ +
 			y_dim1], ldy, &a[i__ + i__ * a_dim1], lda, &c_b56, &x[
-			i__ * x_dim1 + 1], &c__1);
+			i__ * x_dim1 + 1], &c__1, (ftnlen)19);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &a[i__ + 1 +
 			a_dim1], lda, &x[i__ * x_dim1 + 1], &c__1, &c_b57, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = i__ - 1;
 		i__3 = *n - i__ + 1;
 		zgemv_("No transpose", &i__2, &i__3, &c_b57, &a[i__ * a_dim1
 			+ 1], lda, &a[i__ + i__ * a_dim1], lda, &c_b56, &x[
-			i__ * x_dim1 + 1], &c__1);
+			i__ * x_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &x[i__ + 1 +
 			x_dim1], ldx, &x[i__ * x_dim1 + 1], &c__1, &c_b57, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		zscal_(&i__2, &taup[i__], &x[i__ + 1 + i__ * x_dim1], &c__1);
 		i__2 = *n - i__ + 1;
@@ -8864,14 +9007,14 @@ L10:
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &a[i__ + 1 +
 			a_dim1], lda, &y[i__ + y_dim1], ldy, &c_b57, &a[i__ +
-			1 + i__ * a_dim1], &c__1);
+			1 + i__ * a_dim1], &c__1, (ftnlen)12);
 		i__2 = i__ - 1;
 		zlacgv_(&i__2, &y[i__ + y_dim1], ldy);
 		i__2 = *m - i__;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__, &z__1, &x[i__ + 1 +
 			x_dim1], ldx, &a[i__ * a_dim1 + 1], &c__1, &c_b57, &a[
-			i__ + 1 + i__ * a_dim1], &c__1);
+			i__ + 1 + i__ * a_dim1], &c__1, (ftnlen)12);
 
 /*              Generate reflection Q(i) to annihilate A(i+2:m,i) */
 
@@ -8894,27 +9037,27 @@ L10:
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[i__ +
 			1 + (i__ + 1) * a_dim1], lda, &a[i__ + 1 + i__ *
 			a_dim1], &c__1, &c_b56, &y[i__ + 1 + i__ * y_dim1], &
-			c__1);
+			c__1, (ftnlen)19);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[i__ +
 			1 + a_dim1], lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &
-			c_b56, &y[i__ * y_dim1 + 1], &c__1);
+			c_b56, &y[i__ * y_dim1 + 1], &c__1, (ftnlen)19);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &y[i__ + 1 +
 			y_dim1], ldy, &y[i__ * y_dim1 + 1], &c__1, &c_b57, &y[
-			i__ + 1 + i__ * y_dim1], &c__1);
+			i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		zgemv_("Conjugate transpose", &i__2, &i__, &c_b57, &x[i__ + 1
 			+ x_dim1], ldx, &a[i__ + 1 + i__ * a_dim1], &c__1, &
-			c_b56, &y[i__ * y_dim1 + 1], &c__1);
+			c_b56, &y[i__ * y_dim1 + 1], &c__1, (ftnlen)19);
 		i__2 = *n - i__;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("Conjugate transpose", &i__, &i__2, &z__1, &a[(i__ + 1)
 			 * a_dim1 + 1], lda, &y[i__ * y_dim1 + 1], &c__1, &
-			c_b57, &y[i__ + 1 + i__ * y_dim1], &c__1);
+			c_b57, &y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)19);
 		i__2 = *n - i__;
 		zscal_(&i__2, &tauq[i__], &y[i__ + 1 + i__ * y_dim1], &c__1);
 	    } else {
@@ -9003,14 +9146,14 @@ L10:
 } /* zlacgv_ */
 
 /* Subroutine */ int zlacp2_(char *uplo, integer *m, integer *n, doublereal *
-	a, integer *lda, doublecomplex *b, integer *ldb)
+	a, integer *lda, doublecomplex *b, integer *ldb, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3, i__4;
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
 
 
 /*
@@ -9068,7 +9211,7 @@ L10:
     b -= b_offset;
 
     /* Function Body */
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    i__2 = min(j,*m);
@@ -9081,7 +9224,7 @@ L10:
 /* L20: */
 	}
 
-    } else if (lsame_(uplo, "L")) {
+    } else if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    i__2 = *m;
@@ -9115,14 +9258,15 @@ L10:
 } /* zlacp2_ */
 
 /* Subroutine */ int zlacpy_(char *uplo, integer *m, integer *n,
-	doublecomplex *a, integer *lda, doublecomplex *b, integer *ldb)
+	doublecomplex *a, integer *lda, doublecomplex *b, integer *ldb,
+	ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3, i__4;
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
 
 
 /*
@@ -9180,7 +9324,7 @@ L10:
     b -= b_offset;
 
     /* Function Body */
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    i__2 = min(j,*m);
@@ -9193,7 +9337,7 @@ L10:
 /* L20: */
 	}
 
-    } else if (lsame_(uplo, "L")) {
+    } else if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    i__2 = *m;
@@ -9240,7 +9384,7 @@ L10:
     static integer i__, j, l;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
 
 
 /*
@@ -9326,7 +9470,7 @@ L10:
 
     l = *m * *n + 1;
     dgemm_("N", "N", m, n, n, &c_b1034, &rwork[1], m, &b[b_offset], ldb, &
-	    c_b328, &rwork[l], m);
+	    c_b328, &rwork[l], m, (ftnlen)1, (ftnlen)1);
     i__1 = *n;
     for (j = 1; j <= i__1; ++j) {
 	i__2 = *m;
@@ -9349,7 +9493,7 @@ L10:
 /* L60: */
     }
     dgemm_("N", "N", m, n, n, &c_b1034, &rwork[1], m, &b[b_offset], ldb, &
-	    c_b328, &rwork[l], m);
+	    c_b328, &rwork[l], m, (ftnlen)1, (ftnlen)1);
     i__1 = *n;
     for (j = 1; j <= i__1; ++j) {
 	i__2 = *m;
@@ -9446,7 +9590,7 @@ L10:
 	    doublereal *, doublecomplex *, doublereal *, integer *, integer *)
 	    ;
     static integer igivcl;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlacrm_(integer *, integer *, doublecomplex *,
@@ -9454,7 +9598,8 @@ L10:
 	    doublereal *);
     static integer igivnm, submat, curprb, subpbs, igivpt;
     extern /* Subroutine */ int dsteqr_(char *, integer *, doublereal *,
-	    doublereal *, doublereal *, integer *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen);
     static integer curlvl, matsiz, iprmpt, smlsiz;
 
 
@@ -9567,7 +9712,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLAED0", &i__1);
+	xerbla_("ZLAED0", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -9672,7 +9817,7 @@ L10:
 	}
 	ll = iq - 1 + iwork[iqptr + curr];
 	dsteqr_("I", &matsiz, &d__[submat], &e[submat], &rwork[ll], &matsiz, &
-		rwork[1], info);
+		rwork[1], info, (ftnlen)1);
 	zlacrm_(qsiz, &matsiz, &q[submat * q_dim1 + 1], ldq, &rwork[ll], &
 		matsiz, &qstore[submat * qstore_dim1 + 1], ldqs, &rwork[iwrem]
 		);
@@ -9794,7 +9939,8 @@ L80:
 	     integer *);
     static integer idlmda;
     extern /* Subroutine */ int dlamrg_(integer *, integer *, doublereal *,
-	    integer *, integer *, integer *), xerbla_(char *, integer *), zlacrm_(integer *, integer *, doublecomplex *, integer *,
+	    integer *, integer *, integer *), xerbla_(char *, integer *,
+	    ftnlen), zlacrm_(integer *, integer *, doublecomplex *, integer *,
 	     doublereal *, integer *, doublecomplex *, integer *, doublereal *
 	    );
     static integer coltyp;
@@ -9975,7 +10121,7 @@ L80:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLAED7", &i__1);
+	xerbla_("ZLAED7", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -10097,11 +10243,13 @@ L80:
 	    doublecomplex *, integer *, doublereal *, doublereal *), zcopy_(
 	    integer *, doublecomplex *, integer *, doublecomplex *, integer *)
 	    ;
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     extern integer idamax_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dlamrg_(integer *, integer *, doublereal *,
-	    integer *, integer *, integer *), xerbla_(char *, integer *), zlacpy_(char *, integer *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, integer *);
+	    integer *, integer *, integer *), xerbla_(char *, integer *,
+	    ftnlen), zlacpy_(char *, integer *, integer *, doublecomplex *,
+	    integer *, doublecomplex *, integer *, ftnlen);
 
 
 /*
@@ -10261,7 +10409,7 @@ L80:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLAED8", &i__1);
+	xerbla_("ZLAED8", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -10344,7 +10492,8 @@ L80:
 		    , &c__1);
 /* L50: */
 	}
-	zlacpy_("A", qsiz, n, &q2[q2_dim1 + 1], ldq2, &q[q_dim1 + 1], ldq);
+	zlacpy_("A", qsiz, n, &q2[q2_dim1 + 1], ldq2, &q[q_dim1 + 1], ldq, (
+		ftnlen)1);
 	return 0;
     }
 
@@ -10484,7 +10633,7 @@ L100:
 	dcopy_(&i__1, &dlamda[*k + 1], &c__1, &d__[*k + 1], &c__1);
 	i__1 = *n - *k;
 	zlacpy_("A", qsiz, &i__1, &q2[(*k + 1) * q2_dim1 + 1], ldq2, &q[(*k +
-		1) * q_dim1 + 1], ldq);
+		1) * q_dim1 + 1], ldq, (ftnlen)1);
     }
 
     return 0;
@@ -11241,19 +11390,20 @@ L150:
 	    doublecomplex *, integer *), zgemm_(char *, char *, integer *,
 	    integer *, integer *, doublecomplex *, doublecomplex *, integer *,
 	     doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), zgemv_(char *, integer *, integer *,
+	    integer *, ftnlen, ftnlen), zgemv_(char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, doublecomplex *, integer *),
+	    integer *, doublecomplex *, doublecomplex *, integer *, ftnlen),
 	    zcopy_(integer *, doublecomplex *, integer *, doublecomplex *,
 	    integer *), ztrmm_(char *, char *, char *, char *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
-	    doublecomplex *, integer *),
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
 	    zaxpy_(integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), ztrmv_(char *, char *, char *,
-	    integer *, doublecomplex *, integer *, doublecomplex *, integer *), zlarfg_(integer *, doublecomplex *,
+	    integer *, doublecomplex *, integer *, doublecomplex *, integer *,
+	     ftnlen, ftnlen, ftnlen), zlarfg_(integer *, doublecomplex *,
 	    doublecomplex *, integer *, doublecomplex *), zlacgv_(integer *,
 	    doublecomplex *, integer *), zlacpy_(char *, integer *, integer *,
-	     doublecomplex *, integer *, doublecomplex *, integer *);
+	     doublecomplex *, integer *, doublecomplex *, integer *, ftnlen);
 
 
 /*
@@ -11404,7 +11554,7 @@ L150:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemv_("NO TRANSPOSE", &i__2, &i__3, &z__1, &y[*k + 1 + y_dim1],
 		    ldy, &a[*k + i__ - 1 + a_dim1], lda, &c_b57, &a[*k + 1 +
-		    i__ * a_dim1], &c__1);
+		    i__ * a_dim1], &c__1, (ftnlen)12);
 	    i__2 = i__ - 1;
 	    zlacgv_(&i__2, &a[*k + i__ - 1 + a_dim1], lda);
 
@@ -11425,7 +11575,8 @@ L150:
 		    1], &c__1);
 	    i__2 = i__ - 1;
 	    ztrmv_("Lower", "Conjugate transpose", "UNIT", &i__2, &a[*k + 1 +
-		    a_dim1], lda, &t[*nb * t_dim1 + 1], &c__1);
+		    a_dim1], lda, &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (
+		    ftnlen)19, (ftnlen)4);
 
 /*           w := w + V2'*b2 */
 
@@ -11433,13 +11584,14 @@ L150:
 	    i__3 = i__ - 1;
 	    zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[*k + i__ +
 		    a_dim1], lda, &a[*k + i__ + i__ * a_dim1], &c__1, &c_b57,
-		    &t[*nb * t_dim1 + 1], &c__1);
+		    &t[*nb * t_dim1 + 1], &c__1, (ftnlen)19);
 
 /*           w := T'*w */
 
 	    i__2 = i__ - 1;
 	    ztrmv_("Upper", "Conjugate transpose", "NON-UNIT", &i__2, &t[
-		    t_offset], ldt, &t[*nb * t_dim1 + 1], &c__1);
+		    t_offset], ldt, &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (
+		    ftnlen)19, (ftnlen)8);
 
 /*           b2 := b2 - V2*w */
 
@@ -11448,13 +11600,14 @@ L150:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemv_("NO TRANSPOSE", &i__2, &i__3, &z__1, &a[*k + i__ + a_dim1],
 		     lda, &t[*nb * t_dim1 + 1], &c__1, &c_b57, &a[*k + i__ +
-		    i__ * a_dim1], &c__1);
+		    i__ * a_dim1], &c__1, (ftnlen)12);
 
 /*           b1 := b1 - V1*w */
 
 	    i__2 = i__ - 1;
 	    ztrmv_("Lower", "NO TRANSPOSE", "UNIT", &i__2, &a[*k + 1 + a_dim1]
-		    , lda, &t[*nb * t_dim1 + 1], &c__1);
+		    , lda, &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12,
+		     (ftnlen)4);
 	    i__2 = i__ - 1;
 	    z__1.r = -1., z__1.i = -0.;
 	    zaxpy_(&i__2, &z__1, &t[*nb * t_dim1 + 1], &c__1, &a[*k + 1 + i__
@@ -11485,18 +11638,18 @@ L150:
 	i__3 = *n - *k - i__ + 1;
 	zgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b57, &a[*k + 1 + (i__ + 1) *
 		a_dim1], lda, &a[*k + i__ + i__ * a_dim1], &c__1, &c_b56, &y[*
-		k + 1 + i__ * y_dim1], &c__1);
+		k + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 	i__2 = *n - *k - i__ + 1;
 	i__3 = i__ - 1;
 	zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[*k + i__ +
 		a_dim1], lda, &a[*k + i__ + i__ * a_dim1], &c__1, &c_b56, &t[
-		i__ * t_dim1 + 1], &c__1);
+		i__ * t_dim1 + 1], &c__1, (ftnlen)19);
 	i__2 = *n - *k;
 	i__3 = i__ - 1;
 	z__1.r = -1., z__1.i = -0.;
 	zgemv_("NO TRANSPOSE", &i__2, &i__3, &z__1, &y[*k + 1 + y_dim1], ldy,
 		&t[i__ * t_dim1 + 1], &c__1, &c_b57, &y[*k + 1 + i__ * y_dim1]
-		, &c__1);
+		, &c__1, (ftnlen)12);
 	i__2 = *n - *k;
 	zscal_(&i__2, &tau[i__], &y[*k + 1 + i__ * y_dim1], &c__1);
 
@@ -11508,7 +11661,7 @@ L150:
 	zscal_(&i__2, &z__1, &t[i__ * t_dim1 + 1], &c__1);
 	i__2 = i__ - 1;
 	ztrmv_("Upper", "No Transpose", "NON-UNIT", &i__2, &t[t_offset], ldt,
-		&t[i__ * t_dim1 + 1], &c__1)
+		&t[i__ * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)8)
 		;
 	i__2 = i__ + i__ * t_dim1;
 	i__3 = i__;
@@ -11521,17 +11674,20 @@ L150:
 
 /*     Compute Y(1:K,1:NB) */
 
-    zlacpy_("ALL", k, nb, &a[(a_dim1 << 1) + 1], lda, &y[y_offset], ldy);
+    zlacpy_("ALL", k, nb, &a[(a_dim1 << 1) + 1], lda, &y[y_offset], ldy, (
+	    ftnlen)3);
     ztrmm_("RIGHT", "Lower", "NO TRANSPOSE", "UNIT", k, nb, &c_b57, &a[*k + 1
-	    + a_dim1], lda, &y[y_offset], ldy);
+	    + a_dim1], lda, &y[y_offset], ldy, (ftnlen)5, (ftnlen)5, (ftnlen)
+	    12, (ftnlen)4);
     if (*n > *k + *nb) {
 	i__1 = *n - *k - *nb;
 	zgemm_("NO TRANSPOSE", "NO TRANSPOSE", k, nb, &i__1, &c_b57, &a[(*nb
 		+ 2) * a_dim1 + 1], lda, &a[*k + 1 + *nb + a_dim1], lda, &
-		c_b57, &y[y_offset], ldy);
+		c_b57, &y[y_offset], ldy, (ftnlen)12, (ftnlen)12);
     }
     ztrmm_("RIGHT", "Upper", "NO TRANSPOSE", "NON-UNIT", k, nb, &c_b57, &t[
-	    t_offset], ldt, &y[y_offset], ldy);
+	    t_offset], ldt, &y[y_offset], ldy, (ftnlen)5, (ftnlen)5, (ftnlen)
+	    12, (ftnlen)8);
 
     return 0;
 
@@ -11564,18 +11720,19 @@ L150:
     static doublereal diflj, difrj, dsigj;
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *), zdrot_(integer *,
+	    doublereal *, doublereal *, integer *, ftnlen), zdrot_(integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
 	    doublereal *, doublereal *);
     extern doublereal dlamc3_(doublereal *, doublereal *);
     extern /* Subroutine */ int zcopy_(integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *), xerbla_(char *, integer *);
+	    doublecomplex *, integer *), xerbla_(char *, integer *, ftnlen);
     static doublereal dsigjp;
     extern /* Subroutine */ int zdscal_(integer *, doublereal *,
 	    doublecomplex *, integer *), zlascl_(char *, integer *, integer *,
 	     doublereal *, doublereal *, integer *, integer *, doublecomplex *
-	    , integer *, integer *), zlacpy_(char *, integer *,
-	    integer *, doublecomplex *, integer *, doublecomplex *, integer *);
+	    , integer *, integer *, ftnlen), zlacpy_(char *, integer *,
+	    integer *, doublecomplex *, integer *, doublecomplex *, integer *,
+	     ftnlen);
 
 
 /*
@@ -11790,7 +11947,7 @@ L150:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLALS0", &i__1);
+	xerbla_("ZLALS0", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -11899,7 +12056,8 @@ L150:
 /* L60: */
 		}
 		dgemv_("T", k, nrhs, &c_b1034, &rwork[*k + 1 + (*nrhs << 1)],
-			k, &rwork[1], &c__1, &c_b328, &rwork[*k + 1], &c__1);
+			k, &rwork[1], &c__1, &c_b328, &rwork[*k + 1], &c__1, (
+			ftnlen)1);
 		i__ = *k + (*nrhs << 1);
 		i__2 = *nrhs;
 		for (jcol = 1; jcol <= i__2; ++jcol) {
@@ -11913,7 +12071,7 @@ L150:
 		}
 		dgemv_("T", k, nrhs, &c_b1034, &rwork[*k + 1 + (*nrhs << 1)],
 			k, &rwork[1], &c__1, &c_b328, &rwork[*k + 1 + *nrhs],
-			&c__1);
+			&c__1, (ftnlen)1);
 		i__2 = *nrhs;
 		for (jcol = 1; jcol <= i__2; ++jcol) {
 		    i__3 = j + jcol * b_dim1;
@@ -11924,7 +12082,7 @@ L150:
 /* L90: */
 		}
 		zlascl_("G", &c__0, &c__0, &temp, &c_b1034, &c__1, nrhs, &b[j
-			+ b_dim1], ldb, info);
+			+ b_dim1], ldb, info, (ftnlen)1);
 /* L100: */
 	    }
 	}
@@ -11934,7 +12092,7 @@ L150:
 	if (*k < max(m,n)) {
 	    i__1 = n - *k;
 	    zlacpy_("A", &i__1, nrhs, &bx[*k + 1 + bx_dim1], ldbx, &b[*k + 1
-		    + b_dim1], ldb);
+		    + b_dim1], ldb, (ftnlen)1);
 	}
     } else {
 
@@ -12003,7 +12161,8 @@ L150:
 /* L140: */
 		}
 		dgemv_("T", k, nrhs, &c_b1034, &rwork[*k + 1 + (*nrhs << 1)],
-			k, &rwork[1], &c__1, &c_b328, &rwork[*k + 1], &c__1);
+			k, &rwork[1], &c__1, &c_b328, &rwork[*k + 1], &c__1, (
+			ftnlen)1);
 		i__ = *k + (*nrhs << 1);
 		i__2 = *nrhs;
 		for (jcol = 1; jcol <= i__2; ++jcol) {
@@ -12017,7 +12176,7 @@ L150:
 		}
 		dgemv_("T", k, nrhs, &c_b1034, &rwork[*k + 1 + (*nrhs << 1)],
 			k, &rwork[1], &c__1, &c_b328, &rwork[*k + 1 + *nrhs],
-			&c__1);
+			&c__1, (ftnlen)1);
 		i__2 = *nrhs;
 		for (jcol = 1; jcol <= i__2; ++jcol) {
 		    i__3 = j + jcol * bx_dim1;
@@ -12044,7 +12203,7 @@ L150:
 	if (*k < max(m,n)) {
 	    i__1 = n - *k;
 	    zlacpy_("A", &i__1, nrhs, &b[*k + 1 + b_dim1], ldb, &bx[*k + 1 +
-		    bx_dim1], ldbx);
+		    bx_dim1], ldbx, (ftnlen)1);
 	}
 
 /*        Step (3R): permute rows of B. */
@@ -12098,7 +12257,7 @@ L150:
 	    ndb1, nlp1, lvl2, nrp1, jcol, nlvl, sqre, jrow, jimag;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer jreal, inode, ndiml, ndimr;
     extern /* Subroutine */ int zcopy_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), zlals0_(integer *, integer *,
@@ -12108,7 +12267,7 @@ L150:
 	    doublereal *, doublereal *, integer *, doublereal *, doublereal *,
 	     doublereal *, integer *), dlasdt_(integer *, integer *, integer *
 	    , integer *, integer *, integer *, integer *), xerbla_(char *,
-	    integer *);
+	    integer *, ftnlen);
 
 
 /*
@@ -12320,7 +12479,7 @@ L150:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLALSA", &i__1);
+	xerbla_("ZLALSA", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -12389,7 +12548,8 @@ L150:
 /* L20: */
 	}
 	dgemm_("T", "N", &nl, nrhs, &nl, &c_b1034, &u[nlf + u_dim1], ldu, &
-		rwork[(nl * *nrhs << 1) + 1], &nl, &c_b328, &rwork[1], &nl);
+		rwork[(nl * *nrhs << 1) + 1], &nl, &c_b328, &rwork[1], &nl, (
+		ftnlen)1, (ftnlen)1);
 	j = nl * *nrhs << 1;
 	i__2 = *nrhs;
 	for (jcol = 1; jcol <= i__2; ++jcol) {
@@ -12403,7 +12563,7 @@ L150:
 	}
 	dgemm_("T", "N", &nl, nrhs, &nl, &c_b1034, &u[nlf + u_dim1], ldu, &
 		rwork[(nl * *nrhs << 1) + 1], &nl, &c_b328, &rwork[nl * *nrhs
-		+ 1], &nl);
+		+ 1], &nl, (ftnlen)1, (ftnlen)1);
 	jreal = 0;
 	jimag = nl * *nrhs;
 	i__2 = *nrhs;
@@ -12443,7 +12603,8 @@ L150:
 /* L80: */
 	}
 	dgemm_("T", "N", &nr, nrhs, &nr, &c_b1034, &u[nrf + u_dim1], ldu, &
-		rwork[(nr * *nrhs << 1) + 1], &nr, &c_b328, &rwork[1], &nr);
+		rwork[(nr * *nrhs << 1) + 1], &nr, &c_b328, &rwork[1], &nr, (
+		ftnlen)1, (ftnlen)1);
 	j = nr * *nrhs << 1;
 	i__2 = *nrhs;
 	for (jcol = 1; jcol <= i__2; ++jcol) {
@@ -12457,7 +12618,7 @@ L150:
 	}
 	dgemm_("T", "N", &nr, nrhs, &nr, &c_b1034, &u[nrf + u_dim1], ldu, &
 		rwork[(nr * *nrhs << 1) + 1], &nr, &c_b328, &rwork[nr * *nrhs
-		+ 1], &nr);
+		+ 1], &nr, (ftnlen)1, (ftnlen)1);
 	jreal = 0;
 	jimag = nr * *nrhs;
 	i__2 = *nrhs;
@@ -12634,7 +12795,7 @@ L170:
 	}
 	dgemm_("T", "N", &nlp1, nrhs, &nlp1, &c_b1034, &vt[nlf + vt_dim1],
 		ldu, &rwork[(nlp1 * *nrhs << 1) + 1], &nlp1, &c_b328, &rwork[
-		1], &nlp1);
+		1], &nlp1, (ftnlen)1, (ftnlen)1);
 	j = nlp1 * *nrhs << 1;
 	i__2 = *nrhs;
 	for (jcol = 1; jcol <= i__2; ++jcol) {
@@ -12648,7 +12809,7 @@ L170:
 	}
 	dgemm_("T", "N", &nlp1, nrhs, &nlp1, &c_b1034, &vt[nlf + vt_dim1],
 		ldu, &rwork[(nlp1 * *nrhs << 1) + 1], &nlp1, &c_b328, &rwork[
-		nlp1 * *nrhs + 1], &nlp1);
+		nlp1 * *nrhs + 1], &nlp1, (ftnlen)1, (ftnlen)1);
 	jreal = 0;
 	jimag = nlp1 * *nrhs;
 	i__2 = *nrhs;
@@ -12689,7 +12850,7 @@ L170:
 	}
 	dgemm_("T", "N", &nrp1, nrhs, &nrp1, &c_b1034, &vt[nrf + vt_dim1],
 		ldu, &rwork[(nrp1 * *nrhs << 1) + 1], &nrp1, &c_b328, &rwork[
-		1], &nrp1);
+		1], &nrp1, (ftnlen)1, (ftnlen)1);
 	j = nrp1 * *nrhs << 1;
 	i__2 = *nrhs;
 	for (jcol = 1; jcol <= i__2; ++jcol) {
@@ -12703,7 +12864,7 @@ L170:
 	}
 	dgemm_("T", "N", &nrp1, nrhs, &nrp1, &c_b1034, &vt[nrf + vt_dim1],
 		ldu, &rwork[(nrp1 * *nrhs << 1) + 1], &nrp1, &c_b328, &rwork[
-		nrp1 * *nrhs + 1], &nrp1);
+		nrp1 * *nrhs + 1], &nrp1, (ftnlen)1, (ftnlen)1);
 	jreal = 0;
 	jimag = nrp1 * *nrhs;
 	i__2 = *nrhs;
@@ -12736,7 +12897,7 @@ L330:
 /* Subroutine */ int zlalsd_(char *uplo, integer *smlsiz, integer *n, integer
 	*nrhs, doublereal *d__, doublereal *e, doublecomplex *b, integer *ldb,
 	 doublereal *rcond, integer *rank, doublecomplex *work, doublereal *
-	rwork, integer *iwork, integer *info)
+	rwork, integer *iwork, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer b_dim1, b_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -12760,7 +12921,7 @@ L330:
 	    jimag;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer jreal, irwib, poles, sizei, irwrb, nsize;
     extern /* Subroutine */ int zdrot_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublereal *, doublereal *), zcopy_(
@@ -12775,16 +12936,18 @@ L330:
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
 	     integer *), dlascl_(char *, integer *, integer *, doublereal *,
 	    doublereal *, integer *, integer *, doublereal *, integer *,
-	    integer *);
+	    integer *, ftnlen);
     extern integer idamax_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dlasdq_(char *, integer *, integer *, integer
 	    *, integer *, integer *, doublereal *, doublereal *, doublereal *,
 	     integer *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *), dlaset_(char *, integer *,
-	    integer *, doublereal *, doublereal *, doublereal *, integer *), dlartg_(doublereal *, doublereal *, doublereal *,
-	    doublereal *, doublereal *), xerbla_(char *, integer *);
+	    doublereal *, integer *, ftnlen), dlaset_(char *, integer *,
+	    integer *, doublereal *, doublereal *, doublereal *, integer *,
+	    ftnlen), dlartg_(doublereal *, doublereal *, doublereal *,
+	    doublereal *, doublereal *), xerbla_(char *, integer *, ftnlen);
     static integer givcol;
-    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *);
+    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *,
+	    ftnlen);
     extern /* Subroutine */ int zlalsa_(integer *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *, integer *,
 	     doublereal *, integer *, doublereal *, integer *, doublereal *,
@@ -12792,11 +12955,12 @@ L330:
 	    integer *, integer *, doublereal *, doublereal *, doublereal *,
 	    doublereal *, integer *, integer *), zlascl_(char *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, integer *,
-	    doublecomplex *, integer *, integer *), dlasrt_(char *,
-	    integer *, doublereal *, integer *), zlacpy_(char *,
+	    doublecomplex *, integer *, integer *, ftnlen), dlasrt_(char *,
+	    integer *, doublereal *, integer *, ftnlen), zlacpy_(char *,
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
-	     integer *), zlaset_(char *, integer *, integer *,
-	    doublecomplex *, doublecomplex *, doublecomplex *, integer *);
+	     integer *, ftnlen), zlaset_(char *, integer *, integer *,
+	    doublecomplex *, doublecomplex *, doublecomplex *, integer *,
+	    ftnlen);
     static doublereal orgnrm;
     static integer givnum, givptr, nrwork, irwwrk, smlszp;
 
@@ -12931,7 +13095,7 @@ L330:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLALSD", &i__1);
+	xerbla_("ZLALSD", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -12953,11 +13117,12 @@ L330:
 	return 0;
     } else if (*n == 1) {
 	if (d__[1] == 0.) {
-	    zlaset_("A", &c__1, nrhs, &c_b56, &c_b56, &b[b_offset], ldb);
+	    zlaset_("A", &c__1, nrhs, &c_b56, &c_b56, &b[b_offset], ldb, (
+		    ftnlen)1);
 	} else {
 	    *rank = 1;
 	    zlascl_("G", &c__0, &c__0, &d__[1], &c_b1034, &c__1, nrhs, &b[
-		    b_offset], ldb, info);
+		    b_offset], ldb, info, (ftnlen)1);
 	    d__[1] = abs(d__[1]);
 	}
 	return 0;
@@ -13000,15 +13165,16 @@ L330:
 /*     Scale. */
 
     nm1 = *n - 1;
-    orgnrm = dlanst_("M", n, &d__[1], &e[1]);
+    orgnrm = dlanst_("M", n, &d__[1], &e[1], (ftnlen)1);
     if (orgnrm == 0.) {
-	zlaset_("A", n, nrhs, &c_b56, &c_b56, &b[b_offset], ldb);
+	zlaset_("A", n, nrhs, &c_b56, &c_b56, &b[b_offset], ldb, (ftnlen)1);
 	return 0;
     }
 
-    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b1034, n, &c__1, &d__[1], n, info);
+    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b1034, n, &c__1, &d__[1], n, info,
+	    (ftnlen)1);
     dlascl_("G", &c__0, &c__0, &orgnrm, &c_b1034, &nm1, &c__1, &e[1], &nm1,
-	    info);
+	    info, (ftnlen)1);
 
 /*
        If N is smaller than the minimum divide size SMLSIZ, then solve
@@ -13022,10 +13188,11 @@ L330:
 	irwrb = irwwrk;
 	irwib = irwrb + *n * *nrhs;
 	irwb = irwib + *n * *nrhs;
-	dlaset_("A", n, n, &c_b328, &c_b1034, &rwork[irwu], n);
-	dlaset_("A", n, n, &c_b328, &c_b1034, &rwork[irwvt], n);
+	dlaset_("A", n, n, &c_b328, &c_b1034, &rwork[irwu], n, (ftnlen)1);
+	dlaset_("A", n, n, &c_b328, &c_b1034, &rwork[irwvt], n, (ftnlen)1);
 	dlasdq_("U", &c__0, n, n, n, &c__0, &d__[1], &e[1], &rwork[irwvt], n,
-		&rwork[irwu], n, &rwork[irwwrk], &c__1, &rwork[irwwrk], info);
+		&rwork[irwu], n, &rwork[irwwrk], &c__1, &rwork[irwwrk], info,
+		(ftnlen)1);
 	if (*info != 0) {
 	    return 0;
 	}
@@ -13049,7 +13216,7 @@ L330:
 /* L50: */
 	}
 	dgemm_("T", "N", n, nrhs, n, &c_b1034, &rwork[irwu], n, &rwork[irwb],
-		n, &c_b328, &rwork[irwrb], n);
+		n, &c_b328, &rwork[irwrb], n, (ftnlen)1, (ftnlen)1);
 	j = irwb - 1;
 	i__1 = *nrhs;
 	for (jcol = 1; jcol <= i__1; ++jcol) {
@@ -13062,7 +13229,7 @@ L330:
 /* L70: */
 	}
 	dgemm_("T", "N", n, nrhs, n, &c_b1034, &rwork[irwu], n, &rwork[irwb],
-		n, &c_b328, &rwork[irwib], n);
+		n, &c_b328, &rwork[irwib], n, (ftnlen)1, (ftnlen)1);
 	jreal = irwrb - 1;
 	jimag = irwib - 1;
 	i__1 = *nrhs;
@@ -13086,10 +13253,10 @@ L330:
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    if (d__[i__] <= tol) {
 		zlaset_("A", &c__1, nrhs, &c_b56, &c_b56, &b[i__ + b_dim1],
-			ldb);
+			ldb, (ftnlen)1);
 	    } else {
 		zlascl_("G", &c__0, &c__0, &d__[i__], &c_b1034, &c__1, nrhs, &
-			b[i__ + b_dim1], ldb, info);
+			b[i__ + b_dim1], ldb, info, (ftnlen)1);
 		++(*rank);
 	    }
 /* L100: */
@@ -13117,7 +13284,7 @@ L330:
 /* L120: */
 	}
 	dgemm_("T", "N", n, nrhs, n, &c_b1034, &rwork[irwvt], n, &rwork[irwb],
-		 n, &c_b328, &rwork[irwrb], n);
+		 n, &c_b328, &rwork[irwrb], n, (ftnlen)1, (ftnlen)1);
 	j = irwb - 1;
 	i__1 = *nrhs;
 	for (jcol = 1; jcol <= i__1; ++jcol) {
@@ -13130,7 +13297,7 @@ L330:
 /* L140: */
 	}
 	dgemm_("T", "N", n, nrhs, n, &c_b1034, &rwork[irwvt], n, &rwork[irwb],
-		 n, &c_b328, &rwork[irwib], n);
+		 n, &c_b328, &rwork[irwib], n, (ftnlen)1, (ftnlen)1);
 	jreal = irwrb - 1;
 	jimag = irwib - 1;
 	i__1 = *nrhs;
@@ -13152,10 +13319,10 @@ L330:
 /*        Unscale. */
 
 	dlascl_("G", &c__0, &c__0, &c_b1034, &orgnrm, n, &c__1, &d__[1], n,
-		info);
-	dlasrt_("D", n, &d__[1], info);
+		info, (ftnlen)1);
+	dlasrt_("D", n, &d__[1], info, (ftnlen)1);
 	zlascl_("G", &c__0, &c__0, &orgnrm, &c_b1034, n, nrhs, &b[b_offset],
-		ldb, info);
+		ldb, info, (ftnlen)1);
 
 	return 0;
     }
@@ -13256,12 +13423,12 @@ L330:
 /*              This is a small subproblem and is solved by DLASDQ. */
 
 		dlaset_("A", &nsize, &nsize, &c_b328, &c_b1034, &rwork[vt +
-			st1], n);
+			st1], n, (ftnlen)1);
 		dlaset_("A", &nsize, &nsize, &c_b328, &c_b1034, &rwork[u +
-			st1], n);
+			st1], n, (ftnlen)1);
 		dlasdq_("U", &c__0, &nsize, &nsize, &nsize, &c__0, &d__[st], &
 			e[st], &rwork[vt + st1], n, &rwork[u + st1], n, &
-			rwork[nrwork], &c__1, &rwork[nrwork], info)
+			rwork[nrwork], &c__1, &rwork[nrwork], info, (ftnlen)1)
 			;
 		if (*info != 0) {
 		    return 0;
@@ -13287,7 +13454,7 @@ L330:
 		}
 		dgemm_("T", "N", &nsize, nrhs, &nsize, &c_b1034, &rwork[u +
 			st1], n, &rwork[irwb], &nsize, &c_b328, &rwork[irwrb],
-			 &nsize);
+			 &nsize, (ftnlen)1, (ftnlen)1);
 		j = irwb - 1;
 		i__2 = *nrhs;
 		for (jcol = 1; jcol <= i__2; ++jcol) {
@@ -13301,7 +13468,7 @@ L330:
 		}
 		dgemm_("T", "N", &nsize, nrhs, &nsize, &c_b1034, &rwork[u +
 			st1], n, &rwork[irwb], &nsize, &c_b328, &rwork[irwib],
-			 &nsize);
+			 &nsize, (ftnlen)1, (ftnlen)1);
 		jreal = irwrb - 1;
 		jimag = irwib - 1;
 		i__2 = *nrhs;
@@ -13321,7 +13488,7 @@ L330:
 		}
 
 		zlacpy_("A", &nsize, nrhs, &b[st + b_dim1], ldb, &work[bx +
-			st1], n);
+			st1], n, (ftnlen)1);
 	    } else {
 
 /*              A large problem. Solve it using divide and conquer. */
@@ -13366,11 +13533,12 @@ L330:
 */
 
 	if ((d__1 = d__[i__], abs(d__1)) <= tol) {
-	    zlaset_("A", &c__1, nrhs, &c_b56, &c_b56, &work[bx + i__ - 1], n);
+	    zlaset_("A", &c__1, nrhs, &c_b56, &c_b56, &work[bx + i__ - 1], n,
+		    (ftnlen)1);
 	} else {
 	    ++(*rank);
 	    zlascl_("G", &c__0, &c__0, &d__[i__], &c_b1034, &c__1, nrhs, &
-		    work[bx + i__ - 1], n, info);
+		    work[bx + i__ - 1], n, info, (ftnlen)1);
 	}
 	d__[i__] = (d__1 = d__[i__], abs(d__1));
 /* L250: */
@@ -13413,7 +13581,8 @@ L330:
 /* L270: */
 	    }
 	    dgemm_("T", "N", &nsize, nrhs, &nsize, &c_b1034, &rwork[vt + st1],
-		     n, &rwork[irwb], &nsize, &c_b328, &rwork[irwrb], &nsize);
+		     n, &rwork[irwb], &nsize, &c_b328, &rwork[irwrb], &nsize,
+		    (ftnlen)1, (ftnlen)1);
 	    j = bxst - *n - 1;
 	    jimag = irwb - 1;
 	    i__2 = *nrhs;
@@ -13428,7 +13597,8 @@ L330:
 /* L290: */
 	    }
 	    dgemm_("T", "N", &nsize, nrhs, &nsize, &c_b1034, &rwork[vt + st1],
-		     n, &rwork[irwb], &nsize, &c_b328, &rwork[irwib], &nsize);
+		     n, &rwork[irwb], &nsize, &c_b328, &rwork[irwib], &nsize,
+		    (ftnlen)1, (ftnlen)1);
 	    jreal = irwrb - 1;
 	    jimag = irwib - 1;
 	    i__2 = *nrhs;
@@ -13463,10 +13633,11 @@ L330:
 
 /*     Unscale and sort the singular values. */
 
-    dlascl_("G", &c__0, &c__0, &c_b1034, &orgnrm, n, &c__1, &d__[1], n, info);
-    dlasrt_("D", n, &d__[1], info);
+    dlascl_("G", &c__0, &c__0, &c_b1034, &orgnrm, n, &c__1, &d__[1], n, info,
+	    (ftnlen)1);
+    dlasrt_("D", n, &d__[1], info, (ftnlen)1);
     zlascl_("G", &c__0, &c__0, &orgnrm, &c_b1034, n, nrhs, &b[b_offset], ldb,
-	    info);
+	    info, (ftnlen)1);
 
     return 0;
 
@@ -13475,7 +13646,7 @@ L330:
 } /* zlalsd_ */
 
 doublereal zlange_(char *norm, integer *m, integer *n, doublecomplex *a,
-	integer *lda, doublereal *work)
+	integer *lda, doublereal *work, ftnlen norm_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -13484,7 +13655,7 @@ doublereal zlange_(char *norm, integer *m, integer *n, doublecomplex *a,
     /* Local variables */
     static integer i__, j;
     static doublereal sum, scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal value;
     extern /* Subroutine */ int zlassq_(integer *, doublecomplex *, integer *,
 	     doublereal *, doublereal *);
@@ -13560,7 +13731,7 @@ doublereal zlange_(char *norm, integer *m, integer *n, doublecomplex *a,
     /* Function Body */
     if (min(*m,*n) == 0) {
 	value = 0.;
-    } else if (lsame_(norm, "M")) {
+    } else if (lsame_(norm, "M", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find max(abs(A(i,j))). */
 
@@ -13576,7 +13747,7 @@ doublereal zlange_(char *norm, integer *m, integer *n, doublecomplex *a,
 	    }
 /* L20: */
 	}
-    } else if (lsame_(norm, "O") || *(unsigned char *)
+    } else if (lsame_(norm, "O", (ftnlen)1, (ftnlen)1) || *(unsigned char *)
 	    norm == '1') {
 
 /*        Find norm1(A). */
@@ -13593,7 +13764,7 @@ doublereal zlange_(char *norm, integer *m, integer *n, doublecomplex *a,
 	    value = max(value,sum);
 /* L40: */
 	}
-    } else if (lsame_(norm, "I")) {
+    } else if (lsame_(norm, "I", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find normI(A). */
 
@@ -13619,7 +13790,8 @@ doublereal zlange_(char *norm, integer *m, integer *n, doublecomplex *a,
 	    value = max(d__1,d__2);
 /* L80: */
 	}
-    } else if (lsame_(norm, "F") || lsame_(norm, "E")) {
+    } else if (lsame_(norm, "F", (ftnlen)1, (ftnlen)1) || lsame_(norm, "E", (
+	    ftnlen)1, (ftnlen)1)) {
 
 /*        Find normF(A). */
 
@@ -13641,7 +13813,7 @@ doublereal zlange_(char *norm, integer *m, integer *n, doublecomplex *a,
 } /* zlange_ */
 
 doublereal zlanhe_(char *norm, char *uplo, integer *n, doublecomplex *a,
-	integer *lda, doublereal *work)
+	integer *lda, doublereal *work, ftnlen norm_len, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -13650,7 +13822,7 @@ doublereal zlanhe_(char *norm, char *uplo, integer *n, doublecomplex *a,
     /* Local variables */
     static integer i__, j;
     static doublereal sum, absa, scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal value;
     extern /* Subroutine */ int zlassq_(integer *, doublecomplex *, integer *,
 	     doublereal *, doublereal *);
@@ -13735,12 +13907,12 @@ doublereal zlanhe_(char *norm, char *uplo, integer *n, doublecomplex *a,
     /* Function Body */
     if (*n == 0) {
 	value = 0.;
-    } else if (lsame_(norm, "M")) {
+    } else if (lsame_(norm, "M", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find max(abs(A(i,j))). */
 
 	value = 0.;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = j - 1;
@@ -13773,12 +13945,13 @@ doublereal zlanhe_(char *norm, char *uplo, integer *n, doublecomplex *a,
 /* L40: */
 	    }
 	}
-    } else if (lsame_(norm, "I") || lsame_(norm, "O") || *(unsigned char *)norm == '1') {
+    } else if (lsame_(norm, "I", (ftnlen)1, (ftnlen)1) || lsame_(norm, "O", (
+	    ftnlen)1, (ftnlen)1) || *(unsigned char *)norm == '1') {
 
 /*        Find normI(A) ( = norm1(A), since A is hermitian). */
 
 	value = 0.;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		sum = 0.;
@@ -13821,13 +13994,14 @@ doublereal zlanhe_(char *norm, char *uplo, integer *n, doublecomplex *a,
 /* L100: */
 	    }
 	}
-    } else if (lsame_(norm, "F") || lsame_(norm, "E")) {
+    } else if (lsame_(norm, "F", (ftnlen)1, (ftnlen)1) || lsame_(norm, "E", (
+	    ftnlen)1, (ftnlen)1)) {
 
 /*        Find normF(A). */
 
 	scale = 0.;
 	sum = 1.;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 2; j <= i__1; ++j) {
 		i__2 = j - 1;
@@ -13919,7 +14093,7 @@ doublereal zlanhe_(char *norm, char *uplo, integer *n, doublecomplex *a,
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
 	     integer *, integer *, doublecomplex *, integer *, integer *),
 	    zlacpy_(char *, integer *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen);
     static integer lwkopt;
 
 
@@ -14431,7 +14605,7 @@ L20:
 			ks = kbot - ns + 1;
 			kt = *n - ns + 1;
 			zlacpy_("A", &ns, &ns, &h__[ks + ks * h_dim1], ldh, &
-				h__[kt + h_dim1], ldh);
+				h__[kt + h_dim1], ldh, (ftnlen)1);
 			if (ns > nmin) {
 			    zlaqr4_(&c_false, &c_false, &ns, &c__1, &ns, &h__[
 				    kt + h_dim1], ldh, &w[ks], &c__1, &c__1,
@@ -14853,12 +15027,12 @@ L80:
     static integer kcol, info, ifst, ilst, ltop, krow;
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *);
+	    integer *, doublecomplex *, ftnlen);
     static integer infqr;
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer kwtop;
     extern /* Subroutine */ int zcopy_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), dlabad_(doublereal *, doublereal *);
@@ -14871,18 +15045,18 @@ L80:
 	    logical *, integer *, integer *, integer *, doublecomplex *,
 	    integer *, doublecomplex *, integer *, integer *, doublecomplex *,
 	     integer *, integer *), zlacpy_(char *, integer *, integer *,
-	    doublecomplex *, integer *, doublecomplex *, integer *),
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen),
 	    zlaset_(char *, integer *, integer *, doublecomplex *,
-	    doublecomplex *, doublecomplex *, integer *);
+	    doublecomplex *, doublecomplex *, integer *, ftnlen);
     static doublereal smlnum;
     extern /* Subroutine */ int ztrexc_(char *, integer *, doublecomplex *,
 	    integer *, doublecomplex *, integer *, integer *, integer *,
-	    integer *);
+	    integer *, ftnlen);
     static integer lwkopt;
     extern /* Subroutine */ int zunmhr_(char *, char *, integer *, integer *,
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
 	     doublecomplex *, integer *, doublecomplex *, integer *, integer *
-	    );
+	    , ftnlen, ftnlen);
 
 
 /*
@@ -15070,7 +15244,8 @@ L80:
 
 	i__1 = jw - 1;
 	zunmhr_("R", "N", &jw, &jw, &c__1, &i__1, &t[t_offset], ldt, &work[1],
-		 &v[v_offset], ldv, &work[1], &c_n1, &info);
+		 &v[v_offset], ldv, &work[1], &c_n1, &info, (ftnlen)1, (
+		ftnlen)1);
 	lwk2 = (integer) work[1].r;
 
 /*        ==== Optimal workspace ==== */
@@ -15160,14 +15335,14 @@ L80:
 */
 
     zlacpy_("U", &jw, &jw, &h__[kwtop + kwtop * h_dim1], ldh, &t[t_offset],
-	    ldt);
+	    ldt, (ftnlen)1);
     i__1 = jw - 1;
     i__2 = *ldh + 1;
     i__3 = *ldt + 1;
     zcopy_(&i__1, &h__[kwtop + 1 + kwtop * h_dim1], &i__2, &t[t_dim1 + 2], &
 	    i__3);
 
-    zlaset_("A", &jw, &jw, &c_b56, &c_b57, &v[v_offset], ldv);
+    zlaset_("A", &jw, &jw, &c_b56, &c_b57, &v[v_offset], ldv, (ftnlen)1);
     zlahqr_(&c_true, &c_true, &jw, &c__1, &jw, &t[t_offset], ldt, &sh[kwtop],
 	    &c__1, &jw, &v[v_offset], ldv, &infqr);
 
@@ -15205,7 +15380,7 @@ L80:
 
 	    ifst = *ns;
 	    ztrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst, &
-		    ilst, &info);
+		    ilst, &info, (ftnlen)1);
 	    ++ilst;
 	}
 /* L10: */
@@ -15242,7 +15417,7 @@ L80:
 	    ilst = i__;
 	    if (ifst != ilst) {
 		ztrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &info);
+			 &ilst, &info, (ftnlen)1);
 	    }
 /* L30: */
 	}
@@ -15278,15 +15453,16 @@ L80:
 
 	    i__1 = jw - 2;
 	    i__2 = jw - 2;
-	    zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &t[t_dim1 + 3], ldt);
+	    zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &t[t_dim1 + 3], ldt, (
+		    ftnlen)1);
 
 	    d_cnjg(&z__1, &tau);
 	    zlarf_("L", ns, &jw, &work[1], &c__1, &z__1, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    zlarf_("R", ns, ns, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    zlarf_("R", &jw, ns, &work[1], &c__1, &tau, &v[v_offset], ldv, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 
 	    i__1 = *lwork - jw;
 	    zgehrd_(&jw, &c__1, ns, &t[t_offset], ldt, &work[1], &work[jw + 1]
@@ -15303,7 +15479,7 @@ L80:
 	    h__[i__1].r = z__1.r, h__[i__1].i = z__1.i;
 	}
 	zlacpy_("U", &jw, &jw, &t[t_offset], ldt, &h__[kwtop + kwtop * h_dim1]
-		, ldh);
+		, ldh, (ftnlen)1);
 	i__1 = jw - 1;
 	i__2 = *ldt + 1;
 	i__3 = *ldh + 1;
@@ -15318,7 +15494,8 @@ L80:
 	if (*ns > 1 && (s.r != 0. || s.i != 0.)) {
 	    i__1 = *lwork - jw;
 	    zunmhr_("R", "N", &jw, ns, &c__1, ns, &t[t_offset], ldt, &work[1],
-		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info);
+		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info, (ftnlen)
+		    1, (ftnlen)1);
 	}
 
 /*        ==== Update vertical slab in H ==== */
@@ -15337,9 +15514,9 @@ L80:
 	    kln = min(i__3,i__4);
 	    zgemm_("N", "N", &kln, &jw, &jw, &c_b57, &h__[krow + kwtop *
 		    h_dim1], ldh, &v[v_offset], ldv, &c_b56, &wv[wv_offset],
-		    ldwv);
+		    ldwv, (ftnlen)1, (ftnlen)1);
 	    zlacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &h__[krow + kwtop *
-		    h_dim1], ldh);
+		    h_dim1], ldh, (ftnlen)1);
 /* L60: */
 	}
 
@@ -15355,9 +15532,9 @@ L80:
 		kln = min(i__3,i__4);
 		zgemm_("C", "N", &jw, &kln, &jw, &c_b57, &v[v_offset], ldv, &
 			h__[kwtop + kcol * h_dim1], ldh, &c_b56, &t[t_offset],
-			 ldt);
+			 ldt, (ftnlen)1, (ftnlen)1);
 		zlacpy_("A", &jw, &kln, &t[t_offset], ldt, &h__[kwtop + kcol *
-			 h_dim1], ldh);
+			 h_dim1], ldh, (ftnlen)1);
 /* L70: */
 	    }
 	}
@@ -15374,9 +15551,9 @@ L80:
 		kln = min(i__3,i__4);
 		zgemm_("N", "N", &kln, &jw, &jw, &c_b57, &z__[krow + kwtop *
 			z_dim1], ldz, &v[v_offset], ldv, &c_b56, &wv[
-			wv_offset], ldwv);
+			wv_offset], ldwv, (ftnlen)1, (ftnlen)1);
 		zlacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &z__[krow +
-			kwtop * z_dim1], ldz);
+			kwtop * z_dim1], ldz, (ftnlen)1);
 /* L80: */
 	    }
 	}
@@ -15435,12 +15612,12 @@ L80:
     static integer kcol, info, nmin, ifst, ilst, ltop, krow;
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *);
+	    integer *, doublecomplex *, ftnlen);
     static integer infqr;
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer kwtop;
     extern /* Subroutine */ int zcopy_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), dlabad_(doublereal *, doublereal *),
@@ -15460,18 +15637,18 @@ L80:
 	    logical *, integer *, integer *, integer *, doublecomplex *,
 	    integer *, doublecomplex *, integer *, integer *, doublecomplex *,
 	     integer *, integer *), zlacpy_(char *, integer *, integer *,
-	    doublecomplex *, integer *, doublecomplex *, integer *),
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen),
 	    zlaset_(char *, integer *, integer *, doublecomplex *,
-	    doublecomplex *, doublecomplex *, integer *);
+	    doublecomplex *, doublecomplex *, integer *, ftnlen);
     static doublereal smlnum;
     extern /* Subroutine */ int ztrexc_(char *, integer *, doublecomplex *,
 	    integer *, doublecomplex *, integer *, integer *, integer *,
-	    integer *);
+	    integer *, ftnlen);
     static integer lwkopt;
     extern /* Subroutine */ int zunmhr_(char *, char *, integer *, integer *,
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
 	     doublecomplex *, integer *, doublecomplex *, integer *, integer *
-	    );
+	    , ftnlen, ftnlen);
 
 
 /*
@@ -15655,7 +15832,8 @@ L80:
 
 	i__1 = jw - 1;
 	zunmhr_("R", "N", &jw, &jw, &c__1, &i__1, &t[t_offset], ldt, &work[1],
-		 &v[v_offset], ldv, &work[1], &c_n1, &info);
+		 &v[v_offset], ldv, &work[1], &c_n1, &info, (ftnlen)1, (
+		ftnlen)1);
 	lwk2 = (integer) work[1].r;
 
 /*        ==== Workspace query call to ZLAQR4 ==== */
@@ -15755,14 +15933,14 @@ L80:
 */
 
     zlacpy_("U", &jw, &jw, &h__[kwtop + kwtop * h_dim1], ldh, &t[t_offset],
-	    ldt);
+	    ldt, (ftnlen)1);
     i__1 = jw - 1;
     i__2 = *ldh + 1;
     i__3 = *ldt + 1;
     zcopy_(&i__1, &h__[kwtop + 1 + kwtop * h_dim1], &i__2, &t[t_dim1 + 2], &
 	    i__3);
 
-    zlaset_("A", &jw, &jw, &c_b56, &c_b57, &v[v_offset], ldv);
+    zlaset_("A", &jw, &jw, &c_b56, &c_b57, &v[v_offset], ldv, (ftnlen)1);
     nmin = ilaenv_(&c__12, "ZLAQR3", "SV", &jw, &c__1, &jw, lwork, (ftnlen)6,
 	    (ftnlen)2);
     if (jw > nmin) {
@@ -15808,7 +15986,7 @@ L80:
 
 	    ifst = *ns;
 	    ztrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst, &
-		    ilst, &info);
+		    ilst, &info, (ftnlen)1);
 	    ++ilst;
 	}
 /* L10: */
@@ -15845,7 +16023,7 @@ L80:
 	    ilst = i__;
 	    if (ifst != ilst) {
 		ztrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &info);
+			 &ilst, &info, (ftnlen)1);
 	    }
 /* L30: */
 	}
@@ -15881,15 +16059,16 @@ L80:
 
 	    i__1 = jw - 2;
 	    i__2 = jw - 2;
-	    zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &t[t_dim1 + 3], ldt);
+	    zlaset_("L", &i__1, &i__2, &c_b56, &c_b56, &t[t_dim1 + 3], ldt, (
+		    ftnlen)1);
 
 	    d_cnjg(&z__1, &tau);
 	    zlarf_("L", ns, &jw, &work[1], &c__1, &z__1, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    zlarf_("R", ns, ns, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    zlarf_("R", &jw, ns, &work[1], &c__1, &tau, &v[v_offset], ldv, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 
 	    i__1 = *lwork - jw;
 	    zgehrd_(&jw, &c__1, ns, &t[t_offset], ldt, &work[1], &work[jw + 1]
@@ -15906,7 +16085,7 @@ L80:
 	    h__[i__1].r = z__1.r, h__[i__1].i = z__1.i;
 	}
 	zlacpy_("U", &jw, &jw, &t[t_offset], ldt, &h__[kwtop + kwtop * h_dim1]
-		, ldh);
+		, ldh, (ftnlen)1);
 	i__1 = jw - 1;
 	i__2 = *ldt + 1;
 	i__3 = *ldh + 1;
@@ -15921,7 +16100,8 @@ L80:
 	if (*ns > 1 && (s.r != 0. || s.i != 0.)) {
 	    i__1 = *lwork - jw;
 	    zunmhr_("R", "N", &jw, ns, &c__1, ns, &t[t_offset], ldt, &work[1],
-		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info);
+		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info, (ftnlen)
+		    1, (ftnlen)1);
 	}
 
 /*        ==== Update vertical slab in H ==== */
@@ -15940,9 +16120,9 @@ L80:
 	    kln = min(i__3,i__4);
 	    zgemm_("N", "N", &kln, &jw, &jw, &c_b57, &h__[krow + kwtop *
 		    h_dim1], ldh, &v[v_offset], ldv, &c_b56, &wv[wv_offset],
-		    ldwv);
+		    ldwv, (ftnlen)1, (ftnlen)1);
 	    zlacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &h__[krow + kwtop *
-		    h_dim1], ldh);
+		    h_dim1], ldh, (ftnlen)1);
 /* L60: */
 	}
 
@@ -15958,9 +16138,9 @@ L80:
 		kln = min(i__3,i__4);
 		zgemm_("C", "N", &jw, &kln, &jw, &c_b57, &v[v_offset], ldv, &
 			h__[kwtop + kcol * h_dim1], ldh, &c_b56, &t[t_offset],
-			 ldt);
+			 ldt, (ftnlen)1, (ftnlen)1);
 		zlacpy_("A", &jw, &kln, &t[t_offset], ldt, &h__[kwtop + kcol *
-			 h_dim1], ldh);
+			 h_dim1], ldh, (ftnlen)1);
 /* L70: */
 	    }
 	}
@@ -15977,9 +16157,9 @@ L80:
 		kln = min(i__3,i__4);
 		zgemm_("N", "N", &kln, &jw, &jw, &c_b57, &z__[krow + kwtop *
 			z_dim1], ldz, &v[v_offset], ldv, &c_b56, &wv[
-			wv_offset], ldwv);
+			wv_offset], ldwv, (ftnlen)1, (ftnlen)1);
 		zlacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &z__[krow +
-			kwtop * z_dim1], ldz);
+			kwtop * z_dim1], ldz, (ftnlen)1);
 /* L80: */
 	    }
 	}
@@ -16054,7 +16234,7 @@ L80:
 	    integer *, integer *, doublecomplex *, integer *, doublecomplex *,
 	     integer *, integer *, doublecomplex *, integer *, integer *),
 	    zlacpy_(char *, integer *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen);
     static integer lwkopt;
 
 
@@ -16573,7 +16753,7 @@ L20:
 			ks = kbot - ns + 1;
 			kt = *n - ns + 1;
 			zlacpy_("A", &ns, &ns, &h__[ks + ks * h_dim1], ldh, &
-				h__[kt + h_dim1], ldh);
+				h__[kt + h_dim1], ldh, (ftnlen)1);
 			zlahqr_(&c_false, &c_false, &ns, &c__1, &ns, &h__[kt
 				+ h_dim1], ldh, &w[ks], &c__1, &c__1, zdum, &
 				c__1, &inf);
@@ -16828,9 +17008,9 @@ L80:
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), ztrmm_(char *, char *, char *, char *,
+	    integer *, ftnlen, ftnlen), ztrmm_(char *, char *, char *, char *,
 	     integer *, integer *, doublecomplex *, doublecomplex *, integer *
-	    , doublecomplex *, integer *),
+	    , doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
 	    dlabad_(doublereal *, doublereal *), zlaqr1_(integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
 	    doublecomplex *);
@@ -16840,9 +17020,9 @@ L80:
 	    doublecomplex *, integer *, doublecomplex *);
     static doublecomplex refsum;
     extern /* Subroutine */ int zlacpy_(char *, integer *, integer *,
-	    doublecomplex *, integer *, doublecomplex *, integer *),
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen),
 	    zlaset_(char *, integer *, integer *, doublecomplex *,
-	    doublecomplex *, doublecomplex *, integer *);
+	    doublecomplex *, doublecomplex *, integer *, ftnlen);
     static integer mstart;
     static doublereal smlnum;
 
@@ -17060,7 +17240,8 @@ L80:
 	    incol <= i__1; incol += i__2) {
 	ndcol = incol + kdu;
 	if (accum) {
-	    zlaset_("ALL", &kdu, &kdu, &c_b56, &c_b57, &u[u_offset], ldu);
+	    zlaset_("ALL", &kdu, &kdu, &c_b56, &c_b57, &u[u_offset], ldu, (
+		    ftnlen)3);
 	}
 
 /*
@@ -17889,9 +18070,10 @@ L80:
 		    jlen = min(i__5,i__7);
 		    zgemm_("C", "N", &nu, &jlen, &nu, &c_b57, &u[k1 + k1 *
 			    u_dim1], ldu, &h__[incol + k1 + jcol * h_dim1],
-			    ldh, &c_b56, &wh[wh_offset], ldwh);
+			    ldh, &c_b56, &wh[wh_offset], ldwh, (ftnlen)1, (
+			    ftnlen)1);
 		    zlacpy_("ALL", &nu, &jlen, &wh[wh_offset], ldwh, &h__[
-			    incol + k1 + jcol * h_dim1], ldh);
+			    incol + k1 + jcol * h_dim1], ldh, (ftnlen)3);
 /* L150: */
 		}
 
@@ -17906,9 +18088,10 @@ L80:
 		    jlen = min(i__5,i__7);
 		    zgemm_("N", "N", &jlen, &nu, &nu, &c_b57, &h__[jrow + (
 			    incol + k1) * h_dim1], ldh, &u[k1 + k1 * u_dim1],
-			    ldu, &c_b56, &wv[wv_offset], ldwv);
+			    ldu, &c_b56, &wv[wv_offset], ldwv, (ftnlen)1, (
+			    ftnlen)1);
 		    zlacpy_("ALL", &jlen, &nu, &wv[wv_offset], ldwv, &h__[
-			    jrow + (incol + k1) * h_dim1], ldh);
+			    jrow + (incol + k1) * h_dim1], ldh, (ftnlen)3);
 /* L160: */
 		}
 
@@ -17924,9 +18107,10 @@ L80:
 			jlen = min(i__5,i__7);
 			zgemm_("N", "N", &jlen, &nu, &nu, &c_b57, &z__[jrow +
 				(incol + k1) * z_dim1], ldz, &u[k1 + k1 *
-				u_dim1], ldu, &c_b56, &wv[wv_offset], ldwv);
+				u_dim1], ldu, &c_b56, &wv[wv_offset], ldwv, (
+				ftnlen)1, (ftnlen)1);
 			zlacpy_("ALL", &jlen, &nu, &wv[wv_offset], ldwv, &z__[
-				jrow + (incol + k1) * z_dim1], ldz)
+				jrow + (incol + k1) * z_dim1], ldz, (ftnlen)3)
 				;
 /* L170: */
 		    }
@@ -17969,31 +18153,34 @@ L80:
 */
 
 		    zlacpy_("ALL", &knz, &jlen, &h__[incol + 1 + j2 + jcol *
-			    h_dim1], ldh, &wh[kzs + 1 + wh_dim1], ldwh);
+			    h_dim1], ldh, &wh[kzs + 1 + wh_dim1], ldwh, (
+			    ftnlen)3);
 
 /*                 ==== Multiply by U21' ==== */
 
 		    zlaset_("ALL", &kzs, &jlen, &c_b56, &c_b56, &wh[wh_offset]
-			    , ldwh);
+			    , ldwh, (ftnlen)3);
 		    ztrmm_("L", "U", "C", "N", &knz, &jlen, &c_b57, &u[j2 + 1
 			    + (kzs + 1) * u_dim1], ldu, &wh[kzs + 1 + wh_dim1]
-			    , ldwh);
+			    , ldwh, (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1);
 
 /*                 ==== Multiply top of H by U11' ==== */
 
 		    zgemm_("C", "N", &i2, &jlen, &j2, &c_b57, &u[u_offset],
 			    ldu, &h__[incol + 1 + jcol * h_dim1], ldh, &c_b57,
-			     &wh[wh_offset], ldwh);
+			     &wh[wh_offset], ldwh, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy top of H to bottom of WH ==== */
 
 		    zlacpy_("ALL", &j2, &jlen, &h__[incol + 1 + jcol * h_dim1]
-			    , ldh, &wh[i2 + 1 + wh_dim1], ldwh);
+			    , ldh, &wh[i2 + 1 + wh_dim1], ldwh, (ftnlen)3);
 
 /*                 ==== Multiply by U21' ==== */
 
 		    ztrmm_("L", "L", "C", "N", &j2, &jlen, &c_b57, &u[(i2 + 1)
-			     * u_dim1 + 1], ldu, &wh[i2 + 1 + wh_dim1], ldwh);
+			     * u_dim1 + 1], ldu, &wh[i2 + 1 + wh_dim1], ldwh,
+			    (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Multiply by U22 ==== */
 
@@ -18002,12 +18189,12 @@ L80:
 		    zgemm_("C", "N", &i__5, &jlen, &i__7, &c_b57, &u[j2 + 1 +
 			    (i2 + 1) * u_dim1], ldu, &h__[incol + 1 + j2 +
 			    jcol * h_dim1], ldh, &c_b57, &wh[i2 + 1 + wh_dim1]
-			    , ldwh);
+			    , ldwh, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy it back ==== */
 
 		    zlacpy_("ALL", &kdu, &jlen, &wh[wh_offset], ldwh, &h__[
-			    incol + 1 + jcol * h_dim1], ldh);
+			    incol + 1 + jcol * h_dim1], ldh, (ftnlen)3);
 /* L180: */
 		}
 
@@ -18027,34 +18214,38 @@ L80:
 */
 
 		    zlacpy_("ALL", &jlen, &knz, &h__[jrow + (incol + 1 + j2) *
-			     h_dim1], ldh, &wv[(kzs + 1) * wv_dim1 + 1], ldwv);
+			     h_dim1], ldh, &wv[(kzs + 1) * wv_dim1 + 1], ldwv,
+			     (ftnlen)3);
 
 /*                 ==== Multiply by U21 ==== */
 
 		    zlaset_("ALL", &jlen, &kzs, &c_b56, &c_b56, &wv[wv_offset]
-			    , ldwv);
+			    , ldwv, (ftnlen)3);
 		    ztrmm_("R", "U", "N", "N", &jlen, &knz, &c_b57, &u[j2 + 1
 			    + (kzs + 1) * u_dim1], ldu, &wv[(kzs + 1) *
-			    wv_dim1 + 1], ldwv);
+			    wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1, (ftnlen)1);
 
 /*                 ==== Multiply by U11 ==== */
 
 		    zgemm_("N", "N", &jlen, &i2, &j2, &c_b57, &h__[jrow + (
 			    incol + 1) * h_dim1], ldh, &u[u_offset], ldu, &
-			    c_b57, &wv[wv_offset], ldwv)
+			    c_b57, &wv[wv_offset], ldwv, (ftnlen)1, (ftnlen)1)
 			    ;
 
 /*                 ==== Copy left of H to right of scratch ==== */
 
 		    zlacpy_("ALL", &jlen, &j2, &h__[jrow + (incol + 1) *
-			    h_dim1], ldh, &wv[(i2 + 1) * wv_dim1 + 1], ldwv);
+			    h_dim1], ldh, &wv[(i2 + 1) * wv_dim1 + 1], ldwv, (
+			    ftnlen)3);
 
 /*                 ==== Multiply by U21 ==== */
 
 		    i__5 = i4 - i2;
 		    ztrmm_("R", "L", "N", "N", &jlen, &i__5, &c_b57, &u[(i2 +
 			    1) * u_dim1 + 1], ldu, &wv[(i2 + 1) * wv_dim1 + 1]
-			    , ldwv);
+			    , ldwv, (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1);
 
 /*                 ==== Multiply by U22 ==== */
 
@@ -18063,12 +18254,12 @@ L80:
 		    zgemm_("N", "N", &jlen, &i__5, &i__7, &c_b57, &h__[jrow +
 			    (incol + 1 + j2) * h_dim1], ldh, &u[j2 + 1 + (i2
 			    + 1) * u_dim1], ldu, &c_b57, &wv[(i2 + 1) *
-			    wv_dim1 + 1], ldwv);
+			    wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy it back ==== */
 
 		    zlacpy_("ALL", &jlen, &kdu, &wv[wv_offset], ldwv, &h__[
-			    jrow + (incol + 1) * h_dim1], ldh);
+			    jrow + (incol + 1) * h_dim1], ldh, (ftnlen)3);
 /* L190: */
 		}
 
@@ -18090,34 +18281,37 @@ L80:
 
 			zlacpy_("ALL", &jlen, &knz, &z__[jrow + (incol + 1 +
 				j2) * z_dim1], ldz, &wv[(kzs + 1) * wv_dim1 +
-				1], ldwv);
+				1], ldwv, (ftnlen)3);
 
 /*                    ==== Multiply by U12 ==== */
 
 			zlaset_("ALL", &jlen, &kzs, &c_b56, &c_b56, &wv[
-				wv_offset], ldwv);
+				wv_offset], ldwv, (ftnlen)3);
 			ztrmm_("R", "U", "N", "N", &jlen, &knz, &c_b57, &u[j2
 				+ 1 + (kzs + 1) * u_dim1], ldu, &wv[(kzs + 1)
-				* wv_dim1 + 1], ldwv);
+				* wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (
+				ftnlen)1, (ftnlen)1);
 
 /*                    ==== Multiply by U11 ==== */
 
 			zgemm_("N", "N", &jlen, &i2, &j2, &c_b57, &z__[jrow +
 				(incol + 1) * z_dim1], ldz, &u[u_offset], ldu,
-				 &c_b57, &wv[wv_offset], ldwv);
+				 &c_b57, &wv[wv_offset], ldwv, (ftnlen)1, (
+				ftnlen)1);
 
 /*                    ==== Copy left of Z to right of scratch ==== */
 
 			zlacpy_("ALL", &jlen, &j2, &z__[jrow + (incol + 1) *
 				z_dim1], ldz, &wv[(i2 + 1) * wv_dim1 + 1],
-				ldwv);
+				ldwv, (ftnlen)3);
 
 /*                    ==== Multiply by U21 ==== */
 
 			i__5 = i4 - i2;
 			ztrmm_("R", "L", "N", "N", &jlen, &i__5, &c_b57, &u[(
 				i2 + 1) * u_dim1 + 1], ldu, &wv[(i2 + 1) *
-				wv_dim1 + 1], ldwv);
+				wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (
+				ftnlen)1, (ftnlen)1);
 
 /*                    ==== Multiply by U22 ==== */
 
@@ -18126,12 +18320,14 @@ L80:
 			zgemm_("N", "N", &jlen, &i__5, &i__7, &c_b57, &z__[
 				jrow + (incol + 1 + j2) * z_dim1], ldz, &u[j2
 				+ 1 + (i2 + 1) * u_dim1], ldu, &c_b57, &wv[(
-				i2 + 1) * wv_dim1 + 1], ldwv);
+				i2 + 1) * wv_dim1 + 1], ldwv, (ftnlen)1, (
+				ftnlen)1);
 
 /*                    ==== Copy the result back to Z ==== */
 
 			zlacpy_("ALL", &jlen, &kdu, &wv[wv_offset], ldwv, &
-				z__[jrow + (incol + 1) * z_dim1], ldz);
+				z__[jrow + (incol + 1) * z_dim1], ldz, (
+				ftnlen)3);
 /* L200: */
 		    }
 		}
@@ -18159,7 +18355,7 @@ L80:
     static integer i__, j, l;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
 
 
 /*
@@ -18245,7 +18441,7 @@ L80:
 
     l = *m * *n + 1;
     dgemm_("N", "N", m, n, m, &c_b1034, &a[a_offset], lda, &rwork[1], m, &
-	    c_b328, &rwork[l], m);
+	    c_b328, &rwork[l], m, (ftnlen)1, (ftnlen)1);
     i__1 = *n;
     for (j = 1; j <= i__1; ++j) {
 	i__2 = *m;
@@ -18268,7 +18464,7 @@ L80:
 /* L60: */
     }
     dgemm_("N", "N", m, n, m, &c_b1034, &a[a_offset], lda, &rwork[1], m, &
-	    c_b328, &rwork[l], m);
+	    c_b328, &rwork[l], m, (ftnlen)1, (ftnlen)1);
     i__1 = *n;
     for (j = 1; j <= i__1; ++j) {
 	i__2 = *m;
@@ -18292,7 +18488,7 @@ L80:
 
 /* Subroutine */ int zlarf_(char *side, integer *m, integer *n, doublecomplex
 	*v, integer *incv, doublecomplex *tau, doublecomplex *c__, integer *
-	ldc, doublecomplex *work)
+	ldc, doublecomplex *work, ftnlen side_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, i__1;
@@ -18301,13 +18497,13 @@ L80:
     /* Local variables */
     static integer i__;
     static logical applyleft;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer lastc;
     extern /* Subroutine */ int zgerc_(integer *, integer *, doublecomplex *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), zgemv_(char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, doublecomplex *, integer *);
+	    integer *, doublecomplex *, doublecomplex *, integer *, ftnlen);
     static integer lastv;
     extern integer ilazlc_(integer *, integer *, doublecomplex *, integer *),
 	    ilazlr_(integer *, integer *, doublecomplex *, integer *);
@@ -18385,7 +18581,7 @@ L80:
     --work;
 
     /* Function Body */
-    applyleft = lsame_(side, "L");
+    applyleft = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     lastv = 0;
     lastc = 0;
     if (tau->r != 0. || tau->i != 0.) {
@@ -18432,7 +18628,8 @@ L80:
 /*           w(1:lastc,1) := C(1:lastv,1:lastc)' * v(1:lastv,1) */
 
 	    zgemv_("Conjugate transpose", &lastv, &lastc, &c_b57, &c__[
-		    c_offset], ldc, &v[1], incv, &c_b56, &work[1], &c__1);
+		    c_offset], ldc, &v[1], incv, &c_b56, &work[1], &c__1, (
+		    ftnlen)19);
 
 /*           C(1:lastv,1:lastc) := C(...) - v(1:lastv,1) * w(1:lastc,1)' */
 
@@ -18449,7 +18646,7 @@ L80:
 /*           w(1:lastc,1) := C(1:lastc,1:lastv) * v(1:lastv,1) */
 
 	    zgemv_("No transpose", &lastc, &lastv, &c_b57, &c__[c_offset],
-		    ldc, &v[1], incv, &c_b56, &work[1], &c__1);
+		    ldc, &v[1], incv, &c_b56, &work[1], &c__1, (ftnlen)12);
 
 /*           C(1:lastc,1:lastv) := C(...) - w(1:lastc,1) * v(1:lastv,1)' */
 
@@ -18467,7 +18664,8 @@ L80:
 /* Subroutine */ int zlarfb_(char *side, char *trans, char *direct, char *
 	storev, integer *m, integer *n, integer *k, doublecomplex *v, integer
 	*ldv, doublecomplex *t, integer *ldt, doublecomplex *c__, integer *
-	ldc, doublecomplex *work, integer *ldwork)
+	ldc, doublecomplex *work, integer *ldwork, ftnlen side_len, ftnlen
+	trans_len, ftnlen direct_len, ftnlen storev_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, t_dim1, t_offset, v_dim1, v_offset, work_dim1,
@@ -18476,17 +18674,17 @@ L80:
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer lastc;
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer lastv;
     extern /* Subroutine */ int zcopy_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), ztrmm_(char *, char *, char *, char *
 	    , integer *, integer *, doublecomplex *, doublecomplex *, integer
-	    *, doublecomplex *, integer *);
+	    *, doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     extern integer ilazlc_(integer *, integer *, doublecomplex *, integer *);
     extern /* Subroutine */ int zlacgv_(integer *, doublecomplex *, integer *)
 	    ;
@@ -18598,15 +18796,15 @@ L80:
 	return 0;
     }
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	*(unsigned char *)transt = 'C';
     } else {
 	*(unsigned char *)transt = 'N';
     }
 
-    if (lsame_(storev, "C")) {
+    if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 
-	if (lsame_(direct, "F")) {
+	if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 
 /*
              Let  V =  ( V1 )    (first K rows)
@@ -18614,7 +18812,7 @@ L80:
              where  V1  is unit lower triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -18643,7 +18841,8 @@ L80:
 /*              W := W * V1 */
 
 		ztrmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
-			c_b57, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b57, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2'*V2 */
@@ -18652,13 +18851,14 @@ L80:
 		    zgemm_("Conjugate transpose", "No transpose", &lastc, k, &
 			    i__1, &c_b57, &c__[*k + 1 + c_dim1], ldc, &v[*k +
 			    1 + v_dim1], ldv, &c_b57, &work[work_offset],
-			    ldwork);
+			    ldwork, (ftnlen)19, (ftnlen)12);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		ztrmm_("Right", "Upper", transt, "Non-unit", &lastc, k, &
-			c_b57, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b57, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V * W' */
 
@@ -18671,14 +18871,15 @@ L80:
 		    zgemm_("No transpose", "Conjugate transpose", &i__1, &
 			    lastc, k, &z__1, &v[*k + 1 + v_dim1], ldv, &work[
 			    work_offset], ldwork, &c_b57, &c__[*k + 1 +
-			    c_dim1], ldc);
+			    c_dim1], ldc, (ftnlen)12, (ftnlen)19);
 		}
 
 /*              W := W * V1' */
 
 		ztrmm_("Right", "Lower", "Conjugate transpose", "Unit", &
 			lastc, k, &c_b57, &v[v_offset], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			19, (ftnlen)4);
 
 /*              C1 := C1 - W' */
 
@@ -18697,7 +18898,7 @@ L80:
 /* L30: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -18724,7 +18925,8 @@ L80:
 /*              W := W * V1 */
 
 		ztrmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
-			c_b57, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b57, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2 * V2 */
@@ -18733,13 +18935,14 @@ L80:
 		    zgemm_("No transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b57, &c__[(*k + 1) * c_dim1 + 1], ldc, &v[*k +
 			    1 + v_dim1], ldv, &c_b57, &work[work_offset],
-			    ldwork);
+			    ldwork, (ftnlen)12, (ftnlen)12);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		ztrmm_("Right", "Upper", trans, "Non-unit", &lastc, k, &c_b57,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V' */
 
@@ -18752,14 +18955,15 @@ L80:
 		    zgemm_("No transpose", "Conjugate transpose", &lastc, &
 			    i__1, k, &z__1, &work[work_offset], ldwork, &v[*k
 			    + 1 + v_dim1], ldv, &c_b57, &c__[(*k + 1) *
-			    c_dim1 + 1], ldc);
+			    c_dim1 + 1], ldc, (ftnlen)12, (ftnlen)19);
 		}
 
 /*              W := W * V1' */
 
 		ztrmm_("Right", "Lower", "Conjugate transpose", "Unit", &
 			lastc, k, &c_b57, &v[v_offset], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			19, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -18787,7 +18991,7 @@ L80:
              where  V2  is unit upper triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -18817,7 +19021,8 @@ L80:
 
 		ztrmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
 			c_b57, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1'*V1 */
@@ -18825,13 +19030,15 @@ L80:
 		    i__1 = lastv - *k;
 		    zgemm_("Conjugate transpose", "No transpose", &lastc, k, &
 			    i__1, &c_b57, &c__[c_offset], ldc, &v[v_offset],
-			    ldv, &c_b57, &work[work_offset], ldwork);
+			    ldv, &c_b57, &work[work_offset], ldwork, (ftnlen)
+			    19, (ftnlen)12);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		ztrmm_("Right", "Lower", transt, "Non-unit", &lastc, k, &
-			c_b57, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b57, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V * W' */
 
@@ -18843,14 +19050,16 @@ L80:
 		    z__1.r = -1., z__1.i = -0.;
 		    zgemm_("No transpose", "Conjugate transpose", &i__1, &
 			    lastc, k, &z__1, &v[v_offset], ldv, &work[
-			    work_offset], ldwork, &c_b57, &c__[c_offset], ldc);
+			    work_offset], ldwork, &c_b57, &c__[c_offset], ldc,
+			     (ftnlen)12, (ftnlen)19);
 		}
 
 /*              W := W * V2' */
 
 		ztrmm_("Right", "Upper", "Conjugate transpose", "Unit", &
 			lastc, k, &c_b57, &v[lastv - *k + 1 + v_dim1], ldv, &
-			work[work_offset], ldwork);
+			work[work_offset], ldwork, (ftnlen)5, (ftnlen)5, (
+			ftnlen)19, (ftnlen)4);
 
 /*              C2 := C2 - W' */
 
@@ -18869,7 +19078,7 @@ L80:
 /* L90: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -18897,7 +19106,8 @@ L80:
 
 		ztrmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
 			c_b57, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1 * V1 */
@@ -18905,13 +19115,15 @@ L80:
 		    i__1 = lastv - *k;
 		    zgemm_("No transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b57, &c__[c_offset], ldc, &v[v_offset], ldv, &
-			    c_b57, &work[work_offset], ldwork);
+			    c_b57, &work[work_offset], ldwork, (ftnlen)12, (
+			    ftnlen)12);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		ztrmm_("Right", "Lower", trans, "Non-unit", &lastc, k, &c_b57,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V' */
 
@@ -18923,14 +19135,16 @@ L80:
 		    z__1.r = -1., z__1.i = -0.;
 		    zgemm_("No transpose", "Conjugate transpose", &lastc, &
 			    i__1, k, &z__1, &work[work_offset], ldwork, &v[
-			    v_offset], ldv, &c_b57, &c__[c_offset], ldc);
+			    v_offset], ldv, &c_b57, &c__[c_offset], ldc, (
+			    ftnlen)12, (ftnlen)19);
 		}
 
 /*              W := W * V2' */
 
 		ztrmm_("Right", "Upper", "Conjugate transpose", "Unit", &
 			lastc, k, &c_b57, &v[lastv - *k + 1 + v_dim1], ldv, &
-			work[work_offset], ldwork);
+			work[work_offset], ldwork, (ftnlen)5, (ftnlen)5, (
+			ftnlen)19, (ftnlen)4);
 
 /*              C2 := C2 - W */
 
@@ -18951,16 +19165,16 @@ L80:
 	    }
 	}
 
-    } else if (lsame_(storev, "R")) {
+    } else if (lsame_(storev, "R", (ftnlen)1, (ftnlen)1)) {
 
-	if (lsame_(direct, "F")) {
+	if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 
 /*
              Let  V =  ( V1  V2 )    (V1: first K columns)
              where  V1  is unit upper triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -18990,7 +19204,8 @@ L80:
 
 		ztrmm_("Right", "Upper", "Conjugate transpose", "Unit", &
 			lastc, k, &c_b57, &v[v_offset], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			19, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2'*V2' */
@@ -18999,14 +19214,15 @@ L80:
 		    zgemm_("Conjugate transpose", "Conjugate transpose", &
 			    lastc, k, &i__1, &c_b57, &c__[*k + 1 + c_dim1],
 			    ldc, &v[(*k + 1) * v_dim1 + 1], ldv, &c_b57, &
-			    work[work_offset], ldwork)
+			    work[work_offset], ldwork, (ftnlen)19, (ftnlen)19)
 			    ;
 		}
 
 /*              W := W * T'  or  W * T */
 
 		ztrmm_("Right", "Upper", transt, "Non-unit", &lastc, k, &
-			c_b57, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b57, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V' * W' */
 
@@ -19019,13 +19235,14 @@ L80:
 		    zgemm_("Conjugate transpose", "Conjugate transpose", &
 			    i__1, &lastc, k, &z__1, &v[(*k + 1) * v_dim1 + 1],
 			     ldv, &work[work_offset], ldwork, &c_b57, &c__[*k
-			    + 1 + c_dim1], ldc);
+			    + 1 + c_dim1], ldc, (ftnlen)19, (ftnlen)19);
 		}
 
 /*              W := W * V1 */
 
 		ztrmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
-			c_b57, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b57, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 
 /*              C1 := C1 - W' */
 
@@ -19044,7 +19261,7 @@ L80:
 /* L150: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -19072,7 +19289,8 @@ L80:
 
 		ztrmm_("Right", "Upper", "Conjugate transpose", "Unit", &
 			lastc, k, &c_b57, &v[v_offset], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			19, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2 * V2' */
@@ -19081,13 +19299,14 @@ L80:
 		    zgemm_("No transpose", "Conjugate transpose", &lastc, k, &
 			    i__1, &c_b57, &c__[(*k + 1) * c_dim1 + 1], ldc, &
 			    v[(*k + 1) * v_dim1 + 1], ldv, &c_b57, &work[
-			    work_offset], ldwork);
+			    work_offset], ldwork, (ftnlen)12, (ftnlen)19);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		ztrmm_("Right", "Upper", trans, "Non-unit", &lastc, k, &c_b57,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V */
 
@@ -19100,13 +19319,14 @@ L80:
 		    zgemm_("No transpose", "No transpose", &lastc, &i__1, k, &
 			    z__1, &work[work_offset], ldwork, &v[(*k + 1) *
 			    v_dim1 + 1], ldv, &c_b57, &c__[(*k + 1) * c_dim1
-			    + 1], ldc);
+			    + 1], ldc, (ftnlen)12, (ftnlen)12);
 		}
 
 /*              W := W * V1 */
 
 		ztrmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
-			c_b57, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b57, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -19134,7 +19354,7 @@ L80:
              where  V2  is unit lower triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -19164,7 +19384,8 @@ L80:
 
 		ztrmm_("Right", "Lower", "Conjugate transpose", "Unit", &
 			lastc, k, &c_b57, &v[(lastv - *k + 1) * v_dim1 + 1],
-			ldv, &work[work_offset], ldwork);
+			ldv, &work[work_offset], ldwork, (ftnlen)5, (ftnlen)5,
+			 (ftnlen)19, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1'*V1' */
@@ -19173,13 +19394,14 @@ L80:
 		    zgemm_("Conjugate transpose", "Conjugate transpose", &
 			    lastc, k, &i__1, &c_b57, &c__[c_offset], ldc, &v[
 			    v_offset], ldv, &c_b57, &work[work_offset],
-			    ldwork);
+			    ldwork, (ftnlen)19, (ftnlen)19);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		ztrmm_("Right", "Lower", transt, "Non-unit", &lastc, k, &
-			c_b57, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b57, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V' * W' */
 
@@ -19191,14 +19413,16 @@ L80:
 		    z__1.r = -1., z__1.i = -0.;
 		    zgemm_("Conjugate transpose", "Conjugate transpose", &
 			    i__1, &lastc, k, &z__1, &v[v_offset], ldv, &work[
-			    work_offset], ldwork, &c_b57, &c__[c_offset], ldc);
+			    work_offset], ldwork, &c_b57, &c__[c_offset], ldc,
+			     (ftnlen)19, (ftnlen)19);
 		}
 
 /*              W := W * V2 */
 
 		ztrmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
 			c_b57, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 
 /*              C2 := C2 - W' */
 
@@ -19217,7 +19441,7 @@ L80:
 /* L210: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -19245,7 +19469,8 @@ L80:
 
 		ztrmm_("Right", "Lower", "Conjugate transpose", "Unit", &
 			lastc, k, &c_b57, &v[(lastv - *k + 1) * v_dim1 + 1],
-			ldv, &work[work_offset], ldwork);
+			ldv, &work[work_offset], ldwork, (ftnlen)5, (ftnlen)5,
+			 (ftnlen)19, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1 * V1' */
@@ -19253,13 +19478,15 @@ L80:
 		    i__1 = lastv - *k;
 		    zgemm_("No transpose", "Conjugate transpose", &lastc, k, &
 			    i__1, &c_b57, &c__[c_offset], ldc, &v[v_offset],
-			    ldv, &c_b57, &work[work_offset], ldwork);
+			    ldv, &c_b57, &work[work_offset], ldwork, (ftnlen)
+			    12, (ftnlen)19);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		ztrmm_("Right", "Lower", trans, "Non-unit", &lastc, k, &c_b57,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V */
 
@@ -19271,14 +19498,16 @@ L80:
 		    z__1.r = -1., z__1.i = -0.;
 		    zgemm_("No transpose", "No transpose", &lastc, &i__1, k, &
 			    z__1, &work[work_offset], ldwork, &v[v_offset],
-			    ldv, &c_b57, &c__[c_offset], ldc);
+			    ldv, &c_b57, &c__[c_offset], ldc, (ftnlen)12, (
+			    ftnlen)12);
 		}
 
 /*              W := W * V2 */
 
 		ztrmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
 			c_b57, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -19323,7 +19552,8 @@ L80:
 	    doublecomplex *, integer *);
     static doublereal xnorm;
     extern doublereal dlapy3_(doublereal *, doublereal *, doublereal *),
-	    dznrm2_(integer *, doublecomplex *, integer *), dlamch_(char *);
+	    dznrm2_(integer *, doublecomplex *, integer *), dlamch_(char *,
+	    ftnlen);
     static doublereal safmin;
     extern /* Subroutine */ int zdscal_(integer *, doublereal *,
 	    doublecomplex *, integer *);
@@ -19468,7 +19698,7 @@ L10:
 
 /* Subroutine */ int zlarft_(char *direct, char *storev, integer *n, integer *
 	k, doublecomplex *v, integer *ldv, doublecomplex *tau, doublecomplex *
-	t, integer *ldt)
+	t, integer *ldt, ftnlen direct_len, ftnlen storev_len)
 {
     /* System generated locals */
     integer t_dim1, t_offset, v_dim1, v_offset, i__1, i__2, i__3, i__4;
@@ -19477,13 +19707,14 @@ L10:
     /* Local variables */
     static integer i__, j, prevlastv;
     static doublecomplex vii;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zgemv_(char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, doublecomplex *, integer *);
+	    integer *, doublecomplex *, doublecomplex *, integer *, ftnlen);
     static integer lastv;
     extern /* Subroutine */ int ztrmv_(char *, char *, char *, integer *,
-	    doublecomplex *, integer *, doublecomplex *, integer *), zlacgv_(integer *, doublecomplex *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen,
+	    ftnlen, ftnlen), zlacgv_(integer *, doublecomplex *, integer *);
 
 
 /*
@@ -19601,7 +19832,7 @@ L10:
 	return 0;
     }
 
-    if (lsame_(direct, "F")) {
+    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 	prevlastv = *n;
 	i__1 = *k;
 	for (i__ = 1; i__ <= i__1; ++i__) {
@@ -19625,7 +19856,7 @@ L10:
 		vii.r = v[i__2].r, vii.i = v[i__2].i;
 		i__2 = i__ + i__ * v_dim1;
 		v[i__2].r = 1., v[i__2].i = 0.;
-		if (lsame_(storev, "C")) {
+		if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 /*                 Skip any trailing zeros. */
 		    i__2 = i__ + 1;
 		    for (lastv = *n; lastv >= i__2; --lastv) {
@@ -19645,7 +19876,7 @@ L15:
 		    z__1.r = -tau[i__4].r, z__1.i = -tau[i__4].i;
 		    zgemv_("Conjugate transpose", &i__2, &i__3, &z__1, &v[i__
 			    + v_dim1], ldv, &v[i__ + i__ * v_dim1], &c__1, &
-			    c_b56, &t[i__ * t_dim1 + 1], &c__1);
+			    c_b56, &t[i__ * t_dim1 + 1], &c__1, (ftnlen)19);
 		} else {
 /*                 Skip any trailing zeros. */
 		    i__2 = i__ + 1;
@@ -19670,7 +19901,7 @@ L16:
 		    z__1.r = -tau[i__4].r, z__1.i = -tau[i__4].i;
 		    zgemv_("No transpose", &i__2, &i__3, &z__1, &v[i__ *
 			    v_dim1 + 1], ldv, &v[i__ + i__ * v_dim1], ldv, &
-			    c_b56, &t[i__ * t_dim1 + 1], &c__1);
+			    c_b56, &t[i__ * t_dim1 + 1], &c__1, (ftnlen)12);
 		    if (i__ < j) {
 			i__2 = j - i__;
 			zlacgv_(&i__2, &v[i__ + (i__ + 1) * v_dim1], ldv);
@@ -19683,7 +19914,8 @@ L16:
 
 		i__2 = i__ - 1;
 		ztrmv_("Upper", "No transpose", "Non-unit", &i__2, &t[
-			t_offset], ldt, &t[i__ * t_dim1 + 1], &c__1);
+			t_offset], ldt, &t[i__ * t_dim1 + 1], &c__1, (ftnlen)
+			5, (ftnlen)12, (ftnlen)8);
 		i__2 = i__ + i__ * t_dim1;
 		i__3 = i__;
 		t[i__2].r = tau[i__3].r, t[i__2].i = tau[i__3].i;
@@ -19714,7 +19946,7 @@ L16:
 /*              general case */
 
 		if (i__ < *k) {
-		    if (lsame_(storev, "C")) {
+		    if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 			i__1 = *n - *k + i__ + i__ * v_dim1;
 			vii.r = v[i__1].r, vii.i = v[i__1].i;
 			i__1 = *n - *k + i__ + i__ * v_dim1;
@@ -19742,7 +19974,7 @@ L35:
 			zgemv_("Conjugate transpose", &i__1, &i__2, &z__1, &v[
 				j + (i__ + 1) * v_dim1], ldv, &v[j + i__ *
 				v_dim1], &c__1, &c_b56, &t[i__ + 1 + i__ *
-				t_dim1], &c__1);
+				t_dim1], &c__1, (ftnlen)19);
 			i__1 = *n - *k + i__ + i__ * v_dim1;
 			v[i__1].r = vii.r, v[i__1].i = vii.i;
 		    } else {
@@ -19775,7 +20007,7 @@ L36:
 			zgemv_("No transpose", &i__1, &i__2, &z__1, &v[i__ +
 				1 + j * v_dim1], ldv, &v[i__ + j * v_dim1],
 				ldv, &c_b56, &t[i__ + 1 + i__ * t_dim1], &
-				c__1);
+				c__1, (ftnlen)12);
 			i__1 = *n - *k + i__ - 1 - j + 1;
 			zlacgv_(&i__1, &v[i__ + j * v_dim1], ldv);
 			i__1 = i__ + (*n - *k + i__) * v_dim1;
@@ -19787,7 +20019,7 @@ L36:
 		    i__1 = *k - i__;
 		    ztrmv_("Lower", "No transpose", "Non-unit", &i__1, &t[i__
 			    + 1 + (i__ + 1) * t_dim1], ldt, &t[i__ + 1 + i__ *
-			     t_dim1], &c__1)
+			     t_dim1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)8)
 			    ;
 		    if (i__ > 1) {
 			prevlastv = min(prevlastv,lastv);
@@ -20070,7 +20302,7 @@ L20:
 
 /* Subroutine */ int zlascl_(char *type__, integer *kl, integer *ku,
 	doublereal *cfrom, doublereal *cto, integer *m, integer *n,
-	doublecomplex *a, integer *lda, integer *info)
+	doublecomplex *a, integer *lda, integer *info, ftnlen type_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -20081,13 +20313,13 @@ L20:
     static doublereal mul, cto1;
     static logical done;
     static doublereal ctoc;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer itype;
     static doublereal cfrom1;
 
     static doublereal cfromc;
     extern logical disnan_(doublereal *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static doublereal bignum, smlnum;
 
 
@@ -20171,19 +20403,19 @@ L20:
     /* Function Body */
     *info = 0;
 
-    if (lsame_(type__, "G")) {
+    if (lsame_(type__, "G", (ftnlen)1, (ftnlen)1)) {
 	itype = 0;
-    } else if (lsame_(type__, "L")) {
+    } else if (lsame_(type__, "L", (ftnlen)1, (ftnlen)1)) {
 	itype = 1;
-    } else if (lsame_(type__, "U")) {
+    } else if (lsame_(type__, "U", (ftnlen)1, (ftnlen)1)) {
 	itype = 2;
-    } else if (lsame_(type__, "H")) {
+    } else if (lsame_(type__, "H", (ftnlen)1, (ftnlen)1)) {
 	itype = 3;
-    } else if (lsame_(type__, "B")) {
+    } else if (lsame_(type__, "B", (ftnlen)1, (ftnlen)1)) {
 	itype = 4;
-    } else if (lsame_(type__, "Q")) {
+    } else if (lsame_(type__, "Q", (ftnlen)1, (ftnlen)1)) {
 	itype = 5;
-    } else if (lsame_(type__, "Z")) {
+    } else if (lsame_(type__, "Z", (ftnlen)1, (ftnlen)1)) {
 	itype = 6;
     } else {
 	itype = -1;
@@ -20221,7 +20453,7 @@ L20:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLASCL", &i__1);
+	xerbla_("ZLASCL", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -20424,14 +20656,14 @@ L10:
 
 /* Subroutine */ int zlaset_(char *uplo, integer *m, integer *n,
 	doublecomplex *alpha, doublecomplex *beta, doublecomplex *a, integer *
-	lda)
+	lda, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
 
 
 /*
@@ -20488,7 +20720,7 @@ L10:
     a -= a_offset;
 
     /* Function Body */
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*
           Set the diagonal to BETA and the strictly upper triangular
@@ -20514,7 +20746,7 @@ L10:
 /* L30: */
 	}
 
-    } else if (lsame_(uplo, "L")) {
+    } else if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
           Set the diagonal to BETA and the strictly lower triangular
@@ -20571,7 +20803,7 @@ L10:
 
 /* Subroutine */ int zlasr_(char *side, char *pivot, char *direct, integer *m,
 	 integer *n, doublereal *c__, doublereal *s, doublecomplex *a,
-	integer *lda)
+	integer *lda, ftnlen side_len, ftnlen pivot_len, ftnlen direct_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
@@ -20580,9 +20812,9 @@ L10:
     /* Local variables */
     static integer i__, j, info;
     static doublecomplex temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal ctemp, stemp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -20732,13 +20964,15 @@ L10:
 
     /* Function Body */
     info = 0;
-    if (! (lsame_(side, "L") || lsame_(side, "R"))) {
+    if (! (lsame_(side, "L", (ftnlen)1, (ftnlen)1) || lsame_(side, "R", (
+	    ftnlen)1, (ftnlen)1))) {
 	info = 1;
-    } else if (! (lsame_(pivot, "V") || lsame_(pivot,
-	    "T") || lsame_(pivot, "B"))) {
+    } else if (! (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1) || lsame_(pivot,
+	    "T", (ftnlen)1, (ftnlen)1) || lsame_(pivot, "B", (ftnlen)1, (
+	    ftnlen)1))) {
 	info = 2;
-    } else if (! (lsame_(direct, "F") || lsame_(direct,
-	    "B"))) {
+    } else if (! (lsame_(direct, "F", (ftnlen)1, (ftnlen)1) || lsame_(direct,
+	    "B", (ftnlen)1, (ftnlen)1))) {
 	info = 3;
     } else if (*m < 0) {
 	info = 4;
@@ -20748,7 +20982,7 @@ L10:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("ZLASR ", &info);
+	xerbla_("ZLASR ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -20757,12 +20991,12 @@ L10:
     if (*m == 0 || *n == 0) {
 	return 0;
     }
-    if (lsame_(side, "L")) {
+    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  P * A */
 
-	if (lsame_(pivot, "V")) {
-	    if (lsame_(direct, "F")) {
+	if (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -20793,7 +21027,7 @@ L10:
 		    }
 /* L20: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -20824,8 +21058,8 @@ L10:
 /* L40: */
 		}
 	    }
-	} else if (lsame_(pivot, "T")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "T", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m;
 		for (j = 2; j <= i__1; ++j) {
 		    ctemp = c__[j - 1];
@@ -20856,7 +21090,7 @@ L10:
 		    }
 /* L60: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m; j >= 2; --j) {
 		    ctemp = c__[j - 1];
 		    stemp = s[j - 1];
@@ -20887,8 +21121,8 @@ L10:
 /* L80: */
 		}
 	    }
-	} else if (lsame_(pivot, "B")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "B", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -20919,7 +21153,7 @@ L10:
 		    }
 /* L100: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -20951,12 +21185,12 @@ L10:
 		}
 	    }
 	}
-    } else if (lsame_(side, "R")) {
+    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form A * P' */
 
-	if (lsame_(pivot, "V")) {
-	    if (lsame_(direct, "F")) {
+	if (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -20987,7 +21221,7 @@ L10:
 		    }
 /* L140: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -21018,8 +21252,8 @@ L10:
 /* L160: */
 		}
 	    }
-	} else if (lsame_(pivot, "T")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "T", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n;
 		for (j = 2; j <= i__1; ++j) {
 		    ctemp = c__[j - 1];
@@ -21050,7 +21284,7 @@ L10:
 		    }
 /* L180: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n; j >= 2; --j) {
 		    ctemp = c__[j - 1];
 		    stemp = s[j - 1];
@@ -21081,8 +21315,8 @@ L10:
 /* L200: */
 		}
 	    }
-	} else if (lsame_(pivot, "B")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "B", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -21113,7 +21347,7 @@ L10:
 		    }
 /* L220: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -21416,7 +21650,7 @@ L10:
 
 /* Subroutine */ int zlatrd_(char *uplo, integer *n, integer *nb,
 	doublecomplex *a, integer *lda, doublereal *e, doublecomplex *tau,
-	doublecomplex *w, integer *ldw)
+	doublecomplex *w, integer *ldw, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, w_dim1, w_offset, i__1, i__2, i__3;
@@ -21426,17 +21660,17 @@ L10:
     /* Local variables */
     static integer i__, iw;
     static doublecomplex alpha;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zscal_(integer *, doublecomplex *,
 	    doublecomplex *, integer *);
     extern /* Double Complex */ VOID zdotc_(doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *);
     extern /* Subroutine */ int zgemv_(char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, doublecomplex *, integer *),
+	    integer *, doublecomplex *, doublecomplex *, integer *, ftnlen),
 	    zhemv_(char *, integer *, doublecomplex *, doublecomplex *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *), zaxpy_(integer *,
+	    doublecomplex *, integer *, ftnlen), zaxpy_(integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
 	    integer *), zlarfg_(integer *, doublecomplex *, doublecomplex *,
 	    integer *, doublecomplex *), zlacgv_(integer *, doublecomplex *,
@@ -21592,7 +21826,7 @@ L10:
 	return 0;
     }
 
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Reduce last NB columns of upper triangle */
 
@@ -21613,7 +21847,7 @@ L10:
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__, &i__2, &z__1, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &w[i__ + (iw + 1) * w_dim1], ldw, &
-			c_b57, &a[i__ * a_dim1 + 1], &c__1);
+			c_b57, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		zlacgv_(&i__2, &w[i__ + (iw + 1) * w_dim1], ldw);
 		i__2 = *n - i__;
@@ -21622,7 +21856,7 @@ L10:
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__, &i__2, &z__1, &w[(iw + 1) *
 			w_dim1 + 1], ldw, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			c_b57, &a[i__ * a_dim1 + 1], &c__1);
+			c_b57, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		zlacgv_(&i__2, &a[i__ + (i__ + 1) * a_dim1], lda);
 		i__2 = i__ + i__ * a_dim1;
@@ -21652,30 +21886,34 @@ L10:
 		i__2 = i__ - 1;
 		zhemv_("Upper", &i__2, &c_b57, &a[a_offset], lda, &a[i__ *
 			a_dim1 + 1], &c__1, &c_b56, &w[iw * w_dim1 + 1], &
-			c__1);
+			c__1, (ftnlen)5);
 		if (i__ < *n) {
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &w[(
 			    iw + 1) * w_dim1 + 1], ldw, &a[i__ * a_dim1 + 1],
-			    &c__1, &c_b56, &w[i__ + 1 + iw * w_dim1], &c__1);
+			    &c__1, &c_b56, &w[i__ + 1 + iw * w_dim1], &c__1, (
+			    ftnlen)19);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    z__1.r = -1., z__1.i = -0.;
 		    zgemv_("No transpose", &i__2, &i__3, &z__1, &a[(i__ + 1) *
 			     a_dim1 + 1], lda, &w[i__ + 1 + iw * w_dim1], &
-			    c__1, &c_b57, &w[iw * w_dim1 + 1], &c__1);
+			    c__1, &c_b57, &w[iw * w_dim1 + 1], &c__1, (ftnlen)
+			    12);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[(
 			    i__ + 1) * a_dim1 + 1], lda, &a[i__ * a_dim1 + 1],
-			     &c__1, &c_b56, &w[i__ + 1 + iw * w_dim1], &c__1);
+			     &c__1, &c_b56, &w[i__ + 1 + iw * w_dim1], &c__1,
+			    (ftnlen)19);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    z__1.r = -1., z__1.i = -0.;
 		    zgemv_("No transpose", &i__2, &i__3, &z__1, &w[(iw + 1) *
 			    w_dim1 + 1], ldw, &w[i__ + 1 + iw * w_dim1], &
-			    c__1, &c_b57, &w[iw * w_dim1 + 1], &c__1);
+			    c__1, &c_b57, &w[iw * w_dim1 + 1], &c__1, (ftnlen)
+			    12);
 		}
 		i__2 = i__ - 1;
 		zscal_(&i__2, &tau[i__ - 1], &w[iw * w_dim1 + 1], &c__1);
@@ -21716,7 +21954,7 @@ L10:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemv_("No transpose", &i__2, &i__3, &z__1, &a[i__ + a_dim1], lda,
 		     &w[i__ + w_dim1], ldw, &c_b57, &a[i__ + i__ * a_dim1], &
-		    c__1);
+		    c__1, (ftnlen)12);
 	    i__2 = i__ - 1;
 	    zlacgv_(&i__2, &w[i__ + w_dim1], ldw);
 	    i__2 = i__ - 1;
@@ -21726,7 +21964,7 @@ L10:
 	    z__1.r = -1., z__1.i = -0.;
 	    zgemv_("No transpose", &i__2, &i__3, &z__1, &w[i__ + w_dim1], ldw,
 		     &a[i__ + a_dim1], lda, &c_b57, &a[i__ + i__ * a_dim1], &
-		    c__1);
+		    c__1, (ftnlen)12);
 	    i__2 = i__ - 1;
 	    zlacgv_(&i__2, &a[i__ + a_dim1], lda);
 	    i__2 = i__ + i__ * a_dim1;
@@ -21757,29 +21995,29 @@ L10:
 		i__2 = *n - i__;
 		zhemv_("Lower", &i__2, &c_b57, &a[i__ + 1 + (i__ + 1) *
 			a_dim1], lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &
-			c_b56, &w[i__ + 1 + i__ * w_dim1], &c__1);
+			c_b56, &w[i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)5);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &w[i__ +
 			1 + w_dim1], ldw, &a[i__ + 1 + i__ * a_dim1], &c__1, &
-			c_b56, &w[i__ * w_dim1 + 1], &c__1);
+			c_b56, &w[i__ * w_dim1 + 1], &c__1, (ftnlen)19);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &a[i__ + 1 +
 			a_dim1], lda, &w[i__ * w_dim1 + 1], &c__1, &c_b57, &w[
-			i__ + 1 + i__ * w_dim1], &c__1);
+			i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[i__ +
 			1 + a_dim1], lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &
-			c_b56, &w[i__ * w_dim1 + 1], &c__1);
+			c_b56, &w[i__ * w_dim1 + 1], &c__1, (ftnlen)19);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &w[i__ + 1 +
 			w_dim1], ldw, &w[i__ * w_dim1 + 1], &c__1, &c_b57, &w[
-			i__ + 1 + i__ * w_dim1], &c__1);
+			i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		zscal_(&i__2, &tau[i__], &w[i__ + 1 + i__ * w_dim1], &c__1);
 		z__3.r = -.5, z__3.i = -0.;
@@ -21809,7 +22047,8 @@ L10:
 
 /* Subroutine */ int zlatrs_(char *uplo, char *trans, char *diag, char *
 	normin, integer *n, doublecomplex *a, integer *lda, doublecomplex *x,
-	doublereal *scale, doublereal *cnorm, integer *info)
+	doublereal *scale, doublereal *cnorm, integer *info, ftnlen uplo_len,
+	ftnlen trans_len, ftnlen diag_len, ftnlen normin_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -21827,7 +22066,7 @@ L10:
     static doublereal xmax, grow;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal tscal;
     static doublecomplex uscal;
     static integer jlast;
@@ -21840,11 +22079,11 @@ L10:
     extern /* Subroutine */ int zaxpy_(integer *, doublecomplex *,
 	    doublecomplex *, integer *, doublecomplex *, integer *), ztrsv_(
 	    char *, char *, char *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *), dlabad_(
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen), dlabad_(
 	    doublereal *, doublereal *);
 
     extern integer idamax_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), zdscal_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), zdscal_(
 	    integer *, doublereal *, doublecomplex *, integer *);
     static doublereal bignum;
     extern integer izamax_(integer *, doublecomplex *, integer *);
@@ -22029,21 +22268,21 @@ L10:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    notran = lsame_(trans, "N");
-    nounit = lsame_(diag, "N");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
 
 /*     Test the input parameters. */
 
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T") && !
-	    lsame_(trans, "C")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1) && !
+	    lsame_(trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
-    } else if (! nounit && ! lsame_(diag, "U")) {
+    } else if (! nounit && ! lsame_(diag, "U", (ftnlen)1, (ftnlen)1)) {
 	*info = -3;
-    } else if (! lsame_(normin, "Y") && ! lsame_(normin,
-	     "N")) {
+    } else if (! lsame_(normin, "Y", (ftnlen)1, (ftnlen)1) && ! lsame_(normin,
+	     "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -4;
     } else if (*n < 0) {
 	*info = -5;
@@ -22052,7 +22291,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLATRS", &i__1);
+	xerbla_("ZLATRS", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -22071,7 +22310,7 @@ L10:
     bignum = 1. / smlnum;
     *scale = 1.;
 
-    if (lsame_(normin, "N")) {
+    if (lsame_(normin, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Compute the 1-norm of each column, not including the diagonal. */
 
@@ -22342,7 +22581,8 @@ L90:
           elements of X is not too small.
 */
 
-	ztrsv_(uplo, trans, diag, n, &a[a_offset], lda, &x[1], &c__1);
+	ztrsv_(uplo, trans, diag, n, &a[a_offset], lda, &x[1], &c__1, (ftnlen)
+		1, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use a Level 1 BLAS solve, scaling intermediate results. */
@@ -22526,7 +22766,7 @@ L110:
 /* L120: */
 	    }
 
-	} else if (lsame_(trans, "T")) {
+	} else if (lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 
 /*           Solve A**T * x = b */
 
@@ -22973,7 +23213,7 @@ L210:
 } /* zlatrs_ */
 
 /* Subroutine */ int zlauu2_(char *uplo, integer *n, doublecomplex *a,
-	integer *lda, integer *info)
+	integer *lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -22983,14 +23223,14 @@ L210:
     /* Local variables */
     static integer i__;
     static doublereal aii;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Double Complex */ VOID zdotc_(doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *);
     extern /* Subroutine */ int zgemv_(char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, doublecomplex *, integer *);
+	    integer *, doublecomplex *, doublecomplex *, integer *, ftnlen);
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *), zdscal_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), zdscal_(
 	    integer *, doublereal *, doublecomplex *, integer *), zlacgv_(
 	    integer *, doublecomplex *, integer *);
 
@@ -23055,8 +23295,8 @@ L210:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -23065,7 +23305,7 @@ L210:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLAUU2", &i__1);
+	xerbla_("ZLAUU2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -23097,7 +23337,7 @@ L210:
 		z__1.r = aii, z__1.i = 0.;
 		zgemv_("No transpose", &i__2, &i__3, &c_b57, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			z__1, &a[i__ * a_dim1 + 1], &c__1);
+			z__1, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		zlacgv_(&i__2, &a[i__ + (i__ + 1) * a_dim1], lda);
 	    } else {
@@ -23128,7 +23368,7 @@ L210:
 		z__1.r = aii, z__1.i = 0.;
 		zgemv_("Conjugate transpose", &i__2, &i__3, &c_b57, &a[i__ +
 			1 + a_dim1], lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &
-			z__1, &a[i__ + a_dim1], lda);
+			z__1, &a[i__ + a_dim1], lda, (ftnlen)19);
 		i__2 = i__ - 1;
 		zlacgv_(&i__2, &a[i__ + a_dim1], lda);
 	    } else {
@@ -23145,25 +23385,26 @@ L210:
 } /* zlauu2_ */
 
 /* Subroutine */ int zlauum_(char *uplo, integer *n, doublecomplex *a,
-	integer *lda, integer *info)
+	integer *lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
 
     /* Local variables */
     static integer i__, ib, nb;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), zherk_(char *, char *, integer *,
+	    integer *, ftnlen, ftnlen), zherk_(char *, char *, integer *,
 	    integer *, doublereal *, doublecomplex *, integer *, doublereal *,
-	     doublecomplex *, integer *);
+	     doublecomplex *, integer *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int ztrmm_(char *, char *, char *, char *,
 	    integer *, integer *, doublecomplex *, doublecomplex *, integer *,
-	     doublecomplex *, integer *),
-	    zlauu2_(char *, integer *, doublecomplex *, integer *, integer *), xerbla_(char *, integer *);
+	     doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
+	    zlauu2_(char *, integer *, doublecomplex *, integer *, integer *,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
 
@@ -23228,8 +23469,8 @@ L210:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -23238,7 +23479,7 @@ L210:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZLAUUM", &i__1);
+	xerbla_("ZLAUUM", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -23257,7 +23498,7 @@ L210:
 
 /*        Use unblocked code */
 
-	zlauu2_(uplo, n, &a[a_offset], lda, info);
+	zlauu2_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -23275,19 +23516,21 @@ L210:
 		i__3 = i__ - 1;
 		ztrmm_("Right", "Upper", "Conjugate transpose", "Non-unit", &
 			i__3, &ib, &c_b57, &a[i__ + i__ * a_dim1], lda, &a[
-			i__ * a_dim1 + 1], lda);
-		zlauu2_("Upper", &ib, &a[i__ + i__ * a_dim1], lda, info);
+			i__ * a_dim1 + 1], lda, (ftnlen)5, (ftnlen)5, (ftnlen)
+			19, (ftnlen)8);
+		zlauu2_("Upper", &ib, &a[i__ + i__ * a_dim1], lda, info, (
+			ftnlen)5);
 		if (i__ + ib <= *n) {
 		    i__3 = i__ - 1;
 		    i__4 = *n - i__ - ib + 1;
 		    zgemm_("No transpose", "Conjugate transpose", &i__3, &ib,
 			    &i__4, &c_b57, &a[(i__ + ib) * a_dim1 + 1], lda, &
 			    a[i__ + (i__ + ib) * a_dim1], lda, &c_b57, &a[i__
-			    * a_dim1 + 1], lda);
+			    * a_dim1 + 1], lda, (ftnlen)12, (ftnlen)19);
 		    i__3 = *n - i__ - ib + 1;
 		    zherk_("Upper", "No transpose", &ib, &i__3, &c_b1034, &a[
 			    i__ + (i__ + ib) * a_dim1], lda, &c_b1034, &a[i__
-			    + i__ * a_dim1], lda);
+			    + i__ * a_dim1], lda, (ftnlen)5, (ftnlen)12);
 		}
 /* L10: */
 	    }
@@ -23304,19 +23547,22 @@ L210:
 		i__3 = i__ - 1;
 		ztrmm_("Left", "Lower", "Conjugate transpose", "Non-unit", &
 			ib, &i__3, &c_b57, &a[i__ + i__ * a_dim1], lda, &a[
-			i__ + a_dim1], lda);
-		zlauu2_("Lower", &ib, &a[i__ + i__ * a_dim1], lda, info);
+			i__ + a_dim1], lda, (ftnlen)4, (ftnlen)5, (ftnlen)19,
+			(ftnlen)8);
+		zlauu2_("Lower", &ib, &a[i__ + i__ * a_dim1], lda, info, (
+			ftnlen)5);
 		if (i__ + ib <= *n) {
 		    i__3 = i__ - 1;
 		    i__4 = *n - i__ - ib + 1;
 		    zgemm_("Conjugate transpose", "No transpose", &ib, &i__3,
 			    &i__4, &c_b57, &a[i__ + ib + i__ * a_dim1], lda, &
 			    a[i__ + ib + a_dim1], lda, &c_b57, &a[i__ +
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)19, (ftnlen)12);
 		    i__3 = *n - i__ - ib + 1;
 		    zherk_("Lower", "Conjugate transpose", &ib, &i__3, &
 			    c_b1034, &a[i__ + ib + i__ * a_dim1], lda, &
-			    c_b1034, &a[i__ + i__ * a_dim1], lda);
+			    c_b1034, &a[i__ + i__ * a_dim1], lda, (ftnlen)5, (
+			    ftnlen)19);
 		}
 /* L20: */
 	    }
@@ -23330,7 +23576,7 @@ L210:
 } /* zlauum_ */
 
 /* Subroutine */ int zpotf2_(char *uplo, integer *n, doublecomplex *a,
-	integer *lda, integer *info)
+	integer *lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -23340,15 +23586,15 @@ L210:
     /* Local variables */
     static integer j;
     static doublereal ajj;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Double Complex */ VOID zdotc_(doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *);
     extern /* Subroutine */ int zgemv_(char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, doublecomplex *, integer *);
+	    integer *, doublecomplex *, doublecomplex *, integer *, ftnlen);
     static logical upper;
     extern logical disnan_(doublereal *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), zdscal_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), zdscal_(
 	    integer *, doublereal *, doublecomplex *, integer *), zlacgv_(
 	    integer *, doublecomplex *, integer *);
 
@@ -23420,8 +23666,8 @@ L210:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -23430,7 +23676,7 @@ L210:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZPOTF2", &i__1);
+	xerbla_("ZPOTF2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -23475,7 +23721,7 @@ L210:
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("Transpose", &i__2, &i__3, &z__1, &a[(j + 1) * a_dim1
 			+ 1], lda, &a[j * a_dim1 + 1], &c__1, &c_b57, &a[j + (
-			j + 1) * a_dim1], lda);
+			j + 1) * a_dim1], lda, (ftnlen)9);
 		i__2 = j - 1;
 		zlacgv_(&i__2, &a[j * a_dim1 + 1], &c__1);
 		i__2 = *n - j;
@@ -23518,7 +23764,7 @@ L210:
 		z__1.r = -1., z__1.i = -0.;
 		zgemv_("No transpose", &i__2, &i__3, &z__1, &a[j + 1 + a_dim1]
 			, lda, &a[j + a_dim1], lda, &c_b57, &a[j + 1 + j *
-			a_dim1], &c__1);
+			a_dim1], &c__1, (ftnlen)12);
 		i__2 = j - 1;
 		zlacgv_(&i__2, &a[j + a_dim1], lda);
 		i__2 = *n - j;
@@ -23541,7 +23787,7 @@ L40:
 } /* zpotf2_ */
 
 /* Subroutine */ int zpotrf_(char *uplo, integer *n, doublecomplex *a,
-	integer *lda, integer *info)
+	integer *lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
@@ -23549,18 +23795,19 @@ L40:
 
     /* Local variables */
     static integer j, jb, nb;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zgemm_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), zherk_(char *, char *, integer *,
+	    integer *, ftnlen, ftnlen), zherk_(char *, char *, integer *,
 	    integer *, doublereal *, doublecomplex *, integer *, doublereal *,
-	     doublecomplex *, integer *);
+	     doublecomplex *, integer *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int ztrsm_(char *, char *, char *, char *,
 	    integer *, integer *, doublecomplex *, doublecomplex *, integer *,
-	     doublecomplex *, integer *),
-	    zpotf2_(char *, integer *, doublecomplex *, integer *, integer *), xerbla_(char *, integer *);
+	     doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
+	    zpotf2_(char *, integer *, doublecomplex *, integer *, integer *,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
 
@@ -23630,8 +23877,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -23640,7 +23887,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZPOTRF", &i__1);
+	xerbla_("ZPOTRF", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -23658,7 +23905,7 @@ L40:
 
 /*        Use unblocked code. */
 
-	zpotf2_(uplo, n, &a[a_offset], lda, info);
+	zpotf2_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
     } else {
 
 /*        Use blocked code. */
@@ -23682,8 +23929,9 @@ L40:
 		i__3 = j - 1;
 		zherk_("Upper", "Conjugate transpose", &jb, &i__3, &c_b1276, &
 			a[j * a_dim1 + 1], lda, &c_b1034, &a[j + j * a_dim1],
-			lda);
-		zpotf2_("Upper", &jb, &a[j + j * a_dim1], lda, info);
+			lda, (ftnlen)5, (ftnlen)19);
+		zpotf2_("Upper", &jb, &a[j + j * a_dim1], lda, info, (ftnlen)
+			5);
 		if (*info != 0) {
 		    goto L30;
 		}
@@ -23697,11 +23945,12 @@ L40:
 		    zgemm_("Conjugate transpose", "No transpose", &jb, &i__3,
 			    &i__4, &z__1, &a[j * a_dim1 + 1], lda, &a[(j + jb)
 			     * a_dim1 + 1], lda, &c_b57, &a[j + (j + jb) *
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)19, (ftnlen)12);
 		    i__3 = *n - j - jb + 1;
 		    ztrsm_("Left", "Upper", "Conjugate transpose", "Non-unit",
 			     &jb, &i__3, &c_b57, &a[j + j * a_dim1], lda, &a[
-			    j + (j + jb) * a_dim1], lda);
+			    j + (j + jb) * a_dim1], lda, (ftnlen)4, (ftnlen)5,
+			     (ftnlen)19, (ftnlen)8);
 		}
 /* L10: */
 	    }
@@ -23724,8 +23973,10 @@ L40:
 		jb = min(i__3,i__4);
 		i__3 = j - 1;
 		zherk_("Lower", "No transpose", &jb, &i__3, &c_b1276, &a[j +
-			a_dim1], lda, &c_b1034, &a[j + j * a_dim1], lda);
-		zpotf2_("Lower", &jb, &a[j + j * a_dim1], lda, info);
+			a_dim1], lda, &c_b1034, &a[j + j * a_dim1], lda, (
+			ftnlen)5, (ftnlen)12);
+		zpotf2_("Lower", &jb, &a[j + j * a_dim1], lda, info, (ftnlen)
+			5);
 		if (*info != 0) {
 		    goto L30;
 		}
@@ -23739,11 +23990,12 @@ L40:
 		    zgemm_("No transpose", "Conjugate transpose", &i__3, &jb,
 			    &i__4, &z__1, &a[j + jb + a_dim1], lda, &a[j +
 			    a_dim1], lda, &c_b57, &a[j + jb + j * a_dim1],
-			    lda);
+			    lda, (ftnlen)12, (ftnlen)19);
 		    i__3 = *n - j - jb + 1;
 		    ztrsm_("Right", "Lower", "Conjugate transpose", "Non-unit"
 			    , &i__3, &jb, &c_b57, &a[j + j * a_dim1], lda, &a[
-			    j + jb + j * a_dim1], lda);
+			    j + jb + j * a_dim1], lda, (ftnlen)5, (ftnlen)5, (
+			    ftnlen)19, (ftnlen)8);
 		}
 /* L20: */
 	    }
@@ -23762,17 +24014,17 @@ L40:
 } /* zpotrf_ */
 
 /* Subroutine */ int zpotri_(char *uplo, integer *n, doublecomplex *a,
-	integer *lda, integer *info)
+	integer *lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), zlauum_(
-	    char *, integer *, doublecomplex *, integer *, integer *),
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), zlauum_(
+	    char *, integer *, doublecomplex *, integer *, integer *, ftnlen),
 	     ztrtri_(char *, char *, integer *, doublecomplex *, integer *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
 
 
 /*
@@ -23828,7 +24080,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -23837,7 +24090,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZPOTRI", &i__1);
+	xerbla_("ZPOTRI", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -23849,14 +24102,15 @@ L40:
 
 /*     Invert the triangular Cholesky factor U or L. */
 
-    ztrtri_(uplo, "Non-unit", n, &a[a_offset], lda, info);
+    ztrtri_(uplo, "Non-unit", n, &a[a_offset], lda, info, (ftnlen)1, (ftnlen)
+	    8);
     if (*info > 0) {
 	return 0;
     }
 
 /*     Form inv(U)*inv(U)' or inv(L)'*inv(L). */
 
-    zlauum_(uplo, n, &a[a_offset], lda, info);
+    zlauum_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
 
     return 0;
 
@@ -23866,18 +24120,18 @@ L40:
 
 /* Subroutine */ int zpotrs_(char *uplo, integer *n, integer *nrhs,
 	doublecomplex *a, integer *lda, doublecomplex *b, integer *ldb,
-	integer *info)
+	integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int ztrsm_(char *, char *, char *, char *,
 	    integer *, integer *, doublecomplex *, doublecomplex *, integer *,
-	     doublecomplex *, integer *),
-	    xerbla_(char *, integer *);
+	     doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
+	    xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -23942,8 +24196,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -23956,7 +24210,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZPOTRS", &i__1);
+	xerbla_("ZPOTRS", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -23975,12 +24229,14 @@ L40:
 */
 
 	ztrsm_("Left", "Upper", "Conjugate transpose", "Non-unit", n, nrhs, &
-		c_b57, &a[a_offset], lda, &b[b_offset], ldb);
+		c_b57, &a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (
+		ftnlen)5, (ftnlen)19, (ftnlen)8);
 
 /*        Solve U*X = B, overwriting B with X. */
 
 	ztrsm_("Left", "Upper", "No transpose", "Non-unit", n, nrhs, &c_b57, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
     } else {
 
 /*
@@ -23990,12 +24246,14 @@ L40:
 */
 
 	ztrsm_("Left", "Lower", "No transpose", "Non-unit", n, nrhs, &c_b57, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
 
 /*        Solve L'*X = B, overwriting B with X. */
 
 	ztrsm_("Left", "Lower", "Conjugate transpose", "Non-unit", n, nrhs, &
-		c_b57, &a[a_offset], lda, &b[b_offset], ldb);
+		c_b57, &a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (
+		ftnlen)5, (ftnlen)19, (ftnlen)8);
     }
 
     return 0;
@@ -24139,7 +24397,7 @@ L20:
 /* Subroutine */ int zstedc_(char *compz, integer *n, doublereal *d__,
 	doublereal *e, doublecomplex *z__, integer *ldz, doublecomplex *work,
 	integer *lwork, doublereal *rwork, integer *lrwork, integer *iwork,
-	integer *liwork, integer *info)
+	integer *liwork, integer *info, ftnlen compz_len)
 {
     /* System generated locals */
     integer z_dim1, z_offset, i__1, i__2, i__3, i__4;
@@ -24150,7 +24408,7 @@ L20:
     static doublereal p;
     static integer ii, ll, lgn;
     static doublereal eps, tiny;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer lwmin, start;
     extern /* Subroutine */ int zswap_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), zlaed0_(integer *, integer *,
@@ -24159,29 +24417,33 @@ L20:
 
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dstedc_(char *, integer *,
+	    integer *, integer *, ftnlen), dstedc_(char *, integer *,
 	    doublereal *, doublereal *, doublereal *, integer *, doublereal *,
-	     integer *, integer *, integer *, integer *), dlaset_(
+	     integer *, integer *, integer *, integer *, ftnlen), dlaset_(
 	    char *, integer *, integer *, doublereal *, doublereal *,
-	    doublereal *, integer *), xerbla_(char *, integer *);
+	    doublereal *, integer *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer finish;
-    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *);
+    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *,
+	    ftnlen);
     extern /* Subroutine */ int dsterf_(integer *, doublereal *, doublereal *,
 	     integer *), zlacrm_(integer *, integer *, doublecomplex *,
 	    integer *, doublereal *, integer *, doublecomplex *, integer *,
 	    doublereal *);
     static integer liwmin, icompz;
     extern /* Subroutine */ int dsteqr_(char *, integer *, doublereal *,
-	    doublereal *, doublereal *, integer *, doublereal *, integer *), zlacpy_(char *, integer *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, integer *);
+	    doublereal *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen), zlacpy_(char *, integer *, integer *, doublecomplex *,
+	    integer *, doublecomplex *, integer *, ftnlen);
     static doublereal orgnrm;
     static integer lrwmin;
     static logical lquery;
     static integer smlsiz;
     extern /* Subroutine */ int zsteqr_(char *, integer *, doublereal *,
-	    doublereal *, doublecomplex *, integer *, doublereal *, integer *);
+	    doublereal *, doublecomplex *, integer *, doublereal *, integer *,
+	     ftnlen);
 
 
 /*
@@ -24335,11 +24597,11 @@ L20:
     *info = 0;
     lquery = *lwork == -1 || *lrwork == -1 || *liwork == -1;
 
-    if (lsame_(compz, "N")) {
+    if (lsame_(compz, "N", (ftnlen)1, (ftnlen)1)) {
 	icompz = 0;
-    } else if (lsame_(compz, "V")) {
+    } else if (lsame_(compz, "V", (ftnlen)1, (ftnlen)1)) {
 	icompz = 1;
-    } else if (lsame_(compz, "I")) {
+    } else if (lsame_(compz, "I", (ftnlen)1, (ftnlen)1)) {
 	icompz = 2;
     } else {
 	icompz = -1;
@@ -24401,7 +24663,7 @@ L20:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZSTEDC", &i__1);
+	xerbla_("ZSTEDC", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -24446,18 +24708,18 @@ L20:
     if (*n <= smlsiz) {
 
 	zsteqr_(compz, n, &d__[1], &e[1], &z__[z_offset], ldz, &rwork[1],
-		info);
+		info, (ftnlen)1);
 
     } else {
 
 /*        If COMPZ = 'I', we simply call DSTEDC instead. */
 
 	if (icompz == 2) {
-	    dlaset_("Full", n, n, &c_b328, &c_b1034, &rwork[1], n);
+	    dlaset_("Full", n, n, &c_b328, &c_b1034, &rwork[1], n, (ftnlen)4);
 	    ll = *n * *n + 1;
 	    i__1 = *lrwork - ll + 1;
 	    dstedc_("I", n, &d__[1], &e[1], &rwork[1], n, &rwork[ll], &i__1, &
-		    iwork[1], liwork, info);
+		    iwork[1], liwork, info, (ftnlen)1);
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = *n;
@@ -24479,7 +24741,7 @@ L20:
           Scale.
 */
 
-	orgnrm = dlanst_("M", n, &d__[1], &e[1]);
+	orgnrm = dlanst_("M", n, &d__[1], &e[1], (ftnlen)1);
 	if (orgnrm == 0.) {
 	    goto L70;
 	}
@@ -24519,13 +24781,13 @@ L40:
 
 /*              Scale. */
 
-		orgnrm = dlanst_("M", &m, &d__[start], &e[start]);
+		orgnrm = dlanst_("M", &m, &d__[start], &e[start], (ftnlen)1);
 		dlascl_("G", &c__0, &c__0, &orgnrm, &c_b1034, &m, &c__1, &d__[
-			start], &m, info);
+			start], &m, info, (ftnlen)1);
 		i__1 = m - 1;
 		i__2 = m - 1;
 		dlascl_("G", &c__0, &c__0, &orgnrm, &c_b1034, &i__1, &c__1, &
-			e[start], &i__2, info);
+			e[start], &i__2, info, (ftnlen)1);
 
 		zlaed0_(n, &m, &d__[start], &e[start], &z__[start * z_dim1 +
 			1], ldz, &work[1], n, &rwork[1], &iwork[1], info);
@@ -24538,15 +24800,15 @@ L40:
 /*              Scale back. */
 
 		dlascl_("G", &c__0, &c__0, &c_b1034, &orgnrm, &m, &c__1, &d__[
-			start], &m, info);
+			start], &m, info, (ftnlen)1);
 
 	    } else {
 		dsteqr_("I", &m, &d__[start], &e[start], &rwork[1], &m, &
-			rwork[m * m + 1], info);
+			rwork[m * m + 1], info, (ftnlen)1);
 		zlacrm_(n, &m, &z__[start * z_dim1 + 1], ldz, &rwork[1], &m, &
 			work[1], n, &rwork[m * m + 1]);
 		zlacpy_("A", n, &m, &work[1], n, &z__[start * z_dim1 + 1],
-			ldz);
+			ldz, (ftnlen)1);
 		if (*info > 0) {
 		    *info = start * (*n + 1) + finish;
 		    goto L70;
@@ -24606,7 +24868,7 @@ L70:
 
 /* Subroutine */ int zsteqr_(char *compz, integer *n, doublereal *d__,
 	doublereal *e, doublecomplex *z__, integer *ldz, doublereal *work,
-	integer *info)
+	integer *info, ftnlen compz_len)
 {
     /* System generated locals */
     integer z_dim1, z_offset, i__1, i__2;
@@ -24623,33 +24885,37 @@ L70:
     static integer lend, jtot;
     extern /* Subroutine */ int dlae2_(doublereal *, doublereal *, doublereal
 	    *, doublereal *, doublereal *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal anorm;
     extern /* Subroutine */ int zlasr_(char *, char *, char *, integer *,
-	    integer *, doublereal *, doublereal *, doublecomplex *, integer *), zswap_(integer *, doublecomplex *,
+	    integer *, doublereal *, doublereal *, doublecomplex *, integer *,
+	     ftnlen, ftnlen, ftnlen), zswap_(integer *, doublecomplex *,
 	    integer *, doublecomplex *, integer *), dlaev2_(doublereal *,
 	    doublereal *, doublereal *, doublereal *, doublereal *,
 	    doublereal *, doublereal *);
     static integer lendm1, lendp1;
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     static integer iscale;
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen);
     static doublereal safmin;
     extern /* Subroutine */ int dlartg_(doublereal *, doublereal *,
 	    doublereal *, doublereal *, doublereal *);
     static doublereal safmax;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
-    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
+    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *,
+	    ftnlen);
     extern /* Subroutine */ int dlasrt_(char *, integer *, doublereal *,
-	    integer *);
+	    integer *, ftnlen);
     static integer lendsv;
     static doublereal ssfmin;
     static integer nmaxit, icompz;
     static doublereal ssfmax;
     extern /* Subroutine */ int zlaset_(char *, integer *, integer *,
-	    doublecomplex *, doublecomplex *, doublecomplex *, integer *);
+	    doublecomplex *, doublecomplex *, doublecomplex *, integer *,
+	    ftnlen);
 
 
 /*
@@ -24736,11 +25002,11 @@ L70:
     /* Function Body */
     *info = 0;
 
-    if (lsame_(compz, "N")) {
+    if (lsame_(compz, "N", (ftnlen)1, (ftnlen)1)) {
 	icompz = 0;
-    } else if (lsame_(compz, "V")) {
+    } else if (lsame_(compz, "V", (ftnlen)1, (ftnlen)1)) {
 	icompz = 1;
-    } else if (lsame_(compz, "I")) {
+    } else if (lsame_(compz, "I", (ftnlen)1, (ftnlen)1)) {
 	icompz = 2;
     } else {
 	icompz = -1;
@@ -24754,7 +25020,7 @@ L70:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZSTEQR", &i__1);
+	xerbla_("ZSTEQR", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -24789,7 +25055,7 @@ L70:
 */
 
     if (icompz == 2) {
-	zlaset_("Full", n, n, &c_b56, &c_b57, &z__[z_offset], ldz);
+	zlaset_("Full", n, n, &c_b56, &c_b57, &z__[z_offset], ldz, (ftnlen)4);
     }
 
     nmaxit = *n * 30;
@@ -24841,7 +25107,7 @@ L30:
 /*     Scale submatrix in rows and columns L to LEND */
 
     i__1 = lend - l + 1;
-    anorm = dlanst_("I", &i__1, &d__[l], &e[l]);
+    anorm = dlanst_("I", &i__1, &d__[l], &e[l], (ftnlen)1);
     iscale = 0;
     if (anorm == 0.) {
 	goto L10;
@@ -24850,18 +25116,18 @@ L30:
 	iscale = 1;
 	i__1 = lend - l + 1;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     } else if (anorm < ssfmin) {
 	iscale = 2;
 	i__1 = lend - l + 1;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     }
 
 /*     Choose between QL and QR iteration */
@@ -24917,7 +25183,8 @@ L60:
 		work[l] = c__;
 		work[*n - 1 + l] = s;
 		zlasr_("R", "V", "B", n, &c__2, &work[l], &work[*n - 1 + l], &
-			z__[l * z_dim1 + 1], ldz);
+			z__[l * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (
+			ftnlen)1);
 	    } else {
 		dlae2_(&d__[l], &e[l], &d__[l + 1], &rt1, &rt2);
 	    }
@@ -24978,7 +25245,7 @@ L60:
 	if (icompz > 0) {
 	    mm = m - l + 1;
 	    zlasr_("R", "V", "B", n, &mm, &work[l], &work[*n - 1 + l], &z__[l
-		    * z_dim1 + 1], ldz);
+		    * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
 
 	d__[l] -= p;
@@ -25043,7 +25310,8 @@ L110:
 		work[m] = c__;
 		work[*n - 1 + m] = s;
 		zlasr_("R", "V", "F", n, &c__2, &work[m], &work[*n - 1 + m], &
-			z__[(l - 1) * z_dim1 + 1], ldz);
+			z__[(l - 1) * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1,
+			(ftnlen)1);
 	    } else {
 		dlae2_(&d__[l - 1], &e[l - 1], &d__[l], &rt1, &rt2);
 	    }
@@ -25104,7 +25372,7 @@ L110:
 	if (icompz > 0) {
 	    mm = l - m + 1;
 	    zlasr_("R", "V", "F", n, &mm, &work[m], &work[*n - 1 + m], &z__[m
-		    * z_dim1 + 1], ldz);
+		    * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
 
 	d__[l] -= p;
@@ -25130,17 +25398,17 @@ L140:
     if (iscale == 1) {
 	i__1 = lendsv - lsv + 1;
 	dlascl_("G", &c__0, &c__0, &ssfmax, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
 	i__1 = lendsv - lsv;
 	dlascl_("G", &c__0, &c__0, &ssfmax, &anorm, &i__1, &c__1, &e[lsv], n,
-		info);
+		info, (ftnlen)1);
     } else if (iscale == 2) {
 	i__1 = lendsv - lsv + 1;
 	dlascl_("G", &c__0, &c__0, &ssfmin, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
 	i__1 = lendsv - lsv;
 	dlascl_("G", &c__0, &c__0, &ssfmin, &anorm, &i__1, &c__1, &e[lsv], n,
-		info);
+		info, (ftnlen)1);
     }
 
 /*
@@ -25167,7 +25435,7 @@ L160:
 
 /*        Use Quick Sort */
 
-	dlasrt_("I", n, &d__[1], info);
+	dlasrt_("I", n, &d__[1], info, (ftnlen)1);
 
     } else {
 
@@ -25204,7 +25472,8 @@ L160:
 /* Subroutine */ int ztrevc_(char *side, char *howmny, logical *select,
 	integer *n, doublecomplex *t, integer *ldt, doublecomplex *vl,
 	integer *ldvl, doublecomplex *vr, integer *ldvr, integer *mm, integer
-	*m, doublecomplex *work, doublereal *rwork, integer *info)
+	*m, doublecomplex *work, doublereal *rwork, integer *info, ftnlen
+	side_len, ftnlen howmny_len)
 {
     /* System generated locals */
     integer t_dim1, t_offset, vl_dim1, vl_offset, vr_dim1, vr_offset, i__1,
@@ -25219,17 +25488,17 @@ L160:
     static doublereal unfl, ovfl, smin;
     static logical over;
     static doublereal scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal remax;
     static logical leftv, bothv;
     extern /* Subroutine */ int zgemv_(char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *, doublecomplex *, doublecomplex *, integer *);
+	    integer *, doublecomplex *, doublecomplex *, integer *, ftnlen);
     static logical somev;
     extern /* Subroutine */ int zcopy_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *), dlabad_(doublereal *, doublereal *);
 
-    extern /* Subroutine */ int xerbla_(char *, integer *), zdscal_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), zdscal_(
 	    integer *, doublereal *, doublecomplex *, integer *);
     extern integer izamax_(integer *, doublecomplex *, integer *);
     static logical rightv;
@@ -25237,7 +25506,8 @@ L160:
     static doublereal smlnum;
     extern /* Subroutine */ int zlatrs_(char *, char *, char *, char *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublereal *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, ftnlen, ftnlen, ftnlen,
+	    ftnlen);
 
 
 /*
@@ -25386,13 +25656,13 @@ L160:
     --rwork;
 
     /* Function Body */
-    bothv = lsame_(side, "B");
-    rightv = lsame_(side, "R") || bothv;
-    leftv = lsame_(side, "L") || bothv;
+    bothv = lsame_(side, "B", (ftnlen)1, (ftnlen)1);
+    rightv = lsame_(side, "R", (ftnlen)1, (ftnlen)1) || bothv;
+    leftv = lsame_(side, "L", (ftnlen)1, (ftnlen)1) || bothv;
 
-    allv = lsame_(howmny, "A");
-    over = lsame_(howmny, "B");
-    somev = lsame_(howmny, "S");
+    allv = lsame_(howmny, "A", (ftnlen)1, (ftnlen)1);
+    over = lsame_(howmny, "B", (ftnlen)1, (ftnlen)1);
+    somev = lsame_(howmny, "S", (ftnlen)1, (ftnlen)1);
 
 /*
        Set M to the number of columns required to store the selected
@@ -25430,7 +25700,7 @@ L160:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZTREVC", &i__1);
+	xerbla_("ZTREVC", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -25527,7 +25797,8 @@ L160:
 	    if (ki > 1) {
 		i__1 = ki - 1;
 		zlatrs_("Upper", "No transpose", "Non-unit", "Y", &i__1, &t[
-			t_offset], ldt, &work[1], &scale, &rwork[1], info);
+			t_offset], ldt, &work[1], &scale, &rwork[1], info, (
+			ftnlen)5, (ftnlen)12, (ftnlen)8, (ftnlen)1);
 		i__1 = ki;
 		work[i__1].r = scale, work[i__1].i = 0.;
 	    }
@@ -25554,7 +25825,8 @@ L160:
 		    i__1 = ki - 1;
 		    z__1.r = scale, z__1.i = 0.;
 		    zgemv_("N", n, &i__1, &c_b57, &vr[vr_offset], ldvr, &work[
-			    1], &c__1, &z__1, &vr[ki * vr_dim1 + 1], &c__1);
+			    1], &c__1, &z__1, &vr[ki * vr_dim1 + 1], &c__1, (
+			    ftnlen)1);
 		}
 
 		ii = izamax_(n, &vr[ki * vr_dim1 + 1], &c__1);
@@ -25639,7 +25911,8 @@ L80:
 		i__2 = *n - ki;
 		zlatrs_("Upper", "Conjugate transpose", "Non-unit", "Y", &
 			i__2, &t[ki + 1 + (ki + 1) * t_dim1], ldt, &work[ki +
-			1], &scale, &rwork[1], info);
+			1], &scale, &rwork[1], info, (ftnlen)5, (ftnlen)19, (
+			ftnlen)8, (ftnlen)1);
 		i__2 = ki;
 		work[i__2].r = scale, work[i__2].i = 0.;
 	    }
@@ -25671,7 +25944,7 @@ L80:
 		    z__1.r = scale, z__1.i = 0.;
 		    zgemv_("N", n, &i__2, &c_b57, &vl[(ki + 1) * vl_dim1 + 1],
 			     ldvl, &work[ki + 1], &c__1, &z__1, &vl[ki *
-			    vl_dim1 + 1], &c__1);
+			    vl_dim1 + 1], &c__1, (ftnlen)1);
 		}
 
 		ii = izamax_(n, &vl[ki * vl_dim1 + 1], &c__1);
@@ -25705,7 +25978,7 @@ L130:
 
 /* Subroutine */ int ztrexc_(char *compq, integer *n, doublecomplex *t,
 	integer *ldt, doublecomplex *q, integer *ldq, integer *ifst, integer *
-	ilst, integer *info)
+	ilst, integer *info, ftnlen compq_len)
 {
     /* System generated locals */
     integer q_dim1, q_offset, t_dim1, t_offset, i__1, i__2, i__3;
@@ -25717,9 +25990,9 @@ L130:
     static doublecomplex t11, t22, sn, temp;
     extern /* Subroutine */ int zrot_(integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublereal *, doublecomplex *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical wantq;
-    extern /* Subroutine */ int xerbla_(char *, integer *), zlartg_(
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), zlartg_(
 	    doublecomplex *, doublecomplex *, doublereal *, doublecomplex *,
 	    doublecomplex *);
 
@@ -25795,8 +26068,8 @@ L130:
 
     /* Function Body */
     *info = 0;
-    wantq = lsame_(compq, "V");
-    if (! lsame_(compq, "N") && ! wantq) {
+    wantq = lsame_(compq, "V", (ftnlen)1, (ftnlen)1);
+    if (! lsame_(compq, "N", (ftnlen)1, (ftnlen)1) && ! wantq) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -25811,7 +26084,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZTREXC", &i__1);
+	xerbla_("ZTREXC", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -25889,7 +26162,8 @@ L130:
 } /* ztrexc_ */
 
 /* Subroutine */ int ztrti2_(char *uplo, char *diag, integer *n,
-	doublecomplex *a, integer *lda, integer *info)
+	doublecomplex *a, integer *lda, integer *info, ftnlen uplo_len,
+	ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -25898,12 +26172,13 @@ L130:
     /* Local variables */
     static integer j;
     static doublecomplex ajj;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zscal_(integer *, doublecomplex *,
 	    doublecomplex *, integer *);
     static logical upper;
     extern /* Subroutine */ int ztrmv_(char *, char *, char *, integer *,
-	    doublecomplex *, integer *, doublecomplex *, integer *), xerbla_(char *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen,
+	    ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -25972,11 +26247,11 @@ L130:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    nounit = lsame_(diag, "N");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! nounit && ! lsame_(diag, "U")) {
+    } else if (! nounit && ! lsame_(diag, "U", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -25985,7 +26260,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZTRTI2", &i__1);
+	xerbla_("ZTRTI2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -26011,7 +26286,8 @@ L130:
 
 	    i__2 = j - 1;
 	    ztrmv_("Upper", "No transpose", diag, &i__2, &a[a_offset], lda, &
-		    a[j * a_dim1 + 1], &c__1);
+		    a[j * a_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)
+		    1);
 	    i__2 = j - 1;
 	    zscal_(&i__2, &ajj, &a[j * a_dim1 + 1], &c__1);
 /* L10: */
@@ -26038,7 +26314,8 @@ L130:
 
 		i__1 = *n - j;
 		ztrmv_("Lower", "No transpose", diag, &i__1, &a[j + 1 + (j +
-			1) * a_dim1], lda, &a[j + 1 + j * a_dim1], &c__1);
+			1) * a_dim1], lda, &a[j + 1 + j * a_dim1], &c__1, (
+			ftnlen)5, (ftnlen)12, (ftnlen)1);
 		i__1 = *n - j;
 		zscal_(&i__1, &ajj, &a[j + 1 + j * a_dim1], &c__1);
 	    }
@@ -26053,7 +26330,8 @@ L130:
 } /* ztrti2_ */
 
 /* Subroutine */ int ztrtri_(char *uplo, char *diag, integer *n,
-	doublecomplex *a, integer *lda, integer *info)
+	doublecomplex *a, integer *lda, integer *info, ftnlen uplo_len,
+	ftnlen diag_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -26063,15 +26341,16 @@ L130:
 
     /* Local variables */
     static integer j, jb, nb, nn;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int ztrmm_(char *, char *, char *, char *,
 	    integer *, integer *, doublecomplex *, doublecomplex *, integer *,
-	     doublecomplex *, integer *),
+	     doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen),
 	    ztrsm_(char *, char *, char *, char *, integer *, integer *,
 	    doublecomplex *, doublecomplex *, integer *, doublecomplex *,
-	    integer *), ztrti2_(char *, char *
-	    , integer *, doublecomplex *, integer *, integer *), xerbla_(char *, integer *);
+	    integer *, ftnlen, ftnlen, ftnlen, ftnlen), ztrti2_(char *, char *
+	    , integer *, doublecomplex *, integer *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical nounit;
@@ -26141,11 +26420,11 @@ L130:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    nounit = lsame_(diag, "N");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! nounit && ! lsame_(diag, "U")) {
+    } else if (! nounit && ! lsame_(diag, "U", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -26154,7 +26433,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZTRTRI", &i__1);
+	xerbla_("ZTRTRI", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -26192,7 +26471,7 @@ L130:
 
 /*        Use unblocked code */
 
-	ztrti2_(uplo, diag, n, &a[a_offset], lda, info);
+	ztrti2_(uplo, diag, n, &a[a_offset], lda, info, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -26212,16 +26491,18 @@ L130:
 
 		i__4 = j - 1;
 		ztrmm_("Left", "Upper", "No transpose", diag, &i__4, &jb, &
-			c_b57, &a[a_offset], lda, &a[j * a_dim1 + 1], lda);
+			c_b57, &a[a_offset], lda, &a[j * a_dim1 + 1], lda, (
+			ftnlen)4, (ftnlen)5, (ftnlen)12, (ftnlen)1);
 		i__4 = j - 1;
 		z__1.r = -1., z__1.i = -0.;
 		ztrsm_("Right", "Upper", "No transpose", diag, &i__4, &jb, &
 			z__1, &a[j + j * a_dim1], lda, &a[j * a_dim1 + 1],
-			lda);
+			lda, (ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)1);
 
 /*              Compute inverse of current diagonal block */
 
-		ztrti2_("Upper", diag, &jb, &a[j + j * a_dim1], lda, info);
+		ztrti2_("Upper", diag, &jb, &a[j + j * a_dim1], lda, info, (
+			ftnlen)5, (ftnlen)1);
 /* L20: */
 	    }
 	} else {
@@ -26241,17 +26522,20 @@ L130:
 		    i__1 = *n - j - jb + 1;
 		    ztrmm_("Left", "Lower", "No transpose", diag, &i__1, &jb,
 			    &c_b57, &a[j + jb + (j + jb) * a_dim1], lda, &a[j
-			    + jb + j * a_dim1], lda);
+			    + jb + j * a_dim1], lda, (ftnlen)4, (ftnlen)5, (
+			    ftnlen)12, (ftnlen)1);
 		    i__1 = *n - j - jb + 1;
 		    z__1.r = -1., z__1.i = -0.;
 		    ztrsm_("Right", "Lower", "No transpose", diag, &i__1, &jb,
 			     &z__1, &a[j + j * a_dim1], lda, &a[j + jb + j *
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)5, (ftnlen)5, (ftnlen)12, (
+			    ftnlen)1);
 		}
 
 /*              Compute inverse of current diagonal block */
 
-		ztrti2_("Lower", diag, &jb, &a[j + j * a_dim1], lda, info);
+		ztrti2_("Lower", diag, &jb, &a[j + j * a_dim1], lda, info, (
+			ftnlen)5, (ftnlen)1);
 /* L30: */
 	    }
 	}
@@ -26276,7 +26560,8 @@ L130:
     extern /* Subroutine */ int zscal_(integer *, doublecomplex *,
 	    doublecomplex *, integer *), zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *);
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
 
 
 /*
@@ -26356,7 +26641,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNG2R", &i__1);
+	xerbla_("ZUNG2R", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -26391,7 +26676,8 @@ L130:
 	    i__1 = *m - i__ + 1;
 	    i__2 = *n - i__;
 	    zlarf_("Left", &i__1, &i__2, &a[i__ + i__ * a_dim1], &c__1, &tau[
-		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]);
+		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1], (
+		    ftnlen)4);
 	}
 	if (i__ < *m) {
 	    i__1 = *m - i__;
@@ -26422,17 +26708,17 @@ L130:
 
 /* Subroutine */ int zungbr_(char *vect, integer *m, integer *n, integer *k,
 	doublecomplex *a, integer *lda, doublecomplex *tau, doublecomplex *
-	work, integer *lwork, integer *info)
+	work, integer *lwork, integer *info, ftnlen vect_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
     static integer i__, j, nb, mn;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
     static logical wantq;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
@@ -26546,10 +26832,10 @@ L130:
 
     /* Function Body */
     *info = 0;
-    wantq = lsame_(vect, "Q");
+    wantq = lsame_(vect, "Q", (ftnlen)1, (ftnlen)1);
     mn = min(*m,*n);
     lquery = *lwork == -1;
-    if (! wantq && ! lsame_(vect, "P")) {
+    if (! wantq && ! lsame_(vect, "P", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*m < 0) {
 	*info = -2;
@@ -26578,7 +26864,7 @@ L130:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNGBR", &i__1);
+	xerbla_("ZUNGBR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -26718,7 +27004,7 @@ L130:
 
     /* Local variables */
     static integer i__, j, nb, nh, iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
@@ -26824,7 +27110,7 @@ L130:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNGHR", &i__1);
+	xerbla_("ZUNGHR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -26918,7 +27204,8 @@ L130:
     extern /* Subroutine */ int zscal_(integer *, doublecomplex *,
 	    doublecomplex *, integer *), zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *), zlacgv_(integer *, doublecomplex *, integer *);
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen), zlacgv_(integer *, doublecomplex *, integer *);
 
 
 /*
@@ -26997,7 +27284,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNGL2", &i__1);
+	xerbla_("ZUNGL2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -27041,7 +27328,8 @@ L130:
 		i__2 = *n - i__ + 1;
 		d_cnjg(&z__1, &tau[i__]);
 		zlarf_("Right", &i__1, &i__2, &a[i__ + i__ * a_dim1], lda, &
-			z__1, &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+			z__1, &a[i__ + 1 + i__ * a_dim1], lda, &work[1], (
+			ftnlen)5);
 	    }
 	    i__1 = *n - i__;
 	    i__2 = i__;
@@ -27082,17 +27370,17 @@ L130:
     static integer i__, j, l, ib, nb, ki, kk, nx, iws, nbmin, iinfo;
     extern /* Subroutine */ int zungl2_(integer *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), xerbla_(char *, integer *);
+	    integer *), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarfb_(char *, char *, char *, char *,
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static integer ldwork;
     extern /* Subroutine */ int zlarft_(char *, char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static logical lquery;
     static integer lwkopt;
 
@@ -27190,7 +27478,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNGLQ", &i__1);
+	xerbla_("ZUNGLQ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -27294,7 +27582,8 @@ L130:
 
 		i__2 = *n - i__ + 1;
 		zlarft_("Forward", "Rowwise", &i__2, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)7);
 
 /*              Apply H' to A(i+ib:m,i:n) from the right */
 
@@ -27303,7 +27592,8 @@ L130:
 		zlarfb_("Right", "Conjugate transpose", "Forward", "Rowwise",
 			&i__2, &i__3, &ib, &a[i__ + i__ * a_dim1], lda, &work[
 			1], &ldwork, &a[i__ + ib + i__ * a_dim1], lda, &work[
-			ib + 1], &ldwork);
+			ib + 1], &ldwork, (ftnlen)5, (ftnlen)19, (ftnlen)7, (
+			ftnlen)7);
 	    }
 
 /*           Apply H' to columns i:n of current block */
@@ -27346,17 +27636,17 @@ L130:
     static integer i__, j, l, ib, nb, ki, kk, nx, iws, nbmin, iinfo;
     extern /* Subroutine */ int zung2r_(integer *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *), xerbla_(char *, integer *);
+	    integer *), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarfb_(char *, char *, char *, char *,
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static integer ldwork;
     extern /* Subroutine */ int zlarft_(char *, char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
 
@@ -27455,7 +27745,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNGQR", &i__1);
+	xerbla_("ZUNGQR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -27559,7 +27849,8 @@ L130:
 
 		i__2 = *m - i__ + 1;
 		zlarft_("Forward", "Columnwise", &i__2, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)10);
 
 /*              Apply H to A(i:m,i+ib:n) from the left */
 
@@ -27568,7 +27859,8 @@ L130:
 		zlarfb_("Left", "No transpose", "Forward", "Columnwise", &
 			i__2, &i__3, &ib, &a[i__ + i__ * a_dim1], lda, &work[
 			1], &ldwork, &a[i__ + (i__ + ib) * a_dim1], lda, &
-			work[ib + 1], &ldwork);
+			work[ib + 1], &ldwork, (ftnlen)4, (ftnlen)12, (ftnlen)
+			7, (ftnlen)10);
 	    }
 
 /*           Apply H to rows i:m of current block */
@@ -27602,7 +27894,8 @@ L130:
 
 /* Subroutine */ int zunm2l_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublecomplex *a, integer *lda, doublecomplex *tau,
-	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *info)
+	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *info,
+	ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2, i__3;
@@ -27613,10 +27906,11 @@ L130:
     static doublecomplex aii;
     static logical left;
     static doublecomplex taui;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *);
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
     static logical notran;
 
 
@@ -27719,8 +28013,8 @@ L130:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -27729,9 +28023,9 @@ L130:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "C")) {
+    } else if (! notran && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -27746,7 +28040,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNM2L", &i__1);
+	xerbla_("ZUNM2L", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -27801,7 +28095,7 @@ L130:
 	i__3 = nq - *k + i__ + i__ * a_dim1;
 	a[i__3].r = 1., a[i__3].i = 0.;
 	zlarf_(side, &mi, &ni, &a[i__ * a_dim1 + 1], &c__1, &taui, &c__[
-		c_offset], ldc, &work[1]);
+		c_offset], ldc, &work[1], (ftnlen)1);
 	i__3 = nq - *k + i__ + i__ * a_dim1;
 	a[i__3].r = aii.r, a[i__3].i = aii.i;
 /* L10: */
@@ -27814,7 +28108,8 @@ L130:
 
 /* Subroutine */ int zunm2r_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublecomplex *a, integer *lda, doublecomplex *tau,
-	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *info)
+	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *info,
+	ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2, i__3;
@@ -27825,10 +28120,11 @@ L130:
     static doublecomplex aii;
     static logical left;
     static doublecomplex taui;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *);
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
     static logical notran;
 
 
@@ -27931,8 +28227,8 @@ L130:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -27941,9 +28237,9 @@ L130:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "C")) {
+    } else if (! notran && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -27958,7 +28254,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNM2R", &i__1);
+	xerbla_("ZUNM2R", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -28017,7 +28313,7 @@ L130:
 	i__3 = i__ + i__ * a_dim1;
 	a[i__3].r = 1., a[i__3].i = 0.;
 	zlarf_(side, &mi, &ni, &a[i__ + i__ * a_dim1], &c__1, &taui, &c__[ic
-		+ jc * c_dim1], ldc, &work[1]);
+		+ jc * c_dim1], ldc, &work[1], (ftnlen)1);
 	i__3 = i__ + i__ * a_dim1;
 	a[i__3].r = aii.r, a[i__3].i = aii.i;
 /* L10: */
@@ -28031,7 +28327,8 @@ L130:
 /* Subroutine */ int zunmbr_(char *vect, char *side, char *trans, integer *m,
 	integer *n, integer *k, doublecomplex *a, integer *lda, doublecomplex
 	*tau, doublecomplex *c__, integer *ldc, doublecomplex *work, integer *
-	lwork, integer *info)
+	lwork, integer *info, ftnlen vect_len, ftnlen side_len, ftnlen
+	trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -28041,9 +28338,9 @@ L130:
     /* Local variables */
     static integer i1, i2, nb, mi, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical notran, applyq;
@@ -28052,9 +28349,11 @@ L130:
     static logical lquery;
     extern /* Subroutine */ int zunmlq_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *), zunmqr_(char *, char *, integer *, integer *,
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen), zunmqr_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen);
 
 
 /*
@@ -28187,9 +28486,9 @@ L130:
 
     /* Function Body */
     *info = 0;
-    applyq = lsame_(vect, "Q");
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    applyq = lsame_(vect, "Q", (ftnlen)1, (ftnlen)1);
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q or P and NW is the minimum dimension of WORK */
@@ -28204,11 +28503,11 @@ L130:
     if (*m == 0 || *n == 0) {
 	nw = 0;
     }
-    if (! applyq && ! lsame_(vect, "P")) {
+    if (! applyq && ! lsame_(vect, "P", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! left && ! lsame_(side, "R")) {
+    } else if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
-    } else if (! notran && ! lsame_(trans, "C")) {
+    } else if (! notran && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -3;
     } else if (*m < 0) {
 	*info = -4;
@@ -28282,7 +28581,7 @@ L130:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNMBR", &i__1);
+	xerbla_("ZUNMBR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -28303,7 +28602,8 @@ L130:
 /*           Q was determined by a call to ZGEBRD with nq >= k */
 
 	    zunmqr_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		    c_offset], ldc, &work[1], lwork, &iinfo);
+		    c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)1, (
+		    ftnlen)1);
 	} else if (nq > 1) {
 
 /*           Q was determined by a call to ZGEBRD with nq < k */
@@ -28321,7 +28621,8 @@ L130:
 	    }
 	    i__1 = nq - 1;
 	    zunmqr_(side, trans, &mi, &ni, &i__1, &a[a_dim1 + 2], lda, &tau[1]
-		    , &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+		    , &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (
+		    ftnlen)1, (ftnlen)1);
 	}
     } else {
 
@@ -28337,7 +28638,8 @@ L130:
 /*           P was determined by a call to ZGEBRD with nq > k */
 
 	    zunmlq_(side, transt, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		    c_offset], ldc, &work[1], lwork, &iinfo);
+		    c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)1, (
+		    ftnlen)1);
 	} else if (nq > 1) {
 
 /*           P was determined by a call to ZGEBRD with nq <= k */
@@ -28356,7 +28658,7 @@ L130:
 	    i__1 = nq - 1;
 	    zunmlq_(side, transt, &mi, &ni, &i__1, &a[(a_dim1 << 1) + 1], lda,
 		     &tau[1], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &
-		    iinfo);
+		    iinfo, (ftnlen)1, (ftnlen)1);
 	}
     }
     work[1].r = (doublereal) lwkopt, work[1].i = 0.;
@@ -28369,7 +28671,8 @@ L130:
 /* Subroutine */ int zunmhr_(char *side, char *trans, integer *m, integer *n,
 	integer *ilo, integer *ihi, doublecomplex *a, integer *lda,
 	doublecomplex *tau, doublecomplex *c__, integer *ldc, doublecomplex *
-	work, integer *lwork, integer *info)
+	work, integer *lwork, integer *info, ftnlen side_len, ftnlen
+	trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -28379,16 +28682,17 @@ L130:
     /* Local variables */
     static integer i1, i2, nb, mi, nh, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
     extern /* Subroutine */ int zunmqr_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen);
 
 
 /*
@@ -28502,7 +28806,7 @@ L130:
     /* Function Body */
     *info = 0;
     nh = *ihi - *ilo;
-    left = lsame_(side, "L");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -28514,10 +28818,10 @@ L130:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -28557,7 +28861,7 @@ L130:
 
     if (*info != 0) {
 	i__2 = -(*info);
-	xerbla_("ZUNMHR", &i__2);
+	xerbla_("ZUNMHR", &i__2, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -28583,7 +28887,8 @@ L130:
     }
 
     zunmqr_(side, trans, &mi, &ni, &nh, &a[*ilo + 1 + *ilo * a_dim1], lda, &
-	    tau[*ilo], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+	    tau[*ilo], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (
+	    ftnlen)1, (ftnlen)1);
 
     work[1].r = (doublereal) lwkopt, work[1].i = 0.;
     return 0;
@@ -28594,7 +28899,8 @@ L130:
 
 /* Subroutine */ int zunml2_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublecomplex *a, integer *lda, doublecomplex *tau,
-	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *info)
+	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *info,
+	ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2, i__3;
@@ -28605,10 +28911,11 @@ L130:
     static doublecomplex aii;
     static logical left;
     static doublecomplex taui;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarf_(char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *, doublecomplex *), xerbla_(char *, integer *), zlacgv_(integer *, doublecomplex *, integer *);
+	    integer *, doublecomplex *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen), zlacgv_(integer *, doublecomplex *, integer *);
     static logical notran;
 
 
@@ -28711,8 +29018,8 @@ L130:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -28721,9 +29028,9 @@ L130:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "C")) {
+    } else if (! notran && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -28738,7 +29045,7 @@ L130:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNML2", &i__1);
+	xerbla_("ZUNML2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -28801,7 +29108,7 @@ L130:
 	i__3 = i__ + i__ * a_dim1;
 	a[i__3].r = 1., a[i__3].i = 0.;
 	zlarf_(side, &mi, &ni, &a[i__ + i__ * a_dim1], lda, &taui, &c__[ic +
-		jc * c_dim1], ldc, &work[1]);
+		jc * c_dim1], ldc, &work[1], (ftnlen)1);
 	i__3 = i__ + i__ * a_dim1;
 	a[i__3].r = aii.r, a[i__3].i = aii.i;
 	if (i__ < nq) {
@@ -28819,7 +29126,7 @@ L130:
 /* Subroutine */ int zunmlq_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublecomplex *a, integer *lda, doublecomplex *tau,
 	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *lwork,
-	 integer *info)
+	 integer *info, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -28832,22 +29139,23 @@ L130:
     static doublecomplex t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, ic, jc, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int zunml2_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *), xerbla_(char *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarfb_(char *, char *, char *, char *,
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static logical notran;
     static integer ldwork;
     extern /* Subroutine */ int zlarft_(char *, char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static char transt[1];
     static integer lwkopt;
     static logical lquery;
@@ -28960,8 +29268,8 @@ L130:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -28973,9 +29281,9 @@ L130:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "C")) {
+    } else if (! notran && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -29012,7 +29320,7 @@ L130:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNMLQ", &i__1);
+	xerbla_("ZUNMLQ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -29051,7 +29359,7 @@ L130:
 /*        Use unblocked code */
 
 	zunml2_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -29094,7 +29402,7 @@ L130:
 
 	    i__4 = nq - i__ + 1;
 	    zlarft_("Forward", "Rowwise", &i__4, &ib, &a[i__ + i__ * a_dim1],
-		    lda, &tau[i__], t, &c__65);
+		    lda, &tau[i__], t, &c__65, (ftnlen)7, (ftnlen)7);
 	    if (left) {
 
 /*              H or H' is applied to C(i:m,1:n) */
@@ -29113,7 +29421,8 @@ L130:
 
 	    zlarfb_(side, transt, "Forward", "Rowwise", &mi, &ni, &ib, &a[i__
 		    + i__ * a_dim1], lda, t, &c__65, &c__[ic + jc * c_dim1],
-		    ldc, &work[1], &ldwork);
+		    ldc, &work[1], &ldwork, (ftnlen)1, (ftnlen)1, (ftnlen)7, (
+		    ftnlen)7);
 /* L10: */
 	}
     }
@@ -29127,7 +29436,7 @@ L130:
 /* Subroutine */ int zunmql_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublecomplex *a, integer *lda, doublecomplex *tau,
 	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *lwork,
-	 integer *info)
+	 integer *info, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -29140,22 +29449,23 @@ L130:
     static doublecomplex t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int zunm2l_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *), xerbla_(char *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarfb_(char *, char *, char *, char *,
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static logical notran;
     static integer ldwork;
     extern /* Subroutine */ int zlarft_(char *, char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
 
@@ -29267,8 +29577,8 @@ L130:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -29280,9 +29590,9 @@ L130:
 	nq = *n;
 	nw = max(1,*m);
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "C")) {
+    } else if (! notran && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -29325,7 +29635,7 @@ L130:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNMQL", &i__1);
+	xerbla_("ZUNMQL", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -29363,7 +29673,7 @@ L130:
 /*        Use unblocked code */
 
 	zunm2l_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -29398,7 +29708,7 @@ L130:
 
 	    i__4 = nq - *k + i__ + ib - 1;
 	    zlarft_("Backward", "Columnwise", &i__4, &ib, &a[i__ * a_dim1 + 1]
-		    , lda, &tau[i__], t, &c__65);
+		    , lda, &tau[i__], t, &c__65, (ftnlen)8, (ftnlen)10);
 	    if (left) {
 
 /*              H or H' is applied to C(1:m-k+i+ib-1,1:n) */
@@ -29415,7 +29725,8 @@ L130:
 
 	    zlarfb_(side, trans, "Backward", "Columnwise", &mi, &ni, &ib, &a[
 		    i__ * a_dim1 + 1], lda, t, &c__65, &c__[c_offset], ldc, &
-		    work[1], &ldwork);
+		    work[1], &ldwork, (ftnlen)1, (ftnlen)1, (ftnlen)8, (
+		    ftnlen)10);
 /* L10: */
 	}
     }
@@ -29429,7 +29740,7 @@ L130:
 /* Subroutine */ int zunmqr_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublecomplex *a, integer *lda, doublecomplex *tau,
 	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *lwork,
-	 integer *info)
+	 integer *info, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -29442,22 +29753,23 @@ L130:
     static doublecomplex t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, ic, jc, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int zunm2r_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *), xerbla_(char *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int zlarfb_(char *, char *, char *, char *,
 	    integer *, integer *, integer *, doublecomplex *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, integer *,
-	    doublecomplex *, integer *);
+	    doublecomplex *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static logical notran;
     static integer ldwork;
     extern /* Subroutine */ int zlarft_(char *, char *, integer *, integer *,
 	    doublecomplex *, integer *, doublecomplex *, doublecomplex *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
 
@@ -29569,8 +29881,8 @@ L130:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -29582,9 +29894,9 @@ L130:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "C")) {
+    } else if (! notran && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -29621,7 +29933,7 @@ L130:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("ZUNMQR", &i__1);
+	xerbla_("ZUNMQR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -29660,7 +29972,7 @@ L130:
 /*        Use unblocked code */
 
 	zunm2r_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -29697,7 +30009,7 @@ L130:
 
 	    i__4 = nq - i__ + 1;
 	    zlarft_("Forward", "Columnwise", &i__4, &ib, &a[i__ + i__ *
-		    a_dim1], lda, &tau[i__], t, &c__65)
+		    a_dim1], lda, &tau[i__], t, &c__65, (ftnlen)7, (ftnlen)10)
 		    ;
 	    if (left) {
 
@@ -29717,7 +30029,8 @@ L130:
 
 	    zlarfb_(side, trans, "Forward", "Columnwise", &mi, &ni, &ib, &a[
 		    i__ + i__ * a_dim1], lda, t, &c__65, &c__[ic + jc *
-		    c_dim1], ldc, &work[1], &ldwork);
+		    c_dim1], ldc, &work[1], &ldwork, (ftnlen)1, (ftnlen)1, (
+		    ftnlen)7, (ftnlen)10);
 /* L10: */
 	}
     }
@@ -29731,7 +30044,7 @@ L130:
 /* Subroutine */ int zunmtr_(char *side, char *uplo, char *trans, integer *m,
 	integer *n, doublecomplex *a, integer *lda, doublecomplex *tau,
 	doublecomplex *c__, integer *ldc, doublecomplex *work, integer *lwork,
-	 integer *info)
+	 integer *info, ftnlen side_len, ftnlen uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -29741,19 +30054,21 @@ L130:
     /* Local variables */
     static integer i1, i2, nb, mi, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
     extern /* Subroutine */ int zunmql_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *), zunmqr_(char *, char *, integer *, integer *,
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen), zunmqr_(char *, char *, integer *, integer *,
 	    integer *, doublecomplex *, integer *, doublecomplex *,
-	    doublecomplex *, integer *, doublecomplex *, integer *, integer *);
+	    doublecomplex *, integer *, doublecomplex *, integer *, integer *,
+	     ftnlen, ftnlen);
 
 
 /*
@@ -29864,8 +30179,8 @@ L130:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    upper = lsame_(uplo, "U");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -29877,12 +30192,12 @@ L130:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -3;
     } else if (*m < 0) {
 	*info = -4;
@@ -29944,7 +30259,7 @@ L130:
 
     if (*info != 0) {
 	i__2 = -(*info);
-	xerbla_("ZUNMTR", &i__2);
+	xerbla_("ZUNMTR", &i__2, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -29971,7 +30286,8 @@ L130:
 
 	i__2 = nq - 1;
 	zunmql_(side, trans, &mi, &ni, &i__2, &a[(a_dim1 << 1) + 1], lda, &
-		tau[1], &c__[c_offset], ldc, &work[1], lwork, &iinfo);
+		tau[1], &c__[c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)
+		1, (ftnlen)1);
     } else {
 
 /*        Q was determined by a call to ZHETRD with UPLO = 'L' */
@@ -29985,7 +30301,8 @@ L130:
 	}
 	i__2 = nq - 1;
 	zunmqr_(side, trans, &mi, &ni, &i__2, &a[a_dim1 + 2], lda, &tau[1], &
-		c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+		c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (ftnlen)
+		1, (ftnlen)1);
     }
     work[1].r = (doublereal) lwkopt, work[1].i = 0.;
     return 0;

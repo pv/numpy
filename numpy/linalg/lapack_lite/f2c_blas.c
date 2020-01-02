@@ -4,15 +4,11 @@ NOTE: This is generated code. Look in Misc/lapack_lite for information on
 */
 #include "f2c.h"
 
-#ifdef HAVE_CONFIG
-#include "config.h"
-#else
-extern doublereal dlamch_(char *);
-#define EPSILON dlamch_("Epsilon")
-#define SAFEMINIMUM dlamch_("Safe minimum")
-#define PRECISION dlamch_("Precision")
-#define BASE dlamch_("Base")
-#endif
+extern doublereal dlamch_(char *, ftnlen);
+#define EPSILON dlamch_("Epsilon", 1)
+#define SAFEMINIMUM dlamch_("Safe minimum", 1)
+#define PRECISION dlamch_("Precision", 1)
+#define BASE dlamch_("Base", 1)
 
 extern doublereal dlapy2_(doublereal *x, doublereal *y);
 
@@ -368,7 +364,8 @@ L20:
 
 /* Subroutine */ int cgemm_(char *transa, char *transb, integer *m, integer *
 	n, integer *k, complex *alpha, complex *a, integer *lda, complex *b,
-	integer *ldb, complex *beta, complex *c__, integer *ldc)
+	integer *ldb, complex *beta, complex *c__, integer *ldc, ftnlen
+	transa_len, ftnlen transb_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
@@ -381,9 +378,9 @@ L20:
     static complex temp;
     static logical conja, conjb;
     static integer ncola;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa, nrowb;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -530,10 +527,10 @@ L20:
     c__ -= c_offset;
 
     /* Function Body */
-    nota = lsame_(transa, "N");
-    notb = lsame_(transb, "N");
-    conja = lsame_(transa, "C");
-    conjb = lsame_(transb, "C");
+    nota = lsame_(transa, "N", (ftnlen)1, (ftnlen)1);
+    notb = lsame_(transb, "N", (ftnlen)1, (ftnlen)1);
+    conja = lsame_(transa, "C", (ftnlen)1, (ftnlen)1);
+    conjb = lsame_(transb, "C", (ftnlen)1, (ftnlen)1);
     if (nota) {
 	nrowa = *m;
 	ncola = *k;
@@ -550,9 +547,10 @@ L20:
 /*     Test the input parameters. */
 
     info = 0;
-    if (! nota && ! conja && ! lsame_(transa, "T")) {
+    if (! nota && ! conja && ! lsame_(transa, "T", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! notb && ! conjb && ! lsame_(transb, "T")) {
+    } else if (! notb && ! conjb && ! lsame_(transb, "T", (ftnlen)1, (ftnlen)
+	    1)) {
 	info = 2;
     } else if (*m < 0) {
 	info = 3;
@@ -568,7 +566,7 @@ L20:
 	info = 13;
     }
     if (info != 0) {
-	xerbla_("CGEMM ", &info);
+	xerbla_("CGEMM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -1039,7 +1037,7 @@ L20:
 
 /* Subroutine */ int cgemv_(char *trans, integer *m, integer *n, complex *
 	alpha, complex *a, integer *lda, complex *x, integer *incx, complex *
-	beta, complex *y, integer *incy)
+	beta, complex *y, integer *incy, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -1049,8 +1047,8 @@ L20:
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static complex temp;
     static integer lenx, leny;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj;
 
 
@@ -1164,7 +1162,8 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(trans, "N") && ! lsame_(trans, "T") && ! lsame_(trans, "C")
+    if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "T", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -1179,7 +1178,7 @@ L20:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("CGEMV ", &info);
+	xerbla_("CGEMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -1190,14 +1189,14 @@ L20:
 	return 0;
     }
 
-    noconj = lsame_(trans, "T");
+    noconj = lsame_(trans, "T", (ftnlen)1, (ftnlen)1);
 
 /*
        Set  LENX  and  LENY, the lengths of the vectors x and y, and set
        up the start points in  X  and  Y.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -1271,7 +1270,7 @@ L20:
     if (alpha->r == 0.f && alpha->i == 0.f) {
 	return 0;
     }
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -1436,7 +1435,7 @@ L20:
     /* Local variables */
     static integer i__, j, ix, jy, kx, info;
     static complex temp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -1538,7 +1537,7 @@ L20:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("CGERC ", &info);
+	xerbla_("CGERC ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -1631,7 +1630,7 @@ L20:
     /* Local variables */
     static integer i__, j, ix, jy, kx, info;
     static complex temp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -1733,7 +1732,7 @@ L20:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("CGERU ", &info);
+	xerbla_("CGERU ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -1818,7 +1817,7 @@ L20:
 
 /* Subroutine */ int chemv_(char *uplo, integer *n, complex *alpha, complex *
 	a, integer *lda, complex *x, integer *incx, complex *beta, complex *y,
-	 integer *incy)
+	 integer *incy, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -1828,8 +1827,8 @@ L20:
     /* Local variables */
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static complex temp1, temp2;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -1940,7 +1939,8 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -1952,7 +1952,7 @@ L20:
 	info = 10;
     }
     if (info != 0) {
-	xerbla_("CHEMV ", &info);
+	xerbla_("CHEMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -2033,7 +2033,7 @@ L20:
     if (alpha->r == 0.f && alpha->i == 0.f) {
 	return 0;
     }
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y  when A is stored in upper triangle. */
 
@@ -2226,7 +2226,8 @@ L20:
 } /* chemv_ */
 
 /* Subroutine */ int cher2_(char *uplo, integer *n, complex *alpha, complex *
-	x, integer *incx, complex *y, integer *incy, complex *a, integer *lda)
+	x, integer *incx, complex *y, integer *incy, complex *a, integer *lda,
+	 ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -2236,8 +2237,8 @@ L20:
     /* Local variables */
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static complex temp1, temp2;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -2347,7 +2348,8 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -2359,7 +2361,7 @@ L20:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("CHER2 ", &info);
+	xerbla_("CHER2 ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -2395,7 +2397,7 @@ L20:
        of A.
 */
 
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  A  when A is stored in the upper triangle. */
 
@@ -2651,7 +2653,8 @@ L20:
 
 /* Subroutine */ int cher2k_(char *uplo, char *trans, integer *n, integer *k,
 	complex *alpha, complex *a, integer *lda, complex *b, integer *ldb,
-	real *beta, complex *c__, integer *ldc)
+	real *beta, complex *c__, integer *ldc, ftnlen uplo_len, ftnlen
+	trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
@@ -2662,10 +2665,10 @@ L20:
     /* Local variables */
     static integer i__, j, l, info;
     static complex temp1, temp2;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -2819,18 +2822,18 @@ L20:
     c__ -= c_offset;
 
     /* Function Body */
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	nrowa = *n;
     } else {
 	nrowa = *k;
     }
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "C", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
     } else if (*n < 0) {
 	info = 3;
@@ -2844,7 +2847,7 @@ L20:
 	info = 12;
     }
     if (info != 0) {
-	xerbla_("CHER2K", &info);
+	xerbla_("CHER2K", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -2926,7 +2929,7 @@ L20:
 
 /*     Start the operations. */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*
           Form  C := alpha*A*conjg( B' ) + conjg( alpha )*B*conjg( A' ) +
@@ -3300,7 +3303,7 @@ L20:
 
 /* Subroutine */ int cherk_(char *uplo, char *trans, integer *n, integer *k,
 	real *alpha, complex *a, integer *lda, real *beta, complex *c__,
-	integer *ldc)
+	integer *ldc, ftnlen uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2, i__3, i__4, i__5,
@@ -3311,11 +3314,11 @@ L20:
     /* Local variables */
     static integer i__, j, l, info;
     static complex temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static real rtemp;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -3447,18 +3450,18 @@ L20:
     c__ -= c_offset;
 
     /* Function Body */
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	nrowa = *n;
     } else {
 	nrowa = *k;
     }
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "C", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
     } else if (*n < 0) {
 	info = 3;
@@ -3470,7 +3473,7 @@ L20:
 	info = 10;
     }
     if (info != 0) {
-	xerbla_("CHERK ", &info);
+	xerbla_("CHERK ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -3551,7 +3554,7 @@ L20:
 
 /*     Start the operations. */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  C := alpha*A*conjg( A' ) + beta*C. */
 
@@ -4162,7 +4165,8 @@ L20:
 
 /* Subroutine */ int ctrmm_(char *side, char *uplo, char *transa, char *diag,
 	integer *m, integer *n, complex *alpha, complex *a, integer *lda,
-	complex *b, integer *ldb)
+	complex *b, integer *ldb, ftnlen side_len, ftnlen uplo_len, ftnlen
+	transa_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3, i__4, i__5,
@@ -4172,11 +4176,11 @@ L20:
     /* Local variables */
     static integer i__, j, k, info;
     static complex temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical lside;
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj, nounit;
 
 
@@ -4313,26 +4317,27 @@ L20:
     b -= b_offset;
 
     /* Function Body */
-    lside = lsame_(side, "L");
+    lside = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     if (lside) {
 	nrowa = *m;
     } else {
 	nrowa = *n;
     }
-    noconj = lsame_(transa, "T");
-    nounit = lsame_(diag, "N");
-    upper = lsame_(uplo, "U");
+    noconj = lsame_(transa, "T", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! lside && ! lsame_(side, "R")) {
+    if (! lside && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(transa, "N") && ! lsame_(transa,
-	     "T") && ! lsame_(transa, "C")) {
+    } else if (! lsame_(transa, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(transa,
+	     "T", (ftnlen)1, (ftnlen)1) && ! lsame_(transa, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 3;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 4;
     } else if (*m < 0) {
 	info = 5;
@@ -4344,7 +4349,7 @@ L20:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("CTRMM ", &info);
+	xerbla_("CTRMM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -4373,7 +4378,7 @@ L20:
 /*     Start the operations. */
 
     if (lside) {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*A*B. */
 
@@ -4577,7 +4582,7 @@ L20:
 	    }
 	}
     } else {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*B*A. */
 
@@ -4823,7 +4828,8 @@ L20:
 } /* ctrmm_ */
 
 /* Subroutine */ int ctrmv_(char *uplo, char *trans, char *diag, integer *n,
-	complex *a, integer *lda, complex *x, integer *incx)
+	complex *a, integer *lda, complex *x, integer *incx, ftnlen uplo_len,
+	ftnlen trans_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -4832,8 +4838,8 @@ L20:
     /* Local variables */
     static integer i__, j, ix, jx, kx, info;
     static complex temp;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj, nounit;
 
 
@@ -4912,7 +4918,7 @@ L20:
              ( 1 + ( n - 1 )*abs( INCX ) ).
              Before entry, the incremented array X must contain the n
              element vector x. On exit, X is overwritten with the
-             transformed vector x.
+             tranformed vector x.
 
     INCX   - INTEGER.
              On entry, INCX specifies the increment for the elements of
@@ -4944,13 +4950,15 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -4960,7 +4968,7 @@ L20:
 	info = 8;
     }
     if (info != 0) {
-	xerbla_("CTRMV ", &info);
+	xerbla_("CTRMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -4970,8 +4978,8 @@ L20:
 	return 0;
     }
 
-    noconj = lsame_(trans, "T");
-    nounit = lsame_(diag, "N");
+    noconj = lsame_(trans, "T", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
 
 /*
        Set up the start point in X if the increment is not unity. This
@@ -4989,11 +4997,11 @@ L20:
        accessed sequentially with one pass through A.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  x := A*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		i__1 = *n;
 		for (j = 1; j <= i__1; ++j) {
@@ -5137,7 +5145,7 @@ L20:
 
 /*        Form  x := A'*x  or  x := conjg( A' )*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
 		    i__1 = j;
@@ -5356,7 +5364,8 @@ L20:
 
 /* Subroutine */ int ctrsm_(char *side, char *uplo, char *transa, char *diag,
 	integer *m, integer *n, complex *alpha, complex *a, integer *lda,
-	complex *b, integer *ldb)
+	complex *b, integer *ldb, ftnlen side_len, ftnlen uplo_len, ftnlen
+	transa_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3, i__4, i__5,
@@ -5366,11 +5375,11 @@ L20:
     /* Local variables */
     static integer i__, j, k, info;
     static complex temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical lside;
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj, nounit;
 
 
@@ -5509,26 +5518,27 @@ L20:
     b -= b_offset;
 
     /* Function Body */
-    lside = lsame_(side, "L");
+    lside = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     if (lside) {
 	nrowa = *m;
     } else {
 	nrowa = *n;
     }
-    noconj = lsame_(transa, "T");
-    nounit = lsame_(diag, "N");
-    upper = lsame_(uplo, "U");
+    noconj = lsame_(transa, "T", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! lside && ! lsame_(side, "R")) {
+    if (! lside && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(transa, "N") && ! lsame_(transa,
-	     "T") && ! lsame_(transa, "C")) {
+    } else if (! lsame_(transa, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(transa,
+	     "T", (ftnlen)1, (ftnlen)1) && ! lsame_(transa, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 3;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 4;
     } else if (*m < 0) {
 	info = 5;
@@ -5540,7 +5550,7 @@ L20:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("CTRSM ", &info);
+	xerbla_("CTRSM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -5569,7 +5579,7 @@ L20:
 /*     Start the operations. */
 
     if (lside) {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*inv( A )*B. */
 
@@ -5774,7 +5784,7 @@ L20:
 	    }
 	}
     } else {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*B*inv( A ). */
 
@@ -6027,7 +6037,8 @@ L20:
 } /* ctrsm_ */
 
 /* Subroutine */ int ctrsv_(char *uplo, char *trans, char *diag, integer *n,
-	complex *a, integer *lda, complex *x, integer *incx)
+	complex *a, integer *lda, complex *x, integer *incx, ftnlen uplo_len,
+	ftnlen trans_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -6036,8 +6047,8 @@ L20:
     /* Local variables */
     static integer i__, j, ix, jx, kx, info;
     static complex temp;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj, nounit;
 
 
@@ -6151,13 +6162,15 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -6167,7 +6180,7 @@ L20:
 	info = 8;
     }
     if (info != 0) {
-	xerbla_("CTRSV ", &info);
+	xerbla_("CTRSV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -6177,8 +6190,8 @@ L20:
 	return 0;
     }
 
-    noconj = lsame_(trans, "T");
-    nounit = lsame_(diag, "N");
+    noconj = lsame_(trans, "T", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
 
 /*
        Set up the start point in X if the increment is not unity. This
@@ -6196,11 +6209,11 @@ L20:
        accessed sequentially with one pass through A.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  x := inv( A )*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
 		    i__1 = j;
@@ -6325,7 +6338,7 @@ L20:
 
 /*        Form  x := inv( A' )*x  or  x := inv( conjg( A' ) )*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		i__1 = *n;
 		for (j = 1; j <= i__1; ++j) {
@@ -6840,7 +6853,7 @@ L60:
 /* Subroutine */ int dgemm_(char *transa, char *transb, integer *m, integer *
 	n, integer *k, doublereal *alpha, doublereal *a, integer *lda,
 	doublereal *b, integer *ldb, doublereal *beta, doublereal *c__,
-	integer *ldc)
+	integer *ldc, ftnlen transa_len, ftnlen transb_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
@@ -6851,9 +6864,9 @@ L60:
     static logical nota, notb;
     static doublereal temp;
     static integer ncola;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa, nrowb;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -6998,8 +7011,8 @@ L60:
     c__ -= c_offset;
 
     /* Function Body */
-    nota = lsame_(transa, "N");
-    notb = lsame_(transb, "N");
+    nota = lsame_(transa, "N", (ftnlen)1, (ftnlen)1);
+    notb = lsame_(transb, "N", (ftnlen)1, (ftnlen)1);
     if (nota) {
 	nrowa = *m;
 	ncola = *k;
@@ -7016,11 +7029,11 @@ L60:
 /*     Test the input parameters. */
 
     info = 0;
-    if (! nota && ! lsame_(transa, "C") && ! lsame_(
-	    transa, "T")) {
+    if (! nota && ! lsame_(transa, "C", (ftnlen)1, (ftnlen)1) && ! lsame_(
+	    transa, "T", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! notb && ! lsame_(transb, "C") && !
-	    lsame_(transb, "T")) {
+    } else if (! notb && ! lsame_(transb, "C", (ftnlen)1, (ftnlen)1) && !
+	    lsame_(transb, "T", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
     } else if (*m < 0) {
 	info = 3;
@@ -7036,7 +7049,7 @@ L60:
 	info = 13;
     }
     if (info != 0) {
-	xerbla_("DGEMM ", &info);
+	xerbla_("DGEMM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -7205,7 +7218,7 @@ L60:
 
 /* Subroutine */ int dgemv_(char *trans, integer *m, integer *n, doublereal *
 	alpha, doublereal *a, integer *lda, doublereal *x, integer *incx,
-	doublereal *beta, doublereal *y, integer *incy)
+	doublereal *beta, doublereal *y, integer *incy, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -7214,8 +7227,8 @@ L60:
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static doublereal temp;
     static integer lenx, leny;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -7326,7 +7339,8 @@ L60:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(trans, "N") && ! lsame_(trans, "T") && ! lsame_(trans, "C")
+    if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "T", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -7341,7 +7355,7 @@ L60:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("DGEMV ", &info);
+	xerbla_("DGEMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -7356,7 +7370,7 @@ L60:
        up the start points in  X  and  Y.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -7418,7 +7432,7 @@ L60:
     if (*alpha == 0.) {
 	return 0;
     }
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -7506,7 +7520,7 @@ L60:
     /* Local variables */
     static integer i__, j, ix, jy, kx, info;
     static doublereal temp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -7608,7 +7622,7 @@ L60:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("DGER  ", &info);
+	xerbla_("DGER  ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -8009,7 +8023,7 @@ L40:
 
 /* Subroutine */ int dsymv_(char *uplo, integer *n, doublereal *alpha,
 	doublereal *a, integer *lda, doublereal *x, integer *incx, doublereal
-	*beta, doublereal *y, integer *incy)
+	*beta, doublereal *y, integer *incy, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -8017,8 +8031,8 @@ L40:
     /* Local variables */
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static doublereal temp1, temp2;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -8127,7 +8141,8 @@ L40:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -8139,7 +8154,7 @@ L40:
 	info = 10;
     }
     if (info != 0) {
-	xerbla_("DSYMV ", &info);
+	xerbla_("DSYMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -8207,7 +8222,7 @@ L40:
     if (*alpha == 0.) {
 	return 0;
     }
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y  when A is stored in upper triangle. */
 
@@ -8301,7 +8316,7 @@ L40:
 
 /* Subroutine */ int dsyr2_(char *uplo, integer *n, doublereal *alpha,
 	doublereal *x, integer *incx, doublereal *y, integer *incy,
-	doublereal *a, integer *lda)
+	doublereal *a, integer *lda, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -8309,8 +8324,8 @@ L40:
     /* Local variables */
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static doublereal temp1, temp2;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -8417,7 +8432,8 @@ L40:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -8429,7 +8445,7 @@ L40:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("DSYR2 ", &info);
+	xerbla_("DSYR2 ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -8465,7 +8481,7 @@ L40:
        of A.
 */
 
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  A  when A is stored in the upper triangle. */
 
@@ -8557,7 +8573,8 @@ L40:
 
 /* Subroutine */ int dsyr2k_(char *uplo, char *trans, integer *n, integer *k,
 	doublereal *alpha, doublereal *a, integer *lda, doublereal *b,
-	integer *ldb, doublereal *beta, doublereal *c__, integer *ldc)
+	integer *ldb, doublereal *beta, doublereal *c__, integer *ldc, ftnlen
+	uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
@@ -8566,10 +8583,10 @@ L40:
     /* Local variables */
     static integer i__, j, l, info;
     static doublereal temp1, temp2;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -8719,18 +8736,19 @@ L40:
     c__ -= c_offset;
 
     /* Function Body */
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	nrowa = *n;
     } else {
 	nrowa = *k;
     }
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
     } else if (*n < 0) {
 	info = 3;
@@ -8744,7 +8762,7 @@ L40:
 	info = 12;
     }
     if (info != 0) {
-	xerbla_("DSYR2K", &info);
+	xerbla_("DSYR2K", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -8807,7 +8825,7 @@ L40:
 
 /*     Start the operations. */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  C := alpha*A*B' + alpha*B*A' + C. */
 
@@ -8941,7 +8959,7 @@ L40:
 
 /* Subroutine */ int dsyrk_(char *uplo, char *trans, integer *n, integer *k,
 	doublereal *alpha, doublereal *a, integer *lda, doublereal *beta,
-	doublereal *c__, integer *ldc)
+	doublereal *c__, integer *ldc, ftnlen uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2, i__3;
@@ -8949,10 +8967,10 @@ L40:
     /* Local variables */
     static integer i__, j, l, info;
     static doublereal temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -9080,18 +9098,19 @@ L40:
     c__ -= c_offset;
 
     /* Function Body */
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	nrowa = *n;
     } else {
 	nrowa = *k;
     }
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
     } else if (*n < 0) {
 	info = 3;
@@ -9103,7 +9122,7 @@ L40:
 	info = 10;
     }
     if (info != 0) {
-	xerbla_("DSYRK ", &info);
+	xerbla_("DSYRK ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -9166,7 +9185,7 @@ L40:
 
 /*     Start the operations. */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  C := alpha*A*A' + beta*C. */
 
@@ -9290,7 +9309,8 @@ L40:
 
 /* Subroutine */ int dtrmm_(char *side, char *uplo, char *transa, char *diag,
 	integer *m, integer *n, doublereal *alpha, doublereal *a, integer *
-	lda, doublereal *b, integer *ldb)
+	lda, doublereal *b, integer *ldb, ftnlen side_len, ftnlen uplo_len,
+	ftnlen transa_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3;
@@ -9299,10 +9319,10 @@ L40:
     static integer i__, j, k, info;
     static doublereal temp;
     static logical lside;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -9439,25 +9459,26 @@ L40:
     b -= b_offset;
 
     /* Function Body */
-    lside = lsame_(side, "L");
+    lside = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     if (lside) {
 	nrowa = *m;
     } else {
 	nrowa = *n;
     }
-    nounit = lsame_(diag, "N");
-    upper = lsame_(uplo, "U");
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! lside && ! lsame_(side, "R")) {
+    if (! lside && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(transa, "N") && ! lsame_(transa,
-	     "T") && ! lsame_(transa, "C")) {
+    } else if (! lsame_(transa, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(transa,
+	     "T", (ftnlen)1, (ftnlen)1) && ! lsame_(transa, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 3;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 4;
     } else if (*m < 0) {
 	info = 5;
@@ -9469,7 +9490,7 @@ L40:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("DTRMM ", &info);
+	xerbla_("DTRMM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -9497,7 +9518,7 @@ L40:
 /*     Start the operations. */
 
     if (lside) {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*A*B. */
 
@@ -9589,7 +9610,7 @@ L40:
 	    }
 	}
     } else {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*B*A. */
 
@@ -9719,7 +9740,8 @@ L40:
 } /* dtrmm_ */
 
 /* Subroutine */ int dtrmv_(char *uplo, char *trans, char *diag, integer *n,
-	doublereal *a, integer *lda, doublereal *x, integer *incx)
+	doublereal *a, integer *lda, doublereal *x, integer *incx, ftnlen
+	uplo_len, ftnlen trans_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -9727,8 +9749,8 @@ L40:
     /* Local variables */
     static integer i__, j, ix, jx, kx, info;
     static doublereal temp;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -9807,7 +9829,7 @@ L40:
              ( 1 + ( n - 1 )*abs( INCX ) ).
              Before entry, the incremented array X must contain the n
              element vector x. On exit, X is overwritten with the
-             transformed vector x.
+             tranformed vector x.
 
     INCX   - INTEGER.
              On entry, INCX specifies the increment for the elements of
@@ -9839,13 +9861,15 @@ L40:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -9855,7 +9879,7 @@ L40:
 	info = 8;
     }
     if (info != 0) {
-	xerbla_("DTRMV ", &info);
+	xerbla_("DTRMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -9865,7 +9889,7 @@ L40:
 	return 0;
     }
 
-    nounit = lsame_(diag, "N");
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
 
 /*
        Set up the start point in X if the increment is not unity. This
@@ -9883,11 +9907,11 @@ L40:
        accessed sequentially with one pass through A.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  x := A*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		i__1 = *n;
 		for (j = 1; j <= i__1; ++j) {
@@ -9967,7 +9991,7 @@ L40:
 
 /*        Form  x := A'*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
 		    temp = x[j];
@@ -10046,7 +10070,8 @@ L40:
 
 /* Subroutine */ int dtrsm_(char *side, char *uplo, char *transa, char *diag,
 	integer *m, integer *n, doublereal *alpha, doublereal *a, integer *
-	lda, doublereal *b, integer *ldb)
+	lda, doublereal *b, integer *ldb, ftnlen side_len, ftnlen uplo_len,
+	ftnlen transa_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3;
@@ -10055,10 +10080,10 @@ L40:
     static integer i__, j, k, info;
     static doublereal temp;
     static logical lside;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -10198,25 +10223,26 @@ L40:
     b -= b_offset;
 
     /* Function Body */
-    lside = lsame_(side, "L");
+    lside = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     if (lside) {
 	nrowa = *m;
     } else {
 	nrowa = *n;
     }
-    nounit = lsame_(diag, "N");
-    upper = lsame_(uplo, "U");
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! lside && ! lsame_(side, "R")) {
+    if (! lside && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(transa, "N") && ! lsame_(transa,
-	     "T") && ! lsame_(transa, "C")) {
+    } else if (! lsame_(transa, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(transa,
+	     "T", (ftnlen)1, (ftnlen)1) && ! lsame_(transa, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 3;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 4;
     } else if (*m < 0) {
 	info = 5;
@@ -10228,7 +10254,7 @@ L40:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("DTRSM ", &info);
+	xerbla_("DTRSM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -10256,7 +10282,7 @@ L40:
 /*     Start the operations. */
 
     if (lside) {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*inv( A )*B. */
 
@@ -10360,7 +10386,7 @@ L40:
 	    }
 	}
     } else {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*B*inv( A ). */
 
@@ -11444,7 +11470,8 @@ L60:
 
 /* Subroutine */ int sgemm_(char *transa, char *transb, integer *m, integer *
 	n, integer *k, real *alpha, real *a, integer *lda, real *b, integer *
-	ldb, real *beta, real *c__, integer *ldc)
+	ldb, real *beta, real *c__, integer *ldc, ftnlen transa_len, ftnlen
+	transb_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
@@ -11455,9 +11482,9 @@ L60:
     static logical nota, notb;
     static real temp;
     static integer ncola;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa, nrowb;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -11602,8 +11629,8 @@ L60:
     c__ -= c_offset;
 
     /* Function Body */
-    nota = lsame_(transa, "N");
-    notb = lsame_(transb, "N");
+    nota = lsame_(transa, "N", (ftnlen)1, (ftnlen)1);
+    notb = lsame_(transb, "N", (ftnlen)1, (ftnlen)1);
     if (nota) {
 	nrowa = *m;
 	ncola = *k;
@@ -11620,11 +11647,11 @@ L60:
 /*     Test the input parameters. */
 
     info = 0;
-    if (! nota && ! lsame_(transa, "C") && ! lsame_(
-	    transa, "T")) {
+    if (! nota && ! lsame_(transa, "C", (ftnlen)1, (ftnlen)1) && ! lsame_(
+	    transa, "T", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! notb && ! lsame_(transb, "C") && !
-	    lsame_(transb, "T")) {
+    } else if (! notb && ! lsame_(transb, "C", (ftnlen)1, (ftnlen)1) && !
+	    lsame_(transb, "T", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
     } else if (*m < 0) {
 	info = 3;
@@ -11640,7 +11667,7 @@ L60:
 	info = 13;
     }
     if (info != 0) {
-	xerbla_("SGEMM ", &info);
+	xerbla_("SGEMM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -11809,7 +11836,7 @@ L60:
 
 /* Subroutine */ int sgemv_(char *trans, integer *m, integer *n, real *alpha,
 	real *a, integer *lda, real *x, integer *incx, real *beta, real *y,
-	integer *incy)
+	integer *incy, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -11818,8 +11845,8 @@ L60:
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static real temp;
     static integer lenx, leny;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -11930,7 +11957,8 @@ L60:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(trans, "N") && ! lsame_(trans, "T") && ! lsame_(trans, "C")
+    if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "T", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -11945,7 +11973,7 @@ L60:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("SGEMV ", &info);
+	xerbla_("SGEMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -11960,7 +11988,7 @@ L60:
        up the start points in  X  and  Y.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -12022,7 +12050,7 @@ L60:
     if (*alpha == 0.f) {
 	return 0;
     }
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -12109,7 +12137,7 @@ L60:
     /* Local variables */
     static integer i__, j, ix, jy, kx, info;
     static real temp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -12211,7 +12239,7 @@ L60:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("SGER  ", &info);
+	xerbla_("SGER  ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -12611,7 +12639,7 @@ L40:
 
 /* Subroutine */ int ssymv_(char *uplo, integer *n, real *alpha, real *a,
 	integer *lda, real *x, integer *incx, real *beta, real *y, integer *
-	incy)
+	incy, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -12619,8 +12647,8 @@ L40:
     /* Local variables */
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static real temp1, temp2;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -12729,7 +12757,8 @@ L40:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -12741,7 +12770,7 @@ L40:
 	info = 10;
     }
     if (info != 0) {
-	xerbla_("SSYMV ", &info);
+	xerbla_("SSYMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -12809,7 +12838,7 @@ L40:
     if (*alpha == 0.f) {
 	return 0;
     }
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y  when A is stored in upper triangle. */
 
@@ -12902,7 +12931,8 @@ L40:
 } /* ssymv_ */
 
 /* Subroutine */ int ssyr2_(char *uplo, integer *n, real *alpha, real *x,
-	integer *incx, real *y, integer *incy, real *a, integer *lda)
+	integer *incx, real *y, integer *incy, real *a, integer *lda, ftnlen
+	uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -12910,8 +12940,8 @@ L40:
     /* Local variables */
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static real temp1, temp2;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -13018,7 +13048,8 @@ L40:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -13030,7 +13061,7 @@ L40:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("SSYR2 ", &info);
+	xerbla_("SSYR2 ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -13066,7 +13097,7 @@ L40:
        of A.
 */
 
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  A  when A is stored in the upper triangle. */
 
@@ -13158,7 +13189,7 @@ L40:
 
 /* Subroutine */ int ssyr2k_(char *uplo, char *trans, integer *n, integer *k,
 	real *alpha, real *a, integer *lda, real *b, integer *ldb, real *beta,
-	 real *c__, integer *ldc)
+	 real *c__, integer *ldc, ftnlen uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
@@ -13167,10 +13198,10 @@ L40:
     /* Local variables */
     static integer i__, j, l, info;
     static real temp1, temp2;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -13320,18 +13351,19 @@ L40:
     c__ -= c_offset;
 
     /* Function Body */
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	nrowa = *n;
     } else {
 	nrowa = *k;
     }
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
     } else if (*n < 0) {
 	info = 3;
@@ -13345,7 +13377,7 @@ L40:
 	info = 12;
     }
     if (info != 0) {
-	xerbla_("SSYR2K", &info);
+	xerbla_("SSYR2K", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -13408,7 +13440,7 @@ L40:
 
 /*     Start the operations. */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  C := alpha*A*B' + alpha*B*A' + C. */
 
@@ -13544,7 +13576,7 @@ L40:
 
 /* Subroutine */ int ssyrk_(char *uplo, char *trans, integer *n, integer *k,
 	real *alpha, real *a, integer *lda, real *beta, real *c__, integer *
-	ldc)
+	ldc, ftnlen uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2, i__3;
@@ -13552,10 +13584,10 @@ L40:
     /* Local variables */
     static integer i__, j, l, info;
     static real temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -13683,18 +13715,19 @@ L40:
     c__ -= c_offset;
 
     /* Function Body */
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	nrowa = *n;
     } else {
 	nrowa = *k;
     }
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
     } else if (*n < 0) {
 	info = 3;
@@ -13706,7 +13739,7 @@ L40:
 	info = 10;
     }
     if (info != 0) {
-	xerbla_("SSYRK ", &info);
+	xerbla_("SSYRK ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -13769,7 +13802,7 @@ L40:
 
 /*     Start the operations. */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  C := alpha*A*A' + beta*C. */
 
@@ -13893,7 +13926,8 @@ L40:
 
 /* Subroutine */ int strmm_(char *side, char *uplo, char *transa, char *diag,
 	integer *m, integer *n, real *alpha, real *a, integer *lda, real *b,
-	integer *ldb)
+	integer *ldb, ftnlen side_len, ftnlen uplo_len, ftnlen transa_len,
+	ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3;
@@ -13902,10 +13936,10 @@ L40:
     static integer i__, j, k, info;
     static real temp;
     static logical lside;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -14042,25 +14076,26 @@ L40:
     b -= b_offset;
 
     /* Function Body */
-    lside = lsame_(side, "L");
+    lside = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     if (lside) {
 	nrowa = *m;
     } else {
 	nrowa = *n;
     }
-    nounit = lsame_(diag, "N");
-    upper = lsame_(uplo, "U");
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! lside && ! lsame_(side, "R")) {
+    if (! lside && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(transa, "N") && ! lsame_(transa,
-	     "T") && ! lsame_(transa, "C")) {
+    } else if (! lsame_(transa, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(transa,
+	     "T", (ftnlen)1, (ftnlen)1) && ! lsame_(transa, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 3;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 4;
     } else if (*m < 0) {
 	info = 5;
@@ -14072,7 +14107,7 @@ L40:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("STRMM ", &info);
+	xerbla_("STRMM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -14100,7 +14135,7 @@ L40:
 /*     Start the operations. */
 
     if (lside) {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*A*B. */
 
@@ -14192,7 +14227,7 @@ L40:
 	    }
 	}
     } else {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*B*A. */
 
@@ -14322,7 +14357,8 @@ L40:
 } /* strmm_ */
 
 /* Subroutine */ int strmv_(char *uplo, char *trans, char *diag, integer *n,
-	real *a, integer *lda, real *x, integer *incx)
+	real *a, integer *lda, real *x, integer *incx, ftnlen uplo_len,
+	ftnlen trans_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -14330,8 +14366,8 @@ L40:
     /* Local variables */
     static integer i__, j, ix, jx, kx, info;
     static real temp;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -14410,7 +14446,7 @@ L40:
              ( 1 + ( n - 1 )*abs( INCX ) ).
              Before entry, the incremented array X must contain the n
              element vector x. On exit, X is overwritten with the
-             transformed vector x.
+             tranformed vector x.
 
     INCX   - INTEGER.
              On entry, INCX specifies the increment for the elements of
@@ -14442,13 +14478,15 @@ L40:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -14458,7 +14496,7 @@ L40:
 	info = 8;
     }
     if (info != 0) {
-	xerbla_("STRMV ", &info);
+	xerbla_("STRMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -14468,7 +14506,7 @@ L40:
 	return 0;
     }
 
-    nounit = lsame_(diag, "N");
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
 
 /*
        Set up the start point in X if the increment is not unity. This
@@ -14486,11 +14524,11 @@ L40:
        accessed sequentially with one pass through A.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  x := A*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		i__1 = *n;
 		for (j = 1; j <= i__1; ++j) {
@@ -14570,7 +14608,7 @@ L40:
 
 /*        Form  x := A'*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
 		    temp = x[j];
@@ -14649,7 +14687,8 @@ L40:
 
 /* Subroutine */ int strsm_(char *side, char *uplo, char *transa, char *diag,
 	integer *m, integer *n, real *alpha, real *a, integer *lda, real *b,
-	integer *ldb)
+	integer *ldb, ftnlen side_len, ftnlen uplo_len, ftnlen transa_len,
+	ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3;
@@ -14658,10 +14697,10 @@ L40:
     static integer i__, j, k, info;
     static real temp;
     static logical lside;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -14801,25 +14840,26 @@ L40:
     b -= b_offset;
 
     /* Function Body */
-    lside = lsame_(side, "L");
+    lside = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     if (lside) {
 	nrowa = *m;
     } else {
 	nrowa = *n;
     }
-    nounit = lsame_(diag, "N");
-    upper = lsame_(uplo, "U");
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! lside && ! lsame_(side, "R")) {
+    if (! lside && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(transa, "N") && ! lsame_(transa,
-	     "T") && ! lsame_(transa, "C")) {
+    } else if (! lsame_(transa, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(transa,
+	     "T", (ftnlen)1, (ftnlen)1) && ! lsame_(transa, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 3;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 4;
     } else if (*m < 0) {
 	info = 5;
@@ -14831,7 +14871,7 @@ L40:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("STRSM ", &info);
+	xerbla_("STRSM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -14859,7 +14899,7 @@ L40:
 /*     Start the operations. */
 
     if (lside) {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*inv( A )*B. */
 
@@ -14963,7 +15003,7 @@ L40:
 	    }
 	}
     } else {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*B*inv( A ). */
 
@@ -15655,7 +15695,7 @@ L20:
 /* Subroutine */ int zgemm_(char *transa, char *transb, integer *m, integer *
 	n, integer *k, doublecomplex *alpha, doublecomplex *a, integer *lda,
 	doublecomplex *b, integer *ldb, doublecomplex *beta, doublecomplex *
-	c__, integer *ldc)
+	c__, integer *ldc, ftnlen transa_len, ftnlen transb_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
@@ -15668,9 +15708,9 @@ L20:
     static doublecomplex temp;
     static logical conja, conjb;
     static integer ncola;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa, nrowb;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -15817,10 +15857,10 @@ L20:
     c__ -= c_offset;
 
     /* Function Body */
-    nota = lsame_(transa, "N");
-    notb = lsame_(transb, "N");
-    conja = lsame_(transa, "C");
-    conjb = lsame_(transb, "C");
+    nota = lsame_(transa, "N", (ftnlen)1, (ftnlen)1);
+    notb = lsame_(transb, "N", (ftnlen)1, (ftnlen)1);
+    conja = lsame_(transa, "C", (ftnlen)1, (ftnlen)1);
+    conjb = lsame_(transb, "C", (ftnlen)1, (ftnlen)1);
     if (nota) {
 	nrowa = *m;
 	ncola = *k;
@@ -15837,9 +15877,10 @@ L20:
 /*     Test the input parameters. */
 
     info = 0;
-    if (! nota && ! conja && ! lsame_(transa, "T")) {
+    if (! nota && ! conja && ! lsame_(transa, "T", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! notb && ! conjb && ! lsame_(transb, "T")) {
+    } else if (! notb && ! conjb && ! lsame_(transb, "T", (ftnlen)1, (ftnlen)
+	    1)) {
 	info = 2;
     } else if (*m < 0) {
 	info = 3;
@@ -15855,7 +15896,7 @@ L20:
 	info = 13;
     }
     if (info != 0) {
-	xerbla_("ZGEMM ", &info);
+	xerbla_("ZGEMM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -16327,7 +16368,7 @@ L20:
 /* Subroutine */ int zgemv_(char *trans, integer *m, integer *n,
 	doublecomplex *alpha, doublecomplex *a, integer *lda, doublecomplex *
 	x, integer *incx, doublecomplex *beta, doublecomplex *y, integer *
-	incy)
+	incy, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -16337,8 +16378,8 @@ L20:
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static doublecomplex temp;
     static integer lenx, leny;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj;
 
 
@@ -16452,7 +16493,8 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(trans, "N") && ! lsame_(trans, "T") && ! lsame_(trans, "C")
+    if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "T", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (ftnlen)1)
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -16467,7 +16509,7 @@ L20:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("ZGEMV ", &info);
+	xerbla_("ZGEMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -16478,14 +16520,14 @@ L20:
 	return 0;
     }
 
-    noconj = lsame_(trans, "T");
+    noconj = lsame_(trans, "T", (ftnlen)1, (ftnlen)1);
 
 /*
        Set  LENX  and  LENY, the lengths of the vectors x and y, and set
        up the start points in  X  and  Y.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -16559,7 +16601,7 @@ L20:
     if (alpha->r == 0. && alpha->i == 0.) {
 	return 0;
     }
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -16725,7 +16767,7 @@ L20:
     /* Local variables */
     static integer i__, j, ix, jy, kx, info;
     static doublecomplex temp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -16827,7 +16869,7 @@ L20:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("ZGERC ", &info);
+	xerbla_("ZGERC ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -16921,7 +16963,7 @@ L20:
     /* Local variables */
     static integer i__, j, ix, jy, kx, info;
     static doublecomplex temp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -17023,7 +17065,7 @@ L20:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("ZGERU ", &info);
+	xerbla_("ZGERU ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -17108,7 +17150,7 @@ L20:
 
 /* Subroutine */ int zhemv_(char *uplo, integer *n, doublecomplex *alpha,
 	doublecomplex *a, integer *lda, doublecomplex *x, integer *incx,
-	doublecomplex *beta, doublecomplex *y, integer *incy)
+	doublecomplex *beta, doublecomplex *y, integer *incy, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -17118,8 +17160,8 @@ L20:
     /* Local variables */
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static doublecomplex temp1, temp2;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -17230,7 +17272,8 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -17242,7 +17285,7 @@ L20:
 	info = 10;
     }
     if (info != 0) {
-	xerbla_("ZHEMV ", &info);
+	xerbla_("ZHEMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -17323,7 +17366,7 @@ L20:
     if (alpha->r == 0. && alpha->i == 0.) {
 	return 0;
     }
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  y  when A is stored in upper triangle. */
 
@@ -17517,7 +17560,7 @@ L20:
 
 /* Subroutine */ int zher2_(char *uplo, integer *n, doublecomplex *alpha,
 	doublecomplex *x, integer *incx, doublecomplex *y, integer *incy,
-	doublecomplex *a, integer *lda)
+	doublecomplex *a, integer *lda, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -17527,8 +17570,8 @@ L20:
     /* Local variables */
     static integer i__, j, ix, iy, jx, jy, kx, ky, info;
     static doublecomplex temp1, temp2;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -17638,7 +17681,8 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -17650,7 +17694,7 @@ L20:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("ZHER2 ", &info);
+	xerbla_("ZHER2 ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -17686,7 +17730,7 @@ L20:
        of A.
 */
 
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  A  when A is stored in the upper triangle. */
 
@@ -17942,7 +17986,8 @@ L20:
 
 /* Subroutine */ int zher2k_(char *uplo, char *trans, integer *n, integer *k,
 	doublecomplex *alpha, doublecomplex *a, integer *lda, doublecomplex *
-	b, integer *ldb, doublereal *beta, doublecomplex *c__, integer *ldc)
+	b, integer *ldb, doublereal *beta, doublecomplex *c__, integer *ldc,
+	ftnlen uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, c_dim1, c_offset, i__1, i__2,
@@ -17953,10 +17998,10 @@ L20:
     /* Local variables */
     static integer i__, j, l, info;
     static doublecomplex temp1, temp2;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -18110,18 +18155,18 @@ L20:
     c__ -= c_offset;
 
     /* Function Body */
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	nrowa = *n;
     } else {
 	nrowa = *k;
     }
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "C", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
     } else if (*n < 0) {
 	info = 3;
@@ -18135,7 +18180,7 @@ L20:
 	info = 12;
     }
     if (info != 0) {
-	xerbla_("ZHER2K", &info);
+	xerbla_("ZHER2K", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -18217,7 +18262,7 @@ L20:
 
 /*     Start the operations. */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*
           Form  C := alpha*A*conjg( B' ) + conjg( alpha )*B*conjg( A' ) +
@@ -18591,7 +18636,7 @@ L20:
 
 /* Subroutine */ int zherk_(char *uplo, char *trans, integer *n, integer *k,
 	doublereal *alpha, doublecomplex *a, integer *lda, doublereal *beta,
-	doublecomplex *c__, integer *ldc)
+	doublecomplex *c__, integer *ldc, ftnlen uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2, i__3, i__4, i__5,
@@ -18602,11 +18647,11 @@ L20:
     /* Local variables */
     static integer i__, j, l, info;
     static doublecomplex temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static doublereal rtemp;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -18738,18 +18783,18 @@ L20:
     c__ -= c_offset;
 
     /* Function Body */
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	nrowa = *n;
     } else {
 	nrowa = *k;
     }
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "C", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
     } else if (*n < 0) {
 	info = 3;
@@ -18761,7 +18806,7 @@ L20:
 	info = 10;
     }
     if (info != 0) {
-	xerbla_("ZHERK ", &info);
+	xerbla_("ZHERK ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -18842,7 +18887,7 @@ L20:
 
 /*     Start the operations. */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  C := alpha*A*conjg( A' ) + beta*C. */
 
@@ -19248,7 +19293,8 @@ L20:
 
 /* Subroutine */ int ztrmm_(char *side, char *uplo, char *transa, char *diag,
 	integer *m, integer *n, doublecomplex *alpha, doublecomplex *a,
-	integer *lda, doublecomplex *b, integer *ldb)
+	integer *lda, doublecomplex *b, integer *ldb, ftnlen side_len, ftnlen
+	uplo_len, ftnlen transa_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3, i__4, i__5,
@@ -19259,10 +19305,10 @@ L20:
     static integer i__, j, k, info;
     static doublecomplex temp;
     static logical lside;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj, nounit;
 
 
@@ -19399,26 +19445,27 @@ L20:
     b -= b_offset;
 
     /* Function Body */
-    lside = lsame_(side, "L");
+    lside = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     if (lside) {
 	nrowa = *m;
     } else {
 	nrowa = *n;
     }
-    noconj = lsame_(transa, "T");
-    nounit = lsame_(diag, "N");
-    upper = lsame_(uplo, "U");
+    noconj = lsame_(transa, "T", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! lside && ! lsame_(side, "R")) {
+    if (! lside && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(transa, "N") && ! lsame_(transa,
-	     "T") && ! lsame_(transa, "C")) {
+    } else if (! lsame_(transa, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(transa,
+	     "T", (ftnlen)1, (ftnlen)1) && ! lsame_(transa, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 3;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 4;
     } else if (*m < 0) {
 	info = 5;
@@ -19430,7 +19477,7 @@ L20:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("ZTRMM ", &info);
+	xerbla_("ZTRMM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -19459,7 +19506,7 @@ L20:
 /*     Start the operations. */
 
     if (lside) {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*A*B. */
 
@@ -19663,7 +19710,7 @@ L20:
 	    }
 	}
     } else {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*B*A. */
 
@@ -19909,7 +19956,8 @@ L20:
 } /* ztrmm_ */
 
 /* Subroutine */ int ztrmv_(char *uplo, char *trans, char *diag, integer *n,
-	doublecomplex *a, integer *lda, doublecomplex *x, integer *incx)
+	doublecomplex *a, integer *lda, doublecomplex *x, integer *incx,
+	ftnlen uplo_len, ftnlen trans_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -19918,8 +19966,8 @@ L20:
     /* Local variables */
     static integer i__, j, ix, jx, kx, info;
     static doublecomplex temp;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj, nounit;
 
 
@@ -19998,7 +20046,7 @@ L20:
              ( 1 + ( n - 1 )*abs( INCX ) ).
              Before entry, the incremented array X must contain the n
              element vector x. On exit, X is overwritten with the
-             transformed vector x.
+             tranformed vector x.
 
     INCX   - INTEGER.
              On entry, INCX specifies the increment for the elements of
@@ -20030,13 +20078,15 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -20046,7 +20096,7 @@ L20:
 	info = 8;
     }
     if (info != 0) {
-	xerbla_("ZTRMV ", &info);
+	xerbla_("ZTRMV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -20056,8 +20106,8 @@ L20:
 	return 0;
     }
 
-    noconj = lsame_(trans, "T");
-    nounit = lsame_(diag, "N");
+    noconj = lsame_(trans, "T", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
 
 /*
        Set up the start point in X if the increment is not unity. This
@@ -20075,11 +20125,11 @@ L20:
        accessed sequentially with one pass through A.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  x := A*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		i__1 = *n;
 		for (j = 1; j <= i__1; ++j) {
@@ -20223,7 +20273,7 @@ L20:
 
 /*        Form  x := A'*x  or  x := conjg( A' )*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
 		    i__1 = j;
@@ -20442,7 +20492,8 @@ L20:
 
 /* Subroutine */ int ztrsm_(char *side, char *uplo, char *transa, char *diag,
 	integer *m, integer *n, doublecomplex *alpha, doublecomplex *a,
-	integer *lda, doublecomplex *b, integer *ldb)
+	integer *lda, doublecomplex *b, integer *ldb, ftnlen side_len, ftnlen
+	uplo_len, ftnlen transa_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3, i__4, i__5,
@@ -20453,10 +20504,10 @@ L20:
     static integer i__, j, k, info;
     static doublecomplex temp;
     static logical lside;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nrowa;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj, nounit;
 
 
@@ -20595,26 +20646,27 @@ L20:
     b -= b_offset;
 
     /* Function Body */
-    lside = lsame_(side, "L");
+    lside = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     if (lside) {
 	nrowa = *m;
     } else {
 	nrowa = *n;
     }
-    noconj = lsame_(transa, "T");
-    nounit = lsame_(diag, "N");
-    upper = lsame_(uplo, "U");
+    noconj = lsame_(transa, "T", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
 
     info = 0;
-    if (! lside && ! lsame_(side, "R")) {
+    if (! lside && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(transa, "N") && ! lsame_(transa,
-	     "T") && ! lsame_(transa, "C")) {
+    } else if (! lsame_(transa, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(transa,
+	     "T", (ftnlen)1, (ftnlen)1) && ! lsame_(transa, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 3;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 4;
     } else if (*m < 0) {
 	info = 5;
@@ -20626,7 +20678,7 @@ L20:
 	info = 11;
     }
     if (info != 0) {
-	xerbla_("ZTRSM ", &info);
+	xerbla_("ZTRSM ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -20655,7 +20707,7 @@ L20:
 /*     Start the operations. */
 
     if (lside) {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*inv( A )*B. */
 
@@ -20860,7 +20912,7 @@ L20:
 	    }
 	}
     } else {
-	if (lsame_(transa, "N")) {
+	if (lsame_(transa, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*           Form  B := alpha*B*inv( A ). */
 
@@ -21113,7 +21165,8 @@ L20:
 } /* ztrsm_ */
 
 /* Subroutine */ int ztrsv_(char *uplo, char *trans, char *diag, integer *n,
-	doublecomplex *a, integer *lda, doublecomplex *x, integer *incx)
+	doublecomplex *a, integer *lda, doublecomplex *x, integer *incx,
+	ftnlen uplo_len, ftnlen trans_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -21122,8 +21175,8 @@ L20:
     /* Local variables */
     static integer i__, j, ix, jx, kx, info;
     static doublecomplex temp;
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconj, nounit;
 
 
@@ -21237,13 +21290,15 @@ L20:
 
     /* Function Body */
     info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	info = 1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T") && ! lsame_(trans, "C")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1) && ! lsame_(trans, "C", (ftnlen)1, (
+	    ftnlen)1)) {
 	info = 2;
-    } else if (! lsame_(diag, "U") && ! lsame_(diag,
-	    "N")) {
+    } else if (! lsame_(diag, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(diag,
+	    "N", (ftnlen)1, (ftnlen)1)) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -21253,7 +21308,7 @@ L20:
 	info = 8;
     }
     if (info != 0) {
-	xerbla_("ZTRSV ", &info);
+	xerbla_("ZTRSV ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -21263,8 +21318,8 @@ L20:
 	return 0;
     }
 
-    noconj = lsame_(trans, "T");
-    nounit = lsame_(diag, "N");
+    noconj = lsame_(trans, "T", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
 
 /*
        Set up the start point in X if the increment is not unity. This
@@ -21282,11 +21337,11 @@ L20:
        accessed sequentially with one pass through A.
 */
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  x := inv( A )*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
 		    i__1 = j;
@@ -21411,7 +21466,7 @@ L20:
 
 /*        Form  x := inv( A' )*x  or  x := inv( conjg( A' ) )*x. */
 
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    if (*incx == 1) {
 		i__1 = *n;
 		for (j = 1; j <= i__1; ++j) {

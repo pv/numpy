@@ -4,15 +4,11 @@ NOTE: This is generated code. Look in Misc/lapack_lite for information on
 */
 #include "f2c.h"
 
-#ifdef HAVE_CONFIG
-#include "config.h"
-#else
-extern doublereal dlamch_(char *);
-#define EPSILON dlamch_("Epsilon")
-#define SAFEMINIMUM dlamch_("Safe minimum")
-#define PRECISION dlamch_("Precision")
-#define BASE dlamch_("Base")
-#endif
+extern doublereal dlamch_(char *, ftnlen);
+#define EPSILON dlamch_("Epsilon", 1)
+#define SAFEMINIMUM dlamch_("Safe minimum", 1)
+#define PRECISION dlamch_("Precision", 1)
+#define BASE dlamch_("Base", 1)
 
 extern doublereal dlapy2_(doublereal *x, doublereal *y);
 
@@ -33,7 +29,7 @@ static integer c__1 = 1;
 static doublereal c_b32 = 0.;
 static real c_b66 = 0.f;
 
-doublereal dlamch_(char *cmach)
+doublereal dlamch_(char *cmach, ftnlen cmach_len)
 {
     /* Initialized data */
 
@@ -52,7 +48,7 @@ doublereal dlamch_(char *cmach)
     static integer imin, imax;
     static logical lrnd;
     static doublereal rmin, rmax, rmach;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal small, sfmin;
     extern /* Subroutine */ int dlamc2_(integer *, integer *, logical *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *);
@@ -131,25 +127,25 @@ doublereal dlamch_(char *cmach)
 	}
     }
 
-    if (lsame_(cmach, "E")) {
+    if (lsame_(cmach, "E", (ftnlen)1, (ftnlen)1)) {
 	rmach = eps;
-    } else if (lsame_(cmach, "S")) {
+    } else if (lsame_(cmach, "S", (ftnlen)1, (ftnlen)1)) {
 	rmach = sfmin;
-    } else if (lsame_(cmach, "B")) {
+    } else if (lsame_(cmach, "B", (ftnlen)1, (ftnlen)1)) {
 	rmach = base;
-    } else if (lsame_(cmach, "P")) {
+    } else if (lsame_(cmach, "P", (ftnlen)1, (ftnlen)1)) {
 	rmach = prec;
-    } else if (lsame_(cmach, "N")) {
+    } else if (lsame_(cmach, "N", (ftnlen)1, (ftnlen)1)) {
 	rmach = t;
-    } else if (lsame_(cmach, "R")) {
+    } else if (lsame_(cmach, "R", (ftnlen)1, (ftnlen)1)) {
 	rmach = rnd;
-    } else if (lsame_(cmach, "M")) {
+    } else if (lsame_(cmach, "M", (ftnlen)1, (ftnlen)1)) {
 	rmach = emin;
-    } else if (lsame_(cmach, "U")) {
+    } else if (lsame_(cmach, "U", (ftnlen)1, (ftnlen)1)) {
 	rmach = rmin;
-    } else if (lsame_(cmach, "L")) {
+    } else if (lsame_(cmach, "L", (ftnlen)1, (ftnlen)1)) {
 	rmach = emax;
-    } else if (lsame_(cmach, "O")) {
+    } else if (lsame_(cmach, "O", (ftnlen)1, (ftnlen)1)) {
 	rmach = rmax;
     }
 
@@ -996,7 +992,7 @@ L10:
 
 } /* dlamc5_ */
 
-logical lsame_(char *ca, char *cb)
+logical lsame_(char *ca, char *cb, ftnlen ca_len, ftnlen cb_len)
 {
     /* System generated locals */
     logical ret_val;
@@ -1104,7 +1100,7 @@ logical lsame_(char *ca, char *cb)
     return ret_val;
 } /* lsame_ */
 
-doublereal slamch_(char *cmach)
+doublereal slamch_(char *cmach, ftnlen cmach_len)
 {
     /* Initialized data */
 
@@ -1123,7 +1119,7 @@ doublereal slamch_(char *cmach)
     static integer imin, imax;
     static logical lrnd;
     static real rmin, rmax, rmach;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static real small, sfmin;
     extern /* Subroutine */ int slamc2_(integer *, integer *, logical *, real
 	    *, integer *, real *, integer *, real *);
@@ -1202,25 +1198,25 @@ doublereal slamch_(char *cmach)
 	}
     }
 
-    if (lsame_(cmach, "E")) {
+    if (lsame_(cmach, "E", (ftnlen)1, (ftnlen)1)) {
 	rmach = eps;
-    } else if (lsame_(cmach, "S")) {
+    } else if (lsame_(cmach, "S", (ftnlen)1, (ftnlen)1)) {
 	rmach = sfmin;
-    } else if (lsame_(cmach, "B")) {
+    } else if (lsame_(cmach, "B", (ftnlen)1, (ftnlen)1)) {
 	rmach = base;
-    } else if (lsame_(cmach, "P")) {
+    } else if (lsame_(cmach, "P", (ftnlen)1, (ftnlen)1)) {
 	rmach = prec;
-    } else if (lsame_(cmach, "N")) {
+    } else if (lsame_(cmach, "N", (ftnlen)1, (ftnlen)1)) {
 	rmach = t;
-    } else if (lsame_(cmach, "R")) {
+    } else if (lsame_(cmach, "R", (ftnlen)1, (ftnlen)1)) {
 	rmach = rnd;
-    } else if (lsame_(cmach, "M")) {
+    } else if (lsame_(cmach, "M", (ftnlen)1, (ftnlen)1)) {
 	rmach = emin;
-    } else if (lsame_(cmach, "U")) {
+    } else if (lsame_(cmach, "U", (ftnlen)1, (ftnlen)1)) {
 	rmach = rmin;
-    } else if (lsame_(cmach, "L")) {
+    } else if (lsame_(cmach, "L", (ftnlen)1, (ftnlen)1)) {
 	rmach = emax;
-    } else if (lsame_(cmach, "O")) {
+    } else if (lsame_(cmach, "O", (ftnlen)1, (ftnlen)1)) {
 	rmach = rmax;
     }
 

@@ -4,15 +4,11 @@ NOTE: This is generated code. Look in Misc/lapack_lite for information on
 */
 #include "f2c.h"
 
-#ifdef HAVE_CONFIG
-#include "config.h"
-#else
-extern doublereal dlamch_(char *);
-#define EPSILON dlamch_("Epsilon")
-#define SAFEMINIMUM dlamch_("Safe minimum")
-#define PRECISION dlamch_("Precision")
-#define BASE dlamch_("Base")
-#endif
+extern doublereal dlamch_(char *, ftnlen);
+#define EPSILON dlamch_("Epsilon", 1)
+#define SAFEMINIMUM dlamch_("Safe minimum", 1)
+#define PRECISION dlamch_("Precision", 1)
+#define BASE dlamch_("Base", 1)
 
 extern doublereal dlapy2_(doublereal *x, doublereal *y);
 
@@ -57,7 +53,7 @@ static doublereal c_b3192 = 2.;
 /* Subroutine */ int dbdsdc_(char *uplo, char *compq, integer *n, doublereal *
 	d__, doublereal *e, doublereal *u, integer *ldu, doublereal *vt,
 	integer *ldvt, doublereal *q, integer *iq, doublereal *work, integer *
-	iwork, integer *info)
+	iwork, integer *info, ftnlen uplo_len, ftnlen compq_len)
 {
     /* System generated locals */
     integer u_dim1, u_offset, vt_dim1, vt_offset, i__1, i__2;
@@ -73,9 +69,10 @@ static doublereal c_b3192 = 2.;
     static integer nm1;
     static doublereal eps;
     static integer ivt, difl, difr, ierr, perm, mlvl, sqre;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dlasr_(char *, char *, char *, integer *,
-	    integer *, doublereal *, doublereal *, doublereal *, integer *), dcopy_(integer *, doublereal *, integer *
+	    integer *, doublereal *, doublereal *, doublereal *, integer *,
+	    ftnlen, ftnlen, ftnlen), dcopy_(integer *, doublereal *, integer *
 	    , doublereal *, integer *), dswap_(integer *, doublereal *,
 	    integer *, doublereal *, integer *);
     static integer poles, iuplo, nsize, start;
@@ -90,17 +87,19 @@ static doublereal c_b3192 = 2.;
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
 	     integer *), dlascl_(char *, integer *, integer *, doublereal *,
 	    doublereal *, integer *, integer *, doublereal *, integer *,
-	    integer *), dlasdq_(char *, integer *, integer *, integer
+	    integer *, ftnlen), dlasdq_(char *, integer *, integer *, integer
 	    *, integer *, integer *, doublereal *, doublereal *, doublereal *,
 	     integer *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *), dlaset_(char *, integer *,
-	    integer *, doublereal *, doublereal *, doublereal *, integer *), dlartg_(doublereal *, doublereal *, doublereal *,
+	    doublereal *, integer *, ftnlen), dlaset_(char *, integer *,
+	    integer *, doublereal *, doublereal *, doublereal *, integer *,
+	    ftnlen), dlartg_(doublereal *, doublereal *, doublereal *,
 	    doublereal *, doublereal *);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static integer givcol;
-    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *);
+    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *,
+	    ftnlen);
     static integer icompq;
     static doublereal orgnrm;
     static integer givnum, givptr, qstart, smlsiz, wstart, smlszp;
@@ -253,17 +252,17 @@ static doublereal c_b3192 = 2.;
     *info = 0;
 
     iuplo = 0;
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	iuplo = 1;
     }
-    if (lsame_(uplo, "L")) {
+    if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	iuplo = 2;
     }
-    if (lsame_(compq, "N")) {
+    if (lsame_(compq, "N", (ftnlen)1, (ftnlen)1)) {
 	icompq = 0;
-    } else if (lsame_(compq, "P")) {
+    } else if (lsame_(compq, "P", (ftnlen)1, (ftnlen)1)) {
 	icompq = 1;
-    } else if (lsame_(compq, "I")) {
+    } else if (lsame_(compq, "I", (ftnlen)1, (ftnlen)1)) {
 	icompq = 2;
     } else {
 	icompq = -1;
@@ -281,7 +280,7 @@ static doublereal c_b3192 = 2.;
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DBDSDC", &i__1);
+	xerbla_("DBDSDC", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -342,7 +341,7 @@ static doublereal c_b3192 = 2.;
     if (icompq == 0) {
 	dlasdq_("U", &c__0, n, &c__0, &c__0, &c__0, &d__[1], &e[1], &vt[
 		vt_offset], ldvt, &u[u_offset], ldu, &u[u_offset], ldu, &work[
-		wstart], info);
+		wstart], info, (ftnlen)1);
 	goto L40;
     }
 
@@ -353,37 +352,42 @@ static doublereal c_b3192 = 2.;
 
     if (*n <= smlsiz) {
 	if (icompq == 2) {
-	    dlaset_("A", n, n, &c_b29, &c_b15, &u[u_offset], ldu);
-	    dlaset_("A", n, n, &c_b29, &c_b15, &vt[vt_offset], ldvt);
+	    dlaset_("A", n, n, &c_b29, &c_b15, &u[u_offset], ldu, (ftnlen)1);
+	    dlaset_("A", n, n, &c_b29, &c_b15, &vt[vt_offset], ldvt, (ftnlen)
+		    1);
 	    dlasdq_("U", &c__0, n, n, n, &c__0, &d__[1], &e[1], &vt[vt_offset]
 		    , ldvt, &u[u_offset], ldu, &u[u_offset], ldu, &work[
-		    wstart], info);
+		    wstart], info, (ftnlen)1);
 	} else if (icompq == 1) {
 	    iu = 1;
 	    ivt = iu + *n;
-	    dlaset_("A", n, n, &c_b29, &c_b15, &q[iu + (qstart - 1) * *n], n);
-	    dlaset_("A", n, n, &c_b29, &c_b15, &q[ivt + (qstart - 1) * *n], n);
+	    dlaset_("A", n, n, &c_b29, &c_b15, &q[iu + (qstart - 1) * *n], n,
+		    (ftnlen)1);
+	    dlaset_("A", n, n, &c_b29, &c_b15, &q[ivt + (qstart - 1) * *n], n,
+		     (ftnlen)1);
 	    dlasdq_("U", &c__0, n, n, n, &c__0, &d__[1], &e[1], &q[ivt + (
 		    qstart - 1) * *n], n, &q[iu + (qstart - 1) * *n], n, &q[
-		    iu + (qstart - 1) * *n], n, &work[wstart], info);
+		    iu + (qstart - 1) * *n], n, &work[wstart], info, (ftnlen)
+		    1);
 	}
 	goto L40;
     }
 
     if (icompq == 2) {
-	dlaset_("A", n, n, &c_b29, &c_b15, &u[u_offset], ldu);
-	dlaset_("A", n, n, &c_b29, &c_b15, &vt[vt_offset], ldvt);
+	dlaset_("A", n, n, &c_b29, &c_b15, &u[u_offset], ldu, (ftnlen)1);
+	dlaset_("A", n, n, &c_b29, &c_b15, &vt[vt_offset], ldvt, (ftnlen)1);
     }
 
 /*     Scale. */
 
-    orgnrm = dlanst_("M", n, &d__[1], &e[1]);
+    orgnrm = dlanst_("M", n, &d__[1], &e[1], (ftnlen)1);
     if (orgnrm == 0.) {
 	return 0;
     }
-    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, &c__1, &d__[1], n, &ierr);
+    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, &c__1, &d__[1], n, &ierr, (
+	    ftnlen)1);
     dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &nm1, &c__1, &e[1], &nm1, &
-	    ierr);
+	    ierr, (ftnlen)1);
 
     eps = EPSILON;
 
@@ -483,7 +487,8 @@ static doublereal c_b3192 = 2.;
 
 /*     Unscale */
 
-    dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n, &ierr);
+    dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n, &ierr, (
+	    ftnlen)1);
 L40:
 
 /*     Use Selection Sort to minimize swaps of singular vectors */
@@ -533,7 +538,8 @@ L40:
 */
 
     if (iuplo == 2 && icompq == 2) {
-	dlasr_("L", "V", "B", n, n, &work[1], &work[*n], &u[u_offset], ldu);
+	dlasr_("L", "V", "B", n, n, &work[1], &work[*n], &u[u_offset], ldu, (
+		ftnlen)1, (ftnlen)1, (ftnlen)1);
     }
 
     return 0;
@@ -545,7 +551,7 @@ L40:
 /* Subroutine */ int dbdsqr_(char *uplo, integer *n, integer *ncvt, integer *
 	nru, integer *ncc, doublereal *d__, doublereal *e, doublereal *vt,
 	integer *ldvt, doublereal *u, integer *ldu, doublereal *c__, integer *
-	ldc, doublereal *work, integer *info)
+	ldc, doublereal *work, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, u_dim1, u_offset, vt_dim1, vt_offset, i__1,
@@ -571,10 +577,11 @@ L40:
 	    doublereal *, doublereal *, doublereal *, doublereal *,
 	    doublereal *), dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal oldcs;
     extern /* Subroutine */ int dlasr_(char *, char *, char *, integer *,
-	    integer *, doublereal *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, doublereal *, integer *,
+	    ftnlen, ftnlen, ftnlen);
     static integer oldll;
     static doublereal shift, sigmn, oldsn;
     extern /* Subroutine */ int dswap_(integer *, doublereal *, integer *,
@@ -589,7 +596,7 @@ L40:
 
     extern /* Subroutine */ int dlartg_(doublereal *, doublereal *,
 	    doublereal *, doublereal *, doublereal *), xerbla_(char *,
-	    integer *);
+	    integer *, ftnlen);
     static doublereal sminoa, thresh;
     static logical rotate;
     static doublereal tolmul;
@@ -757,8 +764,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    lower = lsame_(uplo, "L");
-    if (! lsame_(uplo, "U") && ! lower) {
+    lower = lsame_(uplo, "L", (ftnlen)1, (ftnlen)1);
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lower) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -777,7 +784,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DBDSQR", &i__1);
+	xerbla_("DBDSQR", &i__1, (ftnlen)6);
 	return 0;
     }
     if (*n == 0) {
@@ -829,11 +836,11 @@ L40:
 
 	if (*nru > 0) {
 	    dlasr_("R", "V", "F", nru, n, &work[1], &work[*n], &u[u_offset],
-		    ldu);
+		    ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
 	if (*ncc > 0) {
 	    dlasr_("L", "V", "F", n, ncc, &work[1], &work[*n], &c__[c_offset],
-		     ldc);
+		     ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
     }
 
@@ -1173,17 +1180,19 @@ L90:
 	    if (*ncvt > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("L", "V", "F", &i__1, ncvt, &work[1], &work[*n], &vt[
-			ll + vt_dim1], ldvt);
+			ll + vt_dim1], ldvt, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	    if (*nru > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("R", "V", "F", nru, &i__1, &work[nm12 + 1], &work[nm13
-			+ 1], &u[ll * u_dim1 + 1], ldu);
+			+ 1], &u[ll * u_dim1 + 1], ldu, (ftnlen)1, (ftnlen)1,
+			(ftnlen)1);
 	    }
 	    if (*ncc > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("L", "V", "F", &i__1, ncc, &work[nm12 + 1], &work[nm13
-			+ 1], &c__[ll + c_dim1], ldc);
+			+ 1], &c__[ll + c_dim1], ldc, (ftnlen)1, (ftnlen)1, (
+			ftnlen)1);
 	    }
 
 /*           Test convergence */
@@ -1226,17 +1235,18 @@ L90:
 	    if (*ncvt > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("L", "V", "B", &i__1, ncvt, &work[nm12 + 1], &work[
-			nm13 + 1], &vt[ll + vt_dim1], ldvt);
+			nm13 + 1], &vt[ll + vt_dim1], ldvt, (ftnlen)1, (
+			ftnlen)1, (ftnlen)1);
 	    }
 	    if (*nru > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("R", "V", "B", nru, &i__1, &work[1], &work[*n], &u[ll *
-			 u_dim1 + 1], ldu);
+			 u_dim1 + 1], ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	    if (*ncc > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("L", "V", "B", &i__1, ncc, &work[1], &work[*n], &c__[
-			ll + c_dim1], ldc);
+			ll + c_dim1], ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 
 /*           Test convergence */
@@ -1290,17 +1300,19 @@ L90:
 	    if (*ncvt > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("L", "V", "F", &i__1, ncvt, &work[1], &work[*n], &vt[
-			ll + vt_dim1], ldvt);
+			ll + vt_dim1], ldvt, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	    if (*nru > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("R", "V", "F", nru, &i__1, &work[nm12 + 1], &work[nm13
-			+ 1], &u[ll * u_dim1 + 1], ldu);
+			+ 1], &u[ll * u_dim1 + 1], ldu, (ftnlen)1, (ftnlen)1,
+			(ftnlen)1);
 	    }
 	    if (*ncc > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("L", "V", "F", &i__1, ncc, &work[nm12 + 1], &work[nm13
-			+ 1], &c__[ll + c_dim1], ldc);
+			+ 1], &c__[ll + c_dim1], ldc, (ftnlen)1, (ftnlen)1, (
+			ftnlen)1);
 	    }
 
 /*           Test convergence */
@@ -1356,17 +1368,18 @@ L90:
 	    if (*ncvt > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("L", "V", "B", &i__1, ncvt, &work[nm12 + 1], &work[
-			nm13 + 1], &vt[ll + vt_dim1], ldvt);
+			nm13 + 1], &vt[ll + vt_dim1], ldvt, (ftnlen)1, (
+			ftnlen)1, (ftnlen)1);
 	    }
 	    if (*nru > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("R", "V", "B", nru, &i__1, &work[1], &work[*n], &u[ll *
-			 u_dim1 + 1], ldu);
+			 u_dim1 + 1], ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	    if (*ncc > 0) {
 		i__1 = m - ll + 1;
 		dlasr_("L", "V", "B", &i__1, ncc, &work[1], &work[*n], &c__[
-			ll + c_dim1], ldc);
+			ll + c_dim1], ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	}
     }
@@ -1455,7 +1468,7 @@ L220:
 
 /* Subroutine */ int dgebak_(char *job, char *side, integer *n, integer *ilo,
 	integer *ihi, doublereal *scale, integer *m, doublereal *v, integer *
-	ldv, integer *info)
+	ldv, integer *info, ftnlen job_len, ftnlen side_len)
 {
     /* System generated locals */
     integer v_dim1, v_offset, i__1;
@@ -1466,11 +1479,11 @@ L220:
     static integer ii;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dswap_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
     static logical leftv;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical rightv;
 
 
@@ -1544,12 +1557,13 @@ L220:
     v -= v_offset;
 
     /* Function Body */
-    rightv = lsame_(side, "R");
-    leftv = lsame_(side, "L");
+    rightv = lsame_(side, "R", (ftnlen)1, (ftnlen)1);
+    leftv = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
 
     *info = 0;
-    if (! lsame_(job, "N") && ! lsame_(job, "P") && ! lsame_(job, "S")
-	    && ! lsame_(job, "B")) {
+    if (! lsame_(job, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(job, "P", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(job, "S", (ftnlen)1, (ftnlen)1)
+	    && ! lsame_(job, "B", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (! rightv && ! leftv) {
 	*info = -2;
@@ -1566,7 +1580,7 @@ L220:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGEBAK", &i__1);
+	xerbla_("DGEBAK", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -1578,7 +1592,7 @@ L220:
     if (*m == 0) {
 	return 0;
     }
-    if (lsame_(job, "N")) {
+    if (lsame_(job, "N", (ftnlen)1, (ftnlen)1)) {
 	return 0;
     }
 
@@ -1588,7 +1602,8 @@ L220:
 
 /*     Backward balance */
 
-    if (lsame_(job, "S") || lsame_(job, "B")) {
+    if (lsame_(job, "S", (ftnlen)1, (ftnlen)1) || lsame_(job, "B", (ftnlen)1,
+	    (ftnlen)1)) {
 
 	if (rightv) {
 	    i__1 = *ihi;
@@ -1618,7 +1633,8 @@ L220:
 */
 
 L30:
-    if (lsame_(job, "P") || lsame_(job, "B")) {
+    if (lsame_(job, "P", (ftnlen)1, (ftnlen)1) || lsame_(job, "B", (ftnlen)1,
+	    (ftnlen)1)) {
 	if (rightv) {
 	    i__1 = *n;
 	    for (ii = 1; ii <= i__1; ++ii) {
@@ -1667,7 +1683,8 @@ L50:
 } /* dgebak_ */
 
 /* Subroutine */ int dgebal_(char *job, integer *n, doublereal *a, integer *
-	lda, integer *ilo, integer *ihi, doublereal *scale, integer *info)
+	lda, integer *ilo, integer *ihi, doublereal *scale, integer *info,
+	ftnlen job_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -1680,14 +1697,14 @@ L50:
     static integer ica, ira, iexc;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dswap_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
     static doublereal sfmin1, sfmin2, sfmax1, sfmax2;
 
     extern integer idamax_(integer *, doublereal *, integer *);
     extern logical disnan_(doublereal *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical noconv;
 
 
@@ -1798,8 +1815,9 @@ L50:
 
     /* Function Body */
     *info = 0;
-    if (! lsame_(job, "N") && ! lsame_(job, "P") && ! lsame_(job, "S")
-	    && ! lsame_(job, "B")) {
+    if (! lsame_(job, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(job, "P", (
+	    ftnlen)1, (ftnlen)1) && ! lsame_(job, "S", (ftnlen)1, (ftnlen)1)
+	    && ! lsame_(job, "B", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -1808,7 +1826,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGEBAL", &i__1);
+	xerbla_("DGEBAL", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -1819,7 +1837,7 @@ L50:
 	goto L210;
     }
 
-    if (lsame_(job, "N")) {
+    if (lsame_(job, "N", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    scale[i__] = 1.;
@@ -1828,7 +1846,7 @@ L50:
 	goto L210;
     }
 
-    if (lsame_(job, "S")) {
+    if (lsame_(job, "S", (ftnlen)1, (ftnlen)1)) {
 	goto L120;
     }
 
@@ -1921,7 +1939,7 @@ L120:
 /* L130: */
     }
 
-    if (lsame_(job, "P")) {
+    if (lsame_(job, "P", (ftnlen)1, (ftnlen)1)) {
 	goto L210;
     }
 
@@ -1982,7 +2000,7 @@ L160:
 
 	    *info = -3;
 	    i__2 = -(*info);
-	    xerbla_("DGEBAL", &i__2);
+	    xerbla_("DGEBAL", &i__2, (ftnlen)6);
 	    return 0;
 	}
 	f *= 2.;
@@ -2062,8 +2080,9 @@ L210:
     static integer i__;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *), dlarfg_(integer *, doublereal *,
-	    doublereal *, integer *, doublereal *), xerbla_(char *, integer *);
+	    doublereal *, ftnlen), dlarfg_(integer *, doublereal *,
+	    doublereal *, integer *, doublereal *), xerbla_(char *, integer *,
+	     ftnlen);
 
 
 /*
@@ -2209,7 +2228,7 @@ L210:
     }
     if (*info < 0) {
 	i__1 = -(*info);
-	xerbla_("DGEBD2", &i__1);
+	xerbla_("DGEBD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -2237,7 +2256,7 @@ L210:
 		i__3 = *n - i__;
 		dlarf_("Left", &i__2, &i__3, &a[i__ + i__ * a_dim1], &c__1, &
 			tauq[i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]
-			);
+			, (ftnlen)4);
 	    }
 	    a[i__ + i__ * a_dim1] = d__[i__];
 
@@ -2262,7 +2281,7 @@ L210:
 		i__3 = *n - i__;
 		dlarf_("Right", &i__2, &i__3, &a[i__ + (i__ + 1) * a_dim1],
 			lda, &taup[i__], &a[i__ + 1 + (i__ + 1) * a_dim1],
-			lda, &work[1]);
+			lda, &work[1], (ftnlen)5);
 		a[i__ + (i__ + 1) * a_dim1] = e[i__];
 	    } else {
 		taup[i__] = 0.;
@@ -2292,7 +2311,8 @@ L210:
 		i__2 = *m - i__;
 		i__3 = *n - i__ + 1;
 		dlarf_("Right", &i__2, &i__3, &a[i__ + i__ * a_dim1], lda, &
-			taup[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+			taup[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1],
+			(ftnlen)5);
 	    }
 	    a[i__ + i__ * a_dim1] = d__[i__];
 
@@ -2317,7 +2337,7 @@ L210:
 		i__3 = *n - i__;
 		dlarf_("Left", &i__2, &i__3, &a[i__ + 1 + i__ * a_dim1], &
 			c__1, &tauq[i__], &a[i__ + 1 + (i__ + 1) * a_dim1],
-			lda, &work[1]);
+			lda, &work[1], (ftnlen)4);
 		a[i__ + 1 + i__ * a_dim1] = e[i__];
 	    } else {
 		tauq[i__] = 0.;
@@ -2343,14 +2363,14 @@ L210:
     static doublereal ws;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer nbmin, iinfo, minmn;
     extern /* Subroutine */ int dgebd2_(integer *, integer *, doublereal *,
 	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
 	     doublereal *, integer *), dlabrd_(integer *, integer *, integer *
 	    , doublereal *, integer *, doublereal *, doublereal *, doublereal
 	    *, doublereal *, doublereal *, integer *, doublereal *, integer *)
-	    , xerbla_(char *, integer *);
+	    , xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwrkx, ldwrky, lwkopt;
@@ -2524,7 +2544,7 @@ L210:
     }
     if (*info < 0) {
 	i__1 = -(*info);
-	xerbla_("DGEBRD", &i__1);
+	xerbla_("DGEBRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -2603,12 +2623,14 @@ L210:
 	i__4 = *n - i__ - nb + 1;
 	dgemm_("No transpose", "Transpose", &i__3, &i__4, &nb, &c_b151, &a[
 		i__ + nb + i__ * a_dim1], lda, &work[ldwrkx * nb + nb + 1], &
-		ldwrky, &c_b15, &a[i__ + nb + (i__ + nb) * a_dim1], lda);
+		ldwrky, &c_b15, &a[i__ + nb + (i__ + nb) * a_dim1], lda, (
+		ftnlen)12, (ftnlen)9);
 	i__3 = *m - i__ - nb + 1;
 	i__4 = *n - i__ - nb + 1;
 	dgemm_("No transpose", "No transpose", &i__3, &i__4, &nb, &c_b151, &
 		work[nb + 1], &ldwrkx, &a[i__ + (i__ + nb) * a_dim1], lda, &
-		c_b15, &a[i__ + nb + (i__ + nb) * a_dim1], lda);
+		c_b15, &a[i__ + nb + (i__ + nb) * a_dim1], lda, (ftnlen)12, (
+		ftnlen)12);
 
 /*        Copy diagonal and off-diagonal elements of B back into A */
 
@@ -2646,7 +2668,7 @@ L210:
 /* Subroutine */ int dgeev_(char *jobvl, char *jobvr, integer *n, doublereal *
 	a, integer *lda, doublereal *wr, doublereal *wi, doublereal *vl,
 	integer *ldvl, doublereal *vr, integer *ldvr, doublereal *work,
-	integer *lwork, integer *info)
+	integer *lwork, integer *info, ftnlen jobvl_len, ftnlen jobvr_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, vl_dim1, vl_offset, vr_dim1, vr_offset, i__1,
@@ -2670,28 +2692,28 @@ L210:
     extern doublereal dnrm2_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern doublereal dlapy2_(doublereal *, doublereal *);
     extern /* Subroutine */ int dlabad_(doublereal *, doublereal *), dgebak_(
 	    char *, char *, integer *, integer *, integer *, doublereal *,
-	    integer *, doublereal *, integer *, integer *),
+	    integer *, doublereal *, integer *, integer *, ftnlen, ftnlen),
 	    dgebal_(char *, integer *, doublereal *, integer *, integer *,
-	    integer *, doublereal *, integer *);
+	    integer *, doublereal *, integer *, ftnlen);
     static logical scalea;
 
     static doublereal cscale;
     extern doublereal dlange_(char *, integer *, integer *, doublereal *,
-	    integer *, doublereal *);
+	    integer *, doublereal *, ftnlen);
     extern /* Subroutine */ int dgehrd_(integer *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
 	    integer *), dlascl_(char *, integer *, integer *, doublereal *,
 	    doublereal *, integer *, integer *, doublereal *, integer *,
-	    integer *);
+	    integer *, ftnlen);
     extern integer idamax_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dlacpy_(char *, integer *, integer *,
-	    doublereal *, integer *, doublereal *, integer *),
+	    doublereal *, integer *, doublereal *, integer *, ftnlen),
 	    dlartg_(doublereal *, doublereal *, doublereal *, doublereal *,
-	    doublereal *), xerbla_(char *, integer *);
+	    doublereal *), xerbla_(char *, integer *, ftnlen);
     static logical select[1];
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
@@ -2700,9 +2722,11 @@ L210:
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
 	    integer *), dhseqr_(char *, char *, integer *, integer *, integer
 	    *, doublereal *, integer *, doublereal *, doublereal *,
-	    doublereal *, integer *, doublereal *, integer *, integer *), dtrevc_(char *, char *, logical *, integer *,
+	    doublereal *, integer *, doublereal *, integer *, integer *,
+	    ftnlen, ftnlen), dtrevc_(char *, char *, logical *, integer *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    integer *, integer *, integer *, doublereal *, integer *);
+	    integer *, integer *, integer *, doublereal *, integer *, ftnlen,
+	    ftnlen);
     static integer minwrk, maxwrk;
     static logical wantvl;
     static doublereal smlnum;
@@ -2836,11 +2860,11 @@ L210:
     /* Function Body */
     *info = 0;
     lquery = *lwork == -1;
-    wantvl = lsame_(jobvl, "V");
-    wantvr = lsame_(jobvr, "V");
-    if (! wantvl && ! lsame_(jobvl, "N")) {
+    wantvl = lsame_(jobvl, "V", (ftnlen)1, (ftnlen)1);
+    wantvr = lsame_(jobvr, "V", (ftnlen)1, (ftnlen)1);
+    if (! wantvl && ! lsame_(jobvl, "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! wantvr && ! lsame_(jobvr, "N")) {
+    } else if (! wantvr && ! lsame_(jobvr, "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -2879,7 +2903,8 @@ L210:
 			1);
 		maxwrk = max(i__1,i__2);
 		dhseqr_("S", "V", n, &c__1, n, &a[a_offset], lda, &wr[1], &wi[
-			1], &vl[vl_offset], ldvl, &work[1], &c_n1, info);
+			1], &vl[vl_offset], ldvl, &work[1], &c_n1, info, (
+			ftnlen)1, (ftnlen)1);
 		hswork = (integer) work[1];
 /* Computing MAX */
 		i__1 = maxwrk, i__2 = *n + 1, i__1 = max(i__1,i__2), i__2 = *
@@ -2896,7 +2921,8 @@ L210:
 			1);
 		maxwrk = max(i__1,i__2);
 		dhseqr_("S", "V", n, &c__1, n, &a[a_offset], lda, &wr[1], &wi[
-			1], &vr[vr_offset], ldvr, &work[1], &c_n1, info);
+			1], &vr[vr_offset], ldvr, &work[1], &c_n1, info, (
+			ftnlen)1, (ftnlen)1);
 		hswork = (integer) work[1];
 /* Computing MAX */
 		i__1 = maxwrk, i__2 = *n + 1, i__1 = max(i__1,i__2), i__2 = *
@@ -2908,7 +2934,8 @@ L210:
 	    } else {
 		minwrk = *n * 3;
 		dhseqr_("E", "N", n, &c__1, n, &a[a_offset], lda, &wr[1], &wi[
-			1], &vr[vr_offset], ldvr, &work[1], &c_n1, info);
+			1], &vr[vr_offset], ldvr, &work[1], &c_n1, info, (
+			ftnlen)1, (ftnlen)1);
 		hswork = (integer) work[1];
 /* Computing MAX */
 		i__1 = maxwrk, i__2 = *n + 1, i__1 = max(i__1,i__2), i__2 = *
@@ -2926,7 +2953,7 @@ L210:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGEEV ", &i__1);
+	xerbla_("DGEEV ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -2949,7 +2976,7 @@ L210:
 
 /*     Scale A if max element outside range [SMLNUM,BIGNUM] */
 
-    anrm = dlange_("M", n, n, &a[a_offset], lda, dum);
+    anrm = dlange_("M", n, n, &a[a_offset], lda, dum, (ftnlen)1);
     scalea = FALSE_;
     if (anrm > 0. && anrm < smlnum) {
 	scalea = TRUE_;
@@ -2960,7 +2987,7 @@ L210:
     }
     if (scalea) {
 	dlascl_("G", &c__0, &c__0, &anrm, &cscale, n, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     }
 
 /*
@@ -2969,7 +2996,8 @@ L210:
 */
 
     ibal = 1;
-    dgebal_("B", n, &a[a_offset], lda, &ilo, &ihi, &work[ibal], &ierr);
+    dgebal_("B", n, &a[a_offset], lda, &ilo, &ihi, &work[ibal], &ierr, (
+	    ftnlen)1);
 
 /*
        Reduce to upper Hessenberg form
@@ -2990,7 +3018,7 @@ L210:
 */
 
 	*(unsigned char *)side = 'L';
-	dlacpy_("L", n, n, &a[a_offset], lda, &vl[vl_offset], ldvl)
+	dlacpy_("L", n, n, &a[a_offset], lda, &vl[vl_offset], ldvl, (ftnlen)1)
 		;
 
 /*
@@ -3010,7 +3038,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	dhseqr_("S", "V", n, &ilo, &ihi, &a[a_offset], lda, &wr[1], &wi[1], &
-		vl[vl_offset], ldvl, &work[iwrk], &i__1, info);
+		vl[vl_offset], ldvl, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
 
 	if (wantvr) {
 
@@ -3020,7 +3049,8 @@ L210:
 */
 
 	    *(unsigned char *)side = 'B';
-	    dlacpy_("F", n, n, &vl[vl_offset], ldvl, &vr[vr_offset], ldvr);
+	    dlacpy_("F", n, n, &vl[vl_offset], ldvl, &vr[vr_offset], ldvr, (
+		    ftnlen)1);
 	}
 
     } else if (wantvr) {
@@ -3031,7 +3061,7 @@ L210:
 */
 
 	*(unsigned char *)side = 'R';
-	dlacpy_("L", n, n, &a[a_offset], lda, &vr[vr_offset], ldvr)
+	dlacpy_("L", n, n, &a[a_offset], lda, &vr[vr_offset], ldvr, (ftnlen)1)
 		;
 
 /*
@@ -3051,7 +3081,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	dhseqr_("S", "V", n, &ilo, &ihi, &a[a_offset], lda, &wr[1], &wi[1], &
-		vr[vr_offset], ldvr, &work[iwrk], &i__1, info);
+		vr[vr_offset], ldvr, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
 
     } else {
 
@@ -3063,7 +3094,8 @@ L210:
 	iwrk = itau;
 	i__1 = *lwork - iwrk + 1;
 	dhseqr_("E", "N", n, &ilo, &ihi, &a[a_offset], lda, &wr[1], &wi[1], &
-		vr[vr_offset], ldvr, &work[iwrk], &i__1, info);
+		vr[vr_offset], ldvr, &work[iwrk], &i__1, info, (ftnlen)1, (
+		ftnlen)1);
     }
 
 /*     If INFO > 0 from DHSEQR, then quit */
@@ -3080,7 +3112,8 @@ L210:
 */
 
 	dtrevc_(side, "B", select, n, &a[a_offset], lda, &vl[vl_offset], ldvl,
-		 &vr[vr_offset], ldvr, n, &nout, &work[iwrk], &ierr);
+		 &vr[vr_offset], ldvr, n, &nout, &work[iwrk], &ierr, (ftnlen)
+		1, (ftnlen)1);
     }
 
     if (wantvl) {
@@ -3091,7 +3124,7 @@ L210:
 */
 
 	dgebak_("B", "L", n, &ilo, &ihi, &work[ibal], n, &vl[vl_offset], ldvl,
-		 &ierr);
+		 &ierr, (ftnlen)1, (ftnlen)1);
 
 /*        Normalize left eigenvectors and make largest component real */
 
@@ -3134,7 +3167,7 @@ L210:
 */
 
 	dgebak_("B", "R", n, &ilo, &ihi, &work[ibal], n, &vr[vr_offset], ldvr,
-		 &ierr);
+		 &ierr, (ftnlen)1, (ftnlen)1);
 
 /*        Normalize right eigenvectors and make largest component real */
 
@@ -3178,20 +3211,20 @@ L50:
 	i__3 = *n - *info;
 	i__2 = max(i__3,1);
 	dlascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &wr[*info +
-		1], &i__2, &ierr);
+		1], &i__2, &ierr, (ftnlen)1);
 	i__1 = *n - *info;
 /* Computing MAX */
 	i__3 = *n - *info;
 	i__2 = max(i__3,1);
 	dlascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &wi[*info +
-		1], &i__2, &ierr);
+		1], &i__2, &ierr, (ftnlen)1);
 	if (*info > 0) {
 	    i__1 = ilo - 1;
 	    dlascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &wr[1],
-		    n, &ierr);
+		    n, &ierr, (ftnlen)1);
 	    i__1 = ilo - 1;
 	    dlascl_("G", &c__0, &c__0, &cscale, &anrm, &i__1, &c__1, &wi[1],
-		    n, &ierr);
+		    n, &ierr, (ftnlen)1);
 	}
     }
 
@@ -3214,8 +3247,9 @@ L50:
     static doublereal aii;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *), dlarfg_(integer *, doublereal *,
-	    doublereal *, integer *, doublereal *), xerbla_(char *, integer *);
+	    doublereal *, ftnlen), dlarfg_(integer *, doublereal *,
+	    doublereal *, integer *, doublereal *), xerbla_(char *, integer *,
+	     ftnlen);
 
 
 /*
@@ -3325,7 +3359,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGEHD2", &i__1);
+	xerbla_("DGEHD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -3346,14 +3380,15 @@ L50:
 
 	i__2 = *ihi - i__;
 	dlarf_("Right", ihi, &i__2, &a[i__ + 1 + i__ * a_dim1], &c__1, &tau[
-		i__], &a[(i__ + 1) * a_dim1 + 1], lda, &work[1]);
+		i__], &a[(i__ + 1) * a_dim1 + 1], lda, &work[1], (ftnlen)5);
 
 /*        Apply H(i) to A(i+1:ihi,i+1:n) from the left */
 
 	i__2 = *ihi - i__;
 	i__3 = *n - i__;
 	dlarf_("Left", &i__2, &i__3, &a[i__ + 1 + i__ * a_dim1], &c__1, &tau[
-		i__], &a[i__ + 1 + (i__ + 1) * a_dim1], lda, &work[1]);
+		i__], &a[i__ + 1 + (i__ + 1) * a_dim1], lda, &work[1], (
+		ftnlen)4);
 
 	a[i__ + 1 + i__ * a_dim1] = aii;
 /* L10: */
@@ -3380,11 +3415,11 @@ L50:
     static integer nb, nh, nx, iws;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int dtrmm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *), daxpy_(
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen), daxpy_(
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
 	    integer *), dgehd2_(integer *, integer *, integer *, doublereal *,
 	     integer *, doublereal *, doublereal *, integer *), dlahr2_(
@@ -3392,7 +3427,8 @@ L50:
 	    doublereal *, doublereal *, integer *, doublereal *, integer *),
 	    dlarfb_(char *, char *, char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *, doublereal *, integer *), xerbla_(char *, integer *);
+	    doublereal *, integer *, doublereal *, integer *, ftnlen, ftnlen,
+	    ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
@@ -3531,7 +3567,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGEHRD", &i__1);
+	xerbla_("DGEHRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -3643,7 +3679,8 @@ L50:
 	    i__3 = *ihi - i__ - ib + 1;
 	    dgemm_("No transpose", "Transpose", ihi, &i__3, &ib, &c_b151, &
 		    work[1], &ldwork, &a[i__ + ib + i__ * a_dim1], lda, &
-		    c_b15, &a[(i__ + ib) * a_dim1 + 1], lda);
+		    c_b15, &a[(i__ + ib) * a_dim1 + 1], lda, (ftnlen)12, (
+		    ftnlen)9);
 	    a[i__ + ib + (i__ + ib - 1) * a_dim1] = ei;
 
 /*
@@ -3653,7 +3690,8 @@ L50:
 
 	    i__3 = ib - 1;
 	    dtrmm_("Right", "Lower", "Transpose", "Unit", &i__, &i__3, &c_b15,
-		     &a[i__ + 1 + i__ * a_dim1], lda, &work[1], &ldwork);
+		     &a[i__ + 1 + i__ * a_dim1], lda, &work[1], &ldwork, (
+		    ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 	    i__3 = ib - 2;
 	    for (j = 0; j <= i__3; ++j) {
 		daxpy_(&i__, &c_b151, &work[ldwork * j + 1], &c__1, &a[(i__ +
@@ -3670,7 +3708,8 @@ L50:
 	    i__4 = *n - i__ - ib + 1;
 	    dlarfb_("Left", "Transpose", "Forward", "Columnwise", &i__3, &
 		    i__4, &ib, &a[i__ + 1 + i__ * a_dim1], lda, t, &c__65, &a[
-		    i__ + 1 + (i__ + ib) * a_dim1], lda, &work[1], &ldwork);
+		    i__ + 1 + (i__ + ib) * a_dim1], lda, &work[1], &ldwork, (
+		    ftnlen)4, (ftnlen)9, (ftnlen)7, (ftnlen)10);
 /* L40: */
 	}
     }
@@ -3697,8 +3736,9 @@ L50:
     static doublereal aii;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *), dlarfg_(integer *, doublereal *,
-	    doublereal *, integer *, doublereal *), xerbla_(char *, integer *);
+	    doublereal *, ftnlen), dlarfg_(integer *, doublereal *,
+	    doublereal *, integer *, doublereal *), xerbla_(char *, integer *,
+	     ftnlen);
 
 
 /*
@@ -3783,7 +3823,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGELQ2", &i__1);
+	xerbla_("DGELQ2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -3808,7 +3848,8 @@ L50:
 	    i__2 = *m - i__;
 	    i__3 = *n - i__ + 1;
 	    dlarf_("Right", &i__2, &i__3, &a[i__ + i__ * a_dim1], lda, &tau[
-		    i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+		    i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1], (ftnlen)
+		    5);
 	    a[i__ + i__ * a_dim1] = aii;
 	}
 /* L10: */
@@ -3831,8 +3872,10 @@ L50:
 	    integer *, doublereal *, doublereal *, integer *), dlarfb_(char *,
 	     char *, char *, char *, integer *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, integer *), dlarft_(char *, char *, integer *, integer *, doublereal
-	    *, integer *, doublereal *, doublereal *, integer *), xerbla_(char *, integer *);
+	    integer *, doublereal *, integer *, ftnlen, ftnlen, ftnlen,
+	    ftnlen), dlarft_(char *, char *, integer *, integer *, doublereal
+	    *, integer *, doublereal *, doublereal *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
@@ -3939,7 +3982,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGELQF", &i__1);
+	xerbla_("DGELQF", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -4016,7 +4059,8 @@ L50:
 
 		i__3 = *n - i__ + 1;
 		dlarft_("Forward", "Rowwise", &i__3, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)7);
 
 /*              Apply H to A(i+ib:m,i:n) from the right */
 
@@ -4025,7 +4069,8 @@ L50:
 		dlarfb_("Right", "No transpose", "Forward", "Rowwise", &i__3,
 			&i__4, &ib, &a[i__ + i__ * a_dim1], lda, &work[1], &
 			ldwork, &a[i__ + ib + i__ * a_dim1], lda, &work[ib +
-			1], &ldwork);
+			1], &ldwork, (ftnlen)5, (ftnlen)12, (ftnlen)7, (
+			ftnlen)7);
 	    }
 /* L10: */
 	}
@@ -4067,34 +4112,36 @@ L50:
 	    integer *, integer *, doublereal *, integer *, doublereal *,
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
 	     integer *);
-    extern doublereal dlamch_(char *), dlange_(char *, integer *,
-	    integer *, doublereal *, integer *, doublereal *);
+    extern doublereal dlamch_(char *, ftnlen), dlange_(char *, integer *,
+	    integer *, doublereal *, integer *, doublereal *, ftnlen);
     extern /* Subroutine */ int dgelqf_(integer *, integer *, doublereal *,
 	    integer *, doublereal *, doublereal *, integer *, integer *),
 	    dlalsd_(char *, integer *, integer *, integer *, doublereal *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *, integer *), dlascl_(char *,
+	    doublereal *, integer *, integer *, ftnlen), dlascl_(char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    integer *, doublereal *, integer *, integer *), dgeqrf_(
+	    integer *, doublereal *, integer *, integer *, ftnlen), dgeqrf_(
 	    integer *, integer *, doublereal *, integer *, doublereal *,
 	    doublereal *, integer *, integer *), dlacpy_(char *, integer *,
-	    integer *, doublereal *, integer *, doublereal *, integer *), dlaset_(char *, integer *, integer *, doublereal *,
-	    doublereal *, doublereal *, integer *), xerbla_(char *,
-	    integer *);
+	    integer *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen), dlaset_(char *, integer *, integer *, doublereal *,
+	    doublereal *, doublereal *, integer *, ftnlen), xerbla_(char *,
+	    integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static doublereal bignum;
     extern /* Subroutine */ int dormbr_(char *, char *, char *, integer *,
 	    integer *, integer *, doublereal *, integer *, doublereal *,
-	    doublereal *, integer *, doublereal *, integer *, integer *);
+	    doublereal *, integer *, doublereal *, integer *, integer *,
+	    ftnlen, ftnlen, ftnlen);
     static integer wlalsd;
     extern /* Subroutine */ int dormlq_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *, integer *);
+	    integer *, doublereal *, integer *, integer *, ftnlen, ftnlen);
     static integer ldwork;
     extern /* Subroutine */ int dormqr_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *, integer *);
+	    integer *, doublereal *, integer *, integer *, ftnlen, ftnlen);
     static integer liwork, minwrk, maxwrk;
     static doublereal smlnum;
     static logical lquery;
@@ -4418,7 +4465,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGELSD", &i__1);
+	xerbla_("DGELSD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	goto L10;
@@ -4441,50 +4488,51 @@ L50:
 
 /*     Scale A if max entry outside range [SMLNUM,BIGNUM]. */
 
-    anrm = dlange_("M", m, n, &a[a_offset], lda, &work[1]);
+    anrm = dlange_("M", m, n, &a[a_offset], lda, &work[1], (ftnlen)1);
     iascl = 0;
     if (anrm > 0. && anrm < smlnum) {
 
 /*        Scale matrix norm up to SMLNUM. */
 
 	dlascl_("G", &c__0, &c__0, &anrm, &smlnum, m, n, &a[a_offset], lda,
-		info);
+		info, (ftnlen)1);
 	iascl = 1;
     } else if (anrm > bignum) {
 
 /*        Scale matrix norm down to BIGNUM. */
 
 	dlascl_("G", &c__0, &c__0, &anrm, &bignum, m, n, &a[a_offset], lda,
-		info);
+		info, (ftnlen)1);
 	iascl = 2;
     } else if (anrm == 0.) {
 
 /*        Matrix all zero. Return zero solution. */
 
 	i__1 = max(*m,*n);
-	dlaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[b_offset], ldb);
-	dlaset_("F", &minmn, &c__1, &c_b29, &c_b29, &s[1], &c__1);
+	dlaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[b_offset], ldb, (ftnlen)
+		1);
+	dlaset_("F", &minmn, &c__1, &c_b29, &c_b29, &s[1], &c__1, (ftnlen)1);
 	*rank = 0;
 	goto L10;
     }
 
 /*     Scale B if max entry outside range [SMLNUM,BIGNUM]. */
 
-    bnrm = dlange_("M", m, nrhs, &b[b_offset], ldb, &work[1]);
+    bnrm = dlange_("M", m, nrhs, &b[b_offset], ldb, &work[1], (ftnlen)1);
     ibscl = 0;
     if (bnrm > 0. && bnrm < smlnum) {
 
 /*        Scale matrix norm up to SMLNUM. */
 
 	dlascl_("G", &c__0, &c__0, &bnrm, &smlnum, m, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	ibscl = 1;
     } else if (bnrm > bignum) {
 
 /*        Scale matrix norm down to BIGNUM. */
 
 	dlascl_("G", &c__0, &c__0, &bnrm, &bignum, m, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	ibscl = 2;
     }
 
@@ -4492,7 +4540,8 @@ L50:
 
     if (*m < *n) {
 	i__1 = *n - *m;
-	dlaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[*m + 1 + b_dim1], ldb);
+	dlaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[*m + 1 + b_dim1], ldb, (
+		ftnlen)1);
     }
 
 /*     Overdetermined case. */
@@ -4526,7 +4575,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    dormqr_("L", "T", m, nrhs, n, &a[a_offset], lda, &work[itau], &b[
-		    b_offset], ldb, &work[nwork], &i__1, info);
+		    b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		    ftnlen)1);
 
 /*           Zero out below R. */
 
@@ -4534,7 +4584,7 @@ L50:
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		dlaset_("L", &i__1, &i__2, &c_b29, &c_b29, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 	    }
 	}
 
@@ -4559,12 +4609,13 @@ L50:
 
 	i__1 = *lwork - nwork + 1;
 	dormbr_("Q", "L", "T", &mm, nrhs, n, &a[a_offset], lda, &work[itauq],
-		&b[b_offset], ldb, &work[nwork], &i__1, info);
+		&b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	dlalsd_("U", &smlsiz, n, nrhs, &s[1], &work[ie], &b[b_offset], ldb,
-		rcond, rank, &work[nwork], &iwork[1], info);
+		rcond, rank, &work[nwork], &iwork[1], info, (ftnlen)1);
 	if (*info != 0) {
 	    goto L10;
 	}
@@ -4573,7 +4624,8 @@ L50:
 
 	i__1 = *lwork - nwork + 1;
 	dormbr_("P", "L", "N", n, nrhs, n, &a[a_offset], lda, &work[itaup], &
-		b[b_offset], ldb, &work[nwork], &i__1, info);
+		b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
 
     } else /* if(complicated condition) */ {
 /* Computing MAX */
@@ -4614,11 +4666,12 @@ L50:
 
 /*        Copy L to WORK(IL), zeroing out above its diagonal. */
 
-	    dlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwork);
+	    dlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwork, (ftnlen)
+		    1);
 	    i__1 = *m - 1;
 	    i__2 = *m - 1;
 	    dlaset_("U", &i__1, &i__2, &c_b29, &c_b29, &work[il + ldwork], &
-		    ldwork);
+		    ldwork, (ftnlen)1);
 	    ie = il + ldwork * *m;
 	    itauq = ie + *m;
 	    itaup = itauq + *m;
@@ -4640,12 +4693,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    dormbr_("Q", "L", "T", m, nrhs, m, &work[il], &ldwork, &work[
-		    itauq], &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    itauq], &b[b_offset], ldb, &work[nwork], &i__1, info, (
+		    ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	    dlalsd_("U", &smlsiz, m, nrhs, &s[1], &work[ie], &b[b_offset],
-		    ldb, rcond, rank, &work[nwork], &iwork[1], info);
+		    ldb, rcond, rank, &work[nwork], &iwork[1], info, (ftnlen)
+		    1);
 	    if (*info != 0) {
 		goto L10;
 	    }
@@ -4654,13 +4709,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    dormbr_("P", "L", "N", m, nrhs, m, &work[il], &ldwork, &work[
-		    itaup], &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    itaup], &b[b_offset], ldb, &work[nwork], &i__1, info, (
+		    ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*        Zero out below first M rows of B. */
 
 	    i__1 = *n - *m;
 	    dlaset_("F", &i__1, nrhs, &c_b29, &c_b29, &b[*m + 1 + b_dim1],
-		    ldb);
+		    ldb, (ftnlen)1);
 	    nwork = itau + *m;
 
 /*
@@ -4670,7 +4726,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    dormlq_("L", "T", n, nrhs, m, &a[a_offset], lda, &work[itau], &b[
-		    b_offset], ldb, &work[nwork], &i__1, info);
+		    b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1, (
+		    ftnlen)1);
 
 	} else {
 
@@ -4697,12 +4754,14 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    dormbr_("Q", "L", "T", m, nrhs, n, &a[a_offset], lda, &work[itauq]
-		    , &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    , &b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1,
+		     (ftnlen)1, (ftnlen)1);
 
 /*        Solve the bidiagonal least squares problem. */
 
 	    dlalsd_("L", &smlsiz, m, nrhs, &s[1], &work[ie], &b[b_offset],
-		    ldb, rcond, rank, &work[nwork], &iwork[1], info);
+		    ldb, rcond, rank, &work[nwork], &iwork[1], info, (ftnlen)
+		    1);
 	    if (*info != 0) {
 		goto L10;
 	    }
@@ -4711,7 +4770,8 @@ L50:
 
 	    i__1 = *lwork - nwork + 1;
 	    dormbr_("P", "L", "N", n, nrhs, m, &a[a_offset], lda, &work[itaup]
-		    , &b[b_offset], ldb, &work[nwork], &i__1, info);
+		    , &b[b_offset], ldb, &work[nwork], &i__1, info, (ftnlen)1,
+		     (ftnlen)1, (ftnlen)1);
 
 	}
     }
@@ -4720,21 +4780,21 @@ L50:
 
     if (iascl == 1) {
 	dlascl_("G", &c__0, &c__0, &anrm, &smlnum, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	dlascl_("G", &c__0, &c__0, &smlnum, &anrm, &minmn, &c__1, &s[1], &
-		minmn, info);
+		minmn, info, (ftnlen)1);
     } else if (iascl == 2) {
 	dlascl_("G", &c__0, &c__0, &anrm, &bignum, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
 	dlascl_("G", &c__0, &c__0, &bignum, &anrm, &minmn, &c__1, &s[1], &
-		minmn, info);
+		minmn, info, (ftnlen)1);
     }
     if (ibscl == 1) {
 	dlascl_("G", &c__0, &c__0, &smlnum, &bnrm, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
     } else if (ibscl == 2) {
 	dlascl_("G", &c__0, &c__0, &bignum, &bnrm, n, nrhs, &b[b_offset], ldb,
-		 info);
+		 info, (ftnlen)1);
     }
 
 L10:
@@ -4757,8 +4817,9 @@ L10:
     static doublereal aii;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *), dlarfg_(integer *, doublereal *,
-	    doublereal *, integer *, doublereal *), xerbla_(char *, integer *);
+	    doublereal *, ftnlen), dlarfg_(integer *, doublereal *,
+	    doublereal *, integer *, doublereal *), xerbla_(char *, integer *,
+	     ftnlen);
 
 
 /*
@@ -4843,7 +4904,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGEQR2", &i__1);
+	xerbla_("DGEQR2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -4868,7 +4929,8 @@ L10:
 	    i__2 = *m - i__ + 1;
 	    i__3 = *n - i__;
 	    dlarf_("Left", &i__2, &i__3, &a[i__ + i__ * a_dim1], &c__1, &tau[
-		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]);
+		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1], (
+		    ftnlen)4);
 	    a[i__ + i__ * a_dim1] = aii;
 	}
 /* L10: */
@@ -4891,8 +4953,10 @@ L10:
 	    integer *, doublereal *, doublereal *, integer *), dlarfb_(char *,
 	     char *, char *, char *, integer *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, integer *), dlarft_(char *, char *, integer *, integer *, doublereal
-	    *, integer *, doublereal *, doublereal *, integer *), xerbla_(char *, integer *);
+	    integer *, doublereal *, integer *, ftnlen, ftnlen, ftnlen,
+	    ftnlen), dlarft_(char *, char *, integer *, integer *, doublereal
+	    *, integer *, doublereal *, doublereal *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
@@ -5000,7 +5064,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGEQRF", &i__1);
+	xerbla_("DGEQRF", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -5077,7 +5141,8 @@ L10:
 
 		i__3 = *m - i__ + 1;
 		dlarft_("Forward", "Columnwise", &i__3, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)10);
 
 /*              Apply H' to A(i:m,i+ib:n) from the left */
 
@@ -5086,7 +5151,8 @@ L10:
 		dlarfb_("Left", "Transpose", "Forward", "Columnwise", &i__3, &
 			i__4, &ib, &a[i__ + i__ * a_dim1], lda, &work[1], &
 			ldwork, &a[i__ + (i__ + ib) * a_dim1], lda, &work[ib
-			+ 1], &ldwork);
+			+ 1], &ldwork, (ftnlen)4, (ftnlen)9, (ftnlen)7, (
+			ftnlen)10);
 	    }
 /* L10: */
 	}
@@ -5113,7 +5179,7 @@ L10:
 /* Subroutine */ int dgesdd_(char *jobz, integer *m, integer *n, doublereal *
 	a, integer *lda, doublereal *s, doublereal *u, integer *ldu,
 	doublereal *vt, integer *ldvt, doublereal *work, integer *lwork,
-	integer *iwork, integer *info)
+	integer *iwork, integer *info, ftnlen jobz_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, u_dim1, u_offset, vt_dim1, vt_offset, i__1,
@@ -5127,38 +5193,40 @@ L10:
     static integer idum[1], ierr, itau;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
-    extern logical lsame_(char *, char *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer chunk, minmn, wrkbl, itaup, itauq, mnthr;
     static logical wntqa;
     static integer nwork;
     static logical wntqn, wntqo, wntqs;
     extern /* Subroutine */ int dbdsdc_(char *, char *, integer *, doublereal
 	    *, doublereal *, doublereal *, integer *, doublereal *, integer *,
-	     doublereal *, integer *, doublereal *, integer *, integer *), dgebrd_(integer *, integer *, doublereal *,
+	     doublereal *, integer *, doublereal *, integer *, integer *,
+	    ftnlen, ftnlen), dgebrd_(integer *, integer *, doublereal *,
 	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
 	     doublereal *, integer *, integer *);
-    extern doublereal dlamch_(char *), dlange_(char *, integer *,
-	    integer *, doublereal *, integer *, doublereal *);
+    extern doublereal dlamch_(char *, ftnlen), dlange_(char *, integer *,
+	    integer *, doublereal *, integer *, doublereal *, ftnlen);
     static integer bdspac;
     extern /* Subroutine */ int dgelqf_(integer *, integer *, doublereal *,
 	    integer *, doublereal *, doublereal *, integer *, integer *),
 	    dlascl_(char *, integer *, integer *, doublereal *, doublereal *,
-	    integer *, integer *, doublereal *, integer *, integer *),
+	    integer *, integer *, doublereal *, integer *, integer *, ftnlen),
 	     dgeqrf_(integer *, integer *, doublereal *, integer *,
 	    doublereal *, doublereal *, integer *, integer *), dlacpy_(char *,
 	     integer *, integer *, doublereal *, integer *, doublereal *,
-	    integer *), dlaset_(char *, integer *, integer *,
-	    doublereal *, doublereal *, doublereal *, integer *),
-	    xerbla_(char *, integer *), dorgbr_(char *, integer *,
+	    integer *, ftnlen), dlaset_(char *, integer *, integer *,
+	    doublereal *, doublereal *, doublereal *, integer *, ftnlen),
+	    xerbla_(char *, integer *, ftnlen), dorgbr_(char *, integer *,
 	    integer *, integer *, doublereal *, integer *, doublereal *,
-	    doublereal *, integer *, integer *);
+	    doublereal *, integer *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static doublereal bignum;
     extern /* Subroutine */ int dormbr_(char *, char *, char *, integer *,
 	    integer *, integer *, doublereal *, integer *, doublereal *,
-	    doublereal *, integer *, doublereal *, integer *, integer *), dorglq_(integer *, integer *, integer *,
+	    doublereal *, integer *, doublereal *, integer *, integer *,
+	    ftnlen, ftnlen, ftnlen), dorglq_(integer *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
 	    integer *), dorgqr_(integer *, integer *, integer *, doublereal *,
 	     integer *, doublereal *, doublereal *, integer *, integer *);
@@ -5322,11 +5390,11 @@ L10:
     /* Function Body */
     *info = 0;
     minmn = min(*m,*n);
-    wntqa = lsame_(jobz, "A");
-    wntqs = lsame_(jobz, "S");
+    wntqa = lsame_(jobz, "A", (ftnlen)1, (ftnlen)1);
+    wntqs = lsame_(jobz, "S", (ftnlen)1, (ftnlen)1);
     wntqas = wntqa || wntqs;
-    wntqo = lsame_(jobz, "O");
-    wntqn = lsame_(jobz, "N");
+    wntqo = lsame_(jobz, "O", (ftnlen)1, (ftnlen)1);
+    wntqn = lsame_(jobz, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
     if (! (wntqa || wntqs || wntqo || wntqn)) {
@@ -5700,7 +5768,7 @@ L10:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGESDD", &i__1);
+	xerbla_("DGESDD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -5720,16 +5788,16 @@ L10:
 
 /*     Scale A if max element outside range [SMLNUM,BIGNUM] */
 
-    anrm = dlange_("M", m, n, &a[a_offset], lda, dum);
+    anrm = dlange_("M", m, n, &a[a_offset], lda, dum, (ftnlen)1);
     iscl = 0;
     if (anrm > 0. && anrm < smlnum) {
 	iscl = 1;
 	dlascl_("G", &c__0, &c__0, &anrm, &smlnum, m, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     } else if (anrm > bignum) {
 	iscl = 1;
 	dlascl_("G", &c__0, &c__0, &anrm, &bignum, m, n, &a[a_offset], lda, &
-		ierr);
+		ierr, (ftnlen)1);
     }
 
     if (*m >= *n) {
@@ -5766,7 +5834,7 @@ L10:
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		dlaset_("L", &i__1, &i__2, &c_b29, &c_b29, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 		ie = 1;
 		itauq = ie + *n;
 		itaup = itauq + *n;
@@ -5788,7 +5856,8 @@ L10:
 */
 
 		dbdsdc_("U", "N", n, &s[1], &work[ie], dum, &c__1, dum, &c__1,
-			 dum, idum, &work[nwork], &iwork[1], info);
+			 dum, idum, &work[nwork], &iwork[1], info, (ftnlen)1,
+			(ftnlen)1);
 
 	    } else if (wntqo) {
 
@@ -5821,11 +5890,12 @@ L10:
 
 /*              Copy R to WORK(IR), zeroing out below it */
 
-		dlacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr);
+		dlacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		i__1 = *n - 1;
 		i__2 = *n - 1;
 		dlaset_("L", &i__1, &i__2, &c_b29, &c_b29, &work[ir + 1], &
-			ldwrkr);
+			ldwrkr, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -5863,7 +5933,7 @@ L10:
 
 		dbdsdc_("U", "I", n, &s[1], &work[ie], &work[iu], n, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite WORK(IU) by left singular vectors of R
@@ -5873,11 +5943,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", n, n, n, &work[ir], &ldwrkr, &work[
-			itauq], &work[iu], n, &work[nwork], &i__1, &ierr);
+			itauq], &work[iu], n, &work[nwork], &i__1, &ierr, (
+			ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", n, n, n, &work[ir], &ldwrkr, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in A by left singular vectors of R in
@@ -5893,9 +5964,10 @@ L10:
 		    i__3 = *m - i__ + 1;
 		    chunk = min(i__3,ldwrkr);
 		    dgemm_("N", "N", &chunk, n, n, &c_b15, &a[i__ + a_dim1],
-			    lda, &work[iu], n, &c_b29, &work[ir], &ldwrkr);
+			    lda, &work[iu], n, &c_b29, &work[ir], &ldwrkr, (
+			    ftnlen)1, (ftnlen)1);
 		    dlacpy_("F", &chunk, n, &work[ir], &ldwrkr, &a[i__ +
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)1);
 /* L10: */
 		}
 
@@ -5926,11 +5998,12 @@ L10:
 
 /*              Copy R to WORK(IR), zeroing out below it */
 
-		dlacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr);
+		dlacpy_("U", n, n, &a[a_offset], lda, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		i__2 = *n - 1;
 		i__1 = *n - 1;
 		dlaset_("L", &i__2, &i__1, &c_b29, &c_b29, &work[ir + 1], &
-			ldwrkr);
+			ldwrkr, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -5963,7 +6036,7 @@ L10:
 
 		dbdsdc_("U", "I", n, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of R and VT
@@ -5973,12 +6046,13 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", n, n, n, &work[ir], &ldwrkr, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 		i__2 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", n, n, n, &work[ir], &ldwrkr, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in A by left singular vectors of R in
@@ -5986,9 +6060,11 @@ L10:
                 (Workspace: need N*N)
 */
 
-		dlacpy_("F", n, n, &u[u_offset], ldu, &work[ir], &ldwrkr);
+		dlacpy_("F", n, n, &u[u_offset], ldu, &work[ir], &ldwrkr, (
+			ftnlen)1);
 		dgemm_("N", "N", m, n, n, &c_b15, &a[a_offset], lda, &work[ir]
-			, &ldwrkr, &c_b29, &u[u_offset], ldu);
+			, &ldwrkr, &c_b29, &u[u_offset], ldu, (ftnlen)1, (
+			ftnlen)1);
 
 	    } else if (wntqa) {
 
@@ -6014,7 +6090,8 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		dgeqrf_(m, n, &a[a_offset], lda, &work[itau], &work[nwork], &
 			i__2, &ierr);
-		dlacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		dlacpy_("L", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 
 /*
                 Generate Q in U
@@ -6029,7 +6106,7 @@ L10:
 		i__2 = *n - 1;
 		i__1 = *n - 1;
 		dlaset_("L", &i__2, &i__1, &c_b29, &c_b29, &a[a_dim1 + 2],
-			lda);
+			lda, (ftnlen)1);
 		ie = itau;
 		itauq = ie + *n;
 		itaup = itauq + *n;
@@ -6053,7 +6130,7 @@ L10:
 
 		dbdsdc_("U", "I", n, &s[1], &work[ie], &work[iu], n, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite WORK(IU) by left singular vectors of R and VT
@@ -6064,11 +6141,11 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", n, n, n, &a[a_offset], lda, &work[
 			itauq], &work[iu], &ldwrku, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply Q in U by left singular vectors of R in
@@ -6077,11 +6154,13 @@ L10:
 */
 
 		dgemm_("N", "N", m, n, n, &c_b15, &u[u_offset], ldu, &work[iu]
-			, &ldwrku, &c_b29, &a[a_offset], lda);
+			, &ldwrku, &c_b29, &a[a_offset], lda, (ftnlen)1, (
+			ftnlen)1);
 
 /*              Copy left singular vectors of A from A to U */
 
-		dlacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu);
+		dlacpy_("F", m, n, &a[a_offset], lda, &u[u_offset], ldu, (
+			ftnlen)1);
 
 	    }
 
@@ -6115,7 +6194,8 @@ L10:
 */
 
 		dbdsdc_("U", "N", n, &s[1], &work[ie], dum, &c__1, dum, &c__1,
-			 dum, idum, &work[nwork], &iwork[1], info);
+			 dum, idum, &work[nwork], &iwork[1], info, (ftnlen)1,
+			(ftnlen)1);
 	    } else if (wntqo) {
 		iu = nwork;
 		if (*lwork >= *m * *n + *n * 3 + bdspac) {
@@ -6124,7 +6204,8 @@ L10:
 
 		    ldwrku = *m;
 		    nwork = iu + ldwrku * *n;
-		    dlaset_("F", m, n, &c_b29, &c_b29, &work[iu], &ldwrku);
+		    dlaset_("F", m, n, &c_b29, &c_b29, &work[iu], &ldwrku, (
+			    ftnlen)1);
 		} else {
 
 /*                 WORK( IU ) is N by N */
@@ -6148,7 +6229,7 @@ L10:
 
 		dbdsdc_("U", "I", n, &s[1], &work[ie], &work[iu], &ldwrku, &
 			vt[vt_offset], ldvt, dum, idum, &work[nwork], &iwork[
-			1], info);
+			1], info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite VT by right singular vectors of A
@@ -6158,7 +6239,7 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 		if (*lwork >= *m * *n + *n * 3 + bdspac) {
 
@@ -6170,11 +6251,12 @@ L10:
 		    i__2 = *lwork - nwork + 1;
 		    dormbr_("Q", "L", "N", m, n, n, &a[a_offset], lda, &work[
 			    itauq], &work[iu], &ldwrku, &work[nwork], &i__2, &
-			    ierr);
+			    ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*                 Copy left singular vectors of A from WORK(IU) to A */
 
-		    dlacpy_("F", m, n, &work[iu], &ldwrku, &a[a_offset], lda);
+		    dlacpy_("F", m, n, &work[iu], &ldwrku, &a[a_offset], lda,
+			    (ftnlen)1);
 		} else {
 
 /*
@@ -6184,7 +6266,7 @@ L10:
 
 		    i__2 = *lwork - nwork + 1;
 		    dorgbr_("Q", m, n, n, &a[a_offset], lda, &work[itauq], &
-			    work[nwork], &i__2, &ierr);
+			    work[nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                    Multiply Q in A by left singular vectors of
@@ -6202,9 +6284,9 @@ L10:
 			chunk = min(i__3,ldwrkr);
 			dgemm_("N", "N", &chunk, n, n, &c_b15, &a[i__ +
 				a_dim1], lda, &work[iu], &ldwrku, &c_b29, &
-				work[ir], &ldwrkr);
+				work[ir], &ldwrkr, (ftnlen)1, (ftnlen)1);
 			dlacpy_("F", &chunk, n, &work[ir], &ldwrkr, &a[i__ +
-				a_dim1], lda);
+				a_dim1], lda, (ftnlen)1);
 /* L20: */
 		    }
 		}
@@ -6218,10 +6300,11 @@ L10:
                 (Workspace: need N+BDSPAC)
 */
 
-		dlaset_("F", m, n, &c_b29, &c_b29, &u[u_offset], ldu);
+		dlaset_("F", m, n, &c_b29, &c_b29, &u[u_offset], ldu, (ftnlen)
+			1);
 		dbdsdc_("U", "I", n, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of A and VT
@@ -6231,11 +6314,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", m, n, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", n, n, n, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else if (wntqa) {
 
 /*
@@ -6245,10 +6329,11 @@ L10:
                 (Workspace: need N+BDSPAC)
 */
 
-		dlaset_("F", m, m, &c_b29, &c_b29, &u[u_offset], ldu);
+		dlaset_("F", m, m, &c_b29, &c_b29, &u[u_offset], ldu, (ftnlen)
+			1);
 		dbdsdc_("U", "I", n, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*              Set the right corner of U to identity matrix */
 
@@ -6256,7 +6341,7 @@ L10:
 		    i__1 = *m - *n;
 		    i__2 = *m - *n;
 		    dlaset_("F", &i__1, &i__2, &c_b29, &c_b15, &u[*n + 1 + (*
-			    n + 1) * u_dim1], ldu);
+			    n + 1) * u_dim1], ldu, (ftnlen)1);
 		}
 
 /*
@@ -6267,11 +6352,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", n, n, m, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 
 	}
@@ -6310,7 +6396,7 @@ L10:
 		i__1 = *m - 1;
 		i__2 = *m - 1;
 		dlaset_("U", &i__1, &i__2, &c_b29, &c_b29, &a[(a_dim1 << 1) +
-			1], lda);
+			1], lda, (ftnlen)1);
 		ie = 1;
 		itauq = ie + *m;
 		itaup = itauq + *m;
@@ -6332,7 +6418,8 @@ L10:
 */
 
 		dbdsdc_("U", "N", m, &s[1], &work[ie], dum, &c__1, dum, &c__1,
-			 dum, idum, &work[nwork], &iwork[1], info);
+			 dum, idum, &work[nwork], &iwork[1], info, (ftnlen)1,
+			(ftnlen)1);
 
 	    } else if (wntqo) {
 
@@ -6371,11 +6458,12 @@ L10:
 
 /*              Copy L to WORK(IL), zeroing about above it */
 
-		dlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl);
+		dlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl, (
+			ftnlen)1);
 		i__1 = *m - 1;
 		i__2 = *m - 1;
 		dlaset_("U", &i__1, &i__2, &c_b29, &c_b29, &work[il + ldwrkl],
-			 &ldwrkl);
+			 &ldwrkl, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -6408,7 +6496,7 @@ L10:
 
 		dbdsdc_("U", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &
 			work[ivt], m, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of L and WORK(IVT)
@@ -6418,10 +6506,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", m, m, m, &work[il], &ldwrkl, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", m, m, m, &work[il], &ldwrkl, &work[
-			itaup], &work[ivt], m, &work[nwork], &i__1, &ierr);
+			itaup], &work[ivt], m, &work[nwork], &i__1, &ierr, (
+			ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply right singular vectors of L in WORK(IVT) by Q
@@ -6438,9 +6528,9 @@ L10:
 		    blk = min(i__3,chunk);
 		    dgemm_("N", "N", m, &blk, m, &c_b15, &work[ivt], m, &a[
 			    i__ * a_dim1 + 1], lda, &c_b29, &work[il], &
-			    ldwrkl);
+			    ldwrkl, (ftnlen)1, (ftnlen)1);
 		    dlacpy_("F", m, &blk, &work[il], &ldwrkl, &a[i__ * a_dim1
-			    + 1], lda);
+			    + 1], lda, (ftnlen)1);
 /* L30: */
 		}
 
@@ -6471,11 +6561,12 @@ L10:
 
 /*              Copy L to WORK(IL), zeroing out above it */
 
-		dlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl);
+		dlacpy_("L", m, m, &a[a_offset], lda, &work[il], &ldwrkl, (
+			ftnlen)1);
 		i__2 = *m - 1;
 		i__1 = *m - 1;
 		dlaset_("U", &i__2, &i__1, &c_b29, &c_b29, &work[il + ldwrkl],
-			 &ldwrkl);
+			 &ldwrkl, (ftnlen)1);
 
 /*
                 Generate Q in A
@@ -6508,7 +6599,7 @@ L10:
 
 		dbdsdc_("U", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of L and VT
@@ -6518,11 +6609,12 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", m, m, m, &work[il], &ldwrkl, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", m, m, m, &work[il], &ldwrkl, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply right singular vectors of L in WORK(IL) by
@@ -6530,9 +6622,11 @@ L10:
                 (Workspace: need M*M)
 */
 
-		dlacpy_("F", m, m, &vt[vt_offset], ldvt, &work[il], &ldwrkl);
+		dlacpy_("F", m, m, &vt[vt_offset], ldvt, &work[il], &ldwrkl, (
+			ftnlen)1);
 		dgemm_("N", "N", m, n, m, &c_b15, &work[il], &ldwrkl, &a[
-			a_offset], lda, &c_b29, &vt[vt_offset], ldvt);
+			a_offset], lda, &c_b29, &vt[vt_offset], ldvt, (ftnlen)
+			1, (ftnlen)1);
 
 	    } else if (wntqa) {
 
@@ -6558,7 +6652,8 @@ L10:
 		i__2 = *lwork - nwork + 1;
 		dgelqf_(m, n, &a[a_offset], lda, &work[itau], &work[nwork], &
 			i__2, &ierr);
-		dlacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		dlacpy_("U", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 /*
                 Generate Q in VT
@@ -6574,7 +6669,7 @@ L10:
 		i__2 = *m - 1;
 		i__1 = *m - 1;
 		dlaset_("U", &i__2, &i__1, &c_b29, &c_b29, &a[(a_dim1 << 1) +
-			1], lda);
+			1], lda, (ftnlen)1);
 		ie = itau;
 		itauq = ie + *m;
 		itaup = itauq + *m;
@@ -6598,7 +6693,7 @@ L10:
 
 		dbdsdc_("U", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &
 			work[ivt], &ldwkvt, dum, idum, &work[nwork], &iwork[1]
-			, info);
+			, info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of L and WORK(IVT)
@@ -6608,11 +6703,12 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", m, m, m, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__2 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", m, m, m, &a[a_offset], lda, &work[
 			itaup], &work[ivt], &ldwkvt, &work[nwork], &i__2, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*
                 Multiply right singular vectors of L in WORK(IVT) by
@@ -6621,11 +6717,13 @@ L10:
 */
 
 		dgemm_("N", "N", m, n, m, &c_b15, &work[ivt], &ldwkvt, &vt[
-			vt_offset], ldvt, &c_b29, &a[a_offset], lda);
+			vt_offset], ldvt, &c_b29, &a[a_offset], lda, (ftnlen)
+			1, (ftnlen)1);
 
 /*              Copy right singular vectors of A from A to VT */
 
-		dlacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt);
+		dlacpy_("F", m, n, &a[a_offset], lda, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 
 	    }
 
@@ -6659,7 +6757,8 @@ L10:
 */
 
 		dbdsdc_("L", "N", m, &s[1], &work[ie], dum, &c__1, dum, &c__1,
-			 dum, idum, &work[nwork], &iwork[1], info);
+			 dum, idum, &work[nwork], &iwork[1], info, (ftnlen)1,
+			(ftnlen)1);
 	    } else if (wntqo) {
 		ldwkvt = *m;
 		ivt = nwork;
@@ -6667,7 +6766,8 @@ L10:
 
 /*                 WORK( IVT ) is M by N */
 
-		    dlaset_("F", m, n, &c_b29, &c_b29, &work[ivt], &ldwkvt);
+		    dlaset_("F", m, n, &c_b29, &c_b29, &work[ivt], &ldwkvt, (
+			    ftnlen)1);
 		    nwork = ivt + ldwkvt * *n;
 		} else {
 
@@ -6690,7 +6790,7 @@ L10:
 
 		dbdsdc_("L", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &
 			work[ivt], &ldwkvt, dum, idum, &work[nwork], &iwork[1]
-			, info);
+			, info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of A
@@ -6699,7 +6799,8 @@ L10:
 
 		i__2 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__2, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 		if (*lwork >= *m * *n + *m * 3 + bdspac) {
 
@@ -6711,11 +6812,12 @@ L10:
 		    i__2 = *lwork - nwork + 1;
 		    dormbr_("P", "R", "T", m, n, m, &a[a_offset], lda, &work[
 			    itaup], &work[ivt], &ldwkvt, &work[nwork], &i__2,
-			    &ierr);
+			    &ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*                 Copy right singular vectors of A from WORK(IVT) to A */
 
-		    dlacpy_("F", m, n, &work[ivt], &ldwkvt, &a[a_offset], lda);
+		    dlacpy_("F", m, n, &work[ivt], &ldwkvt, &a[a_offset], lda,
+			     (ftnlen)1);
 		} else {
 
 /*
@@ -6725,7 +6827,7 @@ L10:
 
 		    i__2 = *lwork - nwork + 1;
 		    dorgbr_("P", m, n, m, &a[a_offset], lda, &work[itaup], &
-			    work[nwork], &i__2, &ierr);
+			    work[nwork], &i__2, &ierr, (ftnlen)1);
 
 /*
                    Multiply Q in A by right singular vectors of
@@ -6743,9 +6845,9 @@ L10:
 			blk = min(i__3,chunk);
 			dgemm_("N", "N", m, &blk, m, &c_b15, &work[ivt], &
 				ldwkvt, &a[i__ * a_dim1 + 1], lda, &c_b29, &
-				work[il], m);
+				work[il], m, (ftnlen)1, (ftnlen)1);
 			dlacpy_("F", m, &blk, &work[il], m, &a[i__ * a_dim1 +
-				1], lda);
+				1], lda, (ftnlen)1);
 /* L40: */
 		    }
 		}
@@ -6758,10 +6860,11 @@ L10:
                 (Workspace: need M+BDSPAC)
 */
 
-		dlaset_("F", m, n, &c_b29, &c_b29, &vt[vt_offset], ldvt);
+		dlaset_("F", m, n, &c_b29, &c_b29, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		dbdsdc_("L", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*
                 Overwrite U by left singular vectors of A and VT
@@ -6771,11 +6874,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", m, n, m, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else if (wntqa) {
 
 /*
@@ -6785,10 +6889,11 @@ L10:
                 (Workspace: need M+BDSPAC)
 */
 
-		dlaset_("F", n, n, &c_b29, &c_b29, &vt[vt_offset], ldvt);
+		dlaset_("F", n, n, &c_b29, &c_b29, &vt[vt_offset], ldvt, (
+			ftnlen)1);
 		dbdsdc_("L", "I", m, &s[1], &work[ie], &u[u_offset], ldu, &vt[
 			vt_offset], ldvt, dum, idum, &work[nwork], &iwork[1],
-			info);
+			info, (ftnlen)1, (ftnlen)1);
 
 /*              Set the right corner of VT to identity matrix */
 
@@ -6796,7 +6901,7 @@ L10:
 		    i__1 = *n - *m;
 		    i__2 = *n - *m;
 		    dlaset_("F", &i__1, &i__2, &c_b29, &c_b15, &vt[*m + 1 + (*
-			    m + 1) * vt_dim1], ldvt);
+			    m + 1) * vt_dim1], ldvt, (ftnlen)1);
 		}
 
 /*
@@ -6807,11 +6912,12 @@ L10:
 
 		i__1 = *lwork - nwork + 1;
 		dormbr_("Q", "L", "N", m, m, n, &a[a_offset], lda, &work[
-			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr);
+			itauq], &u[u_offset], ldu, &work[nwork], &i__1, &ierr,
+			 (ftnlen)1, (ftnlen)1, (ftnlen)1);
 		i__1 = *lwork - nwork + 1;
 		dormbr_("P", "R", "T", n, n, m, &a[a_offset], lda, &work[
 			itaup], &vt[vt_offset], ldvt, &work[nwork], &i__1, &
-			ierr);
+			ierr, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 
 	}
@@ -6823,11 +6929,11 @@ L10:
     if (iscl == 1) {
 	if (anrm > bignum) {
 	    dlascl_("G", &c__0, &c__0, &bignum, &anrm, &minmn, &c__1, &s[1], &
-		    minmn, &ierr);
+		    minmn, &ierr, (ftnlen)1);
 	}
 	if (anrm < smlnum) {
 	    dlascl_("G", &c__0, &c__0, &smlnum, &anrm, &minmn, &c__1, &s[1], &
-		    minmn, &ierr);
+		    minmn, &ierr, (ftnlen)1);
 	}
     }
 
@@ -6849,8 +6955,9 @@ L10:
 
     /* Local variables */
     extern /* Subroutine */ int dgetrf_(integer *, integer *, doublereal *,
-	    integer *, integer *, integer *), xerbla_(char *, integer *), dgetrs_(char *, integer *, integer *, doublereal *,
-	    integer *, integer *, doublereal *, integer *, integer *);
+	    integer *, integer *, integer *), xerbla_(char *, integer *,
+	    ftnlen), dgetrs_(char *, integer *, integer *, doublereal *,
+	    integer *, integer *, doublereal *, integer *, integer *, ftnlen);
 
 
 /*
@@ -6939,7 +7046,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGESV ", &i__1);
+	xerbla_("DGESV ", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -6951,7 +7058,7 @@ L10:
 /*        Solve the system A*X = B, overwriting B with X. */
 
 	dgetrs_("No transpose", n, nrhs, &a[a_offset], lda, &ipiv[1], &b[
-		b_offset], ldb, info);
+		b_offset], ldb, info, (ftnlen)12);
     }
     return 0;
 
@@ -6977,7 +7084,7 @@ L10:
 	    doublereal *, integer *);
 
     extern integer idamax_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -7053,7 +7160,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGETF2", &i__1);
+	xerbla_("DGETF2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -7132,13 +7239,13 @@ L10:
     static integer i__, j, jb, nb;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer iinfo;
     extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *), dgetf2_(
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen), dgetf2_(
 	    integer *, integer *, doublereal *, integer *, integer *, integer
-	    *), xerbla_(char *, integer *);
+	    *), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int dlaswp_(integer *, doublereal *, integer *,
@@ -7218,7 +7325,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGETRF", &i__1);
+	xerbla_("DGETRF", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -7289,7 +7396,8 @@ L10:
 		i__3 = *n - j - jb + 1;
 		dtrsm_("Left", "Lower", "No transpose", "Unit", &jb, &i__3, &
 			c_b15, &a[j + j * a_dim1], lda, &a[j + (j + jb) *
-			a_dim1], lda);
+			a_dim1], lda, (ftnlen)4, (ftnlen)5, (ftnlen)12, (
+			ftnlen)4);
 		if (j + jb <= *m) {
 
 /*                 Update trailing submatrix. */
@@ -7299,7 +7407,7 @@ L10:
 		    dgemm_("No transpose", "No transpose", &i__3, &i__4, &jb,
 			    &c_b151, &a[j + jb + j * a_dim1], lda, &a[j + (j
 			    + jb) * a_dim1], lda, &c_b15, &a[j + jb + (j + jb)
-			     * a_dim1], lda);
+			     * a_dim1], lda, (ftnlen)12, (ftnlen)12);
 		}
 	    }
 /* L20: */
@@ -7313,17 +7421,17 @@ L10:
 
 /* Subroutine */ int dgetrs_(char *trans, integer *n, integer *nrhs,
 	doublereal *a, integer *lda, integer *ipiv, doublereal *b, integer *
-	ldb, integer *info)
+	ldb, integer *info, ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *), xerbla_(
-	    char *, integer *), dlaswp_(integer *, doublereal *,
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen), xerbla_(
+	    char *, integer *, ftnlen), dlaswp_(integer *, doublereal *,
 	    integer *, integer *, integer *, integer *, integer *);
     static logical notran;
 
@@ -7398,9 +7506,9 @@ L10:
 
     /* Function Body */
     *info = 0;
-    notran = lsame_(trans, "N");
-    if (! notran && ! lsame_(trans, "T") && ! lsame_(
-	    trans, "C")) {
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
+    if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1) && ! lsame_(
+	    trans, "C", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -7413,7 +7521,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DGETRS", &i__1);
+	xerbla_("DGETRS", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -7436,12 +7544,14 @@ L10:
 /*        Solve L*X = B, overwriting B with X. */
 
 	dtrsm_("Left", "Lower", "No transpose", "Unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)4);
 
 /*        Solve U*X = B, overwriting B with X. */
 
 	dtrsm_("Left", "Upper", "No transpose", "Non-unit", n, nrhs, &c_b15, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
     } else {
 
 /*
@@ -7451,12 +7561,14 @@ L10:
 */
 
 	dtrsm_("Left", "Upper", "Transpose", "Non-unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)9, (ftnlen)8);
 
 /*        Solve L'*X = B, overwriting B with X. */
 
 	dtrsm_("Left", "Lower", "Transpose", "Unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)9, (ftnlen)4);
 
 /*        Apply row interchanges to the solution vectors. */
 
@@ -7472,7 +7584,7 @@ L10:
 /* Subroutine */ int dhseqr_(char *job, char *compz, integer *n, integer *ilo,
 	 integer *ihi, doublereal *h__, integer *ldh, doublereal *wr,
 	doublereal *wi, doublereal *z__, integer *ldz, doublereal *work,
-	integer *lwork, integer *info)
+	integer *lwork, integer *info, ftnlen job_len, ftnlen compz_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -7484,7 +7596,7 @@ L10:
     static integer i__;
     static doublereal hl[2401]	/* was [49][49] */;
     static integer kbot, nmin;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical initz;
     static doublereal workl[49];
     static logical wantt, wantz;
@@ -7495,12 +7607,12 @@ L10:
 	     integer *, integer *, integer *, doublereal *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
 	    integer *, integer *), dlacpy_(char *, integer *, integer *,
-	    doublereal *, integer *, doublereal *, integer *),
+	    doublereal *, integer *, doublereal *, integer *, ftnlen),
 	    dlaset_(char *, integer *, integer *, doublereal *, doublereal *,
-	    doublereal *, integer *);
+	    doublereal *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical lquery;
 
 
@@ -7751,16 +7863,16 @@ L10:
     --work;
 
     /* Function Body */
-    wantt = lsame_(job, "S");
-    initz = lsame_(compz, "I");
-    wantz = initz || lsame_(compz, "V");
+    wantt = lsame_(job, "S", (ftnlen)1, (ftnlen)1);
+    initz = lsame_(compz, "I", (ftnlen)1, (ftnlen)1);
+    wantz = initz || lsame_(compz, "V", (ftnlen)1, (ftnlen)1);
     work[1] = (doublereal) max(1,*n);
     lquery = *lwork == -1;
 
     *info = 0;
-    if (! lsame_(job, "E") && ! wantt) {
+    if (! lsame_(job, "E", (ftnlen)1, (ftnlen)1) && ! wantt) {
 	*info = -1;
-    } else if (! lsame_(compz, "N") && ! wantz) {
+    } else if (! lsame_(compz, "N", (ftnlen)1, (ftnlen)1) && ! wantz) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -7781,7 +7893,7 @@ L10:
 /*        ==== Quick return in case of invalid argument. ==== */
 
 	i__1 = -(*info);
-	xerbla_("DHSEQR", &i__1);
+	xerbla_("DHSEQR", &i__1, (ftnlen)6);
 	return 0;
 
     } else if (*n == 0) {
@@ -7825,7 +7937,7 @@ L10:
 /*        ==== Initialize Z, if requested ==== */
 
 	if (initz) {
-	    dlaset_("A", n, n, &c_b29, &c_b15, &z__[z_offset], ldz)
+	    dlaset_("A", n, n, &c_b29, &c_b15, &z__[z_offset], ldz, (ftnlen)1)
 		    ;
 	}
 
@@ -7891,16 +8003,18 @@ L10:
                    .    array before calling DLAQR0. ====
 */
 
-		    dlacpy_("A", n, n, &h__[h_offset], ldh, hl, &c__49);
+		    dlacpy_("A", n, n, &h__[h_offset], ldh, hl, &c__49, (
+			    ftnlen)1);
 		    hl[*n + 1 + *n * 49 - 50] = 0.;
 		    i__1 = 49 - *n;
 		    dlaset_("A", &c__49, &i__1, &c_b29, &c_b29, &hl[(*n + 1) *
-			     49 - 49], &c__49);
+			     49 - 49], &c__49, (ftnlen)1);
 		    dlaqr0_(&wantt, &wantz, &c__49, ilo, &kbot, hl, &c__49, &
 			    wr[1], &wi[1], ilo, ihi, &z__[z_offset], ldz,
 			    workl, &c__49, info);
 		    if (wantt || *info != 0) {
-			dlacpy_("A", n, n, hl, &c__49, &h__[h_offset], ldh);
+			dlacpy_("A", n, n, hl, &c__49, &h__[h_offset], ldh, (
+				ftnlen)1);
 		    }
 		}
 	    }
@@ -7911,7 +8025,8 @@ L10:
 	if ((wantt || *info != 0) && *n > 2) {
 	    i__1 = *n - 2;
 	    i__3 = *n - 2;
-	    dlaset_("L", &i__1, &i__3, &c_b29, &c_b29, &h__[h_dim1 + 3], ldh);
+	    dlaset_("L", &i__1, &i__3, &c_b29, &c_b29, &h__[h_dim1 + 3], ldh,
+		    (ftnlen)1);
 	}
 
 /*
@@ -8032,7 +8147,7 @@ logical disnan_(doublereal *din)
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *), dgemv_(char *, integer *, integer *, doublereal *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    doublereal *, integer *), dlarfg_(integer *, doublereal *,
+	    doublereal *, integer *, ftnlen), dlarfg_(integer *, doublereal *,
 	     doublereal *, integer *, doublereal *);
 
 
@@ -8201,12 +8316,12 @@ logical disnan_(doublereal *din)
 	    i__3 = i__ - 1;
 	    dgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + a_dim1],
 		    lda, &y[i__ + y_dim1], ldy, &c_b15, &a[i__ + i__ * a_dim1]
-		    , &c__1);
+		    , &c__1, (ftnlen)12);
 	    i__2 = *m - i__ + 1;
 	    i__3 = i__ - 1;
 	    dgemv_("No transpose", &i__2, &i__3, &c_b151, &x[i__ + x_dim1],
 		    ldx, &a[i__ * a_dim1 + 1], &c__1, &c_b15, &a[i__ + i__ *
-		    a_dim1], &c__1);
+		    a_dim1], &c__1, (ftnlen)12);
 
 /*           Generate reflection Q(i) to annihilate A(i+1:m,i) */
 
@@ -8225,27 +8340,27 @@ logical disnan_(doublereal *din)
 		i__3 = *n - i__;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + (i__ + 1) *
 			 a_dim1], lda, &a[i__ + i__ * a_dim1], &c__1, &c_b29,
-			&y[i__ + 1 + i__ * y_dim1], &c__1);
+			&y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)9);
 		i__2 = *m - i__ + 1;
 		i__3 = i__ - 1;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + a_dim1],
 			lda, &a[i__ + i__ * a_dim1], &c__1, &c_b29, &y[i__ *
-			y_dim1 + 1], &c__1);
+			y_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &y[i__ + 1 +
 			y_dim1], ldy, &y[i__ * y_dim1 + 1], &c__1, &c_b15, &y[
-			i__ + 1 + i__ * y_dim1], &c__1);
+			i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__ + 1;
 		i__3 = i__ - 1;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &x[i__ + x_dim1],
 			ldx, &a[i__ + i__ * a_dim1], &c__1, &c_b29, &y[i__ *
-			y_dim1 + 1], &c__1);
+			y_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = i__ - 1;
 		i__3 = *n - i__;
 		dgemv_("Transpose", &i__2, &i__3, &c_b151, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &y[i__ * y_dim1 + 1], &c__1, &c_b15,
-			 &y[i__ + 1 + i__ * y_dim1], &c__1);
+			 &y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		dscal_(&i__2, &tauq[i__], &y[i__ + 1 + i__ * y_dim1], &c__1);
 
@@ -8254,12 +8369,12 @@ logical disnan_(doublereal *din)
 		i__2 = *n - i__;
 		dgemv_("No transpose", &i__2, &i__, &c_b151, &y[i__ + 1 +
 			y_dim1], ldy, &a[i__ + a_dim1], lda, &c_b15, &a[i__ +
-			(i__ + 1) * a_dim1], lda);
+			(i__ + 1) * a_dim1], lda, (ftnlen)12);
 		i__2 = i__ - 1;
 		i__3 = *n - i__;
 		dgemv_("Transpose", &i__2, &i__3, &c_b151, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &x[i__ + x_dim1], ldx, &c_b15, &a[
-			i__ + (i__ + 1) * a_dim1], lda);
+			i__ + (i__ + 1) * a_dim1], lda, (ftnlen)9);
 
 /*              Generate reflection P(i) to annihilate A(i,i+2:n) */
 
@@ -8277,25 +8392,26 @@ logical disnan_(doublereal *din)
 		i__3 = *n - i__;
 		dgemv_("No transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + (
 			i__ + 1) * a_dim1], lda, &a[i__ + (i__ + 1) * a_dim1],
-			 lda, &c_b29, &x[i__ + 1 + i__ * x_dim1], &c__1);
+			 lda, &c_b29, &x[i__ + 1 + i__ * x_dim1], &c__1, (
+			ftnlen)12);
 		i__2 = *n - i__;
 		dgemv_("Transpose", &i__2, &i__, &c_b15, &y[i__ + 1 + y_dim1],
 			 ldy, &a[i__ + (i__ + 1) * a_dim1], lda, &c_b29, &x[
-			i__ * x_dim1 + 1], &c__1);
+			i__ * x_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *m - i__;
 		dgemv_("No transpose", &i__2, &i__, &c_b151, &a[i__ + 1 +
 			a_dim1], lda, &x[i__ * x_dim1 + 1], &c__1, &c_b15, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = i__ - 1;
 		i__3 = *n - i__;
 		dgemv_("No transpose", &i__2, &i__3, &c_b15, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			c_b29, &x[i__ * x_dim1 + 1], &c__1);
+			c_b29, &x[i__ * x_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &x[i__ + 1 +
 			x_dim1], ldx, &x[i__ * x_dim1 + 1], &c__1, &c_b15, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		dscal_(&i__2, &taup[i__], &x[i__ + 1 + i__ * x_dim1], &c__1);
 	    }
@@ -8314,12 +8430,12 @@ logical disnan_(doublereal *din)
 	    i__3 = i__ - 1;
 	    dgemv_("No transpose", &i__2, &i__3, &c_b151, &y[i__ + y_dim1],
 		    ldy, &a[i__ + a_dim1], lda, &c_b15, &a[i__ + i__ * a_dim1]
-		    , lda);
+		    , lda, (ftnlen)12);
 	    i__2 = i__ - 1;
 	    i__3 = *n - i__ + 1;
 	    dgemv_("Transpose", &i__2, &i__3, &c_b151, &a[i__ * a_dim1 + 1],
 		    lda, &x[i__ + x_dim1], ldx, &c_b15, &a[i__ + i__ * a_dim1]
-		    , lda);
+		    , lda, (ftnlen)9);
 
 /*           Generate reflection P(i) to annihilate A(i,i+1:n) */
 
@@ -8338,27 +8454,27 @@ logical disnan_(doublereal *din)
 		i__3 = *n - i__ + 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + i__
 			* a_dim1], lda, &a[i__ + i__ * a_dim1], lda, &c_b29, &
-			x[i__ + 1 + i__ * x_dim1], &c__1);
+			x[i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__ + 1;
 		i__3 = i__ - 1;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &y[i__ + y_dim1],
 			ldy, &a[i__ + i__ * a_dim1], lda, &c_b29, &x[i__ *
-			x_dim1 + 1], &c__1);
+			x_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + 1 +
 			a_dim1], lda, &x[i__ * x_dim1 + 1], &c__1, &c_b15, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = i__ - 1;
 		i__3 = *n - i__ + 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b15, &a[i__ * a_dim1
 			+ 1], lda, &a[i__ + i__ * a_dim1], lda, &c_b29, &x[
-			i__ * x_dim1 + 1], &c__1);
+			i__ * x_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &x[i__ + 1 +
 			x_dim1], ldx, &x[i__ * x_dim1 + 1], &c__1, &c_b15, &x[
-			i__ + 1 + i__ * x_dim1], &c__1);
+			i__ + 1 + i__ * x_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		dscal_(&i__2, &taup[i__], &x[i__ + 1 + i__ * x_dim1], &c__1);
 
@@ -8368,11 +8484,11 @@ logical disnan_(doublereal *din)
 		i__3 = i__ - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + 1 +
 			a_dim1], lda, &y[i__ + y_dim1], ldy, &c_b15, &a[i__ +
-			1 + i__ * a_dim1], &c__1);
+			1 + i__ * a_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		dgemv_("No transpose", &i__2, &i__, &c_b151, &x[i__ + 1 +
 			x_dim1], ldx, &a[i__ * a_dim1 + 1], &c__1, &c_b15, &a[
-			i__ + 1 + i__ * a_dim1], &c__1);
+			i__ + 1 + i__ * a_dim1], &c__1, (ftnlen)12);
 
 /*              Generate reflection Q(i) to annihilate A(i+2:m,i) */
 
@@ -8390,25 +8506,25 @@ logical disnan_(doublereal *din)
 		i__3 = *n - i__;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + (i__ +
 			1) * a_dim1], lda, &a[i__ + 1 + i__ * a_dim1], &c__1,
-			&c_b29, &y[i__ + 1 + i__ * y_dim1], &c__1);
+			&c_b29, &y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)9);
 		i__2 = *m - i__;
 		i__3 = i__ - 1;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + a_dim1]
 			, lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &y[
-			i__ * y_dim1 + 1], &c__1);
+			i__ * y_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &y[i__ + 1 +
 			y_dim1], ldy, &y[i__ * y_dim1 + 1], &c__1, &c_b15, &y[
-			i__ + 1 + i__ * y_dim1], &c__1);
+			i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 		i__2 = *m - i__;
 		dgemv_("Transpose", &i__2, &i__, &c_b15, &x[i__ + 1 + x_dim1],
 			 ldx, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &y[
-			i__ * y_dim1 + 1], &c__1);
+			i__ * y_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		dgemv_("Transpose", &i__, &i__2, &c_b151, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &y[i__ * y_dim1 + 1], &c__1, &c_b15,
-			 &y[i__ + 1 + i__ * y_dim1], &c__1);
+			 &y[i__ + 1 + i__ * y_dim1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		dscal_(&i__2, &tauq[i__], &y[i__ + 1 + i__ * y_dim1], &c__1);
 	    }
@@ -8422,14 +8538,14 @@ logical disnan_(doublereal *din)
 } /* dlabrd_ */
 
 /* Subroutine */ int dlacpy_(char *uplo, integer *m, integer *n, doublereal *
-	a, integer *lda, doublereal *b, integer *ldb)
+	a, integer *lda, doublereal *b, integer *ldb, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1, i__2;
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
 
 
 /*
@@ -8487,7 +8603,7 @@ logical disnan_(doublereal *din)
     b -= b_offset;
 
     /* Function Body */
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    i__2 = min(j,*m);
@@ -8497,7 +8613,7 @@ logical disnan_(doublereal *din)
 	    }
 /* L20: */
 	}
-    } else if (lsame_(uplo, "L")) {
+    } else if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    i__2 = *m;
@@ -8722,7 +8838,7 @@ logical disnan_(doublereal *din)
     static integer curr;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer iperm;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
@@ -8738,14 +8854,15 @@ logical disnan_(doublereal *din)
 	    *, doublereal *, integer *, integer *);
     static integer tlvls;
     extern /* Subroutine */ int dlacpy_(char *, integer *, integer *,
-	    doublereal *, integer *, doublereal *, integer *);
+	    doublereal *, integer *, doublereal *, integer *, ftnlen);
     static integer igivcl;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer igivnm, submat, curprb, subpbs, igivpt;
     extern /* Subroutine */ int dsteqr_(char *, integer *, doublereal *,
-	    doublereal *, doublereal *, integer *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen);
     static integer curlvl, matsiz, iprmpt, smlsiz;
 
 
@@ -8877,7 +8994,7 @@ logical disnan_(doublereal *din)
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAED0", &i__1);
+	xerbla_("DLAED0", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -8986,13 +9103,13 @@ L10:
 	}
 	if (*icompq == 2) {
 	    dsteqr_("I", &matsiz, &d__[submat], &e[submat], &q[submat +
-		    submat * q_dim1], ldq, &work[1], info);
+		    submat * q_dim1], ldq, &work[1], info, (ftnlen)1);
 	    if (*info != 0) {
 		goto L130;
 	    }
 	} else {
 	    dsteqr_("I", &matsiz, &d__[submat], &e[submat], &work[iq - 1 +
-		    iwork[iqptr + curr]], &matsiz, &work[1], info);
+		    iwork[iqptr + curr]], &matsiz, &work[1], info, (ftnlen)1);
 	    if (*info != 0) {
 		goto L130;
 	    }
@@ -9000,7 +9117,7 @@ L10:
 		dgemm_("N", "N", qsiz, &matsiz, &matsiz, &c_b15, &q[submat *
 			q_dim1 + 1], ldq, &work[iq - 1 + iwork[iqptr + curr]],
 			 &matsiz, &c_b29, &qstore[submat * qstore_dim1 + 1],
-			ldqs);
+			ldqs, (ftnlen)1, (ftnlen)1);
 	    }
 /* Computing 2nd power */
 	    i__2 = matsiz;
@@ -9101,7 +9218,7 @@ L80:
 /* L110: */
 	}
 	dcopy_(n, &work[1], &c__1, &d__[1], &c__1);
-	dlacpy_("A", n, n, &work[*n + 1], n, &q[q_offset], ldq);
+	dlacpy_("A", n, n, &work[*n + 1], n, &q[q_offset], ldq, (ftnlen)1);
     } else {
 	i__1 = *n;
 	for (i__ = 1; i__ <= i__1; ++i__) {
@@ -9144,7 +9261,8 @@ L140:
 	    doublereal *, doublereal *, integer *);
     static integer idlmda;
     extern /* Subroutine */ int dlamrg_(integer *, integer *, doublereal *,
-	    integer *, integer *, integer *), xerbla_(char *, integer *);
+	    integer *, integer *, integer *), xerbla_(char *, integer *,
+	    ftnlen);
     static integer coltyp;
 
 
@@ -9270,7 +9388,7 @@ L140:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAED1", &i__1);
+	xerbla_("DLAED1", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -9372,11 +9490,13 @@ L20:
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *), dcopy_(integer *, doublereal *, integer *, doublereal
 	    *, integer *);
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     extern integer idamax_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dlamrg_(integer *, integer *, doublereal *,
 	    integer *, integer *, integer *), dlacpy_(char *, integer *,
-	    integer *, doublereal *, integer *, doublereal *, integer *), xerbla_(char *, integer *);
+	    integer *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -9533,7 +9653,7 @@ L20:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAED2", &i__1);
+	xerbla_("DLAED2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -9611,7 +9731,7 @@ L20:
 	    iq2 += *n;
 /* L40: */
 	}
-	dlacpy_("A", n, n, &q2[1], n, &q[q_offset], ldq);
+	dlacpy_("A", n, n, &q2[1], n, &q[q_offset], ldq, (ftnlen)1);
 	dcopy_(n, &dlamda[1], &c__1, &d__[1], &c__1);
 	goto L190;
     }
@@ -9843,7 +9963,8 @@ L100:
        into the last N - K slots of D and Q respectively.
 */
 
-    dlacpy_("A", n, &ctot[3], &q2[iq1], n, &q[(*k + 1) * q_dim1 + 1], ldq);
+    dlacpy_("A", n, &ctot[3], &q2[iq1], n, &q[(*k + 1) * q_dim1 + 1], ldq, (
+	    ftnlen)1);
     i__1 = *n - *k;
     dcopy_(&i__1, &z__[*k + 1], &c__1, &d__[*k + 1], &c__1);
 
@@ -9876,15 +9997,16 @@ L190:
     extern doublereal dnrm2_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *),
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen),
 	     dcopy_(integer *, doublereal *, integer *, doublereal *, integer
 	    *), dlaed4_(integer *, integer *, doublereal *, doublereal *,
 	    doublereal *, doublereal *, doublereal *, integer *);
     extern doublereal dlamc3_(doublereal *, doublereal *);
     extern /* Subroutine */ int dlacpy_(char *, integer *, integer *,
-	    doublereal *, integer *, doublereal *, integer *),
+	    doublereal *, integer *, doublereal *, integer *, ftnlen),
 	    dlaset_(char *, integer *, integer *, doublereal *, doublereal *,
-	    doublereal *, integer *), xerbla_(char *, integer *);
+	    doublereal *, integer *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
 
 
 /*
@@ -10020,7 +10142,7 @@ L190:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAED3", &i__1);
+	xerbla_("DLAED3", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -10141,21 +10263,23 @@ L110:
     n12 = ctot[1] + ctot[2];
     n23 = ctot[2] + ctot[3];
 
-    dlacpy_("A", &n23, k, &q[ctot[1] + 1 + q_dim1], ldq, &s[1], &n23);
+    dlacpy_("A", &n23, k, &q[ctot[1] + 1 + q_dim1], ldq, &s[1], &n23, (ftnlen)
+	    1);
     iq2 = *n1 * n12 + 1;
     if (n23 != 0) {
 	dgemm_("N", "N", &n2, k, &n23, &c_b15, &q2[iq2], &n2, &s[1], &n23, &
-		c_b29, &q[*n1 + 1 + q_dim1], ldq);
+		c_b29, &q[*n1 + 1 + q_dim1], ldq, (ftnlen)1, (ftnlen)1);
     } else {
-	dlaset_("A", &n2, k, &c_b29, &c_b29, &q[*n1 + 1 + q_dim1], ldq);
+	dlaset_("A", &n2, k, &c_b29, &c_b29, &q[*n1 + 1 + q_dim1], ldq, (
+		ftnlen)1);
     }
 
-    dlacpy_("A", &n12, k, &q[q_offset], ldq, &s[1], &n12);
+    dlacpy_("A", &n12, k, &q[q_offset], ldq, &s[1], &n12, (ftnlen)1);
     if (n12 != 0) {
 	dgemm_("N", "N", n1, k, &n12, &c_b15, &q2[1], n1, &s[1], &n12, &c_b29,
-		 &q[q_offset], ldq);
+		 &q[q_offset], ldq, (ftnlen)1, (ftnlen)1);
     } else {
-	dlaset_("A", n1, k, &c_b29, &c_b29, &q[q_dim1 + 1], ldq);
+	dlaset_("A", n1, k, &c_b29, &c_b29, &q[q_dim1 + 1], ldq, (ftnlen)1);
     }
 
 
@@ -11599,7 +11723,7 @@ L60:
     static integer i__, k, n1, n2, is, iw, iz, iq2, ptr, ldq2, indx, curr;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer indxc, indxp;
     extern /* Subroutine */ int dlaed8_(integer *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, integer *,
@@ -11614,7 +11738,8 @@ L60:
 	    ;
     static integer idlmda;
     extern /* Subroutine */ int dlamrg_(integer *, integer *, doublereal *,
-	    integer *, integer *, integer *), xerbla_(char *, integer *);
+	    integer *, integer *, integer *), xerbla_(char *, integer *,
+	    ftnlen);
     static integer coltyp;
 
 
@@ -11801,7 +11926,7 @@ L60:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAED7", &i__1);
+	xerbla_("DLAED7", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -11883,7 +12008,8 @@ L60:
 	}
 	if (*icompq == 1) {
 	    dgemm_("N", "N", qsiz, &k, &k, &c_b15, &work[iq2], &ldq2, &qstore[
-		    qptr[curr]], &k, &c_b29, &q[q_offset], ldq);
+		    qptr[curr]], &k, &c_b29, &q[q_offset], ldq, (ftnlen)1, (
+		    ftnlen)1);
 	}
 /* Computing 2nd power */
 	i__1 = k;
@@ -11932,11 +12058,13 @@ L30:
 	    doublereal *, integer *, doublereal *, doublereal *), dscal_(
 	    integer *, doublereal *, doublereal *, integer *), dcopy_(integer
 	    *, doublereal *, integer *, doublereal *, integer *);
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     extern integer idamax_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dlamrg_(integer *, integer *, doublereal *,
 	    integer *, integer *, integer *), dlacpy_(char *, integer *,
-	    integer *, doublereal *, integer *, doublereal *, integer *), xerbla_(char *, integer *);
+	    integer *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -12111,7 +12239,7 @@ L30:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAED8", &i__1);
+	xerbla_("DLAED8", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -12201,7 +12329,8 @@ L30:
 			+ 1], &c__1);
 /* L60: */
 	    }
-	    dlacpy_("A", qsiz, n, &q2[q2_dim1 + 1], ldq2, &q[q_dim1 + 1], ldq);
+	    dlacpy_("A", qsiz, n, &q2[q2_dim1 + 1], ldq2, &q[q_dim1 + 1], ldq,
+		     (ftnlen)1);
 	}
 	return 0;
     }
@@ -12358,7 +12487,7 @@ L110:
 	    dcopy_(&i__1, &dlamda[*k + 1], &c__1, &d__[*k + 1], &c__1);
 	    i__1 = *n - *k;
 	    dlacpy_("A", qsiz, &i__1, &q2[(*k + 1) * q2_dim1 + 1], ldq2, &q[(*
-		    k + 1) * q_dim1 + 1], ldq);
+		    k + 1) * q_dim1 + 1], ldq, (ftnlen)1);
 	}
     }
 
@@ -12386,7 +12515,7 @@ L110:
 	    doublereal *, doublereal *, doublereal *, doublereal *,
 	    doublereal *, integer *);
     extern doublereal dlamc3_(doublereal *, doublereal *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -12498,7 +12627,7 @@ L110:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAED9", &i__1);
+	xerbla_("DLAED9", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -12628,9 +12757,9 @@ L120:
     static integer curr, bsiz1, bsiz2, psiz1, psiz2, zptr1;
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *), dcopy_(integer *,
+	    doublereal *, doublereal *, integer *, ftnlen), dcopy_(integer *,
 	    doublereal *, integer *, doublereal *, integer *), xerbla_(char *,
-	     integer *);
+	     integer *, ftnlen);
 
 
 /*
@@ -12740,7 +12869,7 @@ L120:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAEDA", &i__1);
+	xerbla_("DLAEDA", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -12850,13 +12979,14 @@ L120:
 		) + .5);
 	if (bsiz1 > 0) {
 	    dgemv_("T", &bsiz1, &bsiz1, &c_b15, &q[qptr[curr]], &bsiz1, &
-		    ztemp[1], &c__1, &c_b29, &z__[zptr1], &c__1);
+		    ztemp[1], &c__1, &c_b29, &z__[zptr1], &c__1, (ftnlen)1);
 	}
 	i__2 = psiz1 - bsiz1;
 	dcopy_(&i__2, &ztemp[bsiz1 + 1], &c__1, &z__[zptr1 + bsiz1], &c__1);
 	if (bsiz2 > 0) {
 	    dgemv_("T", &bsiz2, &bsiz2, &c_b15, &q[qptr[curr + 1]], &bsiz2, &
-		    ztemp[psiz1 + 1], &c__1, &c_b29, &z__[mid], &c__1);
+		    ztemp[psiz1 + 1], &c__1, &c_b29, &z__[mid], &c__1, (
+		    ftnlen)1);
 	}
 	i__2 = psiz2 - bsiz2;
 	dcopy_(&i__2, &ztemp[psiz1 + bsiz2 + 1], &c__1, &z__[mid + bsiz2], &
@@ -13070,14 +13200,14 @@ L120:
 	    logical *, logical *, integer *, integer *, integer *, doublereal
 	    *, integer *, doublereal *, integer *, doublereal *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *);
-    extern doublereal dlamch_(char *), dlange_(char *, integer *,
-	    integer *, doublereal *, integer *, doublereal *);
+    extern doublereal dlamch_(char *, ftnlen), dlange_(char *, integer *,
+	    integer *, doublereal *, integer *, doublereal *, ftnlen);
     extern /* Subroutine */ int dlarfg_(integer *, doublereal *, doublereal *,
 	     integer *, doublereal *), dlacpy_(char *, integer *, integer *,
-	    doublereal *, integer *, doublereal *, integer *),
+	    doublereal *, integer *, doublereal *, integer *, ftnlen),
 	    dlartg_(doublereal *, doublereal *, doublereal *, doublereal *,
 	    doublereal *), dlarfx_(char *, integer *, integer *, doublereal *,
-	     doublereal *, doublereal *, integer *, doublereal *);
+	     doublereal *, doublereal *, integer *, doublereal *, ftnlen);
     static doublereal thresh, smlnum;
 
 
@@ -13217,8 +13347,9 @@ L120:
 */
 
 	nd = *n1 + *n2;
-	dlacpy_("Full", &nd, &nd, &t[*j1 + *j1 * t_dim1], ldt, d__, &c__4);
-	dnorm = dlange_("Max", &nd, &nd, d__, &c__4, &work[1]);
+	dlacpy_("Full", &nd, &nd, &t[*j1 + *j1 * t_dim1], ldt, d__, &c__4, (
+		ftnlen)4);
+	dnorm = dlange_("Max", &nd, &nd, d__, &c__4, &work[1], (ftnlen)3);
 
 /*
           Compute machine-dependent threshold for test for accepting
@@ -13263,8 +13394,8 @@ L10:
 
 /*        Perform swap provisionally on diagonal block in D. */
 
-	dlarfx_("L", &c__3, &c__3, u, &tau, d__, &c__4, &work[1]);
-	dlarfx_("R", &c__3, &c__3, u, &tau, d__, &c__4, &work[1]);
+	dlarfx_("L", &c__3, &c__3, u, &tau, d__, &c__4, &work[1], (ftnlen)1);
+	dlarfx_("R", &c__3, &c__3, u, &tau, d__, &c__4, &work[1], (ftnlen)1);
 
 /*
           Test whether to reject swap.
@@ -13281,8 +13412,9 @@ L10:
 
 	i__1 = *n - *j1 + 1;
 	dlarfx_("L", &c__3, &i__1, u, &tau, &t[*j1 + *j1 * t_dim1], ldt, &
-		work[1]);
-	dlarfx_("R", &j2, &c__3, u, &tau, &t[*j1 * t_dim1 + 1], ldt, &work[1]);
+		work[1], (ftnlen)1);
+	dlarfx_("R", &j2, &c__3, u, &tau, &t[*j1 * t_dim1 + 1], ldt, &work[1],
+		 (ftnlen)1);
 
 	t[j3 + *j1 * t_dim1] = 0.;
 	t[j3 + j2 * t_dim1] = 0.;
@@ -13293,7 +13425,7 @@ L10:
 /*           Accumulate transformation in the matrix Q. */
 
 	    dlarfx_("R", n, &c__3, u, &tau, &q[*j1 * q_dim1 + 1], ldq, &work[
-		    1]);
+		    1], (ftnlen)1);
 	}
 	goto L40;
 
@@ -13316,8 +13448,8 @@ L20:
 
 /*        Perform swap provisionally on diagonal block in D. */
 
-	dlarfx_("L", &c__3, &c__3, u, &tau, d__, &c__4, &work[1]);
-	dlarfx_("R", &c__3, &c__3, u, &tau, d__, &c__4, &work[1]);
+	dlarfx_("L", &c__3, &c__3, u, &tau, d__, &c__4, &work[1], (ftnlen)1);
+	dlarfx_("R", &c__3, &c__3, u, &tau, d__, &c__4, &work[1], (ftnlen)1);
 
 /*
           Test whether to reject swap.
@@ -13332,10 +13464,11 @@ L20:
 
 /*        Accept swap: apply transformation to the entire matrix T. */
 
-	dlarfx_("R", &j3, &c__3, u, &tau, &t[*j1 * t_dim1 + 1], ldt, &work[1]);
+	dlarfx_("R", &j3, &c__3, u, &tau, &t[*j1 * t_dim1 + 1], ldt, &work[1],
+		 (ftnlen)1);
 	i__1 = *n - *j1;
 	dlarfx_("L", &c__3, &i__1, u, &tau, &t[*j1 + j2 * t_dim1], ldt, &work[
-		1]);
+		1], (ftnlen)1);
 
 	t[*j1 + *j1 * t_dim1] = t33;
 	t[j2 + *j1 * t_dim1] = 0.;
@@ -13346,7 +13479,7 @@ L20:
 /*           Accumulate transformation in the matrix Q. */
 
 	    dlarfx_("R", n, &c__3, u, &tau, &q[*j1 * q_dim1 + 1], ldq, &work[
-		    1]);
+		    1], (ftnlen)1);
 	}
 	goto L40;
 
@@ -13377,12 +13510,14 @@ L30:
 
 /*        Perform swap provisionally on diagonal block in D. */
 
-	dlarfx_("L", &c__3, &c__4, u1, &tau1, d__, &c__4, &work[1])
+	dlarfx_("L", &c__3, &c__4, u1, &tau1, d__, &c__4, &work[1], (ftnlen)1)
 		;
-	dlarfx_("R", &c__4, &c__3, u1, &tau1, d__, &c__4, &work[1])
+	dlarfx_("R", &c__4, &c__3, u1, &tau1, d__, &c__4, &work[1], (ftnlen)1)
 		;
-	dlarfx_("L", &c__3, &c__4, u2, &tau2, &d__[1], &c__4, &work[1]);
-	dlarfx_("R", &c__4, &c__3, u2, &tau2, &d__[4], &c__4, &work[1]);
+	dlarfx_("L", &c__3, &c__4, u2, &tau2, &d__[1], &c__4, &work[1], (
+		ftnlen)1);
+	dlarfx_("R", &c__4, &c__3, u2, &tau2, &d__[4], &c__4, &work[1], (
+		ftnlen)1);
 
 /*
           Test whether to reject swap.
@@ -13399,14 +13534,14 @@ L30:
 
 	i__1 = *n - *j1 + 1;
 	dlarfx_("L", &c__3, &i__1, u1, &tau1, &t[*j1 + *j1 * t_dim1], ldt, &
-		work[1]);
+		work[1], (ftnlen)1);
 	dlarfx_("R", &j4, &c__3, u1, &tau1, &t[*j1 * t_dim1 + 1], ldt, &work[
-		1]);
+		1], (ftnlen)1);
 	i__1 = *n - *j1 + 1;
 	dlarfx_("L", &c__3, &i__1, u2, &tau2, &t[j2 + *j1 * t_dim1], ldt, &
-		work[1]);
+		work[1], (ftnlen)1);
 	dlarfx_("R", &j4, &c__3, u2, &tau2, &t[j2 * t_dim1 + 1], ldt, &work[1]
-		);
+		, (ftnlen)1);
 
 	t[j3 + *j1 * t_dim1] = 0.;
 	t[j3 + j2 * t_dim1] = 0.;
@@ -13418,9 +13553,9 @@ L30:
 /*           Accumulate transformation in the matrix Q. */
 
 	    dlarfx_("R", n, &c__3, u1, &tau1, &q[*j1 * q_dim1 + 1], ldq, &
-		    work[1]);
+		    work[1], (ftnlen)1);
 	    dlarfx_("R", n, &c__3, u2, &tau2, &q[j2 * q_dim1 + 1], ldq, &work[
-		    1]);
+		    1], (ftnlen)1);
 	}
 
 L40:
@@ -14119,18 +14254,19 @@ L160:
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *), dgemm_(char *, char *, integer *, integer *, integer *
 	    , doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *), dgemv_(
+	    doublereal *, doublereal *, integer *, ftnlen, ftnlen), dgemv_(
 	    char *, integer *, integer *, doublereal *, doublereal *, integer
-	    *, doublereal *, integer *, doublereal *, doublereal *, integer *), dcopy_(integer *, doublereal *, integer *, doublereal *,
+	    *, doublereal *, integer *, doublereal *, doublereal *, integer *,
+	     ftnlen), dcopy_(integer *, doublereal *, integer *, doublereal *,
 	     integer *), dtrmm_(char *, char *, char *, char *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *), daxpy_(integer *,
+	    integer *, ftnlen, ftnlen, ftnlen, ftnlen), daxpy_(integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *),
 	    dtrmv_(char *, char *, char *, integer *, doublereal *, integer *,
-	     doublereal *, integer *), dlarfg_(
+	     doublereal *, integer *, ftnlen, ftnlen, ftnlen), dlarfg_(
 	    integer *, doublereal *, doublereal *, integer *, doublereal *),
 	    dlacpy_(char *, integer *, integer *, doublereal *, integer *,
-	    doublereal *, integer *);
+	    doublereal *, integer *, ftnlen);
 
 
 /*
@@ -14278,7 +14414,7 @@ L160:
 	    i__3 = i__ - 1;
 	    dgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b151, &y[*k + 1 + y_dim1],
 		     ldy, &a[*k + i__ - 1 + a_dim1], lda, &c_b15, &a[*k + 1 +
-		    i__ * a_dim1], &c__1);
+		    i__ * a_dim1], &c__1, (ftnlen)12);
 
 /*
              Apply I - V * T' * V' to this column (call it b) from the
@@ -14297,7 +14433,8 @@ L160:
 		    1], &c__1);
 	    i__2 = i__ - 1;
 	    dtrmv_("Lower", "Transpose", "UNIT", &i__2, &a[*k + 1 + a_dim1],
-		    lda, &t[*nb * t_dim1 + 1], &c__1);
+		    lda, &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)9, (
+		    ftnlen)4);
 
 /*           w := w + V2'*b2 */
 
@@ -14305,13 +14442,14 @@ L160:
 	    i__3 = i__ - 1;
 	    dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[*k + i__ + a_dim1],
 		    lda, &a[*k + i__ + i__ * a_dim1], &c__1, &c_b15, &t[*nb *
-		    t_dim1 + 1], &c__1);
+		    t_dim1 + 1], &c__1, (ftnlen)9);
 
 /*           w := T'*w */
 
 	    i__2 = i__ - 1;
 	    dtrmv_("Upper", "Transpose", "NON-UNIT", &i__2, &t[t_offset], ldt,
-		     &t[*nb * t_dim1 + 1], &c__1);
+		     &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)9, (
+		    ftnlen)8);
 
 /*           b2 := b2 - V2*w */
 
@@ -14319,13 +14457,14 @@ L160:
 	    i__3 = i__ - 1;
 	    dgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b151, &a[*k + i__ +
 		    a_dim1], lda, &t[*nb * t_dim1 + 1], &c__1, &c_b15, &a[*k
-		    + i__ + i__ * a_dim1], &c__1);
+		    + i__ + i__ * a_dim1], &c__1, (ftnlen)12);
 
 /*           b1 := b1 - V1*w */
 
 	    i__2 = i__ - 1;
 	    dtrmv_("Lower", "NO TRANSPOSE", "UNIT", &i__2, &a[*k + 1 + a_dim1]
-		    , lda, &t[*nb * t_dim1 + 1], &c__1);
+		    , lda, &t[*nb * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12,
+		     (ftnlen)4);
 	    i__2 = i__ - 1;
 	    daxpy_(&i__2, &c_b151, &t[*nb * t_dim1 + 1], &c__1, &a[*k + 1 +
 		    i__ * a_dim1], &c__1);
@@ -14352,17 +14491,17 @@ L160:
 	i__3 = *n - *k - i__ + 1;
 	dgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b15, &a[*k + 1 + (i__ + 1) *
 		a_dim1], lda, &a[*k + i__ + i__ * a_dim1], &c__1, &c_b29, &y[*
-		k + 1 + i__ * y_dim1], &c__1);
+		k + 1 + i__ * y_dim1], &c__1, (ftnlen)12);
 	i__2 = *n - *k - i__ + 1;
 	i__3 = i__ - 1;
 	dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[*k + i__ + a_dim1], lda,
 		&a[*k + i__ + i__ * a_dim1], &c__1, &c_b29, &t[i__ * t_dim1 +
-		1], &c__1);
+		1], &c__1, (ftnlen)9);
 	i__2 = *n - *k;
 	i__3 = i__ - 1;
 	dgemv_("NO TRANSPOSE", &i__2, &i__3, &c_b151, &y[*k + 1 + y_dim1],
 		ldy, &t[i__ * t_dim1 + 1], &c__1, &c_b15, &y[*k + 1 + i__ *
-		y_dim1], &c__1);
+		y_dim1], &c__1, (ftnlen)12);
 	i__2 = *n - *k;
 	dscal_(&i__2, &tau[i__], &y[*k + 1 + i__ * y_dim1], &c__1);
 
@@ -14373,7 +14512,7 @@ L160:
 	dscal_(&i__2, &d__1, &t[i__ * t_dim1 + 1], &c__1);
 	i__2 = i__ - 1;
 	dtrmv_("Upper", "No Transpose", "NON-UNIT", &i__2, &t[t_offset], ldt,
-		&t[i__ * t_dim1 + 1], &c__1)
+		&t[i__ * t_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)8)
 		;
 	t[i__ + i__ * t_dim1] = tau[i__];
 
@@ -14383,17 +14522,20 @@ L160:
 
 /*     Compute Y(1:K,1:NB) */
 
-    dlacpy_("ALL", k, nb, &a[(a_dim1 << 1) + 1], lda, &y[y_offset], ldy);
+    dlacpy_("ALL", k, nb, &a[(a_dim1 << 1) + 1], lda, &y[y_offset], ldy, (
+	    ftnlen)3);
     dtrmm_("RIGHT", "Lower", "NO TRANSPOSE", "UNIT", k, nb, &c_b15, &a[*k + 1
-	    + a_dim1], lda, &y[y_offset], ldy);
+	    + a_dim1], lda, &y[y_offset], ldy, (ftnlen)5, (ftnlen)5, (ftnlen)
+	    12, (ftnlen)4);
     if (*n > *k + *nb) {
 	i__1 = *n - *k - *nb;
 	dgemm_("NO TRANSPOSE", "NO TRANSPOSE", k, nb, &i__1, &c_b15, &a[(*nb
 		+ 2) * a_dim1 + 1], lda, &a[*k + 1 + *nb + a_dim1], lda, &
-		c_b15, &y[y_offset], ldy);
+		c_b15, &y[y_offset], ldy, (ftnlen)12, (ftnlen)12);
     }
     dtrmm_("RIGHT", "Upper", "NO TRANSPOSE", "NON-UNIT", k, nb, &c_b15, &t[
-	    t_offset], ldt, &y[y_offset], ldy);
+	    t_offset], ldt, &y[y_offset], ldy, (ftnlen)5, (ftnlen)5, (ftnlen)
+	    12, (ftnlen)8);
 
     return 0;
 
@@ -15026,14 +15168,14 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
     static doublereal diflj, difrj, dsigj;
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *), dcopy_(integer *,
+	    doublereal *, doublereal *, integer *, ftnlen), dcopy_(integer *,
 	    doublereal *, integer *, doublereal *, integer *);
     extern doublereal dlamc3_(doublereal *, doublereal *);
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dlacpy_(char *, integer *, integer
-	    *, doublereal *, integer *, doublereal *, integer *),
-	    xerbla_(char *, integer *);
+	    integer *, integer *, ftnlen), dlacpy_(char *, integer *, integer
+	    *, doublereal *, integer *, doublereal *, integer *, ftnlen),
+	    xerbla_(char *, integer *, ftnlen);
     static doublereal dsigjp;
 
 
@@ -15248,7 +15390,7 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLALS0", &i__1);
+	xerbla_("DLALS0", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -15336,9 +15478,9 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
 		work[1] = -1.;
 		temp = dnrm2_(k, &work[1], &c__1);
 		dgemv_("T", k, nrhs, &c_b15, &bx[bx_offset], ldbx, &work[1], &
-			c__1, &c_b29, &b[j + b_dim1], ldb);
+			c__1, &c_b29, &b[j + b_dim1], ldb, (ftnlen)1);
 		dlascl_("G", &c__0, &c__0, &temp, &c_b15, &c__1, nrhs, &b[j +
-			b_dim1], ldb, info);
+			b_dim1], ldb, info, (ftnlen)1);
 /* L50: */
 	    }
 	}
@@ -15348,7 +15490,7 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
 	if (*k < max(m,n)) {
 	    i__1 = n - *k;
 	    dlacpy_("A", &i__1, nrhs, &bx[*k + 1 + bx_dim1], ldbx, &b[*k + 1
-		    + b_dim1], ldb);
+		    + b_dim1], ldb, (ftnlen)1);
 	}
     } else {
 
@@ -15396,7 +15538,7 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
 /* L70: */
 		}
 		dgemv_("T", k, nrhs, &c_b15, &b[b_offset], ldb, &work[1], &
-			c__1, &c_b29, &bx[j + bx_dim1], ldbx);
+			c__1, &c_b29, &bx[j + bx_dim1], ldbx, (ftnlen)1);
 /* L80: */
 	    }
 	}
@@ -15414,7 +15556,7 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
 	if (*k < max(m,n)) {
 	    i__1 = n - *k;
 	    dlacpy_("A", &i__1, nrhs, &b[*k + 1 + b_dim1], ldb, &bx[*k + 1 +
-		    bx_dim1], ldbx);
+		    bx_dim1], ldbx, (ftnlen)1);
 	}
 
 /*        Step (3R): permute rows of B. */
@@ -15467,7 +15609,7 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
 	    ndb1, nlp1, lvl2, nrp1, nlvl, sqre;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer inode, ndiml, ndimr;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *), dlals0_(integer *, integer *, integer *,
@@ -15476,7 +15618,8 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
 	    *, integer *, doublereal *, doublereal *, doublereal *,
 	    doublereal *, integer *, doublereal *, doublereal *, doublereal *,
 	     integer *), dlasdt_(integer *, integer *, integer *, integer *,
-	    integer *, integer *, integer *), xerbla_(char *, integer *);
+	    integer *, integer *, integer *), xerbla_(char *, integer *,
+	    ftnlen);
 
 
 /*
@@ -15689,7 +15832,7 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLALSA", &i__1);
+	xerbla_("DLALSA", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -15737,9 +15880,11 @@ logical dlaisnan_(doublereal *din1, doublereal *din2)
 	nlf = ic - nl;
 	nrf = ic + 1;
 	dgemm_("T", "N", &nl, nrhs, &nl, &c_b15, &u[nlf + u_dim1], ldu, &b[
-		nlf + b_dim1], ldb, &c_b29, &bx[nlf + bx_dim1], ldbx);
+		nlf + b_dim1], ldb, &c_b29, &bx[nlf + bx_dim1], ldbx, (ftnlen)
+		1, (ftnlen)1);
 	dgemm_("T", "N", &nr, nrhs, &nr, &c_b15, &u[nrf + u_dim1], ldu, &b[
-		nrf + b_dim1], ldb, &c_b29, &bx[nrf + bx_dim1], ldbx);
+		nrf + b_dim1], ldb, &c_b29, &bx[nrf + bx_dim1], ldbx, (ftnlen)
+		1, (ftnlen)1);
 /* L10: */
     }
 
@@ -15876,9 +16021,11 @@ L50:
 	nlf = ic - nl;
 	nrf = ic + 1;
 	dgemm_("T", "N", &nlp1, nrhs, &nlp1, &c_b15, &vt[nlf + vt_dim1], ldu,
-		&b[nlf + b_dim1], ldb, &c_b29, &bx[nlf + bx_dim1], ldbx);
+		&b[nlf + b_dim1], ldb, &c_b29, &bx[nlf + bx_dim1], ldbx, (
+		ftnlen)1, (ftnlen)1);
 	dgemm_("T", "N", &nrp1, nrhs, &nrp1, &c_b15, &vt[nrf + vt_dim1], ldu,
-		&b[nrf + b_dim1], ldb, &c_b29, &bx[nrf + bx_dim1], ldbx);
+		&b[nrf + b_dim1], ldb, &c_b29, &bx[nrf + bx_dim1], ldbx, (
+		ftnlen)1, (ftnlen)1);
 /* L80: */
     }
 
@@ -15893,7 +16040,7 @@ L90:
 /* Subroutine */ int dlalsd_(char *uplo, integer *smlsiz, integer *n, integer
 	*nrhs, doublereal *d__, doublereal *e, doublereal *b, integer *ldb,
 	doublereal *rcond, integer *rank, doublereal *work, integer *iwork,
-	integer *info)
+	integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer b_dim1, b_offset, i__1, i__2;
@@ -15918,7 +16065,7 @@ L90:
     static integer nlvl, sqre, bxst;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *),
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen),
 	     dcopy_(integer *, doublereal *, integer *, doublereal *, integer
 	    *);
     static integer poles, sizei, nsize, nwork, icmpq1, icmpq2;
@@ -15935,20 +16082,22 @@ L90:
 	    integer *, doublereal *, doublereal *, doublereal *, doublereal *,
 	     integer *, integer *), dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen);
     extern integer idamax_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dlasdq_(char *, integer *, integer *, integer
 	    *, integer *, integer *, doublereal *, doublereal *, doublereal *,
 	     integer *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *), dlacpy_(char *, integer *,
-	    integer *, doublereal *, integer *, doublereal *, integer *), dlartg_(doublereal *, doublereal *, doublereal *,
+	    doublereal *, integer *, ftnlen), dlacpy_(char *, integer *,
+	    integer *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen), dlartg_(doublereal *, doublereal *, doublereal *,
 	    doublereal *, doublereal *), dlaset_(char *, integer *, integer *,
-	     doublereal *, doublereal *, doublereal *, integer *),
-	    xerbla_(char *, integer *);
+	     doublereal *, doublereal *, doublereal *, integer *, ftnlen),
+	    xerbla_(char *, integer *, ftnlen);
     static integer givcol;
-    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *);
+    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *,
+	    ftnlen);
     extern /* Subroutine */ int dlasrt_(char *, integer *, doublereal *,
-	    integer *);
+	    integer *, ftnlen);
     static doublereal orgnrm;
     static integer givnum, givptr, smlszp;
 
@@ -16077,7 +16226,7 @@ L90:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLALSD", &i__1);
+	xerbla_("DLALSD", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -16099,11 +16248,12 @@ L90:
 	return 0;
     } else if (*n == 1) {
 	if (d__[1] == 0.) {
-	    dlaset_("A", &c__1, nrhs, &c_b29, &c_b29, &b[b_offset], ldb);
+	    dlaset_("A", &c__1, nrhs, &c_b29, &c_b29, &b[b_offset], ldb, (
+		    ftnlen)1);
 	} else {
 	    *rank = 1;
 	    dlascl_("G", &c__0, &c__0, &d__[1], &c_b15, &c__1, nrhs, &b[
-		    b_offset], ldb, info);
+		    b_offset], ldb, info, (ftnlen)1);
 	    d__[1] = abs(d__[1]);
 	}
 	return 0;
@@ -16146,15 +16296,16 @@ L90:
 /*     Scale. */
 
     nm1 = *n - 1;
-    orgnrm = dlanst_("M", n, &d__[1], &e[1]);
+    orgnrm = dlanst_("M", n, &d__[1], &e[1], (ftnlen)1);
     if (orgnrm == 0.) {
-	dlaset_("A", n, nrhs, &c_b29, &c_b29, &b[b_offset], ldb);
+	dlaset_("A", n, nrhs, &c_b29, &c_b29, &b[b_offset], ldb, (ftnlen)1);
 	return 0;
     }
 
-    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, &c__1, &d__[1], n, info);
+    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, &c__1, &d__[1], n, info, (
+	    ftnlen)1);
     dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &nm1, &c__1, &e[1], &nm1,
-	    info);
+	    info, (ftnlen)1);
 
 /*
        If N is smaller than the minimum divide size SMLSIZ, then solve
@@ -16163,9 +16314,9 @@ L90:
 
     if (*n <= *smlsiz) {
 	nwork = *n * *n + 1;
-	dlaset_("A", n, n, &c_b29, &c_b15, &work[1], n);
+	dlaset_("A", n, n, &c_b29, &c_b15, &work[1], n, (ftnlen)1);
 	dlasdq_("U", &c__0, n, n, &c__0, nrhs, &d__[1], &e[1], &work[1], n, &
-		work[1], n, &b[b_offset], ldb, &work[nwork], info);
+		work[1], n, &b[b_offset], ldb, &work[nwork], info, (ftnlen)1);
 	if (*info != 0) {
 	    return 0;
 	}
@@ -16174,25 +16325,25 @@ L90:
 	for (i__ = 1; i__ <= i__1; ++i__) {
 	    if (d__[i__] <= tol) {
 		dlaset_("A", &c__1, nrhs, &c_b29, &c_b29, &b[i__ + b_dim1],
-			ldb);
+			ldb, (ftnlen)1);
 	    } else {
 		dlascl_("G", &c__0, &c__0, &d__[i__], &c_b15, &c__1, nrhs, &b[
-			i__ + b_dim1], ldb, info);
+			i__ + b_dim1], ldb, info, (ftnlen)1);
 		++(*rank);
 	    }
 /* L40: */
 	}
 	dgemm_("T", "N", n, nrhs, n, &c_b15, &work[1], n, &b[b_offset], ldb, &
-		c_b29, &work[nwork], n);
-	dlacpy_("A", n, nrhs, &work[nwork], n, &b[b_offset], ldb);
+		c_b29, &work[nwork], n, (ftnlen)1, (ftnlen)1);
+	dlacpy_("A", n, nrhs, &work[nwork], n, &b[b_offset], ldb, (ftnlen)1);
 
 /*        Unscale. */
 
 	dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n,
-		info);
-	dlasrt_("D", n, &d__[1], info);
+		info, (ftnlen)1);
+	dlasrt_("D", n, &d__[1], info, (ftnlen)1);
 	dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, nrhs, &b[b_offset],
-		ldb, info);
+		ldb, info, (ftnlen)1);
 
 	return 0;
     }
@@ -16289,15 +16440,15 @@ L90:
 /*              This is a small subproblem and is solved by DLASDQ. */
 
 		dlaset_("A", &nsize, &nsize, &c_b29, &c_b15, &work[vt + st1],
-			n);
+			n, (ftnlen)1);
 		dlasdq_("U", &c__0, &nsize, &nsize, &c__0, nrhs, &d__[st], &e[
 			st], &work[vt + st1], n, &work[nwork], n, &b[st +
-			b_dim1], ldb, &work[nwork], info);
+			b_dim1], ldb, &work[nwork], info, (ftnlen)1);
 		if (*info != 0) {
 		    return 0;
 		}
 		dlacpy_("A", &nsize, nrhs, &b[st + b_dim1], ldb, &work[bx +
-			st1], n);
+			st1], n, (ftnlen)1);
 	    } else {
 
 /*              A large problem. Solve it using divide and conquer. */
@@ -16342,11 +16493,12 @@ L90:
 */
 
 	if ((d__1 = d__[i__], abs(d__1)) <= tol) {
-	    dlaset_("A", &c__1, nrhs, &c_b29, &c_b29, &work[bx + i__ - 1], n);
+	    dlaset_("A", &c__1, nrhs, &c_b29, &c_b29, &work[bx + i__ - 1], n,
+		    (ftnlen)1);
 	} else {
 	    ++(*rank);
 	    dlascl_("G", &c__0, &c__0, &d__[i__], &c_b15, &c__1, nrhs, &work[
-		    bx + i__ - 1], n, info);
+		    bx + i__ - 1], n, info, (ftnlen)1);
 	}
 	d__[i__] = (d__1 = d__[i__], abs(d__1));
 /* L70: */
@@ -16365,7 +16517,8 @@ L90:
 	    dcopy_(nrhs, &work[bxst], n, &b[st + b_dim1], ldb);
 	} else if (nsize <= *smlsiz) {
 	    dgemm_("T", "N", &nsize, nrhs, &nsize, &c_b15, &work[vt + st1], n,
-		     &work[bxst], n, &c_b29, &b[st + b_dim1], ldb);
+		     &work[bxst], n, &c_b29, &b[st + b_dim1], ldb, (ftnlen)1,
+		    (ftnlen)1);
 	} else {
 	    dlalsa_(&icmpq2, smlsiz, &nsize, nrhs, &work[bxst], n, &b[st +
 		    b_dim1], ldb, &work[u + st1], n, &work[vt + st1], &iwork[
@@ -16383,10 +16536,11 @@ L90:
 
 /*     Unscale and sort the singular values. */
 
-    dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n, info);
-    dlasrt_("D", n, &d__[1], info);
+    dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, n, &c__1, &d__[1], n, info, (
+	    ftnlen)1);
+    dlasrt_("D", n, &d__[1], info, (ftnlen)1);
     dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, n, nrhs, &b[b_offset], ldb,
-	    info);
+	    info, (ftnlen)1);
 
     return 0;
 
@@ -16508,7 +16662,7 @@ L10:
 } /* dlamrg_ */
 
 doublereal dlange_(char *norm, integer *m, integer *n, doublereal *a, integer
-	*lda, doublereal *work)
+	*lda, doublereal *work, ftnlen norm_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -16517,7 +16671,7 @@ doublereal dlange_(char *norm, integer *m, integer *n, doublereal *a, integer
     /* Local variables */
     static integer i__, j;
     static doublereal sum, scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal value;
     extern /* Subroutine */ int dlassq_(integer *, doublereal *, integer *,
 	    doublereal *, doublereal *);
@@ -16593,7 +16747,7 @@ doublereal dlange_(char *norm, integer *m, integer *n, doublereal *a, integer
     /* Function Body */
     if (min(*m,*n) == 0) {
 	value = 0.;
-    } else if (lsame_(norm, "M")) {
+    } else if (lsame_(norm, "M", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find max(abs(A(i,j))). */
 
@@ -16609,7 +16763,7 @@ doublereal dlange_(char *norm, integer *m, integer *n, doublereal *a, integer
 	    }
 /* L20: */
 	}
-    } else if (lsame_(norm, "O") || *(unsigned char *)
+    } else if (lsame_(norm, "O", (ftnlen)1, (ftnlen)1) || *(unsigned char *)
 	    norm == '1') {
 
 /*        Find norm1(A). */
@@ -16626,7 +16780,7 @@ doublereal dlange_(char *norm, integer *m, integer *n, doublereal *a, integer
 	    value = max(value,sum);
 /* L40: */
 	}
-    } else if (lsame_(norm, "I")) {
+    } else if (lsame_(norm, "I", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find normI(A). */
 
@@ -16652,7 +16806,8 @@ doublereal dlange_(char *norm, integer *m, integer *n, doublereal *a, integer
 	    value = max(d__1,d__2);
 /* L80: */
 	}
-    } else if (lsame_(norm, "F") || lsame_(norm, "E")) {
+    } else if (lsame_(norm, "F", (ftnlen)1, (ftnlen)1) || lsame_(norm, "E", (
+	    ftnlen)1, (ftnlen)1)) {
 
 /*        Find normF(A). */
 
@@ -16673,7 +16828,8 @@ doublereal dlange_(char *norm, integer *m, integer *n, doublereal *a, integer
 
 } /* dlange_ */
 
-doublereal dlanst_(char *norm, integer *n, doublereal *d__, doublereal *e)
+doublereal dlanst_(char *norm, integer *n, doublereal *d__, doublereal *e,
+	ftnlen norm_len)
 {
     /* System generated locals */
     integer i__1;
@@ -16682,7 +16838,7 @@ doublereal dlanst_(char *norm, integer *n, doublereal *d__, doublereal *e)
     /* Local variables */
     static integer i__;
     static doublereal sum, scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal anorm;
     extern /* Subroutine */ int dlassq_(integer *, doublereal *, integer *,
 	    doublereal *, doublereal *);
@@ -16748,7 +16904,7 @@ doublereal dlanst_(char *norm, integer *n, doublereal *d__, doublereal *e)
     /* Function Body */
     if (*n <= 0) {
 	anorm = 0.;
-    } else if (lsame_(norm, "M")) {
+    } else if (lsame_(norm, "M", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find max(abs(A(i,j))). */
 
@@ -16763,8 +16919,8 @@ doublereal dlanst_(char *norm, integer *n, doublereal *d__, doublereal *e)
 	    anorm = max(d__2,d__3);
 /* L10: */
 	}
-    } else if (lsame_(norm, "O") || *(unsigned char *)
-	    norm == '1' || lsame_(norm, "I")) {
+    } else if (lsame_(norm, "O", (ftnlen)1, (ftnlen)1) || *(unsigned char *)
+	    norm == '1' || lsame_(norm, "I", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find norm1(A). */
 
@@ -16784,7 +16940,8 @@ doublereal dlanst_(char *norm, integer *n, doublereal *d__, doublereal *e)
 /* L20: */
 	    }
 	}
-    } else if (lsame_(norm, "F") || lsame_(norm, "E")) {
+    } else if (lsame_(norm, "F", (ftnlen)1, (ftnlen)1) || lsame_(norm, "E", (
+	    ftnlen)1, (ftnlen)1)) {
 
 /*        Find normF(A). */
 
@@ -16807,7 +16964,7 @@ doublereal dlanst_(char *norm, integer *n, doublereal *d__, doublereal *e)
 } /* dlanst_ */
 
 doublereal dlansy_(char *norm, char *uplo, integer *n, doublereal *a, integer
-	*lda, doublereal *work)
+	*lda, doublereal *work, ftnlen norm_len, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -16816,7 +16973,7 @@ doublereal dlansy_(char *norm, char *uplo, integer *n, doublereal *a, integer
     /* Local variables */
     static integer i__, j;
     static doublereal sum, absa, scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal value;
     extern /* Subroutine */ int dlassq_(integer *, doublereal *, integer *,
 	    doublereal *, doublereal *);
@@ -16900,12 +17057,12 @@ doublereal dlansy_(char *norm, char *uplo, integer *n, doublereal *a, integer
     /* Function Body */
     if (*n == 0) {
 	value = 0.;
-    } else if (lsame_(norm, "M")) {
+    } else if (lsame_(norm, "M", (ftnlen)1, (ftnlen)1)) {
 
 /*        Find max(abs(A(i,j))). */
 
 	value = 0.;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		i__2 = j;
@@ -16932,12 +17089,13 @@ doublereal dlansy_(char *norm, char *uplo, integer *n, doublereal *a, integer
 /* L40: */
 	    }
 	}
-    } else if (lsame_(norm, "I") || lsame_(norm, "O") || *(unsigned char *)norm == '1') {
+    } else if (lsame_(norm, "I", (ftnlen)1, (ftnlen)1) || lsame_(norm, "O", (
+	    ftnlen)1, (ftnlen)1) || *(unsigned char *)norm == '1') {
 
 /*        Find normI(A) ( = norm1(A), since A is symmetric). */
 
 	value = 0.;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 1; j <= i__1; ++j) {
 		sum = 0.;
@@ -16978,13 +17136,14 @@ doublereal dlansy_(char *norm, char *uplo, integer *n, doublereal *a, integer
 /* L100: */
 	    }
 	}
-    } else if (lsame_(norm, "F") || lsame_(norm, "E")) {
+    } else if (lsame_(norm, "F", (ftnlen)1, (ftnlen)1) || lsame_(norm, "E", (
+	    ftnlen)1, (ftnlen)1)) {
 
 /*        Find normF(A). */
 
 	scale = 0.;
 	sum = 1.;
-	if (lsame_(uplo, "U")) {
+	if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	    i__1 = *n;
 	    for (j = 2; j <= i__1; ++j) {
 		i__2 = j - 1;
@@ -17022,7 +17181,8 @@ doublereal dlansy_(char *norm, char *uplo, integer *n, doublereal *a, integer
     /* Local variables */
     static doublereal p, z__, aa, bb, cc, dd, cs1, sn1, sab, sac, eps, tau,
 	    temp, scale, bcmax, bcmis, sigma;
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
 
 
 /*
@@ -17384,7 +17544,7 @@ doublereal dlapy3_(doublereal *x, doublereal *y, doublereal *z__)
 	    integer *, integer *, doublereal *, integer *, doublereal *,
 	    doublereal *, integer *, integer *, doublereal *, integer *,
 	    integer *), dlacpy_(char *, integer *, integer *, doublereal *,
-	    integer *, doublereal *, integer *);
+	    integer *, doublereal *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static char jbcmpz[2];
@@ -17918,7 +18078,7 @@ L20:
 			ks = kbot - ns + 1;
 			kt = *n - ns + 1;
 			dlacpy_("A", &ns, &ns, &h__[ks + ks * h_dim1], ldh, &
-				h__[kt + h_dim1], ldh);
+				h__[kt + h_dim1], ldh, (ftnlen)1);
 			if (ns > nmin) {
 			    dlaqr4_(&c_false, &c_false, &ns, &c__1, &ns, &h__[
 				    kt + h_dim1], ldh, &wr[ks], &wi[ks], &
@@ -18234,9 +18394,9 @@ L90:
     static integer kend, kcol, info, ifst, ilst, ltop, krow;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *), dgemm_(char *, char *, integer *, integer *
+	    doublereal *, ftnlen), dgemm_(char *, char *, integer *, integer *
 	    , integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static logical bulge;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
@@ -18253,17 +18413,17 @@ L90:
 	     integer *, integer *, doublereal *, integer *, doublereal *,
 	    doublereal *, integer *, integer *, doublereal *, integer *,
 	    integer *), dlacpy_(char *, integer *, integer *, doublereal *,
-	    integer *, doublereal *, integer *);
+	    integer *, doublereal *, integer *, ftnlen);
     static doublereal safmin;
     extern /* Subroutine */ int dlaset_(char *, integer *, integer *,
-	    doublereal *, doublereal *, doublereal *, integer *);
+	    doublereal *, doublereal *, doublereal *, integer *, ftnlen);
     static doublereal safmax;
     extern /* Subroutine */ int dtrexc_(char *, integer *, doublereal *,
 	    integer *, doublereal *, integer *, integer *, integer *,
-	    doublereal *, integer *), dormhr_(char *, char *, integer
+	    doublereal *, integer *, ftnlen), dormhr_(char *, char *, integer
 	    *, integer *, integer *, integer *, doublereal *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
     static logical sorted;
     static doublereal smlnum;
     static integer lwkopt;
@@ -18459,7 +18619,8 @@ L90:
 
 	i__1 = jw - 1;
 	dormhr_("R", "N", &jw, &jw, &c__1, &i__1, &t[t_offset], ldt, &work[1],
-		 &v[v_offset], ldv, &work[1], &c_n1, &info);
+		 &v[v_offset], ldv, &work[1], &c_n1, &info, (ftnlen)1, (
+		ftnlen)1);
 	lwk2 = (integer) work[1];
 
 /*        ==== Optimal workspace ==== */
@@ -18542,14 +18703,14 @@ L90:
 */
 
     dlacpy_("U", &jw, &jw, &h__[kwtop + kwtop * h_dim1], ldh, &t[t_offset],
-	    ldt);
+	    ldt, (ftnlen)1);
     i__1 = jw - 1;
     i__2 = *ldh + 1;
     i__3 = *ldt + 1;
     dcopy_(&i__1, &h__[kwtop + 1 + kwtop * h_dim1], &i__2, &t[t_dim1 + 2], &
 	    i__3);
 
-    dlaset_("A", &jw, &jw, &c_b29, &c_b15, &v[v_offset], ldv);
+    dlaset_("A", &jw, &jw, &c_b29, &c_b15, &v[v_offset], ldv, (ftnlen)1);
     dlahqr_(&c_true, &c_true, &jw, &c__1, &jw, &t[t_offset], ldt, &sr[kwtop],
 	    &si[kwtop], &c__1, &jw, &v[v_offset], ldv, &infqr);
 
@@ -18604,7 +18765,7 @@ L20:
 
 		ifst = *ns;
 		dtrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		++ilst;
 	    }
 	} else {
@@ -18637,7 +18798,7 @@ L20:
 
 		ifst = *ns;
 		dtrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		ilst += 2;
 	    }
 	}
@@ -18705,7 +18866,7 @@ L40:
 		ifst = i__;
 		ilst = k;
 		dtrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		if (info == 0) {
 		    i__ = ilst;
 		} else {
@@ -18764,14 +18925,15 @@ L60:
 
 	    i__1 = jw - 2;
 	    i__2 = jw - 2;
-	    dlaset_("L", &i__1, &i__2, &c_b29, &c_b29, &t[t_dim1 + 3], ldt);
+	    dlaset_("L", &i__1, &i__2, &c_b29, &c_b29, &t[t_dim1 + 3], ldt, (
+		    ftnlen)1);
 
 	    dlarf_("L", ns, &jw, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    dlarf_("R", ns, ns, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    dlarf_("R", &jw, ns, &work[1], &c__1, &tau, &v[v_offset], ldv, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 
 	    i__1 = *lwork - jw;
 	    dgehrd_(&jw, &c__1, ns, &t[t_offset], ldt, &work[1], &work[jw + 1]
@@ -18784,7 +18946,7 @@ L60:
 	    h__[kwtop + (kwtop - 1) * h_dim1] = s * v[v_dim1 + 1];
 	}
 	dlacpy_("U", &jw, &jw, &t[t_offset], ldt, &h__[kwtop + kwtop * h_dim1]
-		, ldh);
+		, ldh, (ftnlen)1);
 	i__1 = jw - 1;
 	i__2 = *ldt + 1;
 	i__3 = *ldh + 1;
@@ -18799,7 +18961,8 @@ L60:
 	if (*ns > 1 && s != 0.) {
 	    i__1 = *lwork - jw;
 	    dormhr_("R", "N", &jw, ns, &c__1, ns, &t[t_offset], ldt, &work[1],
-		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info);
+		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info, (ftnlen)
+		    1, (ftnlen)1);
 	}
 
 /*        ==== Update vertical slab in H ==== */
@@ -18818,9 +18981,9 @@ L60:
 	    kln = min(i__3,i__4);
 	    dgemm_("N", "N", &kln, &jw, &jw, &c_b15, &h__[krow + kwtop *
 		    h_dim1], ldh, &v[v_offset], ldv, &c_b29, &wv[wv_offset],
-		    ldwv);
+		    ldwv, (ftnlen)1, (ftnlen)1);
 	    dlacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &h__[krow + kwtop *
-		    h_dim1], ldh);
+		    h_dim1], ldh, (ftnlen)1);
 /* L70: */
 	}
 
@@ -18836,9 +18999,9 @@ L60:
 		kln = min(i__3,i__4);
 		dgemm_("C", "N", &jw, &kln, &jw, &c_b15, &v[v_offset], ldv, &
 			h__[kwtop + kcol * h_dim1], ldh, &c_b29, &t[t_offset],
-			 ldt);
+			 ldt, (ftnlen)1, (ftnlen)1);
 		dlacpy_("A", &jw, &kln, &t[t_offset], ldt, &h__[kwtop + kcol *
-			 h_dim1], ldh);
+			 h_dim1], ldh, (ftnlen)1);
 /* L80: */
 	    }
 	}
@@ -18855,9 +19018,9 @@ L60:
 		kln = min(i__3,i__4);
 		dgemm_("N", "N", &kln, &jw, &jw, &c_b15, &z__[krow + kwtop *
 			z_dim1], ldz, &v[v_offset], ldv, &c_b29, &wv[
-			wv_offset], ldwv);
+			wv_offset], ldwv, (ftnlen)1, (ftnlen)1);
 		dlacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &z__[krow +
-			kwtop * z_dim1], ldz);
+			kwtop * z_dim1], ldz, (ftnlen)1);
 /* L90: */
 	    }
 	}
@@ -18910,9 +19073,9 @@ L60:
     static integer kend, kcol, info, nmin, ifst, ilst, ltop, krow;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *), dgemm_(char *, char *, integer *, integer *
+	    doublereal *, ftnlen), dgemm_(char *, char *, integer *, integer *
 	    , integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static logical bulge;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
@@ -18932,18 +19095,18 @@ L60:
 	     integer *, integer *, doublereal *, integer *, doublereal *,
 	    doublereal *, integer *, integer *, doublereal *, integer *,
 	    integer *), dlacpy_(char *, integer *, integer *, doublereal *,
-	    integer *, doublereal *, integer *);
+	    integer *, doublereal *, integer *, ftnlen);
     static doublereal safmin;
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static doublereal safmax;
     extern /* Subroutine */ int dlaset_(char *, integer *, integer *,
-	    doublereal *, doublereal *, doublereal *, integer *),
+	    doublereal *, doublereal *, doublereal *, integer *, ftnlen),
 	    dtrexc_(char *, integer *, doublereal *, integer *, doublereal *,
-	    integer *, integer *, integer *, doublereal *, integer *),
+	    integer *, integer *, integer *, doublereal *, integer *, ftnlen),
 	     dormhr_(char *, char *, integer *, integer *, integer *, integer
 	    *, doublereal *, integer *, doublereal *, doublereal *, integer *,
-	     doublereal *, integer *, integer *);
+	     doublereal *, integer *, integer *, ftnlen, ftnlen);
     static logical sorted;
     static doublereal smlnum;
     static integer lwkopt;
@@ -19135,7 +19298,8 @@ L60:
 
 	i__1 = jw - 1;
 	dormhr_("R", "N", &jw, &jw, &c__1, &i__1, &t[t_offset], ldt, &work[1],
-		 &v[v_offset], ldv, &work[1], &c_n1, &info);
+		 &v[v_offset], ldv, &work[1], &c_n1, &info, (ftnlen)1, (
+		ftnlen)1);
 	lwk2 = (integer) work[1];
 
 /*        ==== Workspace query call to DLAQR4 ==== */
@@ -19229,14 +19393,14 @@ L60:
 */
 
     dlacpy_("U", &jw, &jw, &h__[kwtop + kwtop * h_dim1], ldh, &t[t_offset],
-	    ldt);
+	    ldt, (ftnlen)1);
     i__1 = jw - 1;
     i__2 = *ldh + 1;
     i__3 = *ldt + 1;
     dcopy_(&i__1, &h__[kwtop + 1 + kwtop * h_dim1], &i__2, &t[t_dim1 + 2], &
 	    i__3);
 
-    dlaset_("A", &jw, &jw, &c_b29, &c_b15, &v[v_offset], ldv);
+    dlaset_("A", &jw, &jw, &c_b29, &c_b15, &v[v_offset], ldv, (ftnlen)1);
     nmin = ilaenv_(&c__12, "DLAQR3", "SV", &jw, &c__1, &jw, lwork, (ftnlen)6,
 	    (ftnlen)2);
     if (jw > nmin) {
@@ -19299,7 +19463,7 @@ L20:
 
 		ifst = *ns;
 		dtrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		++ilst;
 	    }
 	} else {
@@ -19332,7 +19496,7 @@ L20:
 
 		ifst = *ns;
 		dtrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		ilst += 2;
 	    }
 	}
@@ -19400,7 +19564,7 @@ L40:
 		ifst = i__;
 		ilst = k;
 		dtrexc_("V", &jw, &t[t_offset], ldt, &v[v_offset], ldv, &ifst,
-			 &ilst, &work[1], &info);
+			 &ilst, &work[1], &info, (ftnlen)1);
 		if (info == 0) {
 		    i__ = ilst;
 		} else {
@@ -19459,14 +19623,15 @@ L60:
 
 	    i__1 = jw - 2;
 	    i__2 = jw - 2;
-	    dlaset_("L", &i__1, &i__2, &c_b29, &c_b29, &t[t_dim1 + 3], ldt);
+	    dlaset_("L", &i__1, &i__2, &c_b29, &c_b29, &t[t_dim1 + 3], ldt, (
+		    ftnlen)1);
 
 	    dlarf_("L", ns, &jw, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    dlarf_("R", ns, ns, &work[1], &c__1, &tau, &t[t_offset], ldt, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 	    dlarf_("R", &jw, ns, &work[1], &c__1, &tau, &v[v_offset], ldv, &
-		    work[jw + 1]);
+		    work[jw + 1], (ftnlen)1);
 
 	    i__1 = *lwork - jw;
 	    dgehrd_(&jw, &c__1, ns, &t[t_offset], ldt, &work[1], &work[jw + 1]
@@ -19479,7 +19644,7 @@ L60:
 	    h__[kwtop + (kwtop - 1) * h_dim1] = s * v[v_dim1 + 1];
 	}
 	dlacpy_("U", &jw, &jw, &t[t_offset], ldt, &h__[kwtop + kwtop * h_dim1]
-		, ldh);
+		, ldh, (ftnlen)1);
 	i__1 = jw - 1;
 	i__2 = *ldt + 1;
 	i__3 = *ldh + 1;
@@ -19494,7 +19659,8 @@ L60:
 	if (*ns > 1 && s != 0.) {
 	    i__1 = *lwork - jw;
 	    dormhr_("R", "N", &jw, ns, &c__1, ns, &t[t_offset], ldt, &work[1],
-		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info);
+		     &v[v_offset], ldv, &work[jw + 1], &i__1, &info, (ftnlen)
+		    1, (ftnlen)1);
 	}
 
 /*        ==== Update vertical slab in H ==== */
@@ -19513,9 +19679,9 @@ L60:
 	    kln = min(i__3,i__4);
 	    dgemm_("N", "N", &kln, &jw, &jw, &c_b15, &h__[krow + kwtop *
 		    h_dim1], ldh, &v[v_offset], ldv, &c_b29, &wv[wv_offset],
-		    ldwv);
+		    ldwv, (ftnlen)1, (ftnlen)1);
 	    dlacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &h__[krow + kwtop *
-		    h_dim1], ldh);
+		    h_dim1], ldh, (ftnlen)1);
 /* L70: */
 	}
 
@@ -19531,9 +19697,9 @@ L60:
 		kln = min(i__3,i__4);
 		dgemm_("C", "N", &jw, &kln, &jw, &c_b15, &v[v_offset], ldv, &
 			h__[kwtop + kcol * h_dim1], ldh, &c_b29, &t[t_offset],
-			 ldt);
+			 ldt, (ftnlen)1, (ftnlen)1);
 		dlacpy_("A", &jw, &kln, &t[t_offset], ldt, &h__[kwtop + kcol *
-			 h_dim1], ldh);
+			 h_dim1], ldh, (ftnlen)1);
 /* L80: */
 	    }
 	}
@@ -19550,9 +19716,9 @@ L60:
 		kln = min(i__3,i__4);
 		dgemm_("N", "N", &kln, &jw, &jw, &c_b15, &z__[krow + kwtop *
 			z_dim1], ldz, &v[v_offset], ldv, &c_b29, &wv[
-			wv_offset], ldwv);
+			wv_offset], ldwv, (ftnlen)1, (ftnlen)1);
 		dlacpy_("A", &kln, &jw, &wv[wv_offset], ldwv, &z__[krow +
-			kwtop * z_dim1], ldz);
+			kwtop * z_dim1], ldz, (ftnlen)1);
 /* L90: */
 	    }
 	}
@@ -19623,7 +19789,7 @@ L60:
 	    integer *, integer *, doublereal *, integer *, doublereal *,
 	    doublereal *, integer *, integer *, doublereal *, integer *,
 	    integer *), dlacpy_(char *, integer *, integer *, doublereal *,
-	    integer *, doublereal *, integer *);
+	    integer *, doublereal *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static char jbcmpz[2];
@@ -20164,7 +20330,7 @@ L20:
 			ks = kbot - ns + 1;
 			kt = *n - ns + 1;
 			dlacpy_("A", &ns, &ns, &h__[ks + ks * h_dim1], ldh, &
-				h__[kt + h_dim1], ldh);
+				h__[kt + h_dim1], ldh, (ftnlen)1);
 			dlahqr_(&c_false, &c_false, &ns, &c__1, &ns, &h__[kt
 				+ h_dim1], ldh, &wr[ks], &wi[ks], &c__1, &
 				c__1, zdum, &c__1, &inf);
@@ -20375,21 +20541,21 @@ L90:
     static logical accum;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer ndcol, incol, krcol, nbmps;
     extern /* Subroutine */ int dtrmm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *), dlaqr1_(
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen), dlaqr1_(
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
 	    doublereal *, doublereal *, doublereal *), dlabad_(doublereal *,
 	    doublereal *);
 
     extern /* Subroutine */ int dlarfg_(integer *, doublereal *, doublereal *,
 	     integer *, doublereal *), dlacpy_(char *, integer *, integer *,
-	    doublereal *, integer *, doublereal *, integer *);
+	    doublereal *, integer *, doublereal *, integer *, ftnlen);
     static doublereal safmin;
     extern /* Subroutine */ int dlaset_(char *, integer *, integer *,
-	    doublereal *, doublereal *, doublereal *, integer *);
+	    doublereal *, doublereal *, doublereal *, integer *, ftnlen);
     static doublereal safmax, refsum;
     static integer mstart;
     static doublereal smlnum;
@@ -20638,7 +20804,8 @@ L90:
 	    incol <= i__1; incol += i__2) {
 	ndcol = incol + kdu;
 	if (accum) {
-	    dlaset_("ALL", &kdu, &kdu, &c_b29, &c_b15, &u[u_offset], ldu);
+	    dlaset_("ALL", &kdu, &kdu, &c_b29, &c_b15, &u[u_offset], ldu, (
+		    ftnlen)3);
 	}
 
 /*
@@ -21127,9 +21294,10 @@ L90:
 		    jlen = min(i__5,i__7);
 		    dgemm_("C", "N", &nu, &jlen, &nu, &c_b15, &u[k1 + k1 *
 			    u_dim1], ldu, &h__[incol + k1 + jcol * h_dim1],
-			    ldh, &c_b29, &wh[wh_offset], ldwh);
+			    ldh, &c_b29, &wh[wh_offset], ldwh, (ftnlen)1, (
+			    ftnlen)1);
 		    dlacpy_("ALL", &nu, &jlen, &wh[wh_offset], ldwh, &h__[
-			    incol + k1 + jcol * h_dim1], ldh);
+			    incol + k1 + jcol * h_dim1], ldh, (ftnlen)3);
 /* L160: */
 		}
 
@@ -21144,9 +21312,10 @@ L90:
 		    jlen = min(i__5,i__7);
 		    dgemm_("N", "N", &jlen, &nu, &nu, &c_b15, &h__[jrow + (
 			    incol + k1) * h_dim1], ldh, &u[k1 + k1 * u_dim1],
-			    ldu, &c_b29, &wv[wv_offset], ldwv);
+			    ldu, &c_b29, &wv[wv_offset], ldwv, (ftnlen)1, (
+			    ftnlen)1);
 		    dlacpy_("ALL", &jlen, &nu, &wv[wv_offset], ldwv, &h__[
-			    jrow + (incol + k1) * h_dim1], ldh);
+			    jrow + (incol + k1) * h_dim1], ldh, (ftnlen)3);
 /* L170: */
 		}
 
@@ -21162,9 +21331,10 @@ L90:
 			jlen = min(i__5,i__7);
 			dgemm_("N", "N", &jlen, &nu, &nu, &c_b15, &z__[jrow +
 				(incol + k1) * z_dim1], ldz, &u[k1 + k1 *
-				u_dim1], ldu, &c_b29, &wv[wv_offset], ldwv);
+				u_dim1], ldu, &c_b29, &wv[wv_offset], ldwv, (
+				ftnlen)1, (ftnlen)1);
 			dlacpy_("ALL", &jlen, &nu, &wv[wv_offset], ldwv, &z__[
-				jrow + (incol + k1) * z_dim1], ldz)
+				jrow + (incol + k1) * z_dim1], ldz, (ftnlen)3)
 				;
 /* L180: */
 		    }
@@ -21207,31 +21377,34 @@ L90:
 */
 
 		    dlacpy_("ALL", &knz, &jlen, &h__[incol + 1 + j2 + jcol *
-			    h_dim1], ldh, &wh[kzs + 1 + wh_dim1], ldwh);
+			    h_dim1], ldh, &wh[kzs + 1 + wh_dim1], ldwh, (
+			    ftnlen)3);
 
 /*                 ==== Multiply by U21' ==== */
 
 		    dlaset_("ALL", &kzs, &jlen, &c_b29, &c_b29, &wh[wh_offset]
-			    , ldwh);
+			    , ldwh, (ftnlen)3);
 		    dtrmm_("L", "U", "C", "N", &knz, &jlen, &c_b15, &u[j2 + 1
 			    + (kzs + 1) * u_dim1], ldu, &wh[kzs + 1 + wh_dim1]
-			    , ldwh);
+			    , ldwh, (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1);
 
 /*                 ==== Multiply top of H by U11' ==== */
 
 		    dgemm_("C", "N", &i2, &jlen, &j2, &c_b15, &u[u_offset],
 			    ldu, &h__[incol + 1 + jcol * h_dim1], ldh, &c_b15,
-			     &wh[wh_offset], ldwh);
+			     &wh[wh_offset], ldwh, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy top of H to bottom of WH ==== */
 
 		    dlacpy_("ALL", &j2, &jlen, &h__[incol + 1 + jcol * h_dim1]
-			    , ldh, &wh[i2 + 1 + wh_dim1], ldwh);
+			    , ldh, &wh[i2 + 1 + wh_dim1], ldwh, (ftnlen)3);
 
 /*                 ==== Multiply by U21' ==== */
 
 		    dtrmm_("L", "L", "C", "N", &j2, &jlen, &c_b15, &u[(i2 + 1)
-			     * u_dim1 + 1], ldu, &wh[i2 + 1 + wh_dim1], ldwh);
+			     * u_dim1 + 1], ldu, &wh[i2 + 1 + wh_dim1], ldwh,
+			    (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Multiply by U22 ==== */
 
@@ -21240,12 +21413,12 @@ L90:
 		    dgemm_("C", "N", &i__5, &jlen, &i__7, &c_b15, &u[j2 + 1 +
 			    (i2 + 1) * u_dim1], ldu, &h__[incol + 1 + j2 +
 			    jcol * h_dim1], ldh, &c_b15, &wh[i2 + 1 + wh_dim1]
-			    , ldwh);
+			    , ldwh, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy it back ==== */
 
 		    dlacpy_("ALL", &kdu, &jlen, &wh[wh_offset], ldwh, &h__[
-			    incol + 1 + jcol * h_dim1], ldh);
+			    incol + 1 + jcol * h_dim1], ldh, (ftnlen)3);
 /* L190: */
 		}
 
@@ -21265,34 +21438,38 @@ L90:
 */
 
 		    dlacpy_("ALL", &jlen, &knz, &h__[jrow + (incol + 1 + j2) *
-			     h_dim1], ldh, &wv[(kzs + 1) * wv_dim1 + 1], ldwv);
+			     h_dim1], ldh, &wv[(kzs + 1) * wv_dim1 + 1], ldwv,
+			     (ftnlen)3);
 
 /*                 ==== Multiply by U21 ==== */
 
 		    dlaset_("ALL", &jlen, &kzs, &c_b29, &c_b29, &wv[wv_offset]
-			    , ldwv);
+			    , ldwv, (ftnlen)3);
 		    dtrmm_("R", "U", "N", "N", &jlen, &knz, &c_b15, &u[j2 + 1
 			    + (kzs + 1) * u_dim1], ldu, &wv[(kzs + 1) *
-			    wv_dim1 + 1], ldwv);
+			    wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1, (ftnlen)1);
 
 /*                 ==== Multiply by U11 ==== */
 
 		    dgemm_("N", "N", &jlen, &i2, &j2, &c_b15, &h__[jrow + (
 			    incol + 1) * h_dim1], ldh, &u[u_offset], ldu, &
-			    c_b15, &wv[wv_offset], ldwv)
+			    c_b15, &wv[wv_offset], ldwv, (ftnlen)1, (ftnlen)1)
 			    ;
 
 /*                 ==== Copy left of H to right of scratch ==== */
 
 		    dlacpy_("ALL", &jlen, &j2, &h__[jrow + (incol + 1) *
-			    h_dim1], ldh, &wv[(i2 + 1) * wv_dim1 + 1], ldwv);
+			    h_dim1], ldh, &wv[(i2 + 1) * wv_dim1 + 1], ldwv, (
+			    ftnlen)3);
 
 /*                 ==== Multiply by U21 ==== */
 
 		    i__5 = i4 - i2;
 		    dtrmm_("R", "L", "N", "N", &jlen, &i__5, &c_b15, &u[(i2 +
 			    1) * u_dim1 + 1], ldu, &wv[(i2 + 1) * wv_dim1 + 1]
-			    , ldwv);
+			    , ldwv, (ftnlen)1, (ftnlen)1, (ftnlen)1, (ftnlen)
+			    1);
 
 /*                 ==== Multiply by U22 ==== */
 
@@ -21301,12 +21478,12 @@ L90:
 		    dgemm_("N", "N", &jlen, &i__5, &i__7, &c_b15, &h__[jrow +
 			    (incol + 1 + j2) * h_dim1], ldh, &u[j2 + 1 + (i2
 			    + 1) * u_dim1], ldu, &c_b15, &wv[(i2 + 1) *
-			    wv_dim1 + 1], ldwv);
+			    wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1);
 
 /*                 ==== Copy it back ==== */
 
 		    dlacpy_("ALL", &jlen, &kdu, &wv[wv_offset], ldwv, &h__[
-			    jrow + (incol + 1) * h_dim1], ldh);
+			    jrow + (incol + 1) * h_dim1], ldh, (ftnlen)3);
 /* L200: */
 		}
 
@@ -21328,34 +21505,37 @@ L90:
 
 			dlacpy_("ALL", &jlen, &knz, &z__[jrow + (incol + 1 +
 				j2) * z_dim1], ldz, &wv[(kzs + 1) * wv_dim1 +
-				1], ldwv);
+				1], ldwv, (ftnlen)3);
 
 /*                    ==== Multiply by U12 ==== */
 
 			dlaset_("ALL", &jlen, &kzs, &c_b29, &c_b29, &wv[
-				wv_offset], ldwv);
+				wv_offset], ldwv, (ftnlen)3);
 			dtrmm_("R", "U", "N", "N", &jlen, &knz, &c_b15, &u[j2
 				+ 1 + (kzs + 1) * u_dim1], ldu, &wv[(kzs + 1)
-				* wv_dim1 + 1], ldwv);
+				* wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (
+				ftnlen)1, (ftnlen)1);
 
 /*                    ==== Multiply by U11 ==== */
 
 			dgemm_("N", "N", &jlen, &i2, &j2, &c_b15, &z__[jrow +
 				(incol + 1) * z_dim1], ldz, &u[u_offset], ldu,
-				 &c_b15, &wv[wv_offset], ldwv);
+				 &c_b15, &wv[wv_offset], ldwv, (ftnlen)1, (
+				ftnlen)1);
 
 /*                    ==== Copy left of Z to right of scratch ==== */
 
 			dlacpy_("ALL", &jlen, &j2, &z__[jrow + (incol + 1) *
 				z_dim1], ldz, &wv[(i2 + 1) * wv_dim1 + 1],
-				ldwv);
+				ldwv, (ftnlen)3);
 
 /*                    ==== Multiply by U21 ==== */
 
 			i__5 = i4 - i2;
 			dtrmm_("R", "L", "N", "N", &jlen, &i__5, &c_b15, &u[(
 				i2 + 1) * u_dim1 + 1], ldu, &wv[(i2 + 1) *
-				wv_dim1 + 1], ldwv);
+				wv_dim1 + 1], ldwv, (ftnlen)1, (ftnlen)1, (
+				ftnlen)1, (ftnlen)1);
 
 /*                    ==== Multiply by U22 ==== */
 
@@ -21364,12 +21544,14 @@ L90:
 			dgemm_("N", "N", &jlen, &i__5, &i__7, &c_b15, &z__[
 				jrow + (incol + 1 + j2) * z_dim1], ldz, &u[j2
 				+ 1 + (i2 + 1) * u_dim1], ldu, &c_b15, &wv[(
-				i2 + 1) * wv_dim1 + 1], ldwv);
+				i2 + 1) * wv_dim1 + 1], ldwv, (ftnlen)1, (
+				ftnlen)1);
 
 /*                    ==== Copy the result back to Z ==== */
 
 			dlacpy_("ALL", &jlen, &kdu, &wv[wv_offset], ldwv, &
-				z__[jrow + (incol + 1) * z_dim1], ldz);
+				z__[jrow + (incol + 1) * z_dim1], ldz, (
+				ftnlen)3);
 /* L210: */
 		    }
 		}
@@ -21385,7 +21567,7 @@ L90:
 
 /* Subroutine */ int dlarf_(char *side, integer *m, integer *n, doublereal *v,
 	 integer *incv, doublereal *tau, doublereal *c__, integer *ldc,
-	doublereal *work)
+	doublereal *work, ftnlen side_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset;
@@ -21397,10 +21579,10 @@ L90:
     extern /* Subroutine */ int dger_(integer *, integer *, doublereal *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, ftnlen);
     static integer lastc, lastv;
     extern integer iladlc_(integer *, integer *, doublereal *, integer *),
 	    iladlr_(integer *, integer *, doublereal *, integer *);
@@ -21474,7 +21656,7 @@ L90:
     --work;
 
     /* Function Body */
-    applyleft = lsame_(side, "L");
+    applyleft = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     lastv = 0;
     lastc = 0;
     if (*tau != 0.) {
@@ -21518,7 +21700,7 @@ L90:
 /*           w(1:lastc,1) := C(1:lastv,1:lastc)' * v(1:lastv,1) */
 
 	    dgemv_("Transpose", &lastv, &lastc, &c_b15, &c__[c_offset], ldc, &
-		    v[1], incv, &c_b29, &work[1], &c__1);
+		    v[1], incv, &c_b29, &work[1], &c__1, (ftnlen)9);
 
 /*           C(1:lastv,1:lastc) := C(...) - v(1:lastv,1) * w(1:lastc,1)' */
 
@@ -21535,7 +21717,7 @@ L90:
 /*           w(1:lastc,1) := C(1:lastc,1:lastv) * v(1:lastv,1) */
 
 	    dgemv_("No transpose", &lastc, &lastv, &c_b15, &c__[c_offset],
-		    ldc, &v[1], incv, &c_b29, &work[1], &c__1);
+		    ldc, &v[1], incv, &c_b29, &work[1], &c__1, (ftnlen)12);
 
 /*           C(1:lastc,1:lastv) := C(...) - w(1:lastc,1) * v(1:lastv,1)' */
 
@@ -21553,7 +21735,8 @@ L90:
 /* Subroutine */ int dlarfb_(char *side, char *trans, char *direct, char *
 	storev, integer *m, integer *n, integer *k, doublereal *v, integer *
 	ldv, doublereal *t, integer *ldt, doublereal *c__, integer *ldc,
-	doublereal *work, integer *ldwork)
+	doublereal *work, integer *ldwork, ftnlen side_len, ftnlen trans_len,
+	ftnlen direct_len, ftnlen storev_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, t_dim1, t_offset, v_dim1, v_offset, work_dim1,
@@ -21563,13 +21746,13 @@ L90:
     static integer i__, j;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
-    extern logical lsame_(char *, char *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer lastc;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *), dtrmm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *);
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static integer lastv;
     extern integer iladlc_(integer *, integer *, doublereal *, integer *),
 	    iladlr_(integer *, integer *, doublereal *, integer *);
@@ -21680,15 +21863,15 @@ L90:
 	return 0;
     }
 
-    if (lsame_(trans, "N")) {
+    if (lsame_(trans, "N", (ftnlen)1, (ftnlen)1)) {
 	*(unsigned char *)transt = 'T';
     } else {
 	*(unsigned char *)transt = 'N';
     }
 
-    if (lsame_(storev, "C")) {
+    if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 
-	if (lsame_(direct, "F")) {
+	if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 
 /*
              Let  V =  ( V1 )    (first K rows)
@@ -21696,7 +21879,7 @@ L90:
              where  V1  is unit lower triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -21724,7 +21907,8 @@ L90:
 /*              W := W * V1 */
 
 		dtrmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2'*V2 */
@@ -21732,13 +21916,15 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("Transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[*k + 1 + c_dim1], ldc, &v[*k + 1 +
-			    v_dim1], ldv, &c_b15, &work[work_offset], ldwork);
+			    v_dim1], ldv, &c_b15, &work[work_offset], ldwork,
+			    (ftnlen)9, (ftnlen)12);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		dtrmm_("Right", "Upper", transt, "Non-unit", &lastc, k, &
-			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V * W' */
 
@@ -21750,13 +21936,14 @@ L90:
 		    dgemm_("No transpose", "Transpose", &i__1, &lastc, k, &
 			    c_b151, &v[*k + 1 + v_dim1], ldv, &work[
 			    work_offset], ldwork, &c_b15, &c__[*k + 1 +
-			    c_dim1], ldc);
+			    c_dim1], ldc, (ftnlen)12, (ftnlen)9);
 		}
 
 /*              W := W * V1' */
 
 		dtrmm_("Right", "Lower", "Transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 
 /*              C1 := C1 - W' */
 
@@ -21770,7 +21957,7 @@ L90:
 /* L30: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -21797,7 +21984,8 @@ L90:
 /*              W := W * V1 */
 
 		dtrmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2 * V2 */
@@ -21806,13 +21994,14 @@ L90:
 		    dgemm_("No transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[(*k + 1) * c_dim1 + 1], ldc, &v[*k +
 			    1 + v_dim1], ldv, &c_b15, &work[work_offset],
-			    ldwork);
+			    ldwork, (ftnlen)12, (ftnlen)12);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		dtrmm_("Right", "Upper", trans, "Non-unit", &lastc, k, &c_b15,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V' */
 
@@ -21824,13 +22013,14 @@ L90:
 		    dgemm_("No transpose", "Transpose", &lastc, &i__1, k, &
 			    c_b151, &work[work_offset], ldwork, &v[*k + 1 +
 			    v_dim1], ldv, &c_b15, &c__[(*k + 1) * c_dim1 + 1],
-			     ldc);
+			     ldc, (ftnlen)12, (ftnlen)9);
 		}
 
 /*              W := W * V1' */
 
 		dtrmm_("Right", "Lower", "Transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -21853,7 +22043,7 @@ L90:
              where  V2  is unit upper triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -21882,7 +22072,8 @@ L90:
 
 		dtrmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
 			c_b15, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1'*V1 */
@@ -21890,13 +22081,15 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("Transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[c_offset], ldc, &v[v_offset], ldv, &
-			    c_b15, &work[work_offset], ldwork);
+			    c_b15, &work[work_offset], ldwork, (ftnlen)9, (
+			    ftnlen)12);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		dtrmm_("Right", "Lower", transt, "Non-unit", &lastc, k, &
-			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V * W' */
 
@@ -21907,14 +22100,16 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("No transpose", "Transpose", &i__1, &lastc, k, &
 			    c_b151, &v[v_offset], ldv, &work[work_offset],
-			    ldwork, &c_b15, &c__[c_offset], ldc);
+			    ldwork, &c_b15, &c__[c_offset], ldc, (ftnlen)12, (
+			    ftnlen)9);
 		}
 
 /*              W := W * V2' */
 
 		dtrmm_("Right", "Upper", "Transpose", "Unit", &lastc, k, &
 			c_b15, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			 (ftnlen)4);
 
 /*              C2 := C2 - W' */
 
@@ -21929,7 +22124,7 @@ L90:
 /* L90: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -21957,7 +22152,8 @@ L90:
 
 		dtrmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
 			c_b15, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1 * V1 */
@@ -21965,13 +22161,15 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("No transpose", "No transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[c_offset], ldc, &v[v_offset], ldv, &
-			    c_b15, &work[work_offset], ldwork);
+			    c_b15, &work[work_offset], ldwork, (ftnlen)12, (
+			    ftnlen)12);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		dtrmm_("Right", "Lower", trans, "Non-unit", &lastc, k, &c_b15,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V' */
 
@@ -21982,14 +22180,16 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("No transpose", "Transpose", &lastc, &i__1, k, &
 			    c_b151, &work[work_offset], ldwork, &v[v_offset],
-			    ldv, &c_b15, &c__[c_offset], ldc);
+			    ldv, &c_b15, &c__[c_offset], ldc, (ftnlen)12, (
+			    ftnlen)9);
 		}
 
 /*              W := W * V2' */
 
 		dtrmm_("Right", "Upper", "Transpose", "Unit", &lastc, k, &
 			c_b15, &v[lastv - *k + 1 + v_dim1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			 (ftnlen)4);
 
 /*              C2 := C2 - W */
 
@@ -22006,16 +22206,16 @@ L90:
 	    }
 	}
 
-    } else if (lsame_(storev, "R")) {
+    } else if (lsame_(storev, "R", (ftnlen)1, (ftnlen)1)) {
 
-	if (lsame_(direct, "F")) {
+	if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 
 /*
              Let  V =  ( V1  V2 )    (V1: first K columns)
              where  V1  is unit upper triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -22043,7 +22243,8 @@ L90:
 /*              W := W * V1' */
 
 		dtrmm_("Right", "Upper", "Transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2'*V2' */
@@ -22051,13 +22252,15 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("Transpose", "Transpose", &lastc, k, &i__1, &c_b15,
 			     &c__[*k + 1 + c_dim1], ldc, &v[(*k + 1) * v_dim1
-			    + 1], ldv, &c_b15, &work[work_offset], ldwork);
+			    + 1], ldv, &c_b15, &work[work_offset], ldwork, (
+			    ftnlen)9, (ftnlen)9);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		dtrmm_("Right", "Upper", transt, "Non-unit", &lastc, k, &
-			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V' * W' */
 
@@ -22069,13 +22272,14 @@ L90:
 		    dgemm_("Transpose", "Transpose", &i__1, &lastc, k, &
 			    c_b151, &v[(*k + 1) * v_dim1 + 1], ldv, &work[
 			    work_offset], ldwork, &c_b15, &c__[*k + 1 +
-			    c_dim1], ldc);
+			    c_dim1], ldc, (ftnlen)9, (ftnlen)9);
 		}
 
 /*              W := W * V1 */
 
 		dtrmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 
 /*              C1 := C1 - W' */
 
@@ -22089,7 +22293,7 @@ L90:
 /* L150: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -22116,7 +22320,8 @@ L90:
 /*              W := W * V1' */
 
 		dtrmm_("Right", "Upper", "Transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C2 * V2' */
@@ -22125,13 +22330,14 @@ L90:
 		    dgemm_("No transpose", "Transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[(*k + 1) * c_dim1 + 1], ldc, &v[(*k +
 			    1) * v_dim1 + 1], ldv, &c_b15, &work[work_offset],
-			     ldwork);
+			     ldwork, (ftnlen)12, (ftnlen)9);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		dtrmm_("Right", "Upper", trans, "Non-unit", &lastc, k, &c_b15,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V */
 
@@ -22143,13 +22349,14 @@ L90:
 		    dgemm_("No transpose", "No transpose", &lastc, &i__1, k, &
 			    c_b151, &work[work_offset], ldwork, &v[(*k + 1) *
 			    v_dim1 + 1], ldv, &c_b15, &c__[(*k + 1) * c_dim1
-			    + 1], ldc);
+			    + 1], ldc, (ftnlen)12, (ftnlen)12);
 		}
 
 /*              W := W * V1 */
 
 		dtrmm_("Right", "Upper", "No transpose", "Unit", &lastc, k, &
-			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork);
+			c_b15, &v[v_offset], ldv, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -22172,7 +22379,7 @@ L90:
              where  V2  is unit lower triangular.
 */
 
-	    if (lsame_(side, "L")) {
+	    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  H * C  or  H' * C  where  C = ( C1 )
@@ -22201,7 +22408,8 @@ L90:
 
 		dtrmm_("Right", "Lower", "Transpose", "Unit", &lastc, k, &
 			c_b15, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			 (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1'*V1' */
@@ -22209,13 +22417,14 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("Transpose", "Transpose", &lastc, k, &i__1, &c_b15,
 			     &c__[c_offset], ldc, &v[v_offset], ldv, &c_b15, &
-			    work[work_offset], ldwork);
+			    work[work_offset], ldwork, (ftnlen)9, (ftnlen)9);
 		}
 
 /*              W := W * T'  or  W * T */
 
 		dtrmm_("Right", "Lower", transt, "Non-unit", &lastc, k, &
-			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork);
+			c_b15, &t[t_offset], ldt, &work[work_offset], ldwork,
+			(ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - V' * W' */
 
@@ -22226,14 +22435,16 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("Transpose", "Transpose", &i__1, &lastc, k, &
 			    c_b151, &v[v_offset], ldv, &work[work_offset],
-			    ldwork, &c_b15, &c__[c_offset], ldc);
+			    ldwork, &c_b15, &c__[c_offset], ldc, (ftnlen)9, (
+			    ftnlen)9);
 		}
 
 /*              W := W * V2 */
 
 		dtrmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
 			c_b15, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 
 /*              C2 := C2 - W' */
 
@@ -22248,7 +22459,7 @@ L90:
 /* L210: */
 		}
 
-	    } else if (lsame_(side, "R")) {
+	    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*
                 Form  C * H  or  C * H'  where  C = ( C1  C2 )
@@ -22276,7 +22487,8 @@ L90:
 
 		dtrmm_("Right", "Lower", "Transpose", "Unit", &lastc, k, &
 			c_b15, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			 (ftnlen)4);
 		if (lastv > *k) {
 
 /*                 W := W + C1 * V1' */
@@ -22284,13 +22496,15 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("No transpose", "Transpose", &lastc, k, &i__1, &
 			    c_b15, &c__[c_offset], ldc, &v[v_offset], ldv, &
-			    c_b15, &work[work_offset], ldwork);
+			    c_b15, &work[work_offset], ldwork, (ftnlen)12, (
+			    ftnlen)9);
 		}
 
 /*              W := W * T  or  W * T' */
 
 		dtrmm_("Right", "Lower", trans, "Non-unit", &lastc, k, &c_b15,
-			 &t[t_offset], ldt, &work[work_offset], ldwork);
+			 &t[t_offset], ldt, &work[work_offset], ldwork, (
+			ftnlen)5, (ftnlen)5, (ftnlen)1, (ftnlen)8);
 
 /*              C := C - W * V */
 
@@ -22301,14 +22515,16 @@ L90:
 		    i__1 = lastv - *k;
 		    dgemm_("No transpose", "No transpose", &lastc, &i__1, k, &
 			    c_b151, &work[work_offset], ldwork, &v[v_offset],
-			    ldv, &c_b15, &c__[c_offset], ldc);
+			    ldv, &c_b15, &c__[c_offset], ldc, (ftnlen)12, (
+			    ftnlen)12);
 		}
 
 /*              W := W * V2 */
 
 		dtrmm_("Right", "Lower", "No transpose", "Unit", &lastc, k, &
 			c_b15, &v[(lastv - *k + 1) * v_dim1 + 1], ldv, &work[
-			work_offset], ldwork);
+			work_offset], ldwork, (ftnlen)5, (ftnlen)5, (ftnlen)
+			12, (ftnlen)4);
 
 /*              C1 := C1 - W */
 
@@ -22348,7 +22564,8 @@ L90:
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
     static doublereal xnorm;
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     static doublereal safmin, rsafmn;
 
 
@@ -22477,7 +22694,7 @@ L10:
 
 /* Subroutine */ int dlarft_(char *direct, char *storev, integer *n, integer *
 	k, doublereal *v, integer *ldv, doublereal *tau, doublereal *t,
-	integer *ldt)
+	integer *ldt, ftnlen direct_len, ftnlen storev_len)
 {
     /* System generated locals */
     integer t_dim1, t_offset, v_dim1, v_offset, i__1, i__2, i__3;
@@ -22486,13 +22703,14 @@ L10:
     /* Local variables */
     static integer i__, j, prevlastv;
     static doublereal vii;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, ftnlen);
     static integer lastv;
     extern /* Subroutine */ int dtrmv_(char *, char *, char *, integer *,
-	    doublereal *, integer *, doublereal *, integer *);
+	    doublereal *, integer *, doublereal *, integer *, ftnlen, ftnlen,
+	    ftnlen);
 
 
 /*
@@ -22610,7 +22828,7 @@ L10:
 	return 0;
     }
 
-    if (lsame_(direct, "F")) {
+    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 	prevlastv = *n;
 	i__1 = *k;
 	for (i__ = 1; i__ <= i__1; ++i__) {
@@ -22630,7 +22848,7 @@ L10:
 
 		vii = v[i__ + i__ * v_dim1];
 		v[i__ + i__ * v_dim1] = 1.;
-		if (lsame_(storev, "C")) {
+		if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 /*                 Skip any trailing zeros. */
 		    i__2 = i__ + 1;
 		    for (lastv = *n; lastv >= i__2; --lastv) {
@@ -22648,7 +22866,7 @@ L15:
 		    d__1 = -tau[i__];
 		    dgemv_("Transpose", &i__2, &i__3, &d__1, &v[i__ + v_dim1],
 			     ldv, &v[i__ + i__ * v_dim1], &c__1, &c_b29, &t[
-			    i__ * t_dim1 + 1], &c__1);
+			    i__ * t_dim1 + 1], &c__1, (ftnlen)9);
 		} else {
 /*                 Skip any trailing zeros. */
 		    i__2 = i__ + 1;
@@ -22667,7 +22885,7 @@ L16:
 		    d__1 = -tau[i__];
 		    dgemv_("No transpose", &i__2, &i__3, &d__1, &v[i__ *
 			    v_dim1 + 1], ldv, &v[i__ + i__ * v_dim1], ldv, &
-			    c_b29, &t[i__ * t_dim1 + 1], &c__1);
+			    c_b29, &t[i__ * t_dim1 + 1], &c__1, (ftnlen)12);
 		}
 		v[i__ + i__ * v_dim1] = vii;
 
@@ -22675,7 +22893,8 @@ L16:
 
 		i__2 = i__ - 1;
 		dtrmv_("Upper", "No transpose", "Non-unit", &i__2, &t[
-			t_offset], ldt, &t[i__ * t_dim1 + 1], &c__1);
+			t_offset], ldt, &t[i__ * t_dim1 + 1], &c__1, (ftnlen)
+			5, (ftnlen)12, (ftnlen)8);
 		t[i__ + i__ * t_dim1] = tau[i__];
 		if (i__ > 1) {
 		    prevlastv = max(prevlastv,lastv);
@@ -22702,7 +22921,7 @@ L16:
 /*              general case */
 
 		if (i__ < *k) {
-		    if (lsame_(storev, "C")) {
+		    if (lsame_(storev, "C", (ftnlen)1, (ftnlen)1)) {
 			vii = v[*n - *k + i__ + i__ * v_dim1];
 			v[*n - *k + i__ + i__ * v_dim1] = 1.;
 /*                    Skip any leading zeros. */
@@ -22726,7 +22945,7 @@ L35:
 			dgemv_("Transpose", &i__1, &i__2, &d__1, &v[j + (i__
 				+ 1) * v_dim1], ldv, &v[j + i__ * v_dim1], &
 				c__1, &c_b29, &t[i__ + 1 + i__ * t_dim1], &
-				c__1);
+				c__1, (ftnlen)9);
 			v[*n - *k + i__ + i__ * v_dim1] = vii;
 		    } else {
 			vii = v[i__ + (*n - *k + i__) * v_dim1];
@@ -22752,7 +22971,7 @@ L36:
 			dgemv_("No transpose", &i__1, &i__2, &d__1, &v[i__ +
 				1 + j * v_dim1], ldv, &v[i__ + j * v_dim1],
 				ldv, &c_b29, &t[i__ + 1 + i__ * t_dim1], &
-				c__1);
+				c__1, (ftnlen)12);
 			v[i__ + (*n - *k + i__) * v_dim1] = vii;
 		    }
 
@@ -22761,7 +22980,7 @@ L36:
 		    i__1 = *k - i__;
 		    dtrmv_("Lower", "No transpose", "Non-unit", &i__1, &t[i__
 			    + 1 + (i__ + 1) * t_dim1], ldt, &t[i__ + 1 + i__ *
-			     t_dim1], &c__1)
+			     t_dim1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)8)
 			    ;
 		    if (i__ > 1) {
 			prevlastv = min(prevlastv,lastv);
@@ -22781,7 +23000,8 @@ L36:
 } /* dlarft_ */
 
 /* Subroutine */ int dlarfx_(char *side, integer *m, integer *n, doublereal *
-	v, doublereal *tau, doublereal *c__, integer *ldc, doublereal *work)
+	v, doublereal *tau, doublereal *c__, integer *ldc, doublereal *work,
+	ftnlen side_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, i__1;
@@ -22792,8 +23012,8 @@ L36:
 	    v6, v7, v8, v9, t10, v10, sum;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *);
-    extern logical lsame_(char *, char *);
+	    doublereal *, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
 
 
 /*
@@ -22866,7 +23086,7 @@ L36:
     if (*tau == 0.) {
 	return 0;
     }
-    if (lsame_(side, "L")) {
+    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  H * C, where H has order m. */
 
@@ -22885,7 +23105,8 @@ L36:
 
 /*        Code for general M */
 
-	dlarf_(side, m, n, &v[1], &c__1, tau, &c__[c_offset], ldc, &work[1]);
+	dlarf_(side, m, n, &v[1], &c__1, tau, &c__[c_offset], ldc, &work[1], (
+		ftnlen)1);
 	goto L410;
 L10:
 
@@ -23189,7 +23410,8 @@ L190:
 
 /*        Code for general N */
 
-	dlarf_(side, m, n, &v[1], &c__1, tau, &c__[c_offset], ldc, &work[1]);
+	dlarf_(side, m, n, &v[1], &c__1, tau, &c__[c_offset], ldc, &work[1], (
+		ftnlen)1);
 	goto L410;
 L210:
 
@@ -23770,7 +23992,7 @@ L30:
 
 /* Subroutine */ int dlascl_(char *type__, integer *kl, integer *ku,
 	doublereal *cfrom, doublereal *cto, integer *m, integer *n,
-	doublereal *a, integer *lda, integer *info)
+	doublereal *a, integer *lda, integer *info, ftnlen type_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -23780,13 +24002,13 @@ L30:
     static doublereal mul, cto1;
     static logical done;
     static doublereal ctoc;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer itype;
     static doublereal cfrom1;
 
     static doublereal cfromc;
     extern logical disnan_(doublereal *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static doublereal bignum, smlnum;
 
 
@@ -23870,19 +24092,19 @@ L30:
     /* Function Body */
     *info = 0;
 
-    if (lsame_(type__, "G")) {
+    if (lsame_(type__, "G", (ftnlen)1, (ftnlen)1)) {
 	itype = 0;
-    } else if (lsame_(type__, "L")) {
+    } else if (lsame_(type__, "L", (ftnlen)1, (ftnlen)1)) {
 	itype = 1;
-    } else if (lsame_(type__, "U")) {
+    } else if (lsame_(type__, "U", (ftnlen)1, (ftnlen)1)) {
 	itype = 2;
-    } else if (lsame_(type__, "H")) {
+    } else if (lsame_(type__, "H", (ftnlen)1, (ftnlen)1)) {
 	itype = 3;
-    } else if (lsame_(type__, "B")) {
+    } else if (lsame_(type__, "B", (ftnlen)1, (ftnlen)1)) {
 	itype = 4;
-    } else if (lsame_(type__, "Q")) {
+    } else if (lsame_(type__, "Q", (ftnlen)1, (ftnlen)1)) {
 	itype = 5;
-    } else if (lsame_(type__, "Z")) {
+    } else if (lsame_(type__, "Z", (ftnlen)1, (ftnlen)1)) {
 	itype = 6;
     } else {
 	itype = -1;
@@ -23920,7 +24142,7 @@ L30:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASCL", &i__1);
+	xerbla_("DLASCL", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -24121,9 +24343,9 @@ L10:
 	    integer *), dlasdq_(char *, integer *, integer *, integer *,
 	    integer *, integer *, doublereal *, doublereal *, doublereal *,
 	    integer *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *), dlasdt_(integer *, integer *,
+	    doublereal *, integer *, ftnlen), dlasdt_(integer *, integer *,
 	    integer *, integer *, integer *, integer *, integer *), xerbla_(
-	    char *, integer *);
+	    char *, integer *, ftnlen);
 
 
 /*
@@ -24238,7 +24460,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASD0", &i__1);
+	xerbla_("DLASD0", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -24246,7 +24468,8 @@ L10:
 
     if (*n <= *smlsiz) {
 	dlasdq_("U", sqre, n, &m, n, &c__0, &d__[1], &e[1], &vt[vt_offset],
-		ldvt, &u[u_offset], ldu, &u[u_offset], ldu, &work[1], info);
+		ldvt, &u[u_offset], ldu, &u[u_offset], ldu, &work[1], info, (
+		ftnlen)1);
 	return 0;
     }
 
@@ -24289,7 +24512,7 @@ L10:
 	sqrei = 1;
 	dlasdq_("U", &sqrei, &nl, &nlp1, &nl, &ncc, &d__[nlf], &e[nlf], &vt[
 		nlf + nlf * vt_dim1], ldvt, &u[nlf + nlf * u_dim1], ldu, &u[
-		nlf + nlf * u_dim1], ldu, &work[1], info);
+		nlf + nlf * u_dim1], ldu, &work[1], info, (ftnlen)1);
 	if (*info != 0) {
 	    return 0;
 	}
@@ -24307,7 +24530,7 @@ L10:
 	nrp1 = nr + sqrei;
 	dlasdq_("U", &sqrei, &nr, &nrp1, &nr, &ncc, &d__[nrf], &e[nrf], &vt[
 		nrf + nrf * vt_dim1], ldvt, &u[nrf + nrf * u_dim1], ldu, &u[
-		nrf + nrf * u_dim1], ldu, &work[1], info);
+		nrf + nrf * u_dim1], ldu, &work[1], info, (ftnlen)1);
 	if (*info != 0) {
 	    return 0;
 	}
@@ -24391,11 +24614,11 @@ L10:
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
 	    integer *, integer *, integer *, doublereal *, integer *),
 	    dlascl_(char *, integer *, integer *, doublereal *, doublereal *,
-	    integer *, integer *, doublereal *, integer *, integer *),
+	    integer *, integer *, doublereal *, integer *, integer *, ftnlen),
 	     dlamrg_(integer *, integer *, doublereal *, integer *, integer *,
 	     integer *);
     static integer isigma;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static doublereal orgnrm;
     static integer coltyp;
 
@@ -24550,7 +24773,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASD1", &i__1);
+	xerbla_("DLASD1", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -24592,7 +24815,8 @@ L10:
 	}
 /* L10: */
     }
-    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &n, &c__1, &d__[1], &n, info);
+    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &n, &c__1, &d__[1], &n, info,
+	    (ftnlen)1);
     *alpha /= orgnrm;
     *beta /= orgnrm;
 
@@ -24615,7 +24839,8 @@ L10:
 
 /*     Unscale. */
 
-    dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &n, &c__1, &d__[1], &n, info);
+    dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &n, &c__1, &d__[1], &n, info,
+	    (ftnlen)1);
 
 /*     Prepare the IDXQ sorting permutation. */
 
@@ -24656,12 +24881,14 @@ L10:
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
     static integer jprev;
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     extern /* Subroutine */ int dlamrg_(integer *, integer *, doublereal *,
 	    integer *, integer *, integer *), dlacpy_(char *, integer *,
-	    integer *, doublereal *, integer *, doublereal *, integer *), dlaset_(char *, integer *, integer *, doublereal *,
-	    doublereal *, doublereal *, integer *), xerbla_(char *,
-	    integer *);
+	    integer *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen), dlaset_(char *, integer *, integer *, doublereal *,
+	    doublereal *, doublereal *, integer *, ftnlen), xerbla_(char *,
+	    integer *, ftnlen);
     static doublereal hlftol;
 
 
@@ -24871,7 +25098,7 @@ L10:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASD2", &i__1);
+	xerbla_("DLASD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -25174,7 +25401,7 @@ L120:
        last row of VT.
 */
 
-    dlaset_("A", &n, &c__1, &c_b29, &c_b29, &u2[u2_offset], ldu2);
+    dlaset_("A", &n, &c__1, &c_b29, &c_b29, &u2[u2_offset], ldu2, (ftnlen)1);
     u2[nlp1 + u2_dim1] = 1.;
     if (m > n) {
 	i__1 = nlp1;
@@ -25206,10 +25433,10 @@ L120:
 	dcopy_(&i__1, &dsigma[*k + 1], &c__1, &d__[*k + 1], &c__1);
 	i__1 = n - *k;
 	dlacpy_("A", &n, &i__1, &u2[(*k + 1) * u2_dim1 + 1], ldu2, &u[(*k + 1)
-		 * u_dim1 + 1], ldu);
+		 * u_dim1 + 1], ldu, (ftnlen)1);
 	i__1 = n - *k;
 	dlacpy_("A", &i__1, &m, &vt2[*k + 1 + vt2_dim1], ldvt2, &vt[*k + 1 +
-		vt_dim1], ldvt);
+		vt_dim1], ldvt, (ftnlen)1);
     }
 
 /*     Copy CTOT into COLTYP for referencing in DLASD3. */
@@ -25244,7 +25471,7 @@ L120:
     extern doublereal dnrm2_(integer *, doublereal *, integer *);
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
     static integer ctemp;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
@@ -25254,9 +25481,9 @@ L120:
 	    doublereal *, doublereal *, doublereal *, doublereal *,
 	    doublereal *, integer *), dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dlacpy_(char *, integer *, integer
-	    *, doublereal *, integer *, doublereal *, integer *),
-	    xerbla_(char *, integer *);
+	    integer *, integer *, ftnlen), dlacpy_(char *, integer *, integer
+	    *, doublereal *, integer *, doublereal *, integer *, ftnlen),
+	    xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -25437,7 +25664,7 @@ L120:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASD3", &i__1);
+	xerbla_("DLASD3", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -25490,7 +25717,8 @@ L120:
 /*     Normalize Z. */
 
     rho = dnrm2_(k, &z__[1], &c__1);
-    dlascl_("G", &c__0, &c__0, &rho, &c_b15, k, &c__1, &z__[1], k, info);
+    dlascl_("G", &c__0, &c__0, &rho, &c_b15, k, &c__1, &z__[1], k, info, (
+	    ftnlen)1);
     rho *= rho;
 
 /*     Find the new singular values. */
@@ -25562,30 +25790,34 @@ L120:
 
     if (*k == 2) {
 	dgemm_("N", "N", &n, k, k, &c_b15, &u2[u2_offset], ldu2, &q[q_offset],
-		 ldq, &c_b29, &u[u_offset], ldu);
+		 ldq, &c_b29, &u[u_offset], ldu, (ftnlen)1, (ftnlen)1);
 	goto L100;
     }
     if (ctot[1] > 0) {
 	dgemm_("N", "N", nl, k, &ctot[1], &c_b15, &u2[(u2_dim1 << 1) + 1],
-		ldu2, &q[q_dim1 + 2], ldq, &c_b29, &u[u_dim1 + 1], ldu);
+		ldu2, &q[q_dim1 + 2], ldq, &c_b29, &u[u_dim1 + 1], ldu, (
+		ftnlen)1, (ftnlen)1);
 	if (ctot[3] > 0) {
 	    ktemp = ctot[1] + 2 + ctot[2];
 	    dgemm_("N", "N", nl, k, &ctot[3], &c_b15, &u2[ktemp * u2_dim1 + 1]
 		    , ldu2, &q[ktemp + q_dim1], ldq, &c_b15, &u[u_dim1 + 1],
-		    ldu);
+		    ldu, (ftnlen)1, (ftnlen)1);
 	}
     } else if (ctot[3] > 0) {
 	ktemp = ctot[1] + 2 + ctot[2];
 	dgemm_("N", "N", nl, k, &ctot[3], &c_b15, &u2[ktemp * u2_dim1 + 1],
-		ldu2, &q[ktemp + q_dim1], ldq, &c_b29, &u[u_dim1 + 1], ldu);
+		ldu2, &q[ktemp + q_dim1], ldq, &c_b29, &u[u_dim1 + 1], ldu, (
+		ftnlen)1, (ftnlen)1);
     } else {
-	dlacpy_("F", nl, k, &u2[u2_offset], ldu2, &u[u_offset], ldu);
+	dlacpy_("F", nl, k, &u2[u2_offset], ldu2, &u[u_offset], ldu, (ftnlen)
+		1);
     }
     dcopy_(k, &q[q_dim1 + 1], ldq, &u[nlp1 + u_dim1], ldu);
     ktemp = ctot[1] + 2;
     ctemp = ctot[2] + ctot[3];
     dgemm_("N", "N", nr, k, &ctemp, &c_b15, &u2[nlp2 + ktemp * u2_dim1], ldu2,
-	     &q[ktemp + q_dim1], ldq, &c_b29, &u[nlp2 + u_dim1], ldu);
+	     &q[ktemp + q_dim1], ldq, &c_b29, &u[nlp2 + u_dim1], ldu, (ftnlen)
+	    1, (ftnlen)1);
 
 /*     Generate the right singular vectors. */
 
@@ -25607,17 +25839,18 @@ L100:
 
     if (*k == 2) {
 	dgemm_("N", "N", k, &m, k, &c_b15, &q[q_offset], ldq, &vt2[vt2_offset]
-		, ldvt2, &c_b29, &vt[vt_offset], ldvt);
+		, ldvt2, &c_b29, &vt[vt_offset], ldvt, (ftnlen)1, (ftnlen)1);
 	return 0;
     }
     ktemp = ctot[1] + 1;
     dgemm_("N", "N", k, &nlp1, &ktemp, &c_b15, &q[q_dim1 + 1], ldq, &vt2[
-	    vt2_dim1 + 1], ldvt2, &c_b29, &vt[vt_dim1 + 1], ldvt);
+	    vt2_dim1 + 1], ldvt2, &c_b29, &vt[vt_dim1 + 1], ldvt, (ftnlen)1, (
+	    ftnlen)1);
     ktemp = ctot[1] + 2 + ctot[2];
     if (ktemp <= *ldvt2) {
 	dgemm_("N", "N", k, &nlp1, &ctot[3], &c_b15, &q[ktemp * q_dim1 + 1],
 		ldq, &vt2[ktemp + vt2_dim1], ldvt2, &c_b15, &vt[vt_dim1 + 1],
-		ldvt);
+		ldvt, (ftnlen)1, (ftnlen)1);
     }
 
     ktemp = ctot[1] + 1;
@@ -25637,7 +25870,7 @@ L100:
     ctemp = ctot[2] + 1 + ctot[3];
     dgemm_("N", "N", k, &nrp1, &ctemp, &c_b15, &q[ktemp * q_dim1 + 1], ldq, &
 	    vt2[ktemp + nlp2 * vt2_dim1], ldvt2, &c_b29, &vt[nlp2 * vt_dim1 +
-	    1], ldvt);
+	    1], ldvt, (ftnlen)1, (ftnlen)1);
 
     return 0;
 
@@ -26853,10 +27086,10 @@ L240:
 	    doublereal *, doublereal *, doublereal *, integer *, doublereal *,
 	     doublereal *, integer *), dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dlamrg_(integer *, integer *,
+	    integer *, integer *, ftnlen), dlamrg_(integer *, integer *,
 	    doublereal *, integer *, integer *, integer *);
     static integer isigma;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static doublereal orgnrm;
 
 
@@ -27093,7 +27326,7 @@ L240:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASD6", &i__1);
+	xerbla_("DLASD6", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -27127,7 +27360,8 @@ L240:
 	}
 /* L10: */
     }
-    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &n, &c__1, &d__[1], &n, info);
+    dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &n, &c__1, &d__[1], &n, info,
+	    (ftnlen)1);
     *alpha /= orgnrm;
     *beta /= orgnrm;
 
@@ -27153,7 +27387,8 @@ L240:
 
 /*     Unscale. */
 
-    dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &n, &c__1, &d__[1], &n, info);
+    dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &n, &c__1, &d__[1], &n, info,
+	    (ftnlen)1);
 
 /*     Prepare the IDXQ sorting permutation. */
 
@@ -27191,9 +27426,11 @@ L240:
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
     static integer jprev;
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     extern /* Subroutine */ int dlamrg_(integer *, integer *, doublereal *,
-	    integer *, integer *, integer *), xerbla_(char *, integer *);
+	    integer *, integer *, integer *), xerbla_(char *, integer *,
+	    ftnlen);
     static doublereal hlftol;
 
 
@@ -27392,7 +27629,7 @@ L240:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASD7", &i__1);
+	xerbla_("DLASD7", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -27692,9 +27929,9 @@ L100:
 	    doublereal *, doublereal *, doublereal *, doublereal *,
 	    doublereal *, integer *), dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dlaset_(char *, integer *, integer
-	    *, doublereal *, doublereal *, doublereal *, integer *),
-	    xerbla_(char *, integer *);
+	    integer *, integer *, ftnlen), dlaset_(char *, integer *, integer
+	    *, doublereal *, doublereal *, doublereal *, integer *, ftnlen),
+	    xerbla_(char *, integer *, ftnlen);
     static doublereal dsigjp;
 
 
@@ -27816,7 +28053,7 @@ L100:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASD8", &i__1);
+	xerbla_("DLASD8", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -27868,12 +28105,13 @@ L100:
 /*     Normalize Z. */
 
     rho = dnrm2_(k, &z__[1], &c__1);
-    dlascl_("G", &c__0, &c__0, &rho, &c_b15, k, &c__1, &z__[1], k, info);
+    dlascl_("G", &c__0, &c__0, &rho, &c_b15, k, &c__1, &z__[1], k, info, (
+	    ftnlen)1);
     rho *= rho;
 
 /*     Initialize WORK(IWK3). */
 
-    dlaset_("A", k, &c__1, &c_b15, &c_b15, &work[iwk3], k);
+    dlaset_("A", k, &c__1, &c_b15, &c_b15, &work[iwk3], k, (ftnlen)1);
 
 /*
        Compute the updated singular values, the arrays DIFL, DIFR,
@@ -27994,10 +28232,11 @@ L100:
     extern /* Subroutine */ int dlasdq_(char *, integer *, integer *, integer
 	    *, integer *, integer *, doublereal *, doublereal *, doublereal *,
 	     integer *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *), dlasdt_(integer *, integer *,
+	    doublereal *, integer *, ftnlen), dlasdt_(integer *, integer *,
 	    integer *, integer *, integer *, integer *, integer *), dlaset_(
 	    char *, integer *, integer *, doublereal *, doublereal *,
-	    doublereal *, integer *), xerbla_(char *, integer *);
+	    doublereal *, integer *, ftnlen), xerbla_(char *, integer *,
+	    ftnlen);
     static integer smlszp;
 
 
@@ -28217,7 +28456,7 @@ L100:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASDA", &i__1);
+	xerbla_("DLASDA", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -28229,11 +28468,11 @@ L100:
 	if (*icompq == 0) {
 	    dlasdq_("U", sqre, n, &c__0, &c__0, &c__0, &d__[1], &e[1], &vt[
 		    vt_offset], ldu, &u[u_offset], ldu, &u[u_offset], ldu, &
-		    work[1], info);
+		    work[1], info, (ftnlen)1);
 	} else {
 	    dlasdq_("U", sqre, n, &m, n, &c__0, &d__[1], &e[1], &vt[vt_offset]
 		    , ldu, &u[u_offset], ldu, &u[u_offset], ldu, &work[1],
-		    info);
+		    info, (ftnlen)1);
 	}
 	return 0;
     }
@@ -28287,20 +28526,22 @@ L100:
 	vli = vl + nlf - 1;
 	sqrei = 1;
 	if (*icompq == 0) {
-	    dlaset_("A", &nlp1, &nlp1, &c_b29, &c_b15, &work[nwork1], &smlszp);
+	    dlaset_("A", &nlp1, &nlp1, &c_b29, &c_b15, &work[nwork1], &smlszp,
+		     (ftnlen)1);
 	    dlasdq_("U", &sqrei, &nl, &nlp1, &nru, &ncc, &d__[nlf], &e[nlf], &
 		    work[nwork1], &smlszp, &work[nwork2], &nl, &work[nwork2],
-		    &nl, &work[nwork2], info);
+		    &nl, &work[nwork2], info, (ftnlen)1);
 	    itemp = nwork1 + nl * smlszp;
 	    dcopy_(&nlp1, &work[nwork1], &c__1, &work[vfi], &c__1);
 	    dcopy_(&nlp1, &work[itemp], &c__1, &work[vli], &c__1);
 	} else {
-	    dlaset_("A", &nl, &nl, &c_b29, &c_b15, &u[nlf + u_dim1], ldu);
+	    dlaset_("A", &nl, &nl, &c_b29, &c_b15, &u[nlf + u_dim1], ldu, (
+		    ftnlen)1);
 	    dlaset_("A", &nlp1, &nlp1, &c_b29, &c_b15, &vt[nlf + vt_dim1],
-		    ldu);
+		    ldu, (ftnlen)1);
 	    dlasdq_("U", &sqrei, &nl, &nlp1, &nl, &ncc, &d__[nlf], &e[nlf], &
 		    vt[nlf + vt_dim1], ldu, &u[nlf + u_dim1], ldu, &u[nlf +
-		    u_dim1], ldu, &work[nwork1], info);
+		    u_dim1], ldu, &work[nwork1], info, (ftnlen)1);
 	    dcopy_(&nlp1, &vt[nlf + vt_dim1], &c__1, &work[vfi], &c__1);
 	    dcopy_(&nlp1, &vt[nlf + nlp1 * vt_dim1], &c__1, &work[vli], &c__1)
 		    ;
@@ -28323,20 +28564,22 @@ L100:
 	vli += nlp1;
 	nrp1 = nr + sqrei;
 	if (*icompq == 0) {
-	    dlaset_("A", &nrp1, &nrp1, &c_b29, &c_b15, &work[nwork1], &smlszp);
+	    dlaset_("A", &nrp1, &nrp1, &c_b29, &c_b15, &work[nwork1], &smlszp,
+		     (ftnlen)1);
 	    dlasdq_("U", &sqrei, &nr, &nrp1, &nru, &ncc, &d__[nrf], &e[nrf], &
 		    work[nwork1], &smlszp, &work[nwork2], &nr, &work[nwork2],
-		    &nr, &work[nwork2], info);
+		    &nr, &work[nwork2], info, (ftnlen)1);
 	    itemp = nwork1 + (nrp1 - 1) * smlszp;
 	    dcopy_(&nrp1, &work[nwork1], &c__1, &work[vfi], &c__1);
 	    dcopy_(&nrp1, &work[itemp], &c__1, &work[vli], &c__1);
 	} else {
-	    dlaset_("A", &nr, &nr, &c_b29, &c_b15, &u[nrf + u_dim1], ldu);
+	    dlaset_("A", &nr, &nr, &c_b29, &c_b15, &u[nrf + u_dim1], ldu, (
+		    ftnlen)1);
 	    dlaset_("A", &nrp1, &nrp1, &c_b29, &c_b15, &vt[nrf + vt_dim1],
-		    ldu);
+		    ldu, (ftnlen)1);
 	    dlasdq_("U", &sqrei, &nr, &nrp1, &nr, &ncc, &d__[nrf], &e[nrf], &
 		    vt[nrf + vt_dim1], ldu, &u[nrf + u_dim1], ldu, &u[nrf +
-		    u_dim1], ldu, &work[nwork1], info);
+		    u_dim1], ldu, &work[nwork1], info, (ftnlen)1);
 	    dcopy_(&nrp1, &vt[nrf + vt_dim1], &c__1, &work[vfi], &c__1);
 	    dcopy_(&nrp1, &vt[nrf + nrp1 * vt_dim1], &c__1, &work[vli], &c__1)
 		    ;
@@ -28425,7 +28668,8 @@ L100:
 /* Subroutine */ int dlasdq_(char *uplo, integer *sqre, integer *n, integer *
 	ncvt, integer *nru, integer *ncc, doublereal *d__, doublereal *e,
 	doublereal *vt, integer *ldvt, doublereal *u, integer *ldu,
-	doublereal *c__, integer *ldc, doublereal *work, integer *info)
+	doublereal *c__, integer *ldc, doublereal *work, integer *info,
+	ftnlen uplo_len)
 {
     /* System generated locals */
     integer c_dim1, c_offset, u_dim1, u_offset, vt_dim1, vt_offset, i__1,
@@ -28437,17 +28681,18 @@ L100:
     static integer np1, isub;
     static doublereal smin;
     static integer sqre1;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dlasr_(char *, char *, char *, integer *,
-	    integer *, doublereal *, doublereal *, doublereal *, integer *), dswap_(integer *, doublereal *, integer *
+	    integer *, doublereal *, doublereal *, doublereal *, integer *,
+	    ftnlen, ftnlen, ftnlen), dswap_(integer *, doublereal *, integer *
 	    , doublereal *, integer *);
     static integer iuplo;
     extern /* Subroutine */ int dlartg_(doublereal *, doublereal *,
 	    doublereal *, doublereal *, doublereal *), xerbla_(char *,
-	    integer *), dbdsqr_(char *, integer *, integer *, integer
+	    integer *, ftnlen), dbdsqr_(char *, integer *, integer *, integer
 	    *, integer *, doublereal *, doublereal *, doublereal *, integer *,
 	     doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    integer *);
+	    integer *, ftnlen);
     static logical rotate;
 
 
@@ -28595,10 +28840,10 @@ L100:
     /* Function Body */
     *info = 0;
     iuplo = 0;
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 	iuplo = 1;
     }
-    if (lsame_(uplo, "L")) {
+    if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	iuplo = 2;
     }
     if (iuplo == 0) {
@@ -28622,7 +28867,7 @@ L100:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASDQ", &i__1);
+	xerbla_("DLASDQ", &i__1, (ftnlen)6);
 	return 0;
     }
     if (*n == 0) {
@@ -28667,7 +28912,7 @@ L100:
 
 	if (*ncvt > 0) {
 	    dlasr_("L", "V", "F", &np1, ncvt, &work[1], &work[np1], &vt[
-		    vt_offset], ldvt);
+		    vt_offset], ldvt, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
     }
 
@@ -28709,19 +28954,19 @@ L100:
 	if (*nru > 0) {
 	    if (sqre1 == 0) {
 		dlasr_("R", "V", "F", nru, n, &work[1], &work[np1], &u[
-			u_offset], ldu);
+			u_offset], ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else {
 		dlasr_("R", "V", "F", nru, &np1, &work[1], &work[np1], &u[
-			u_offset], ldu);
+			u_offset], ldu, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	}
 	if (*ncc > 0) {
 	    if (sqre1 == 0) {
 		dlasr_("L", "V", "F", n, ncc, &work[1], &work[np1], &c__[
-			c_offset], ldc);
+			c_offset], ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    } else {
 		dlasr_("L", "V", "F", &np1, ncc, &work[1], &work[np1], &c__[
-			c_offset], ldc);
+			c_offset], ldc, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	    }
 	}
     }
@@ -28732,7 +28977,7 @@ L100:
 */
 
     dbdsqr_("U", n, ncvt, nru, ncc, &d__[1], &e[1], &vt[vt_offset], ldvt, &u[
-	    u_offset], ldu, &c__[c_offset], ldc, &work[1], info);
+	    u_offset], ldu, &c__[c_offset], ldc, &work[1], info, (ftnlen)1);
 
 /*
        Sort the singular values into ascending order (insertion sort on
@@ -28896,14 +29141,14 @@ L100:
 } /* dlasdt_ */
 
 /* Subroutine */ int dlaset_(char *uplo, integer *m, integer *n, doublereal *
-	alpha, doublereal *beta, doublereal *a, integer *lda)
+	alpha, doublereal *beta, doublereal *a, integer *lda, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
     static integer i__, j;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
 
 
 /*
@@ -28964,7 +29209,7 @@ L100:
     a -= a_offset;
 
     /* Function Body */
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*
           Set the strictly upper triangular or trapezoidal part of the
@@ -28983,7 +29228,7 @@ L100:
 /* L20: */
 	}
 
-    } else if (lsame_(uplo, "L")) {
+    } else if (lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*
           Set the strictly lower triangular or trapezoidal part of the
@@ -29051,10 +29296,10 @@ L100:
 
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen);
     static doublereal safmin;
-    extern /* Subroutine */ int xerbla_(char *, integer *), dlasrt_(
-	    char *, integer *, doublereal *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), dlasrt_(
+	    char *, integer *, doublereal *, integer *, ftnlen);
 
 
 /*
@@ -29127,7 +29372,7 @@ L100:
     if (*n < 0) {
 	*info = -2;
 	i__1 = -(*info);
-	xerbla_("DLASQ1", &i__1);
+	xerbla_("DLASQ1", &i__1, (ftnlen)6);
 	return 0;
     } else if (*n == 0) {
 	return 0;
@@ -29157,7 +29402,7 @@ L100:
 /*     Early return if SIGMX is zero (matrix is already diagonal). */
 
     if (sigmx == 0.) {
-	dlasrt_("D", n, &d__[1], &iinfo);
+	dlasrt_("D", n, &d__[1], &iinfo, (ftnlen)1);
 	return 0;
     }
 
@@ -29183,7 +29428,7 @@ L100:
     i__1 = (*n << 1) - 1;
     i__2 = (*n << 1) - 1;
     dlascl_("G", &c__0, &c__0, &sigmx, &scale, &i__1, &c__1, &work[1], &i__2,
-	    &iinfo);
+	    &iinfo, (ftnlen)1);
 
 /*     Compute the q's and e's. */
 
@@ -29205,7 +29450,7 @@ L100:
 /* L40: */
 	}
 	dlascl_("G", &c__0, &c__0, &scale, &sigmx, n, &c__1, &d__[1], n, &
-		iinfo);
+		iinfo, (ftnlen)1);
     }
 
     return 0;
@@ -29249,11 +29494,11 @@ L100:
     static doublereal deemin;
     static integer iwhila, iwhilb;
     static doublereal oldemn, safmin;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int dlasrt_(char *, integer *, doublereal *,
-	    integer *);
+	    integer *, ftnlen);
 
 
 /*
@@ -29341,7 +29586,7 @@ L100:
 
     if (*n < 0) {
 	*info = -1;
-	xerbla_("DLASQ2", &c__1);
+	xerbla_("DLASQ2", &c__1, (ftnlen)6);
 	return 0;
     } else if (*n == 0) {
 	return 0;
@@ -29351,7 +29596,7 @@ L100:
 
 	if (z__[1] < 0.) {
 	    *info = -201;
-	    xerbla_("DLASQ2", &c__2);
+	    xerbla_("DLASQ2", &c__2, (ftnlen)6);
 	}
 	return 0;
     } else if (*n == 2) {
@@ -29360,7 +29605,7 @@ L100:
 
 	if (z__[2] < 0. || z__[3] < 0.) {
 	    *info = -2;
-	    xerbla_("DLASQ2", &c__2);
+	    xerbla_("DLASQ2", &c__2, (ftnlen)6);
 	    return 0;
 	} else if (z__[3] > z__[1]) {
 	    d__ = z__[3];
@@ -29398,11 +29643,11 @@ L100:
     for (k = 1; k <= i__1; k += 2) {
 	if (z__[k] < 0.) {
 	    *info = -(k + 200);
-	    xerbla_("DLASQ2", &c__2);
+	    xerbla_("DLASQ2", &c__2, (ftnlen)6);
 	    return 0;
 	} else if (z__[k + 1] < 0.) {
 	    *info = -(k + 201);
-	    xerbla_("DLASQ2", &c__2);
+	    xerbla_("DLASQ2", &c__2, (ftnlen)6);
 	    return 0;
 	}
 	d__ += z__[k];
@@ -29420,7 +29665,7 @@ L100:
     }
     if (z__[(*n << 1) - 1] < 0.) {
 	*info = -((*n << 1) + 199);
-	xerbla_("DLASQ2", &c__2);
+	xerbla_("DLASQ2", &c__2, (ftnlen)6);
 	return 0;
     }
     d__ += z__[(*n << 1) - 1];
@@ -29437,7 +29682,7 @@ L100:
 	    z__[k] = z__[(k << 1) - 1];
 /* L20: */
 	}
-	dlasrt_("D", n, &z__[1], &iinfo);
+	dlasrt_("D", n, &z__[1], &iinfo, (ftnlen)1);
 	z__[(*n << 1) - 1] = d__;
 	return 0;
     }
@@ -29763,7 +30008,7 @@ L170:
 
 /*     Sort and compute sum of eigenvalues. */
 
-    dlasrt_("D", n, &z__[1], &iinfo);
+    dlasrt_("D", n, &z__[1], &iinfo, (ftnlen)1);
 
     e = 0.;
     for (k = *n; k >= 1; --k) {
@@ -30904,7 +31149,7 @@ L80:
 
 /* Subroutine */ int dlasr_(char *side, char *pivot, char *direct, integer *m,
 	 integer *n, doublereal *c__, doublereal *s, doublereal *a, integer *
-	lda)
+	lda, ftnlen side_len, ftnlen pivot_len, ftnlen direct_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -30912,9 +31157,9 @@ L80:
     /* Local variables */
     static integer i__, j, info;
     static doublereal temp;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static doublereal ctemp, stemp;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -31064,13 +31309,15 @@ L80:
 
     /* Function Body */
     info = 0;
-    if (! (lsame_(side, "L") || lsame_(side, "R"))) {
+    if (! (lsame_(side, "L", (ftnlen)1, (ftnlen)1) || lsame_(side, "R", (
+	    ftnlen)1, (ftnlen)1))) {
 	info = 1;
-    } else if (! (lsame_(pivot, "V") || lsame_(pivot,
-	    "T") || lsame_(pivot, "B"))) {
+    } else if (! (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1) || lsame_(pivot,
+	    "T", (ftnlen)1, (ftnlen)1) || lsame_(pivot, "B", (ftnlen)1, (
+	    ftnlen)1))) {
 	info = 2;
-    } else if (! (lsame_(direct, "F") || lsame_(direct,
-	    "B"))) {
+    } else if (! (lsame_(direct, "F", (ftnlen)1, (ftnlen)1) || lsame_(direct,
+	    "B", (ftnlen)1, (ftnlen)1))) {
 	info = 3;
     } else if (*m < 0) {
 	info = 4;
@@ -31080,7 +31327,7 @@ L80:
 	info = 9;
     }
     if (info != 0) {
-	xerbla_("DLASR ", &info);
+	xerbla_("DLASR ", &info, (ftnlen)6);
 	return 0;
     }
 
@@ -31089,12 +31336,12 @@ L80:
     if (*m == 0 || *n == 0) {
 	return 0;
     }
-    if (lsame_(side, "L")) {
+    if (lsame_(side, "L", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form  P * A */
 
-	if (lsame_(pivot, "V")) {
-	    if (lsame_(direct, "F")) {
+	if (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -31112,7 +31359,7 @@ L80:
 		    }
 /* L20: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -31130,8 +31377,8 @@ L80:
 /* L40: */
 		}
 	    }
-	} else if (lsame_(pivot, "T")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "T", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m;
 		for (j = 2; j <= i__1; ++j) {
 		    ctemp = c__[j - 1];
@@ -31149,7 +31396,7 @@ L80:
 		    }
 /* L60: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m; j >= 2; --j) {
 		    ctemp = c__[j - 1];
 		    stemp = s[j - 1];
@@ -31167,8 +31414,8 @@ L80:
 /* L80: */
 		}
 	    }
-	} else if (lsame_(pivot, "B")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "B", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *m - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -31186,7 +31433,7 @@ L80:
 		    }
 /* L100: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *m - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -31205,12 +31452,12 @@ L80:
 		}
 	    }
 	}
-    } else if (lsame_(side, "R")) {
+    } else if (lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 
 /*        Form A * P' */
 
-	if (lsame_(pivot, "V")) {
-	    if (lsame_(direct, "F")) {
+	if (lsame_(pivot, "V", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -31228,7 +31475,7 @@ L80:
 		    }
 /* L140: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -31246,8 +31493,8 @@ L80:
 /* L160: */
 		}
 	    }
-	} else if (lsame_(pivot, "T")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "T", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n;
 		for (j = 2; j <= i__1; ++j) {
 		    ctemp = c__[j - 1];
@@ -31265,7 +31512,7 @@ L80:
 		    }
 /* L180: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n; j >= 2; --j) {
 		    ctemp = c__[j - 1];
 		    stemp = s[j - 1];
@@ -31283,8 +31530,8 @@ L80:
 /* L200: */
 		}
 	    }
-	} else if (lsame_(pivot, "B")) {
-	    if (lsame_(direct, "F")) {
+	} else if (lsame_(pivot, "B", (ftnlen)1, (ftnlen)1)) {
+	    if (lsame_(direct, "F", (ftnlen)1, (ftnlen)1)) {
 		i__1 = *n - 1;
 		for (j = 1; j <= i__1; ++j) {
 		    ctemp = c__[j];
@@ -31302,7 +31549,7 @@ L80:
 		    }
 /* L220: */
 		}
-	    } else if (lsame_(direct, "B")) {
+	    } else if (lsame_(direct, "B", (ftnlen)1, (ftnlen)1)) {
 		for (j = *n - 1; j >= 1; --j) {
 		    ctemp = c__[j];
 		    stemp = s[j];
@@ -31330,7 +31577,7 @@ L80:
 } /* dlasr_ */
 
 /* Subroutine */ int dlasrt_(char *id, integer *n, doublereal *d__, integer *
-	info)
+	info, ftnlen id_len)
 {
     /* System generated locals */
     integer i__1, i__2;
@@ -31341,11 +31588,11 @@ L80:
     static integer dir;
     static doublereal tmp;
     static integer endd;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer stack[64]	/* was [2][32] */;
     static doublereal dmnmx;
     static integer start;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static integer stkpnt;
 
 
@@ -31397,9 +31644,9 @@ L80:
     /* Function Body */
     *info = 0;
     dir = -1;
-    if (lsame_(id, "D")) {
+    if (lsame_(id, "D", (ftnlen)1, (ftnlen)1)) {
 	dir = 0;
-    } else if (lsame_(id, "I")) {
+    } else if (lsame_(id, "I", (ftnlen)1, (ftnlen)1)) {
 	dir = 1;
     }
     if (dir == -1) {
@@ -31409,7 +31656,7 @@ L80:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLASRT", &i__1);
+	xerbla_("DLASRT", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -32527,7 +32774,7 @@ L50:
 
 /* Subroutine */ int dlatrd_(char *uplo, integer *n, integer *nb, doublereal *
 	a, integer *lda, doublereal *e, doublereal *tau, doublereal *w,
-	integer *ldw)
+	integer *ldw, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, w_dim1, w_offset, i__1, i__2, i__3;
@@ -32539,13 +32786,14 @@ L50:
     static doublereal alpha;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *), daxpy_(integer *,
+	    doublereal *, doublereal *, integer *, ftnlen), daxpy_(integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *),
 	    dsymv_(char *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *, doublereal *, doublereal *, integer *), dlarfg_(integer *, doublereal *, doublereal *, integer *,
+	    doublereal *, integer *, doublereal *, doublereal *, integer *,
+	    ftnlen), dlarfg_(integer *, doublereal *, doublereal *, integer *,
 	     doublereal *);
 
 
@@ -32698,7 +32946,7 @@ L50:
 	return 0;
     }
 
-    if (lsame_(uplo, "U")) {
+    if (lsame_(uplo, "U", (ftnlen)1, (ftnlen)1)) {
 
 /*        Reduce last NB columns of upper triangle */
 
@@ -32712,11 +32960,11 @@ L50:
 		i__2 = *n - i__;
 		dgemv_("No transpose", &i__, &i__2, &c_b151, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &w[i__ + (iw + 1) * w_dim1], ldw, &
-			c_b15, &a[i__ * a_dim1 + 1], &c__1);
+			c_b15, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		dgemv_("No transpose", &i__, &i__2, &c_b151, &w[(iw + 1) *
 			w_dim1 + 1], ldw, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			c_b15, &a[i__ * a_dim1 + 1], &c__1);
+			c_b15, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 	    }
 	    if (i__ > 1) {
 
@@ -32736,28 +32984,32 @@ L50:
 		i__2 = i__ - 1;
 		dsymv_("Upper", &i__2, &c_b15, &a[a_offset], lda, &a[i__ *
 			a_dim1 + 1], &c__1, &c_b29, &w[iw * w_dim1 + 1], &
-			c__1);
+			c__1, (ftnlen)5);
 		if (i__ < *n) {
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    dgemv_("Transpose", &i__2, &i__3, &c_b15, &w[(iw + 1) *
 			    w_dim1 + 1], ldw, &a[i__ * a_dim1 + 1], &c__1, &
-			    c_b29, &w[i__ + 1 + iw * w_dim1], &c__1);
+			    c_b29, &w[i__ + 1 + iw * w_dim1], &c__1, (ftnlen)
+			    9);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    dgemv_("No transpose", &i__2, &i__3, &c_b151, &a[(i__ + 1)
 			     * a_dim1 + 1], lda, &w[i__ + 1 + iw * w_dim1], &
-			    c__1, &c_b15, &w[iw * w_dim1 + 1], &c__1);
+			    c__1, &c_b15, &w[iw * w_dim1 + 1], &c__1, (ftnlen)
+			    12);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[(i__ + 1) *
 			    a_dim1 + 1], lda, &a[i__ * a_dim1 + 1], &c__1, &
-			    c_b29, &w[i__ + 1 + iw * w_dim1], &c__1);
+			    c_b29, &w[i__ + 1 + iw * w_dim1], &c__1, (ftnlen)
+			    9);
 		    i__2 = i__ - 1;
 		    i__3 = *n - i__;
 		    dgemv_("No transpose", &i__2, &i__3, &c_b151, &w[(iw + 1)
 			    * w_dim1 + 1], ldw, &w[i__ + 1 + iw * w_dim1], &
-			    c__1, &c_b15, &w[iw * w_dim1 + 1], &c__1);
+			    c__1, &c_b15, &w[iw * w_dim1 + 1], &c__1, (ftnlen)
+			    12);
 		}
 		i__2 = i__ - 1;
 		dscal_(&i__2, &tau[i__ - 1], &w[iw * w_dim1 + 1], &c__1);
@@ -32784,12 +33036,12 @@ L50:
 	    i__3 = i__ - 1;
 	    dgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + a_dim1],
 		    lda, &w[i__ + w_dim1], ldw, &c_b15, &a[i__ + i__ * a_dim1]
-		    , &c__1);
+		    , &c__1, (ftnlen)12);
 	    i__2 = *n - i__ + 1;
 	    i__3 = i__ - 1;
 	    dgemv_("No transpose", &i__2, &i__3, &c_b151, &w[i__ + w_dim1],
 		    ldw, &a[i__ + a_dim1], lda, &c_b15, &a[i__ + i__ * a_dim1]
-		    , &c__1);
+		    , &c__1, (ftnlen)12);
 	    if (i__ < *n) {
 
 /*
@@ -32810,27 +33062,27 @@ L50:
 		i__2 = *n - i__;
 		dsymv_("Lower", &i__2, &c_b15, &a[i__ + 1 + (i__ + 1) *
 			a_dim1], lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &
-			c_b29, &w[i__ + 1 + i__ * w_dim1], &c__1);
+			c_b29, &w[i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)5);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &w[i__ + 1 + w_dim1]
 			, ldw, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &w[
-			i__ * w_dim1 + 1], &c__1);
+			i__ * w_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &a[i__ + 1 +
 			a_dim1], lda, &w[i__ * w_dim1 + 1], &c__1, &c_b15, &w[
-			i__ + 1 + i__ * w_dim1], &c__1);
+			i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + a_dim1]
 			, lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &w[
-			i__ * w_dim1 + 1], &c__1);
+			i__ * w_dim1 + 1], &c__1, (ftnlen)9);
 		i__2 = *n - i__;
 		i__3 = i__ - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &w[i__ + 1 +
 			w_dim1], ldw, &w[i__ * w_dim1 + 1], &c__1, &c_b15, &w[
-			i__ + 1 + i__ * w_dim1], &c__1);
+			i__ + 1 + i__ * w_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - i__;
 		dscal_(&i__2, &tau[i__], &w[i__ + 1 + i__ * w_dim1], &c__1);
 		i__2 = *n - i__;
@@ -32852,7 +33104,7 @@ L50:
 } /* dlatrd_ */
 
 /* Subroutine */ int dlauu2_(char *uplo, integer *n, doublereal *a, integer *
-	lda, integer *info)
+	lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -32864,12 +33116,12 @@ L50:
 	    integer *);
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, ftnlen);
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -32932,8 +33184,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -32942,7 +33194,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAUU2", &i__1);
+	xerbla_("DLAUU2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -32967,7 +33219,7 @@ L50:
 		i__3 = *n - i__;
 		dgemv_("No transpose", &i__2, &i__3, &c_b15, &a[(i__ + 1) *
 			a_dim1 + 1], lda, &a[i__ + (i__ + 1) * a_dim1], lda, &
-			aii, &a[i__ * a_dim1 + 1], &c__1);
+			aii, &a[i__ * a_dim1 + 1], &c__1, (ftnlen)12);
 	    } else {
 		dscal_(&i__, &aii, &a[i__ * a_dim1 + 1], &c__1);
 	    }
@@ -32989,7 +33241,7 @@ L50:
 		i__3 = i__ - 1;
 		dgemv_("Transpose", &i__2, &i__3, &c_b15, &a[i__ + 1 + a_dim1]
 			, lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &aii, &a[
-			i__ + a_dim1], lda);
+			i__ + a_dim1], lda, (ftnlen)9);
 	    } else {
 		dscal_(&i__, &aii, &a[i__ + a_dim1], lda);
 	    }
@@ -33004,7 +33256,7 @@ L50:
 } /* dlauu2_ */
 
 /* Subroutine */ int dlauum_(char *uplo, integer *n, doublereal *a, integer *
-	lda, integer *info)
+	lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
@@ -33013,17 +33265,17 @@ L50:
     static integer i__, ib, nb;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
-    extern logical lsame_(char *, char *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dtrmm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *);
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int dsyrk_(char *, char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, doublereal *,
-	     integer *), dlauu2_(char *, integer *,
-	    doublereal *, integer *, integer *), xerbla_(char *,
-	    integer *);
+	     integer *, ftnlen, ftnlen), dlauu2_(char *, integer *,
+	    doublereal *, integer *, integer *, ftnlen), xerbla_(char *,
+	    integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
 
@@ -33088,8 +33340,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -33098,7 +33350,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DLAUUM", &i__1);
+	xerbla_("DLAUUM", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -33117,7 +33369,7 @@ L50:
 
 /*        Use unblocked code */
 
-	dlauu2_(uplo, n, &a[a_offset], lda, info);
+	dlauu2_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -33135,20 +33387,21 @@ L50:
 		i__3 = i__ - 1;
 		dtrmm_("Right", "Upper", "Transpose", "Non-unit", &i__3, &ib,
 			&c_b15, &a[i__ + i__ * a_dim1], lda, &a[i__ * a_dim1
-			+ 1], lda)
+			+ 1], lda, (ftnlen)5, (ftnlen)5, (ftnlen)9, (ftnlen)8)
 			;
-		dlauu2_("Upper", &ib, &a[i__ + i__ * a_dim1], lda, info);
+		dlauu2_("Upper", &ib, &a[i__ + i__ * a_dim1], lda, info, (
+			ftnlen)5);
 		if (i__ + ib <= *n) {
 		    i__3 = i__ - 1;
 		    i__4 = *n - i__ - ib + 1;
 		    dgemm_("No transpose", "Transpose", &i__3, &ib, &i__4, &
 			    c_b15, &a[(i__ + ib) * a_dim1 + 1], lda, &a[i__ +
 			    (i__ + ib) * a_dim1], lda, &c_b15, &a[i__ *
-			    a_dim1 + 1], lda);
+			    a_dim1 + 1], lda, (ftnlen)12, (ftnlen)9);
 		    i__3 = *n - i__ - ib + 1;
 		    dsyrk_("Upper", "No transpose", &ib, &i__3, &c_b15, &a[
 			    i__ + (i__ + ib) * a_dim1], lda, &c_b15, &a[i__ +
-			    i__ * a_dim1], lda);
+			    i__ * a_dim1], lda, (ftnlen)5, (ftnlen)12);
 		}
 /* L10: */
 	    }
@@ -33165,18 +33418,20 @@ L50:
 		i__3 = i__ - 1;
 		dtrmm_("Left", "Lower", "Transpose", "Non-unit", &ib, &i__3, &
 			c_b15, &a[i__ + i__ * a_dim1], lda, &a[i__ + a_dim1],
-			lda);
-		dlauu2_("Lower", &ib, &a[i__ + i__ * a_dim1], lda, info);
+			lda, (ftnlen)4, (ftnlen)5, (ftnlen)9, (ftnlen)8);
+		dlauu2_("Lower", &ib, &a[i__ + i__ * a_dim1], lda, info, (
+			ftnlen)5);
 		if (i__ + ib <= *n) {
 		    i__3 = i__ - 1;
 		    i__4 = *n - i__ - ib + 1;
 		    dgemm_("Transpose", "No transpose", &ib, &i__3, &i__4, &
 			    c_b15, &a[i__ + ib + i__ * a_dim1], lda, &a[i__ +
-			    ib + a_dim1], lda, &c_b15, &a[i__ + a_dim1], lda);
+			    ib + a_dim1], lda, &c_b15, &a[i__ + a_dim1], lda,
+			    (ftnlen)9, (ftnlen)12);
 		    i__3 = *n - i__ - ib + 1;
 		    dsyrk_("Lower", "Transpose", &ib, &i__3, &c_b15, &a[i__ +
 			    ib + i__ * a_dim1], lda, &c_b15, &a[i__ + i__ *
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)5, (ftnlen)9);
 		}
 /* L20: */
 	    }
@@ -33200,7 +33455,8 @@ L50:
     static integer i__, j, l;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *), dlarf_(char *, integer *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *, doublereal *), xerbla_(char *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, doublereal *,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -33280,7 +33536,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORG2R", &i__1);
+	xerbla_("DORG2R", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -33312,7 +33568,8 @@ L50:
 	    i__1 = *m - i__ + 1;
 	    i__2 = *n - i__;
 	    dlarf_("Left", &i__1, &i__2, &a[i__ + i__ * a_dim1], &c__1, &tau[
-		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1]);
+		    i__], &a[i__ + (i__ + 1) * a_dim1], lda, &work[1], (
+		    ftnlen)4);
 	}
 	if (i__ < *m) {
 	    i__1 = *m - i__;
@@ -33338,17 +33595,17 @@ L50:
 
 /* Subroutine */ int dorgbr_(char *vect, integer *m, integer *n, integer *k,
 	doublereal *a, integer *lda, doublereal *tau, doublereal *work,
-	integer *lwork, integer *info)
+	integer *lwork, integer *info, ftnlen vect_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
     static integer i__, j, nb, mn;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
     static logical wantq;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int dorglq_(integer *, integer *, integer *,
@@ -33461,10 +33718,10 @@ L50:
 
     /* Function Body */
     *info = 0;
-    wantq = lsame_(vect, "Q");
+    wantq = lsame_(vect, "Q", (ftnlen)1, (ftnlen)1);
     mn = min(*m,*n);
     lquery = *lwork == -1;
-    if (! wantq && ! lsame_(vect, "P")) {
+    if (! wantq && ! lsame_(vect, "P", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*m < 0) {
 	*info = -2;
@@ -33493,7 +33750,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORGBR", &i__1);
+	xerbla_("DORGBR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -33623,7 +33880,7 @@ L50:
 
     /* Local variables */
     static integer i__, j, nb, nh, iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int dorgqr_(integer *, integer *, integer *,
@@ -33729,7 +33986,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORGHR", &i__1);
+	xerbla_("DORGHR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -33813,7 +34070,8 @@ L50:
     static integer i__, j, l;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *), dlarf_(char *, integer *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *, doublereal *), xerbla_(char *, integer *);
+	    integer *, doublereal *, doublereal *, integer *, doublereal *,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -33892,7 +34150,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORGL2", &i__1);
+	xerbla_("DORGL2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -33930,7 +34188,8 @@ L50:
 		i__1 = *m - i__;
 		i__2 = *n - i__ + 1;
 		dlarf_("Right", &i__1, &i__2, &a[i__ + i__ * a_dim1], lda, &
-			tau[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1]);
+			tau[i__], &a[i__ + 1 + i__ * a_dim1], lda, &work[1], (
+			ftnlen)5);
 	    }
 	    i__1 = *n - i__;
 	    d__1 = -tau[i__];
@@ -33966,8 +34225,10 @@ L50:
 	    doublereal *, integer *, doublereal *, doublereal *, integer *),
 	    dlarfb_(char *, char *, char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *, doublereal *, integer *), dlarft_(char *, char *, integer *, integer *,
-	    doublereal *, integer *, doublereal *, doublereal *, integer *), xerbla_(char *, integer *);
+	    doublereal *, integer *, doublereal *, integer *, ftnlen, ftnlen,
+	    ftnlen, ftnlen), dlarft_(char *, char *, integer *, integer *,
+	    doublereal *, integer *, doublereal *, doublereal *, integer *,
+	    ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
@@ -34067,7 +34328,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORGLQ", &i__1);
+	xerbla_("DORGLQ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -34170,7 +34431,8 @@ L50:
 
 		i__2 = *n - i__ + 1;
 		dlarft_("Forward", "Rowwise", &i__2, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)7);
 
 /*              Apply H' to A(i+ib:m,i:n) from the right */
 
@@ -34179,7 +34441,8 @@ L50:
 		dlarfb_("Right", "Transpose", "Forward", "Rowwise", &i__2, &
 			i__3, &ib, &a[i__ + i__ * a_dim1], lda, &work[1], &
 			ldwork, &a[i__ + ib + i__ * a_dim1], lda, &work[ib +
-			1], &ldwork);
+			1], &ldwork, (ftnlen)5, (ftnlen)9, (ftnlen)7, (ftnlen)
+			7);
 	    }
 
 /*           Apply H' to columns i:n of current block */
@@ -34223,8 +34486,10 @@ L50:
 	    doublereal *, integer *, doublereal *, doublereal *, integer *),
 	    dlarfb_(char *, char *, char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, integer *, doublereal *, integer *), dlarft_(char *, char *, integer *, integer *,
-	    doublereal *, integer *, doublereal *, doublereal *, integer *), xerbla_(char *, integer *);
+	    doublereal *, integer *, doublereal *, integer *, ftnlen, ftnlen,
+	    ftnlen, ftnlen), dlarft_(char *, char *, integer *, integer *,
+	    doublereal *, integer *, doublereal *, doublereal *, integer *,
+	    ftnlen, ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
@@ -34325,7 +34590,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORGQR", &i__1);
+	xerbla_("DORGQR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -34428,7 +34693,8 @@ L50:
 
 		i__2 = *m - i__ + 1;
 		dlarft_("Forward", "Columnwise", &i__2, &ib, &a[i__ + i__ *
-			a_dim1], lda, &tau[i__], &work[1], &ldwork);
+			a_dim1], lda, &tau[i__], &work[1], &ldwork, (ftnlen)7,
+			 (ftnlen)10);
 
 /*              Apply H to A(i:m,i+ib:n) from the left */
 
@@ -34437,7 +34703,8 @@ L50:
 		dlarfb_("Left", "No transpose", "Forward", "Columnwise", &
 			i__2, &i__3, &ib, &a[i__ + i__ * a_dim1], lda, &work[
 			1], &ldwork, &a[i__ + (i__ + ib) * a_dim1], lda, &
-			work[ib + 1], &ldwork);
+			work[ib + 1], &ldwork, (ftnlen)4, (ftnlen)12, (ftnlen)
+			7, (ftnlen)10);
 	    }
 
 /*           Apply H to rows i:m of current block */
@@ -34470,7 +34737,8 @@ L50:
 
 /* Subroutine */ int dorm2l_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublereal *a, integer *lda, doublereal *tau, doublereal *
-	c__, integer *ldc, doublereal *work, integer *info)
+	c__, integer *ldc, doublereal *work, integer *info, ftnlen side_len,
+	ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2;
@@ -34481,9 +34749,9 @@ L50:
     static logical left;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *);
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+	    doublereal *, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical notran;
 
 
@@ -34586,8 +34854,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -34596,9 +34864,9 @@ L50:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -34613,7 +34881,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORM2L", &i__1);
+	xerbla_("DORM2L", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -34659,7 +34927,7 @@ L50:
 	aii = a[nq - *k + i__ + i__ * a_dim1];
 	a[nq - *k + i__ + i__ * a_dim1] = 1.;
 	dlarf_(side, &mi, &ni, &a[i__ * a_dim1 + 1], &c__1, &tau[i__], &c__[
-		c_offset], ldc, &work[1]);
+		c_offset], ldc, &work[1], (ftnlen)1);
 	a[nq - *k + i__ + i__ * a_dim1] = aii;
 /* L10: */
     }
@@ -34671,7 +34939,8 @@ L50:
 
 /* Subroutine */ int dorm2r_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublereal *a, integer *lda, doublereal *tau, doublereal *
-	c__, integer *ldc, doublereal *work, integer *info)
+	c__, integer *ldc, doublereal *work, integer *info, ftnlen side_len,
+	ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2;
@@ -34682,9 +34951,9 @@ L50:
     static logical left;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *);
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+	    doublereal *, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical notran;
 
 
@@ -34787,8 +35056,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -34797,9 +35066,9 @@ L50:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -34814,7 +35083,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORM2R", &i__1);
+	xerbla_("DORM2R", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -34864,7 +35133,7 @@ L50:
 	aii = a[i__ + i__ * a_dim1];
 	a[i__ + i__ * a_dim1] = 1.;
 	dlarf_(side, &mi, &ni, &a[i__ + i__ * a_dim1], &c__1, &tau[i__], &c__[
-		ic + jc * c_dim1], ldc, &work[1]);
+		ic + jc * c_dim1], ldc, &work[1], (ftnlen)1);
 	a[i__ + i__ * a_dim1] = aii;
 /* L10: */
     }
@@ -34877,7 +35146,7 @@ L50:
 /* Subroutine */ int dormbr_(char *vect, char *side, char *trans, integer *m,
 	integer *n, integer *k, doublereal *a, integer *lda, doublereal *tau,
 	doublereal *c__, integer *ldc, doublereal *work, integer *lwork,
-	integer *info)
+	integer *info, ftnlen vect_len, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -34887,18 +35156,18 @@ L50:
     /* Local variables */
     static integer i1, i2, nb, mi, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int dormlq_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *, integer *);
+	    integer *, doublereal *, integer *, integer *, ftnlen, ftnlen);
     static logical notran;
     extern /* Subroutine */ int dormqr_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *, integer *);
+	    integer *, doublereal *, integer *, integer *, ftnlen, ftnlen);
     static logical applyq;
     static char transt[1];
     static integer lwkopt;
@@ -35034,9 +35303,9 @@ L50:
 
     /* Function Body */
     *info = 0;
-    applyq = lsame_(vect, "Q");
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    applyq = lsame_(vect, "Q", (ftnlen)1, (ftnlen)1);
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q or P and NW is the minimum dimension of WORK */
@@ -35048,11 +35317,11 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! applyq && ! lsame_(vect, "P")) {
+    if (! applyq && ! lsame_(vect, "P", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! left && ! lsame_(side, "R")) {
+    } else if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -3;
     } else if (*m < 0) {
 	*info = -4;
@@ -35120,7 +35389,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORMBR", &i__1);
+	xerbla_("DORMBR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -35142,7 +35411,8 @@ L50:
 /*           Q was determined by a call to DGEBRD with nq >= k */
 
 	    dormqr_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		    c_offset], ldc, &work[1], lwork, &iinfo);
+		    c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)1, (
+		    ftnlen)1);
 	} else if (nq > 1) {
 
 /*           Q was determined by a call to DGEBRD with nq < k */
@@ -35160,7 +35430,8 @@ L50:
 	    }
 	    i__1 = nq - 1;
 	    dormqr_(side, trans, &mi, &ni, &i__1, &a[a_dim1 + 2], lda, &tau[1]
-		    , &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+		    , &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (
+		    ftnlen)1, (ftnlen)1);
 	}
     } else {
 
@@ -35176,7 +35447,8 @@ L50:
 /*           P was determined by a call to DGEBRD with nq > k */
 
 	    dormlq_(side, transt, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		    c_offset], ldc, &work[1], lwork, &iinfo);
+		    c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)1, (
+		    ftnlen)1);
 	} else if (nq > 1) {
 
 /*           P was determined by a call to DGEBRD with nq <= k */
@@ -35195,7 +35467,7 @@ L50:
 	    i__1 = nq - 1;
 	    dormlq_(side, transt, &mi, &ni, &i__1, &a[(a_dim1 << 1) + 1], lda,
 		     &tau[1], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &
-		    iinfo);
+		    iinfo, (ftnlen)1, (ftnlen)1);
 	}
     }
     work[1] = (doublereal) lwkopt;
@@ -35208,7 +35480,7 @@ L50:
 /* Subroutine */ int dormhr_(char *side, char *trans, integer *m, integer *n,
 	integer *ilo, integer *ihi, doublereal *a, integer *lda, doublereal *
 	tau, doublereal *c__, integer *ldc, doublereal *work, integer *lwork,
-	integer *info)
+	integer *info, ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -35218,14 +35490,14 @@ L50:
     /* Local variables */
     static integer i1, i2, nb, mi, nh, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int dormqr_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *, integer *);
+	    integer *, doublereal *, integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
 
@@ -35341,7 +35613,7 @@ L50:
     /* Function Body */
     *info = 0;
     nh = *ihi - *ilo;
-    left = lsame_(side, "L");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -35353,10 +35625,10 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -35396,7 +35668,7 @@ L50:
 
     if (*info != 0) {
 	i__2 = -(*info);
-	xerbla_("DORMHR", &i__2);
+	xerbla_("DORMHR", &i__2, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -35422,7 +35694,8 @@ L50:
     }
 
     dormqr_(side, trans, &mi, &ni, &nh, &a[*ilo + 1 + *ilo * a_dim1], lda, &
-	    tau[*ilo], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+	    tau[*ilo], &c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (
+	    ftnlen)1, (ftnlen)1);
 
     work[1] = (doublereal) lwkopt;
     return 0;
@@ -35433,7 +35706,8 @@ L50:
 
 /* Subroutine */ int dorml2_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublereal *a, integer *lda, doublereal *tau, doublereal *
-	c__, integer *ldc, doublereal *work, integer *info)
+	c__, integer *ldc, doublereal *work, integer *info, ftnlen side_len,
+	ftnlen trans_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, c_dim1, c_offset, i__1, i__2;
@@ -35444,9 +35718,9 @@ L50:
     static logical left;
     extern /* Subroutine */ int dlarf_(char *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *);
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+	    doublereal *, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static logical notran;
 
 
@@ -35549,8 +35823,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
 
 /*     NQ is the order of Q */
 
@@ -35559,9 +35833,9 @@ L50:
     } else {
 	nq = *n;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -35576,7 +35850,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORML2", &i__1);
+	xerbla_("DORML2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -35626,7 +35900,7 @@ L50:
 	aii = a[i__ + i__ * a_dim1];
 	a[i__ + i__ * a_dim1] = 1.;
 	dlarf_(side, &mi, &ni, &a[i__ + i__ * a_dim1], lda, &tau[i__], &c__[
-		ic + jc * c_dim1], ldc, &work[1]);
+		ic + jc * c_dim1], ldc, &work[1], (ftnlen)1);
 	a[i__ + i__ * a_dim1] = aii;
 /* L10: */
     }
@@ -35638,7 +35912,8 @@ L50:
 
 /* Subroutine */ int dormlq_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublereal *a, integer *lda, doublereal *tau, doublereal *
-	c__, integer *ldc, doublereal *work, integer *lwork, integer *info)
+	c__, integer *ldc, doublereal *work, integer *lwork, integer *info,
+	ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -35651,15 +35926,17 @@ L50:
     static doublereal t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, ic, jc, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int dorml2_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *), dlarfb_(char
+	    integer *, doublereal *, integer *, ftnlen, ftnlen), dlarfb_(char
 	    *, char *, char *, char *, integer *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, integer *), dlarft_(char *, char *, integer *, integer *, doublereal
-	    *, integer *, doublereal *, doublereal *, integer *), xerbla_(char *, integer *);
+	    integer *, doublereal *, integer *, ftnlen, ftnlen, ftnlen,
+	    ftnlen), dlarft_(char *, char *, integer *, integer *, doublereal
+	    *, integer *, doublereal *, doublereal *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical notran;
@@ -35776,8 +36053,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -35789,9 +36066,9 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -35828,7 +36105,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORMLQ", &i__1);
+	xerbla_("DORMLQ", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -35867,7 +36144,7 @@ L50:
 /*        Use unblocked code */
 
 	dorml2_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -35910,7 +36187,7 @@ L50:
 
 	    i__4 = nq - i__ + 1;
 	    dlarft_("Forward", "Rowwise", &i__4, &ib, &a[i__ + i__ * a_dim1],
-		    lda, &tau[i__], t, &c__65);
+		    lda, &tau[i__], t, &c__65, (ftnlen)7, (ftnlen)7);
 	    if (left) {
 
 /*              H or H' is applied to C(i:m,1:n) */
@@ -35929,7 +36206,8 @@ L50:
 
 	    dlarfb_(side, transt, "Forward", "Rowwise", &mi, &ni, &ib, &a[i__
 		    + i__ * a_dim1], lda, t, &c__65, &c__[ic + jc * c_dim1],
-		    ldc, &work[1], &ldwork);
+		    ldc, &work[1], &ldwork, (ftnlen)1, (ftnlen)1, (ftnlen)7, (
+		    ftnlen)7);
 /* L10: */
 	}
     }
@@ -35942,7 +36220,8 @@ L50:
 
 /* Subroutine */ int dormql_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublereal *a, integer *lda, doublereal *tau, doublereal *
-	c__, integer *ldc, doublereal *work, integer *lwork, integer *info)
+	c__, integer *ldc, doublereal *work, integer *lwork, integer *info,
+	ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -35955,15 +36234,17 @@ L50:
     static doublereal t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int dorm2l_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *), dlarfb_(char
+	    integer *, doublereal *, integer *, ftnlen, ftnlen), dlarfb_(char
 	    *, char *, char *, char *, integer *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, integer *), dlarft_(char *, char *, integer *, integer *, doublereal
-	    *, integer *, doublereal *, doublereal *, integer *), xerbla_(char *, integer *);
+	    integer *, doublereal *, integer *, ftnlen, ftnlen, ftnlen,
+	    ftnlen), dlarft_(char *, char *, integer *, integer *, doublereal
+	    *, integer *, doublereal *, doublereal *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical notran;
@@ -36078,8 +36359,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -36091,9 +36372,9 @@ L50:
 	nq = *n;
 	nw = max(1,*m);
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -36136,7 +36417,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORMQL", &i__1);
+	xerbla_("DORMQL", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -36174,7 +36455,7 @@ L50:
 /*        Use unblocked code */
 
 	dorm2l_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -36209,7 +36490,7 @@ L50:
 
 	    i__4 = nq - *k + i__ + ib - 1;
 	    dlarft_("Backward", "Columnwise", &i__4, &ib, &a[i__ * a_dim1 + 1]
-		    , lda, &tau[i__], t, &c__65);
+		    , lda, &tau[i__], t, &c__65, (ftnlen)8, (ftnlen)10);
 	    if (left) {
 
 /*              H or H' is applied to C(1:m-k+i+ib-1,1:n) */
@@ -36226,7 +36507,8 @@ L50:
 
 	    dlarfb_(side, trans, "Backward", "Columnwise", &mi, &ni, &ib, &a[
 		    i__ * a_dim1 + 1], lda, t, &c__65, &c__[c_offset], ldc, &
-		    work[1], &ldwork);
+		    work[1], &ldwork, (ftnlen)1, (ftnlen)1, (ftnlen)8, (
+		    ftnlen)10);
 /* L10: */
 	}
     }
@@ -36239,7 +36521,8 @@ L50:
 
 /* Subroutine */ int dormqr_(char *side, char *trans, integer *m, integer *n,
 	integer *k, doublereal *a, integer *lda, doublereal *tau, doublereal *
-	c__, integer *ldc, doublereal *work, integer *lwork, integer *info)
+	c__, integer *ldc, doublereal *work, integer *lwork, integer *info,
+	ftnlen side_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -36252,15 +36535,17 @@ L50:
     static doublereal t[4160]	/* was [65][64] */;
     static integer i1, i2, i3, ib, ic, jc, nb, mi, ni, nq, nw, iws;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     extern /* Subroutine */ int dorm2r_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *), dlarfb_(char
+	    integer *, doublereal *, integer *, ftnlen, ftnlen), dlarfb_(char
 	    *, char *, char *, char *, integer *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, integer *), dlarft_(char *, char *, integer *, integer *, doublereal
-	    *, integer *, doublereal *, doublereal *, integer *), xerbla_(char *, integer *);
+	    integer *, doublereal *, integer *, ftnlen, ftnlen, ftnlen,
+	    ftnlen), dlarft_(char *, char *, integer *, integer *, doublereal
+	    *, integer *, doublereal *, doublereal *, integer *, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical notran;
@@ -36375,8 +36660,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    notran = lsame_(trans, "N");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    notran = lsame_(trans, "N", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -36388,9 +36673,9 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! notran && ! lsame_(trans, "T")) {
+    } else if (! notran && ! lsame_(trans, "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*m < 0) {
 	*info = -3;
@@ -36427,7 +36712,7 @@ L50:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DORMQR", &i__1);
+	xerbla_("DORMQR", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -36466,7 +36751,7 @@ L50:
 /*        Use unblocked code */
 
 	dorm2r_(side, trans, m, n, k, &a[a_offset], lda, &tau[1], &c__[
-		c_offset], ldc, &work[1], &iinfo);
+		c_offset], ldc, &work[1], &iinfo, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -36503,7 +36788,7 @@ L50:
 
 	    i__4 = nq - i__ + 1;
 	    dlarft_("Forward", "Columnwise", &i__4, &ib, &a[i__ + i__ *
-		    a_dim1], lda, &tau[i__], t, &c__65)
+		    a_dim1], lda, &tau[i__], t, &c__65, (ftnlen)7, (ftnlen)10)
 		    ;
 	    if (left) {
 
@@ -36523,7 +36808,8 @@ L50:
 
 	    dlarfb_(side, trans, "Forward", "Columnwise", &mi, &ni, &ib, &a[
 		    i__ + i__ * a_dim1], lda, t, &c__65, &c__[ic + jc *
-		    c_dim1], ldc, &work[1], &ldwork);
+		    c_dim1], ldc, &work[1], &ldwork, (ftnlen)1, (ftnlen)1, (
+		    ftnlen)7, (ftnlen)10);
 /* L10: */
 	}
     }
@@ -36536,7 +36822,8 @@ L50:
 
 /* Subroutine */ int dormtr_(char *side, char *uplo, char *trans, integer *m,
 	integer *n, doublereal *a, integer *lda, doublereal *tau, doublereal *
-	c__, integer *ldc, doublereal *work, integer *lwork, integer *info)
+	c__, integer *ldc, doublereal *work, integer *lwork, integer *info,
+	ftnlen side_len, ftnlen uplo_len, ftnlen trans_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -36546,18 +36833,18 @@ L50:
     /* Local variables */
     static integer i1, i2, nb, mi, ni, nq, nw;
     static logical left;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo;
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     extern /* Subroutine */ int dormql_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *, integer *),
+	    integer *, doublereal *, integer *, integer *, ftnlen, ftnlen),
 	    dormqr_(char *, char *, integer *, integer *, integer *,
 	    doublereal *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *, integer *);
+	    doublereal *, integer *, integer *, ftnlen, ftnlen);
     static integer lwkopt;
     static logical lquery;
 
@@ -36670,8 +36957,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    left = lsame_(side, "L");
-    upper = lsame_(uplo, "U");
+    left = lsame_(side, "L", (ftnlen)1, (ftnlen)1);
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
 
 /*     NQ is the order of Q and NW is the minimum dimension of WORK */
@@ -36683,12 +36970,12 @@ L50:
 	nq = *n;
 	nw = *m;
     }
-    if (! left && ! lsame_(side, "R")) {
+    if (! left && ! lsame_(side, "R", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! upper && ! lsame_(uplo, "L")) {
+    } else if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
-    } else if (! lsame_(trans, "N") && ! lsame_(trans,
-	    "T")) {
+    } else if (! lsame_(trans, "N", (ftnlen)1, (ftnlen)1) && ! lsame_(trans,
+	    "T", (ftnlen)1, (ftnlen)1)) {
 	*info = -3;
     } else if (*m < 0) {
 	*info = -4;
@@ -36750,7 +37037,7 @@ L50:
 
     if (*info != 0) {
 	i__2 = -(*info);
-	xerbla_("DORMTR", &i__2);
+	xerbla_("DORMTR", &i__2, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -36777,7 +37064,8 @@ L50:
 
 	i__2 = nq - 1;
 	dormql_(side, trans, &mi, &ni, &i__2, &a[(a_dim1 << 1) + 1], lda, &
-		tau[1], &c__[c_offset], ldc, &work[1], lwork, &iinfo);
+		tau[1], &c__[c_offset], ldc, &work[1], lwork, &iinfo, (ftnlen)
+		1, (ftnlen)1);
     } else {
 
 /*        Q was determined by a call to DSYTRD with UPLO = 'L' */
@@ -36791,7 +37079,8 @@ L50:
 	}
 	i__2 = nq - 1;
 	dormqr_(side, trans, &mi, &ni, &i__2, &a[a_dim1 + 2], lda, &tau[1], &
-		c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo);
+		c__[i1 + i2 * c_dim1], ldc, &work[1], lwork, &iinfo, (ftnlen)
+		1, (ftnlen)1);
     }
     work[1] = (doublereal) lwkopt;
     return 0;
@@ -36801,7 +37090,7 @@ L50:
 } /* dormtr_ */
 
 /* Subroutine */ int dpotf2_(char *uplo, integer *n, doublereal *a, integer *
-	lda, integer *info)
+	lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -36814,13 +37103,13 @@ L50:
 	    integer *);
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, ftnlen);
     static logical upper;
     extern logical disnan_(doublereal *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -36890,8 +37179,8 @@ L50:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -36900,7 +37189,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DPOTF2", &i__1);
+	xerbla_("DPOTF2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -36936,7 +37225,7 @@ L50:
 		i__3 = *n - j;
 		dgemv_("Transpose", &i__2, &i__3, &c_b151, &a[(j + 1) *
 			a_dim1 + 1], lda, &a[j * a_dim1 + 1], &c__1, &c_b15, &
-			a[j + (j + 1) * a_dim1], lda);
+			a[j + (j + 1) * a_dim1], lda, (ftnlen)9);
 		i__2 = *n - j;
 		d__1 = 1. / ajj;
 		dscal_(&i__2, &d__1, &a[j + (j + 1) * a_dim1], lda);
@@ -36969,7 +37258,7 @@ L50:
 		i__3 = j - 1;
 		dgemv_("No transpose", &i__2, &i__3, &c_b151, &a[j + 1 +
 			a_dim1], lda, &a[j + a_dim1], lda, &c_b15, &a[j + 1 +
-			j * a_dim1], &c__1);
+			j * a_dim1], &c__1, (ftnlen)12);
 		i__2 = *n - j;
 		d__1 = 1. / ajj;
 		dscal_(&i__2, &d__1, &a[j + 1 + j * a_dim1], &c__1);
@@ -36990,7 +37279,7 @@ L40:
 } /* dpotf2_ */
 
 /* Subroutine */ int dpotrf_(char *uplo, integer *n, doublereal *a, integer *
-	lda, integer *info)
+	lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
@@ -36999,17 +37288,17 @@ L40:
     static integer j, jb, nb;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
-    extern logical lsame_(char *, char *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *);
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int dsyrk_(char *, char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, doublereal *,
-	     integer *), dpotf2_(char *, integer *,
-	    doublereal *, integer *, integer *), xerbla_(char *,
-	    integer *);
+	     integer *, ftnlen, ftnlen), dpotf2_(char *, integer *,
+	    doublereal *, integer *, integer *, ftnlen), xerbla_(char *,
+	    integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
 
@@ -37079,8 +37368,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -37089,7 +37378,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DPOTRF", &i__1);
+	xerbla_("DPOTRF", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -37107,7 +37396,7 @@ L40:
 
 /*        Use unblocked code. */
 
-	dpotf2_(uplo, n, &a[a_offset], lda, info);
+	dpotf2_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
     } else {
 
 /*        Use blocked code. */
@@ -37130,8 +37419,10 @@ L40:
 		jb = min(i__3,i__4);
 		i__3 = j - 1;
 		dsyrk_("Upper", "Transpose", &jb, &i__3, &c_b151, &a[j *
-			a_dim1 + 1], lda, &c_b15, &a[j + j * a_dim1], lda);
-		dpotf2_("Upper", &jb, &a[j + j * a_dim1], lda, info);
+			a_dim1 + 1], lda, &c_b15, &a[j + j * a_dim1], lda, (
+			ftnlen)5, (ftnlen)9);
+		dpotf2_("Upper", &jb, &a[j + j * a_dim1], lda, info, (ftnlen)
+			5);
 		if (*info != 0) {
 		    goto L30;
 		}
@@ -37144,11 +37435,12 @@ L40:
 		    dgemm_("Transpose", "No transpose", &jb, &i__3, &i__4, &
 			    c_b151, &a[j * a_dim1 + 1], lda, &a[(j + jb) *
 			    a_dim1 + 1], lda, &c_b15, &a[j + (j + jb) *
-			    a_dim1], lda);
+			    a_dim1], lda, (ftnlen)9, (ftnlen)12);
 		    i__3 = *n - j - jb + 1;
 		    dtrsm_("Left", "Upper", "Transpose", "Non-unit", &jb, &
 			    i__3, &c_b15, &a[j + j * a_dim1], lda, &a[j + (j
-			    + jb) * a_dim1], lda);
+			    + jb) * a_dim1], lda, (ftnlen)4, (ftnlen)5, (
+			    ftnlen)9, (ftnlen)8);
 		}
 /* L10: */
 	    }
@@ -37171,8 +37463,10 @@ L40:
 		jb = min(i__3,i__4);
 		i__3 = j - 1;
 		dsyrk_("Lower", "No transpose", &jb, &i__3, &c_b151, &a[j +
-			a_dim1], lda, &c_b15, &a[j + j * a_dim1], lda);
-		dpotf2_("Lower", &jb, &a[j + j * a_dim1], lda, info);
+			a_dim1], lda, &c_b15, &a[j + j * a_dim1], lda, (
+			ftnlen)5, (ftnlen)12);
+		dpotf2_("Lower", &jb, &a[j + j * a_dim1], lda, info, (ftnlen)
+			5);
 		if (*info != 0) {
 		    goto L30;
 		}
@@ -37184,11 +37478,13 @@ L40:
 		    i__4 = j - 1;
 		    dgemm_("No transpose", "Transpose", &i__3, &jb, &i__4, &
 			    c_b151, &a[j + jb + a_dim1], lda, &a[j + a_dim1],
-			    lda, &c_b15, &a[j + jb + j * a_dim1], lda);
+			    lda, &c_b15, &a[j + jb + j * a_dim1], lda, (
+			    ftnlen)12, (ftnlen)9);
 		    i__3 = *n - j - jb + 1;
 		    dtrsm_("Right", "Lower", "Transpose", "Non-unit", &i__3, &
 			    jb, &c_b15, &a[j + j * a_dim1], lda, &a[j + jb +
-			    j * a_dim1], lda);
+			    j * a_dim1], lda, (ftnlen)5, (ftnlen)5, (ftnlen)9,
+			     (ftnlen)8);
 		}
 /* L20: */
 	    }
@@ -37207,17 +37503,17 @@ L40:
 } /* dpotrf_ */
 
 /* Subroutine */ int dpotri_(char *uplo, integer *n, doublereal *a, integer *
-	lda, integer *info)
+	lda, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
-    extern /* Subroutine */ int xerbla_(char *, integer *), dlauum_(
-	    char *, integer *, doublereal *, integer *, integer *),
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen), dlauum_(
+	    char *, integer *, doublereal *, integer *, integer *, ftnlen),
 	    dtrtri_(char *, char *, integer *, doublereal *, integer *,
-	    integer *);
+	    integer *, ftnlen, ftnlen);
 
 
 /*
@@ -37273,7 +37569,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    if (! lsame_(uplo, "U") && ! lsame_(uplo, "L")) {
+    if (! lsame_(uplo, "U", (ftnlen)1, (ftnlen)1) && ! lsame_(uplo, "L", (
+	    ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -37282,7 +37579,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DPOTRI", &i__1);
+	xerbla_("DPOTRI", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -37294,14 +37591,15 @@ L40:
 
 /*     Invert the triangular Cholesky factor U or L. */
 
-    dtrtri_(uplo, "Non-unit", n, &a[a_offset], lda, info);
+    dtrtri_(uplo, "Non-unit", n, &a[a_offset], lda, info, (ftnlen)1, (ftnlen)
+	    8);
     if (*info > 0) {
 	return 0;
     }
 
 /*     Form inv(U)*inv(U)' or inv(L)'*inv(L). */
 
-    dlauum_(uplo, n, &a[a_offset], lda, info);
+    dlauum_(uplo, n, &a[a_offset], lda, info, (ftnlen)1);
 
     return 0;
 
@@ -37311,18 +37609,18 @@ L40:
 
 /* Subroutine */ int dpotrs_(char *uplo, integer *n, integer *nrhs,
 	doublereal *a, integer *lda, doublereal *b, integer *ldb, integer *
-	info)
+	info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, b_dim1, b_offset, i__1;
 
     /* Local variables */
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dtrsm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *);
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen);
     static logical upper;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
 
 
 /*
@@ -37387,8 +37685,8 @@ L40:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -37401,7 +37699,7 @@ L40:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DPOTRS", &i__1);
+	xerbla_("DPOTRS", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -37420,12 +37718,14 @@ L40:
 */
 
 	dtrsm_("Left", "Upper", "Transpose", "Non-unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)9, (ftnlen)8);
 
 /*        Solve U*X = B, overwriting B with X. */
 
 	dtrsm_("Left", "Upper", "No transpose", "Non-unit", n, nrhs, &c_b15, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
     } else {
 
 /*
@@ -37435,12 +37735,14 @@ L40:
 */
 
 	dtrsm_("Left", "Lower", "No transpose", "Non-unit", n, nrhs, &c_b15, &
-		a[a_offset], lda, &b[b_offset], ldb);
+		a[a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)12, (ftnlen)8);
 
 /*        Solve L'*X = B, overwriting B with X. */
 
 	dtrsm_("Left", "Lower", "Transpose", "Non-unit", n, nrhs, &c_b15, &a[
-		a_offset], lda, &b[b_offset], ldb);
+		a_offset], lda, &b[b_offset], ldb, (ftnlen)4, (ftnlen)5, (
+		ftnlen)9, (ftnlen)8);
     }
 
     return 0;
@@ -37451,7 +37753,8 @@ L40:
 
 /* Subroutine */ int dstedc_(char *compz, integer *n, doublereal *d__,
 	doublereal *e, doublereal *z__, integer *ldz, doublereal *work,
-	integer *lwork, integer *iwork, integer *liwork, integer *info)
+	integer *lwork, integer *iwork, integer *liwork, integer *info,
+	ftnlen compz_len)
 {
     /* System generated locals */
     integer z_dim1, z_offset, i__1, i__2;
@@ -37464,8 +37767,8 @@ L40:
     static doublereal eps, tiny;
     extern /* Subroutine */ int dgemm_(char *, char *, integer *, integer *,
 	    integer *, doublereal *, doublereal *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, integer *);
-    extern logical lsame_(char *, char *);
+	    integer *, doublereal *, doublereal *, integer *, ftnlen, ftnlen);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dswap_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
     static integer lwmin;
@@ -37476,20 +37779,23 @@ L40:
 
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dlacpy_(char *, integer *, integer
-	    *, doublereal *, integer *, doublereal *, integer *),
+	    integer *, integer *, ftnlen), dlacpy_(char *, integer *, integer
+	    *, doublereal *, integer *, doublereal *, integer *, ftnlen),
 	    dlaset_(char *, integer *, integer *, doublereal *, doublereal *,
-	    doublereal *, integer *);
+	    doublereal *, integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static integer finish;
-    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *);
+    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *,
+	    ftnlen);
     extern /* Subroutine */ int dsterf_(integer *, doublereal *, doublereal *,
-	     integer *), dlasrt_(char *, integer *, doublereal *, integer *);
+	     integer *), dlasrt_(char *, integer *, doublereal *, integer *,
+	    ftnlen);
     static integer liwmin, icompz;
     extern /* Subroutine */ int dsteqr_(char *, integer *, doublereal *,
-	    doublereal *, doublereal *, integer *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, doublereal *, integer *,
+	    ftnlen);
     static doublereal orgnrm;
     static logical lquery;
     static integer smlsiz, storez, strtrw;
@@ -37628,11 +37934,11 @@ L40:
     *info = 0;
     lquery = *lwork == -1 || *liwork == -1;
 
-    if (lsame_(compz, "N")) {
+    if (lsame_(compz, "N", (ftnlen)1, (ftnlen)1)) {
 	icompz = 0;
-    } else if (lsame_(compz, "V")) {
+    } else if (lsame_(compz, "V", (ftnlen)1, (ftnlen)1)) {
 	icompz = 1;
-    } else if (lsame_(compz, "I")) {
+    } else if (lsame_(compz, "I", (ftnlen)1, (ftnlen)1)) {
 	icompz = 2;
     } else {
 	icompz = -1;
@@ -37689,7 +37995,7 @@ L40:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DSTEDC", &i__1);
+	xerbla_("DSTEDC", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -37732,7 +38038,8 @@ L40:
 
     if (*n <= smlsiz) {
 
-	dsteqr_(compz, n, &d__[1], &e[1], &z__[z_offset], ldz, &work[1], info);
+	dsteqr_(compz, n, &d__[1], &e[1], &z__[z_offset], ldz, &work[1], info,
+		 (ftnlen)1);
 
     } else {
 
@@ -37748,12 +38055,13 @@ L40:
 	}
 
 	if (icompz == 2) {
-	    dlaset_("Full", n, n, &c_b29, &c_b15, &z__[z_offset], ldz);
+	    dlaset_("Full", n, n, &c_b29, &c_b15, &z__[z_offset], ldz, (
+		    ftnlen)4);
 	}
 
 /*        Scale. */
 
-	orgnrm = dlanst_("M", n, &d__[1], &e[1]);
+	orgnrm = dlanst_("M", n, &d__[1], &e[1], (ftnlen)1);
 	if (orgnrm == 0.) {
 	    goto L50;
 	}
@@ -37797,13 +38105,13 @@ L20:
 
 /*              Scale. */
 
-		orgnrm = dlanst_("M", &m, &d__[start], &e[start]);
+		orgnrm = dlanst_("M", &m, &d__[start], &e[start], (ftnlen)1);
 		dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &m, &c__1, &d__[
-			start], &m, info);
+			start], &m, info, (ftnlen)1);
 		i__1 = m - 1;
 		i__2 = m - 1;
 		dlascl_("G", &c__0, &c__0, &orgnrm, &c_b15, &i__1, &c__1, &e[
-			start], &i__2, info);
+			start], &i__2, info, (ftnlen)1);
 
 		if (icompz == 1) {
 		    strtrw = 1;
@@ -37822,7 +38130,7 @@ L20:
 /*              Scale back. */
 
 		dlascl_("G", &c__0, &c__0, &c_b15, &orgnrm, &m, &c__1, &d__[
-			start], &m, info);
+			start], &m, info, (ftnlen)1);
 
 	    } else {
 		if (icompz == 1) {
@@ -37834,15 +38142,15 @@ L20:
 */
 
 		    dsteqr_("I", &m, &d__[start], &e[start], &work[1], &m, &
-			    work[m * m + 1], info);
+			    work[m * m + 1], info, (ftnlen)1);
 		    dlacpy_("A", n, &m, &z__[start * z_dim1 + 1], ldz, &work[
-			    storez], n);
+			    storez], n, (ftnlen)1);
 		    dgemm_("N", "N", n, &m, &m, &c_b15, &work[storez], n, &
 			    work[1], &m, &c_b29, &z__[start * z_dim1 + 1],
-			    ldz);
+			    ldz, (ftnlen)1, (ftnlen)1);
 		} else if (icompz == 2) {
 		    dsteqr_("I", &m, &d__[start], &e[start], &z__[start +
-			    start * z_dim1], ldz, &work[1], info);
+			    start * z_dim1], ldz, &work[1], info, (ftnlen)1);
 		} else {
 		    dsterf_(&m, &d__[start], &e[start], info);
 		}
@@ -37869,7 +38177,7 @@ L20:
 
 /*              Use Quick Sort */
 
-		dlasrt_("I", n, &d__[1], info);
+		dlasrt_("I", n, &d__[1], info, (ftnlen)1);
 
 	    } else {
 
@@ -37912,7 +38220,7 @@ L50:
 
 /* Subroutine */ int dsteqr_(char *compz, integer *n, doublereal *d__,
 	doublereal *e, doublereal *z__, integer *ldz, doublereal *work,
-	integer *info)
+	integer *info, ftnlen compz_len)
 {
     /* System generated locals */
     integer z_dim1, z_offset, i__1, i__2;
@@ -37929,29 +38237,32 @@ L50:
     static integer lend, jtot;
     extern /* Subroutine */ int dlae2_(doublereal *, doublereal *, doublereal
 	    *, doublereal *, doublereal *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dlasr_(char *, char *, char *, integer *,
-	    integer *, doublereal *, doublereal *, doublereal *, integer *);
+	    integer *, doublereal *, doublereal *, doublereal *, integer *,
+	    ftnlen, ftnlen, ftnlen);
     static doublereal anorm;
     extern /* Subroutine */ int dswap_(integer *, doublereal *, integer *,
 	    doublereal *, integer *), dlaev2_(doublereal *, doublereal *,
 	    doublereal *, doublereal *, doublereal *, doublereal *,
 	    doublereal *);
     static integer lendm1, lendp1;
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     static integer iscale;
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dlaset_(char *, integer *, integer
-	    *, doublereal *, doublereal *, doublereal *, integer *);
+	    integer *, integer *, ftnlen), dlaset_(char *, integer *, integer
+	    *, doublereal *, doublereal *, doublereal *, integer *, ftnlen);
     static doublereal safmin;
     extern /* Subroutine */ int dlartg_(doublereal *, doublereal *,
 	    doublereal *, doublereal *, doublereal *);
     static doublereal safmax;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
-    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
+    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *,
+	    ftnlen);
     extern /* Subroutine */ int dlasrt_(char *, integer *, doublereal *,
-	    integer *);
+	    integer *, ftnlen);
     static integer lendsv;
     static doublereal ssfmin;
     static integer nmaxit, icompz;
@@ -38042,11 +38353,11 @@ L50:
     /* Function Body */
     *info = 0;
 
-    if (lsame_(compz, "N")) {
+    if (lsame_(compz, "N", (ftnlen)1, (ftnlen)1)) {
 	icompz = 0;
-    } else if (lsame_(compz, "V")) {
+    } else if (lsame_(compz, "V", (ftnlen)1, (ftnlen)1)) {
 	icompz = 1;
-    } else if (lsame_(compz, "I")) {
+    } else if (lsame_(compz, "I", (ftnlen)1, (ftnlen)1)) {
 	icompz = 2;
     } else {
 	icompz = -1;
@@ -38060,7 +38371,7 @@ L50:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DSTEQR", &i__1);
+	xerbla_("DSTEQR", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -38094,7 +38405,7 @@ L50:
 */
 
     if (icompz == 2) {
-	dlaset_("Full", n, n, &c_b29, &c_b15, &z__[z_offset], ldz);
+	dlaset_("Full", n, n, &c_b29, &c_b15, &z__[z_offset], ldz, (ftnlen)4);
     }
 
     nmaxit = *n * 30;
@@ -38146,7 +38457,7 @@ L30:
 /*     Scale submatrix in rows and columns L to LEND */
 
     i__1 = lend - l + 1;
-    anorm = dlanst_("I", &i__1, &d__[l], &e[l]);
+    anorm = dlanst_("I", &i__1, &d__[l], &e[l], (ftnlen)1);
     iscale = 0;
     if (anorm == 0.) {
 	goto L10;
@@ -38155,18 +38466,18 @@ L30:
 	iscale = 1;
 	i__1 = lend - l + 1;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     } else if (anorm < ssfmin) {
 	iscale = 2;
 	i__1 = lend - l + 1;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     }
 
 /*     Choose between QL and QR iteration */
@@ -38222,7 +38533,8 @@ L60:
 		work[l] = c__;
 		work[*n - 1 + l] = s;
 		dlasr_("R", "V", "B", n, &c__2, &work[l], &work[*n - 1 + l], &
-			z__[l * z_dim1 + 1], ldz);
+			z__[l * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (
+			ftnlen)1);
 	    } else {
 		dlae2_(&d__[l], &e[l], &d__[l + 1], &rt1, &rt2);
 	    }
@@ -38283,7 +38595,7 @@ L60:
 	if (icompz > 0) {
 	    mm = m - l + 1;
 	    dlasr_("R", "V", "B", n, &mm, &work[l], &work[*n - 1 + l], &z__[l
-		    * z_dim1 + 1], ldz);
+		    * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
 
 	d__[l] -= p;
@@ -38348,7 +38660,8 @@ L110:
 		work[m] = c__;
 		work[*n - 1 + m] = s;
 		dlasr_("R", "V", "F", n, &c__2, &work[m], &work[*n - 1 + m], &
-			z__[(l - 1) * z_dim1 + 1], ldz);
+			z__[(l - 1) * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1,
+			(ftnlen)1);
 	    } else {
 		dlae2_(&d__[l - 1], &e[l - 1], &d__[l], &rt1, &rt2);
 	    }
@@ -38409,7 +38722,7 @@ L110:
 	if (icompz > 0) {
 	    mm = l - m + 1;
 	    dlasr_("R", "V", "F", n, &mm, &work[m], &work[*n - 1 + m], &z__[m
-		    * z_dim1 + 1], ldz);
+		    * z_dim1 + 1], ldz, (ftnlen)1, (ftnlen)1, (ftnlen)1);
 	}
 
 	d__[l] -= p;
@@ -38435,17 +38748,17 @@ L140:
     if (iscale == 1) {
 	i__1 = lendsv - lsv + 1;
 	dlascl_("G", &c__0, &c__0, &ssfmax, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
 	i__1 = lendsv - lsv;
 	dlascl_("G", &c__0, &c__0, &ssfmax, &anorm, &i__1, &c__1, &e[lsv], n,
-		info);
+		info, (ftnlen)1);
     } else if (iscale == 2) {
 	i__1 = lendsv - lsv + 1;
 	dlascl_("G", &c__0, &c__0, &ssfmin, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
 	i__1 = lendsv - lsv;
 	dlascl_("G", &c__0, &c__0, &ssfmin, &anorm, &i__1, &c__1, &e[lsv], n,
-		info);
+		info, (ftnlen)1);
     }
 
 /*
@@ -38472,7 +38785,7 @@ L160:
 
 /*        Use Quick Sort */
 
-	dlasrt_("I", n, &d__[1], info);
+	dlasrt_("I", n, &d__[1], info, (ftnlen)1);
 
     } else {
 
@@ -38527,17 +38840,19 @@ L190:
     extern /* Subroutine */ int dlae2_(doublereal *, doublereal *, doublereal
 	    *, doublereal *, doublereal *);
     static doublereal gamma, alpha, sigma, anorm;
-
+    extern doublereal dlapy2_(doublereal *, doublereal *), dlamch_(char *,
+	    ftnlen);
     static integer iscale;
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *);
+	    integer *, integer *, ftnlen);
     static doublereal oldgam, safmin;
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static doublereal safmax;
-    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *);
+    extern doublereal dlanst_(char *, integer *, doublereal *, doublereal *,
+	    ftnlen);
     extern /* Subroutine */ int dlasrt_(char *, integer *, doublereal *,
-	    integer *);
+	    integer *, ftnlen);
     static integer lendsv;
     static doublereal ssfmin;
     static integer nmaxit;
@@ -38597,7 +38912,7 @@ L190:
     if (*n < 0) {
 	*info = -1;
 	i__1 = -(*info);
-	xerbla_("DSTERF", &i__1);
+	xerbla_("DSTERF", &i__1, (ftnlen)6);
 	return 0;
     }
     if (*n <= 1) {
@@ -38660,24 +38975,24 @@ L30:
 /*     Scale submatrix in rows and columns L to LEND */
 
     i__1 = lend - l + 1;
-    anorm = dlanst_("I", &i__1, &d__[l], &e[l]);
+    anorm = dlanst_("I", &i__1, &d__[l], &e[l], (ftnlen)1);
     iscale = 0;
     if (anorm > ssfmax) {
 	iscale = 1;
 	i__1 = lend - l + 1;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmax, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     } else if (anorm < ssfmin) {
 	iscale = 2;
 	i__1 = lend - l + 1;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &d__[l], n,
-		info);
+		info, (ftnlen)1);
 	i__1 = lend - l;
 	dlascl_("G", &c__0, &c__0, &anorm, &ssfmin, &i__1, &c__1, &e[l], n,
-		info);
+		info, (ftnlen)1);
     }
 
     i__1 = lend - 1;
@@ -38909,12 +39224,12 @@ L150:
     if (iscale == 1) {
 	i__1 = lendsv - lsv + 1;
 	dlascl_("G", &c__0, &c__0, &ssfmax, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
     }
     if (iscale == 2) {
 	i__1 = lendsv - lsv + 1;
 	dlascl_("G", &c__0, &c__0, &ssfmin, &anorm, &i__1, &c__1, &d__[lsv],
-		n, info);
+		n, info, (ftnlen)1);
     }
 
 /*
@@ -38937,7 +39252,7 @@ L150:
 /*     Sort eigenvalues in increasing order. */
 
 L170:
-    dlasrt_("I", n, &d__[1], info);
+    dlasrt_("I", n, &d__[1], info, (ftnlen)1);
 
 L180:
     return 0;
@@ -38948,7 +39263,8 @@ L180:
 
 /* Subroutine */ int dsyevd_(char *jobz, char *uplo, integer *n, doublereal *
 	a, integer *lda, doublereal *w, doublereal *work, integer *lwork,
-	integer *iwork, integer *liwork, integer *info)
+	integer *iwork, integer *liwork, integer *info, ftnlen jobz_len,
+	ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -38962,7 +39278,7 @@ L180:
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
     static doublereal sigma;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer iinfo, lwmin, liopt;
     static logical lower, wantz;
     static integer indwk2, llwrk2;
@@ -38970,27 +39286,28 @@ L180:
     static integer iscale;
     extern /* Subroutine */ int dlascl_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, integer *, doublereal *,
-	    integer *, integer *), dstedc_(char *, integer *,
+	    integer *, integer *, ftnlen), dstedc_(char *, integer *,
 	    doublereal *, doublereal *, doublereal *, integer *, doublereal *,
-	     integer *, integer *, integer *, integer *), dlacpy_(
+	     integer *, integer *, integer *, integer *, ftnlen), dlacpy_(
 	    char *, integer *, integer *, doublereal *, integer *, doublereal
-	    *, integer *);
+	    *, integer *, ftnlen);
     static doublereal safmin;
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static doublereal bignum;
     static integer indtau;
     extern /* Subroutine */ int dsterf_(integer *, doublereal *, doublereal *,
 	     integer *);
     extern doublereal dlansy_(char *, char *, integer *, doublereal *,
-	    integer *, doublereal *);
+	    integer *, doublereal *, ftnlen, ftnlen);
     static integer indwrk, liwmin;
     extern /* Subroutine */ int dormtr_(char *, char *, char *, integer *,
 	    integer *, doublereal *, integer *, doublereal *, doublereal *,
-	    integer *, doublereal *, integer *, integer *), dsytrd_(char *, integer *, doublereal *, integer *,
+	    integer *, doublereal *, integer *, integer *, ftnlen, ftnlen,
+	    ftnlen), dsytrd_(char *, integer *, doublereal *, integer *,
 	    doublereal *, doublereal *, doublereal *, doublereal *, integer *,
-	     integer *);
+	     integer *, ftnlen);
     static integer llwork;
     static doublereal smlnum;
     static logical lquery;
@@ -39119,14 +39436,14 @@ L180:
     --iwork;
 
     /* Function Body */
-    wantz = lsame_(jobz, "V");
-    lower = lsame_(uplo, "L");
+    wantz = lsame_(jobz, "V", (ftnlen)1, (ftnlen)1);
+    lower = lsame_(uplo, "L", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1 || *liwork == -1;
 
     *info = 0;
-    if (! (wantz || lsame_(jobz, "N"))) {
+    if (! (wantz || lsame_(jobz, "N", (ftnlen)1, (ftnlen)1))) {
 	*info = -1;
-    } else if (! (lower || lsame_(uplo, "U"))) {
+    } else if (! (lower || lsame_(uplo, "U", (ftnlen)1, (ftnlen)1))) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -39168,7 +39485,7 @@ L180:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DSYEVD", &i__1);
+	xerbla_("DSYEVD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -39199,7 +39516,8 @@ L180:
 
 /*     Scale matrix to allowable range, if necessary. */
 
-    anrm = dlansy_("M", uplo, n, &a[a_offset], lda, &work[1]);
+    anrm = dlansy_("M", uplo, n, &a[a_offset], lda, &work[1], (ftnlen)1, (
+	    ftnlen)1);
     iscale = 0;
     if (anrm > 0. && anrm < rmin) {
 	iscale = 1;
@@ -39210,7 +39528,7 @@ L180:
     }
     if (iscale == 1) {
 	dlascl_(uplo, &c__0, &c__0, &c_b15, &sigma, n, n, &a[a_offset], lda,
-		info);
+		info, (ftnlen)1);
     }
 
 /*     Call DSYTRD to reduce symmetric matrix to tridiagonal form. */
@@ -39223,7 +39541,7 @@ L180:
     llwrk2 = *lwork - indwk2 + 1;
 
     dsytrd_(uplo, n, &a[a_offset], lda, &w[1], &work[inde], &work[indtau], &
-	    work[indwrk], &llwork, &iinfo);
+	    work[indwrk], &llwork, &iinfo, (ftnlen)1);
     lopt = (integer) ((*n << 1) + work[indwrk]);
 
 /*
@@ -39237,10 +39555,11 @@ L180:
 	dsterf_(n, &w[1], &work[inde], info);
     } else {
 	dstedc_("I", n, &w[1], &work[inde], &work[indwrk], n, &work[indwk2], &
-		llwrk2, &iwork[1], liwork, info);
+		llwrk2, &iwork[1], liwork, info, (ftnlen)1);
 	dormtr_("L", uplo, "N", n, n, &a[a_offset], lda, &work[indtau], &work[
-		indwrk], n, &work[indwk2], &llwrk2, &iinfo);
-	dlacpy_("A", n, n, &work[indwrk], n, &a[a_offset], lda);
+		indwrk], n, &work[indwk2], &llwrk2, &iinfo, (ftnlen)1, (
+		ftnlen)1, (ftnlen)1);
+	dlacpy_("A", n, n, &work[indwrk], n, &a[a_offset], lda, (ftnlen)1);
 /*
    Computing MAX
    Computing 2nd power
@@ -39267,7 +39586,8 @@ L180:
 } /* dsyevd_ */
 
 /* Subroutine */ int dsytd2_(char *uplo, integer *n, doublereal *a, integer *
-	lda, doublereal *d__, doublereal *e, doublereal *tau, integer *info)
+	lda, doublereal *d__, doublereal *e, doublereal *tau, integer *info,
+	ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
@@ -39279,17 +39599,17 @@ L180:
     static doublereal taui;
     extern /* Subroutine */ int dsyr2_(char *, integer *, doublereal *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    integer *);
+	    integer *, ftnlen);
     static doublereal alpha;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int daxpy_(integer *, doublereal *, doublereal *,
 	    integer *, doublereal *, integer *);
     static logical upper;
     extern /* Subroutine */ int dsymv_(char *, integer *, doublereal *,
 	    doublereal *, integer *, doublereal *, integer *, doublereal *,
-	    doublereal *, integer *), dlarfg_(integer *, doublereal *,
+	    doublereal *, integer *, ftnlen), dlarfg_(integer *, doublereal *,
 	     doublereal *, integer *, doublereal *), xerbla_(char *, integer *
-	    );
+	    , ftnlen);
 
 
 /*
@@ -39414,8 +39734,8 @@ L180:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -39424,7 +39744,7 @@ L180:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DSYTD2", &i__1);
+	xerbla_("DSYTD2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -39458,7 +39778,7 @@ L180:
 /*              Compute  x := tau * A * v  storing x in TAU(1:i) */
 
 		dsymv_(uplo, &i__, &taui, &a[a_offset], lda, &a[(i__ + 1) *
-			a_dim1 + 1], &c__1, &c_b29, &tau[1], &c__1)
+			a_dim1 + 1], &c__1, &c_b29, &tau[1], &c__1, (ftnlen)1)
 			;
 
 /*              Compute  w := x - 1/2 * tau * (x'*v) * v */
@@ -39474,7 +39794,7 @@ L180:
 */
 
 		dsyr2_(uplo, &i__, &c_b151, &a[(i__ + 1) * a_dim1 + 1], &c__1,
-			 &tau[1], &c__1, &a[a_offset], lda);
+			 &tau[1], &c__1, &a[a_offset], lda, (ftnlen)1);
 
 		a[i__ + (i__ + 1) * a_dim1] = e[i__];
 	    }
@@ -39513,7 +39833,7 @@ L180:
 		i__2 = *n - i__;
 		dsymv_(uplo, &i__2, &taui, &a[i__ + 1 + (i__ + 1) * a_dim1],
 			lda, &a[i__ + 1 + i__ * a_dim1], &c__1, &c_b29, &tau[
-			i__], &c__1);
+			i__], &c__1, (ftnlen)1);
 
 /*              Compute  w := x - 1/2 * tau * (x'*v) * v */
 
@@ -39532,7 +39852,7 @@ L180:
 		i__2 = *n - i__;
 		dsyr2_(uplo, &i__2, &c_b151, &a[i__ + 1 + i__ * a_dim1], &
 			c__1, &tau[i__], &c__1, &a[i__ + 1 + (i__ + 1) *
-			a_dim1], lda);
+			a_dim1], lda, (ftnlen)1);
 
 		a[i__ + 1 + i__ * a_dim1] = e[i__];
 	    }
@@ -39551,23 +39871,24 @@ L180:
 
 /* Subroutine */ int dsytrd_(char *uplo, integer *n, doublereal *a, integer *
 	lda, doublereal *d__, doublereal *e, doublereal *tau, doublereal *
-	work, integer *lwork, integer *info)
+	work, integer *lwork, integer *info, ftnlen uplo_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2, i__3;
 
     /* Local variables */
     static integer i__, j, nb, kk, nx, iws;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static integer nbmin, iinfo;
     static logical upper;
     extern /* Subroutine */ int dsytd2_(char *, integer *, doublereal *,
-	    integer *, doublereal *, doublereal *, doublereal *, integer *), dsyr2k_(char *, char *, integer *, integer *, doublereal
+	    integer *, doublereal *, doublereal *, doublereal *, integer *,
+	    ftnlen), dsyr2k_(char *, char *, integer *, integer *, doublereal
 	    *, doublereal *, integer *, doublereal *, integer *, doublereal *,
-	     doublereal *, integer *), dlatrd_(char *,
+	     doublereal *, integer *, ftnlen, ftnlen), dlatrd_(char *,
 	    integer *, integer *, doublereal *, integer *, doublereal *,
-	    doublereal *, doublereal *, integer *), xerbla_(char *,
-	    integer *);
+	    doublereal *, doublereal *, integer *, ftnlen), xerbla_(char *,
+	    integer *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static integer ldwork, lwkopt;
@@ -39709,9 +40030,9 @@ L180:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
     lquery = *lwork == -1;
-    if (! upper && ! lsame_(uplo, "L")) {
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -39733,7 +40054,7 @@ L180:
 
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DSYTRD", &i__1);
+	xerbla_("DSYTRD", &i__1, (ftnlen)6);
 	return 0;
     } else if (lquery) {
 	return 0;
@@ -39810,7 +40131,7 @@ L180:
 
 	    i__3 = i__ + nb - 1;
 	    dlatrd_(uplo, &i__3, &nb, &a[a_offset], lda, &e[1], &tau[1], &
-		    work[1], &ldwork);
+		    work[1], &ldwork, (ftnlen)1);
 
 /*
              Update the unreduced submatrix A(1:i-1,1:i-1), using an
@@ -39820,7 +40141,7 @@ L180:
 	    i__3 = i__ - 1;
 	    dsyr2k_(uplo, "No transpose", &i__3, &nb, &c_b151, &a[i__ *
 		    a_dim1 + 1], lda, &work[1], &ldwork, &c_b15, &a[a_offset],
-		     lda);
+		     lda, (ftnlen)1, (ftnlen)12);
 
 /*
              Copy superdiagonal elements back into A, and diagonal
@@ -39838,7 +40159,8 @@ L180:
 
 /*        Use unblocked code to reduce the last or only block */
 
-	dsytd2_(uplo, &kk, &a[a_offset], lda, &d__[1], &e[1], &tau[1], &iinfo);
+	dsytd2_(uplo, &kk, &a[a_offset], lda, &d__[1], &e[1], &tau[1], &iinfo,
+		 (ftnlen)1);
     } else {
 
 /*        Reduce the lower triangle of A */
@@ -39855,7 +40177,7 @@ L180:
 
 	    i__3 = *n - i__ + 1;
 	    dlatrd_(uplo, &i__3, &nb, &a[i__ + i__ * a_dim1], lda, &e[i__], &
-		    tau[i__], &work[1], &ldwork);
+		    tau[i__], &work[1], &ldwork, (ftnlen)1);
 
 /*
              Update the unreduced submatrix A(i+ib:n,i+ib:n), using
@@ -39865,7 +40187,8 @@ L180:
 	    i__3 = *n - i__ - nb + 1;
 	    dsyr2k_(uplo, "No transpose", &i__3, &nb, &c_b151, &a[i__ + nb +
 		    i__ * a_dim1], lda, &work[nb + 1], &ldwork, &c_b15, &a[
-		    i__ + nb + (i__ + nb) * a_dim1], lda);
+		    i__ + nb + (i__ + nb) * a_dim1], lda, (ftnlen)1, (ftnlen)
+		    12);
 
 /*
              Copy subdiagonal elements back into A, and diagonal
@@ -39885,7 +40208,7 @@ L180:
 
 	i__1 = *n - i__ + 1;
 	dsytd2_(uplo, &i__1, &a[i__ + i__ * a_dim1], lda, &d__[i__], &e[i__],
-		&tau[i__], &iinfo);
+		&tau[i__], &iinfo, (ftnlen)1);
     }
 
     work[1] = (doublereal) lwkopt;
@@ -39898,7 +40221,7 @@ L180:
 /* Subroutine */ int dtrevc_(char *side, char *howmny, logical *select,
 	integer *n, doublereal *t, integer *ldt, doublereal *vl, integer *
 	ldvl, doublereal *vr, integer *ldvr, integer *mm, integer *m,
-	doublereal *work, integer *info)
+	doublereal *work, integer *info, ftnlen side_len, ftnlen howmny_len)
 {
     /* System generated locals */
     integer t_dim1, t_offset, vl_dim1, vl_offset, vr_dim1, vr_offset, i__1,
@@ -39922,10 +40245,10 @@ L180:
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
     static doublereal scale;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dgemv_(char *, integer *, integer *,
 	    doublereal *, doublereal *, integer *, doublereal *, integer *,
-	    doublereal *, doublereal *, integer *);
+	    doublereal *, doublereal *, integer *, ftnlen);
     static doublereal remax;
     extern /* Subroutine */ int dcopy_(integer *, doublereal *, integer *,
 	    doublereal *, integer *);
@@ -39942,7 +40265,7 @@ L180:
 	     dlabad_(doublereal *, doublereal *);
 
     extern integer idamax_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int xerbla_(char *, integer *);
+    extern /* Subroutine */ int xerbla_(char *, integer *, ftnlen);
     static doublereal bignum;
     static logical rightv;
     static doublereal smlnum;
@@ -40101,13 +40424,13 @@ L180:
     --work;
 
     /* Function Body */
-    bothv = lsame_(side, "B");
-    rightv = lsame_(side, "R") || bothv;
-    leftv = lsame_(side, "L") || bothv;
+    bothv = lsame_(side, "B", (ftnlen)1, (ftnlen)1);
+    rightv = lsame_(side, "R", (ftnlen)1, (ftnlen)1) || bothv;
+    leftv = lsame_(side, "L", (ftnlen)1, (ftnlen)1) || bothv;
 
-    allv = lsame_(howmny, "A");
-    over = lsame_(howmny, "B");
-    somev = lsame_(howmny, "S");
+    allv = lsame_(howmny, "A", (ftnlen)1, (ftnlen)1);
+    over = lsame_(howmny, "B", (ftnlen)1, (ftnlen)1);
+    somev = lsame_(howmny, "S", (ftnlen)1, (ftnlen)1);
 
     *info = 0;
     if (! rightv && ! leftv) {
@@ -40169,7 +40492,7 @@ L180:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DTREVC", &i__1);
+	xerbla_("DTREVC", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -40395,7 +40718,7 @@ L60:
 			i__1 = ki - 1;
 			dgemv_("N", n, &i__1, &c_b15, &vr[vr_offset], ldvr, &
 				work[*n + 1], &c__1, &work[ki + *n], &vr[ki *
-				vr_dim1 + 1], &c__1);
+				vr_dim1 + 1], &c__1, (ftnlen)1);
 		    }
 
 		    ii = idamax_(n, &vr[ki * vr_dim1 + 1], &c__1);
@@ -40594,11 +40917,11 @@ L90:
 			i__1 = ki - 2;
 			dgemv_("N", n, &i__1, &c_b15, &vr[vr_offset], ldvr, &
 				work[*n + 1], &c__1, &work[ki - 1 + *n], &vr[(
-				ki - 1) * vr_dim1 + 1], &c__1);
+				ki - 1) * vr_dim1 + 1], &c__1, (ftnlen)1);
 			i__1 = ki - 2;
 			dgemv_("N", n, &i__1, &c_b15, &vr[vr_offset], ldvr, &
 				work[n2 + 1], &c__1, &work[ki + n2], &vr[ki *
-				vr_dim1 + 1], &c__1);
+				vr_dim1 + 1], &c__1, (ftnlen)1);
 		    } else {
 			dscal_(n, &work[ki - 1 + *n], &vr[(ki - 1) * vr_dim1
 				+ 1], &c__1);
@@ -40840,7 +41163,8 @@ L170:
 			i__2 = *n - ki;
 			dgemv_("N", n, &i__2, &c_b15, &vl[(ki + 1) * vl_dim1
 				+ 1], ldvl, &work[ki + 1 + *n], &c__1, &work[
-				ki + *n], &vl[ki * vl_dim1 + 1], &c__1);
+				ki + *n], &vl[ki * vl_dim1 + 1], &c__1, (
+				ftnlen)1);
 		    }
 
 		    ii = idamax_(n, &vl[ki * vl_dim1 + 1], &c__1);
@@ -41067,12 +41391,13 @@ L200:
 			i__2 = *n - ki - 1;
 			dgemv_("N", n, &i__2, &c_b15, &vl[(ki + 2) * vl_dim1
 				+ 1], ldvl, &work[ki + 2 + *n], &c__1, &work[
-				ki + *n], &vl[ki * vl_dim1 + 1], &c__1);
+				ki + *n], &vl[ki * vl_dim1 + 1], &c__1, (
+				ftnlen)1);
 			i__2 = *n - ki - 1;
 			dgemv_("N", n, &i__2, &c_b15, &vl[(ki + 2) * vl_dim1
 				+ 1], ldvl, &work[ki + 2 + n2], &c__1, &work[
 				ki + 1 + n2], &vl[(ki + 1) * vl_dim1 + 1], &
-				c__1);
+				c__1, (ftnlen)1);
 		    } else {
 			dscal_(n, &work[ki + *n], &vl[ki * vl_dim1 + 1], &
 				c__1);
@@ -41123,18 +41448,18 @@ L250:
 
 /* Subroutine */ int dtrexc_(char *compq, integer *n, doublereal *t, integer *
 	ldt, doublereal *q, integer *ldq, integer *ifst, integer *ilst,
-	doublereal *work, integer *info)
+	doublereal *work, integer *info, ftnlen compq_len)
 {
     /* System generated locals */
     integer q_dim1, q_offset, t_dim1, t_offset, i__1;
 
     /* Local variables */
     static integer nbf, nbl, here;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical wantq;
     extern /* Subroutine */ int dlaexc_(logical *, integer *, doublereal *,
 	    integer *, doublereal *, integer *, integer *, integer *, integer
-	    *, doublereal *, integer *), xerbla_(char *, integer *);
+	    *, doublereal *, integer *), xerbla_(char *, integer *, ftnlen);
     static integer nbnext;
 
 
@@ -41227,8 +41552,8 @@ L250:
 
     /* Function Body */
     *info = 0;
-    wantq = lsame_(compq, "V");
-    if (! wantq && ! lsame_(compq, "N")) {
+    wantq = lsame_(compq, "V", (ftnlen)1, (ftnlen)1);
+    if (! wantq && ! lsame_(compq, "N", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
     } else if (*n < 0) {
 	*info = -2;
@@ -41243,7 +41568,7 @@ L250:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DTREXC", &i__1);
+	xerbla_("DTREXC", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -41502,7 +41827,7 @@ L20:
 } /* dtrexc_ */
 
 /* Subroutine */ int dtrti2_(char *uplo, char *diag, integer *n, doublereal *
-	a, integer *lda, integer *info)
+	a, integer *lda, integer *info, ftnlen uplo_len, ftnlen diag_len)
 {
     /* System generated locals */
     integer a_dim1, a_offset, i__1, i__2;
@@ -41512,10 +41837,11 @@ L20:
     static doublereal ajj;
     extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *,
 	    integer *);
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int dtrmv_(char *, char *, char *, integer *,
-	    doublereal *, integer *, doublereal *, integer *), xerbla_(char *, integer *);
+	    doublereal *, integer *, doublereal *, integer *, ftnlen, ftnlen,
+	    ftnlen), xerbla_(char *, integer *, ftnlen);
     static logical nounit;
 
 
@@ -41584,11 +41910,11 @@ L20:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    nounit = lsame_(diag, "N");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! nounit && ! lsame_(diag, "U")) {
+    } else if (! nounit && ! lsame_(diag, "U", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -41597,7 +41923,7 @@ L20:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DTRTI2", &i__1);
+	xerbla_("DTRTI2", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -41618,7 +41944,8 @@ L20:
 
 	    i__2 = j - 1;
 	    dtrmv_("Upper", "No transpose", diag, &i__2, &a[a_offset], lda, &
-		    a[j * a_dim1 + 1], &c__1);
+		    a[j * a_dim1 + 1], &c__1, (ftnlen)5, (ftnlen)12, (ftnlen)
+		    1);
 	    i__2 = j - 1;
 	    dscal_(&i__2, &ajj, &a[j * a_dim1 + 1], &c__1);
 /* L10: */
@@ -41640,7 +41967,8 @@ L20:
 
 		i__1 = *n - j;
 		dtrmv_("Lower", "No transpose", diag, &i__1, &a[j + 1 + (j +
-			1) * a_dim1], lda, &a[j + 1 + j * a_dim1], &c__1);
+			1) * a_dim1], lda, &a[j + 1 + j * a_dim1], &c__1, (
+			ftnlen)5, (ftnlen)12, (ftnlen)1);
 		i__1 = *n - j;
 		dscal_(&i__1, &ajj, &a[j + 1 + j * a_dim1], &c__1);
 	    }
@@ -41655,7 +41983,7 @@ L20:
 } /* dtrti2_ */
 
 /* Subroutine */ int dtrtri_(char *uplo, char *diag, integer *n, doublereal *
-	a, integer *lda, integer *info)
+	a, integer *lda, integer *info, ftnlen uplo_len, ftnlen diag_len)
 {
     /* System generated locals */
     address a__1[2];
@@ -41664,16 +41992,17 @@ L20:
 
     /* Local variables */
     static integer j, jb, nb, nn;
-    extern logical lsame_(char *, char *);
+    extern logical lsame_(char *, char *, ftnlen, ftnlen);
     extern /* Subroutine */ int dtrmm_(char *, char *, char *, char *,
 	    integer *, integer *, doublereal *, doublereal *, integer *,
-	    doublereal *, integer *), dtrsm_(
+	    doublereal *, integer *, ftnlen, ftnlen, ftnlen, ftnlen), dtrsm_(
 	    char *, char *, char *, char *, integer *, integer *, doublereal *
-	    , doublereal *, integer *, doublereal *, integer *);
+	    , doublereal *, integer *, doublereal *, integer *, ftnlen,
+	    ftnlen, ftnlen, ftnlen);
     static logical upper;
     extern /* Subroutine */ int dtrti2_(char *, char *, integer *, doublereal
-	    *, integer *, integer *), xerbla_(char *, integer
-	    *);
+	    *, integer *, integer *, ftnlen, ftnlen), xerbla_(char *, integer
+	    *, ftnlen);
     extern integer ilaenv_(integer *, char *, char *, integer *, integer *,
 	    integer *, integer *, ftnlen, ftnlen);
     static logical nounit;
@@ -41743,11 +42072,11 @@ L20:
 
     /* Function Body */
     *info = 0;
-    upper = lsame_(uplo, "U");
-    nounit = lsame_(diag, "N");
-    if (! upper && ! lsame_(uplo, "L")) {
+    upper = lsame_(uplo, "U", (ftnlen)1, (ftnlen)1);
+    nounit = lsame_(diag, "N", (ftnlen)1, (ftnlen)1);
+    if (! upper && ! lsame_(uplo, "L", (ftnlen)1, (ftnlen)1)) {
 	*info = -1;
-    } else if (! nounit && ! lsame_(diag, "U")) {
+    } else if (! nounit && ! lsame_(diag, "U", (ftnlen)1, (ftnlen)1)) {
 	*info = -2;
     } else if (*n < 0) {
 	*info = -3;
@@ -41756,7 +42085,7 @@ L20:
     }
     if (*info != 0) {
 	i__1 = -(*info);
-	xerbla_("DTRTRI", &i__1);
+	xerbla_("DTRTRI", &i__1, (ftnlen)6);
 	return 0;
     }
 
@@ -41793,7 +42122,7 @@ L20:
 
 /*        Use unblocked code */
 
-	dtrti2_(uplo, diag, n, &a[a_offset], lda, info);
+	dtrti2_(uplo, diag, n, &a[a_offset], lda, info, (ftnlen)1, (ftnlen)1);
     } else {
 
 /*        Use blocked code */
@@ -41813,15 +42142,17 @@ L20:
 
 		i__4 = j - 1;
 		dtrmm_("Left", "Upper", "No transpose", diag, &i__4, &jb, &
-			c_b15, &a[a_offset], lda, &a[j * a_dim1 + 1], lda);
+			c_b15, &a[a_offset], lda, &a[j * a_dim1 + 1], lda, (
+			ftnlen)4, (ftnlen)5, (ftnlen)12, (ftnlen)1);
 		i__4 = j - 1;
 		dtrsm_("Right", "Upper", "No transpose", diag, &i__4, &jb, &
 			c_b151, &a[j + j * a_dim1], lda, &a[j * a_dim1 + 1],
-			lda);
+			lda, (ftnlen)5, (ftnlen)5, (ftnlen)12, (ftnlen)1);
 
 /*              Compute inverse of current diagonal block */
 
-		dtrti2_("Upper", diag, &jb, &a[j + j * a_dim1], lda, info);
+		dtrti2_("Upper", diag, &jb, &a[j + j * a_dim1], lda, info, (
+			ftnlen)5, (ftnlen)1);
 /* L20: */
 	    }
 	} else {
@@ -41841,16 +42172,19 @@ L20:
 		    i__1 = *n - j - jb + 1;
 		    dtrmm_("Left", "Lower", "No transpose", diag, &i__1, &jb,
 			    &c_b15, &a[j + jb + (j + jb) * a_dim1], lda, &a[j
-			    + jb + j * a_dim1], lda);
+			    + jb + j * a_dim1], lda, (ftnlen)4, (ftnlen)5, (
+			    ftnlen)12, (ftnlen)1);
 		    i__1 = *n - j - jb + 1;
 		    dtrsm_("Right", "Lower", "No transpose", diag, &i__1, &jb,
 			     &c_b151, &a[j + j * a_dim1], lda, &a[j + jb + j *
-			     a_dim1], lda);
+			     a_dim1], lda, (ftnlen)5, (ftnlen)5, (ftnlen)12, (
+			    ftnlen)1);
 		}
 
 /*              Compute inverse of current diagonal block */
 
-		dtrti2_("Lower", diag, &jb, &a[j + j * a_dim1], lda, info);
+		dtrti2_("Lower", diag, &jb, &a[j + j * a_dim1], lda, info, (
+			ftnlen)5, (ftnlen)1);
 /* L30: */
 	    }
 	}
