@@ -1,99 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+from __future__ import division, absolute_import, print_function
+
+from io import StringIO as UStringIO
 import sys, os
 import re
-from plex import Scanner, Str, Lexicon, Opt, Bol, State, AnyChar, TEXT, IGNORE
-from plex.traditional import re as Re
-
-PY2 = sys.version_info < (3, 0)
-
-if PY2:
-    from io import BytesIO as UStringIO
-else:
-    from io import StringIO as UStringIO
-
-class MyScanner(Scanner):
-    def __init__(self, info, name='<default>'):
-        Scanner.__init__(self, self.lexicon, info, name)
-
-    def begin(self, state_name):
-        Scanner.begin(self, state_name)
-
-def sep_seq(sequence, sep):
-    pat = Str(sequence[0])
-    for s in sequence[1:]:
-        pat += sep + Str(s)
-    return pat
-
-def runScanner(data, scanner_class, lexicon=None):
-    info = UStringIO(data)
-    outfo = UStringIO()
-    if lexicon is not None:
-        scanner = scanner_class(lexicon, info)
-    else:
-        scanner = scanner_class(info)
-    while True:
-        value, text = scanner.read()
-        if value is None:
-            break
-        elif value is IGNORE:
-            pass
-        else:
-            outfo.write(value)
-    return outfo.getvalue(), scanner
-
-class LenSubsScanner(MyScanner):
-    """Following clapack, we remove ftnlen arguments, which f2c puts after
-    a char * argument to hold the length of the passed string. This is just
-    a nuisance in C.
-    """
-    def __init__(self, info, name='<ftnlen>'):
-        MyScanner.__init__(self, info, name)
-        self.paren_count = 0
-
-    def beginArgs(self, text):
-        if self.paren_count == 0:
-            self.begin('args')
-        self.paren_count += 1
-        return text
-
-    def endArgs(self, text):
-        self.paren_count -= 1
-        if self.paren_count == 0:
-            self.begin('')
-        return text
-
-    digits = Re('[0-9]+')
-    iofun = Re(r'\([^;]*;')
-    decl = Re(r'\([^)]*\)[,;'+'\n]')
-    any = Re('[.]*')
-    S = Re('[ \t\n]*')
-    cS = Str(',') + S
-    len_ = Re('[a-z][a-z0-9]*_len')
-
-    iofunctions = Str("s_cat", "s_copy", "s_stop", "s_cmp",
-                      "i_len", "do_fio", "do_lio") + iofun
-
-    # Routines to not scrub the ftnlen argument from
-    keep_ftnlen = (Str('ilaenv_') | Str('iparmq_') | Str('s_rnge')) + Str('(')
-
-    lexicon = Lexicon([
-        (iofunctions,                           TEXT),
-        (keep_ftnlen,                           beginArgs),
-        State('args', [
-            (Str(')'),   endArgs),
-            (Str('('),   beginArgs),
-            (AnyChar,    TEXT),
-        ]),
-        (cS+Re(r'[1-9][0-9]*L'),                IGNORE),
-        (cS+Str('ftnlen')+Opt(S+len_),          IGNORE),
-        (cS+sep_seq(['(', 'ftnlen', ')'], S)+S+digits,      IGNORE),
-        (Bol+Str('ftnlen ')+len_+Str(';\n'),    IGNORE),
-        (cS+len_,                               TEXT),
-        (AnyChar,                               TEXT),
-    ])
-
-def scrubFtnlen(source):
-    return runScanner(source, LenSubsScanner)[0]
 
 def cleanSource(source):
     # remove whitespace at end of lines
@@ -262,7 +172,7 @@ def replaceDlamch(source):
         s = m.group(1)
         return dict(E='EPSILON', P='PRECISION', S='SAFEMINIMUM',
                     B='BASE')[s[0]]
-    source = re.sub(r'dlamch_\("(.*?)"\)', repl, source)
+    source = re.sub(r'dlamch_\("(.*?)", \(ftnlen\)[0-9]+\)', repl, source)
     source = re.sub(r'^\s+extern.*? dlamch_.*?;$(?m)', '', source)
     return source
 
@@ -270,7 +180,6 @@ def replaceDlamch(source):
 
 def scrubSource(source, nsteps=None, verbose=False):
     steps = [
-             ('scrubbing ftnlen', scrubFtnlen),
              ('remove header', removeHeader),
              ('clean source', cleanSource),
              ('clean comments', cleanComments),

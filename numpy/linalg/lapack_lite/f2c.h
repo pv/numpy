@@ -40,7 +40,7 @@ typedef short ftnlen;
 typedef short ftnint;
 #else
 typedef CBLAS_INT flag;
-typedef CBLAS_INT ftnlen;
+typedef size_t ftnlen;
 typedef CBLAS_INT ftnint;
 #endif
 

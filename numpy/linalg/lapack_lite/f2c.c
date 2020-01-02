@@ -378,19 +378,16 @@ p->i = p1.i;
 #endif /* NO_OVERWRITE */
 
  VOID
-#ifdef KR_headers
-s_cat(lp, rpp, rnp, np, ll) char *lp, *rpp[]; ftnlen rnp[], *np, ll;
-#else
-s_cat(char *lp, char *rpp[], ftnlen rnp[], ftnlen *np, ftnlen ll)
-#endif
+s_cat(char *lp, char *rpp[], integer rnp[], integer *np, ftnlen ll_)
 {
-	ftnlen i, nc;
+	integer i, nc, ll;
 	char *rp;
-	ftnlen n = *np;
+	integer n = *np;
 #ifndef NO_OVERWRITE
-	ftnlen L, m;
+	integer L, m;
 	char *lp0, *lp1;
 
+	ll = ll_;
 	lp0 = 0;
 	lp1 = lp;
 	L = ll;
@@ -411,6 +408,8 @@ s_cat(char *lp, char *rpp[], ftnlen rnp[], ftnlen *np, ftnlen ll)
 		break;
 		}
 	lp1 = lp;
+#else
+	ll = ll_;
 #endif /* NO_OVERWRITE */
 	for(i = 0 ; i < n ; ++i) {
 		nc = ll;
@@ -736,7 +735,7 @@ void f_exit(void);
 int s_stop(char *s, ftnlen n)
 #endif
 {
-int i;
+ftnlen i;
 
 if(n > 0)
 	{
