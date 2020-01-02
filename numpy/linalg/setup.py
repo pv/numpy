@@ -45,6 +45,8 @@ def configuration(parent_package='', top_path=None):
         lapack_info = numpy_linalg_lapack_lite().get_info(2)
 
     def get_lapack_lite_sources(ext, build_dir):
+        set_fortran_character_len_type(ext)
+
         if use_lapack_lite:
             print("### Warning:  Using unoptimized lapack ###")
             return all_sources
@@ -54,6 +56,52 @@ def configuration(parent_package='', top_path=None):
                 return []
             return [all_sources[0]]
 
+    def set_fortran_character_len_type(ext):
+        """
+        Set the type of the hidden character string length parameter in
+        Fortran ABI in calls to LAPACK. Generally, for the use case in
+        the LAPACK calls here, the argument has historically not
+        mattered as it is not referenced by most compilers, but this is
+        not guaranteed by any standard.
+
+        See gh-13809,
+        https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90329,
+        https://developer.r-project.org/Blog/public/2019/09/25/gfortran-issues-with-lapack-ii/
+        for details. Here, we follow the behavior of f2py and
+        assume size_t is the right type. However, we will try to check
+        at build time that it appears to be so.
+        """
+        # Check Fortran hidden character parameter information
+        config_cmd = config.get_config_cmd()
+
+        if use_lapack_lite:
+            ok = True
+            c_type = "size_t"
+        elif 'NPY_FORTRAN_CHARACTER_LEN_TYPE' in os.environ:
+            ok = True
+            c_type = os.environ['NPY_FORTRAN_CHARACTER_LEN_TYPE']
+        else:
+            c_type = "size_t"
+            ok = config_cmd.check_fortran_character_hidden_parameter_type(c_type)
+
+        if ok is None:
+            # Could not find out, fall back to size_t
+            print("## Warning: could not determine Fortran compiler "
+                  "character length argument type, assuming size_t")
+            ok = True
+            c_type = "size_t"
+
+        if ok:
+            if c_type:
+                ext.define_macros += [('BLAS_CHARACTER_LEN_TYPE', c_type)]
+        else:
+            raise RuntimeError(
+                "Fortran compiler has incompatible  character length calling "
+                "convention. Use environment variable NPY_FORTRAN_CHARACTER_LEN_TYPE "
+                "to set it manually."
+            )
+
+    # lapack_lite
     config.add_extension(
         'lapack_lite',
         sources=['lapack_litemodule.c', get_lapack_lite_sources],

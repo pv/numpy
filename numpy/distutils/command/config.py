@@ -21,7 +21,8 @@ from numpy.distutils.command.autodist import (check_gcc_function_attribute,
                                               check_gcc_variable_attribute,
                                               check_inline,
                                               check_restrict,
-                                              check_compiler_gcc4)
+                                              check_compiler_gcc4,
+                                              check_fortran_character_hidden_parameter_type)
 
 LANG_EXT['f77'] = '.f'
 LANG_EXT['f90'] = '.f90'
@@ -429,6 +430,9 @@ class config(old_config):
 
     def check_gcc_variable_attribute(self, attribute):
         return check_gcc_variable_attribute(self, attribute)
+
+    def check_fortran_character_hidden_parameter_type(self, c_type):
+        return check_fortran_character_hidden_parameter_type(self, c_type)
 
     def get_output(self, body, headers=None, include_dirs=None,
                    libraries=None, library_dirs=None,
