@@ -29,20 +29,20 @@ usemodule_rules = {
     'body': """
 #begintitle#
 static char doc_#apiname#[] = \"\\\nVariable wrapper signature:\\n\\
-\t #name# = get_#name#()\\n\\
+   #name# = get_#name#()\\n\\
 Arguments:\\n\\
 #docstr#\";
 extern F_MODFUNC(#usemodulename#,#USEMODULENAME#,#realname#,#REALNAME#);
 static PyObject *#apiname#(PyObject *capi_self, PyObject *capi_args) {
 /*#decl#*/
-\tif (!PyArg_ParseTuple(capi_args, \"\")) goto capi_fail;
+  if (!PyArg_ParseTuple(capi_args, \"\")) goto capi_fail;
 printf(\"c: %d\\n\",F_MODFUNC(#usemodulename#,#USEMODULENAME#,#realname#,#REALNAME#));
-\treturn Py_BuildValue(\"\");
+  return Py_BuildValue(\"\");
 capi_fail:
-\treturn NULL;
+  return NULL;
 }
 """,
-    'method': '\t{\"get_#name#\",#apiname#,METH_VARARGS|METH_KEYWORDS,doc_#apiname#},',
+    'method': '  {\"get_#name#\",#apiname#,METH_VARARGS|METH_KEYWORDS,doc_#apiname#},',
     'need': ['F_MODFUNC']
 }
 

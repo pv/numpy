@@ -102,14 +102,14 @@ def buildhooks(m):
             dms = dm['dims'].strip()
             if not dms:
                 dms = '-1'
-            cadd('\t{\"%s\",%s,{{%s}},%s},' % (n, dm['rank'], dms, at))
-        cadd('\t{NULL}\n};')
+            cadd('  {\"%s\",%s,{{%s}},%s},' % (n, dm['rank'], dms, at))
+        cadd('  {NULL}\n};')
         inames1 = rmbadname(inames)
         inames1_tps = ','.join(['char *' + s for s in inames1])
         cadd('static void f2py_setup_%s(%s) {' % (name, inames1_tps))
-        cadd('\tint i_f2py=0;')
+        cadd('  int i_f2py=0;')
         for n in inames1:
-            cadd('\tf2py_%s_def[i_f2py++].data = %s;' % (name, n))
+            cadd('  f2py_%s_def[i_f2py++].data = %s;' % (name, n))
         cadd('}')
         if '_' in lower_name:
             F_FUNC = 'F_FUNC_US'
@@ -119,12 +119,12 @@ def buildhooks(m):
              % (F_FUNC, lower_name, name.upper(),
                 ','.join(['char*'] * len(inames1))))
         cadd('static void f2py_init_%s(void) {' % name)
-        cadd('\t%s(f2pyinit%s,F2PYINIT%s)(f2py_setup_%s);'
+        cadd('  %s(f2pyinit%s,F2PYINIT%s)(f2py_setup_%s);'
              % (F_FUNC, lower_name, name.upper(), name))
         cadd('}\n')
-        iadd('\ttmp = PyFortranObject_New(f2py_%s_def,f2py_init_%s);' % (name, name))
-        iadd('\tF2PyDict_SetItemString(d, \"%s\", tmp);' % name)
-        iadd('\tPy_DECREF(tmp);')
+        iadd('  tmp = PyFortranObject_New(f2py_%s_def,f2py_init_%s);' % (name, name))
+        iadd('  F2PyDict_SetItemString(d, \"%s\", tmp);' % name)
+        iadd('  Py_DECREF(tmp);')
         tname = name.replace('_', '\\_')
         dadd('\\subsection{Common block \\texttt{%s}}\n' % (tname))
         dadd('\\begin{description}')

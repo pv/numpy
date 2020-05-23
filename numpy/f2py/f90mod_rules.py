@@ -149,14 +149,14 @@ def buildhooks(pymod):
             use_fgetdims2 = fgetdims2
             if isstringarray(var):
                 if 'charselector' in var and 'len' in var['charselector']:
-                    cadd('\t{"%s",%s,{{%s,%s}},%s},'
+                    cadd('  {"%s",%s,{{%s,%s}},%s},'
                          % (undo_rmbadname1(n), dm['rank'], dms, var['charselector']['len'], at))
                     use_fgetdims2 = fgetdims2_sa
                 else:
-                    cadd('\t{"%s",%s,{{%s}},%s},' %
+                    cadd('  {"%s",%s,{{%s}},%s},' %
                          (undo_rmbadname1(n), dm['rank'], dms, at))
             else:
-                cadd('\t{"%s",%s,{{%s}},%s},' %
+                cadd('  {"%s",%s,{{%s}},%s},' %
                      (undo_rmbadname1(n), dm['rank'], dms, at))
             dadd('\\item[]{{}\\verb@%s@{}}' %
                  (capi_maps.getarrdocsign(n, var)))
@@ -171,7 +171,7 @@ def buildhooks(pymod):
                 sargs.append(
                     'void (*%s)(int*,int*,void(*)(char*,int*),int*)' % (n))
                 sargsp.append('void (*)(int*,int*,void(*)(char*,int*),int*)')
-                iadd('\tf2py_%s_def[i_f2py++].func = %s;' % (m['name'], n))
+                iadd('  f2py_%s_def[i_f2py++].func = %s;' % (m['name'], n))
                 fadd('subroutine %s(r,s,f2pysetdata,flag)' % (fargs[-1]))
                 fadd('use %s, only: d => %s\n' %
                      (m['name'], undo_rmbadname1(n)))
@@ -186,7 +186,7 @@ def buildhooks(pymod):
                 fargs.append(n)
                 sargs.append('char *%s' % (n))
                 sargsp.append('char*')
-                iadd('\tf2py_%s_def[i_f2py++].data = %s;' % (m['name'], n))
+                iadd('  f2py_%s_def[i_f2py++].data = %s;' % (m['name'], n))
         if onlyvars:
             dadd('\\end{description}')
         if hasbody(m):
@@ -215,15 +215,15 @@ def buildhooks(pymod):
                 ar['docs'] = []
                 ar['docshort'] = []
                 ret = dictappend(ret, ar)
-                cadd('\t{"%s",-1,{{-1}},0,NULL,(void *)f2py_rout_#modulename#_%s_%s,doc_f2py_rout_#modulename#_%s_%s},' %
+                cadd('  {"%s",-1,{{-1}},0,NULL,(void *)f2py_rout_#modulename#_%s_%s,doc_f2py_rout_#modulename#_%s_%s},' %
                      (b['name'], m['name'], b['name'], m['name'], b['name']))
                 sargs.append('char *%s' % (b['name']))
                 sargsp.append('char *')
-                iadd('\tf2py_%s_def[i_f2py++].data = %s;' %
+                iadd('  f2py_%s_def[i_f2py++].data = %s;' %
                      (m['name'], b['name']))
-        cadd('\t{NULL}\n};\n')
+        cadd('  {NULL}\n};\n')
         iadd('}')
-        ihooks[0] = 'static void f2py_setup_%s(%s) {\n\tint i_f2py=0;%s' % (
+        ihooks[0] = 'static void f2py_setup_%s(%s) {\n  int i_f2py=0;%s' % (
             m['name'], ','.join(sargs), ihooks[0])
         if '_' in m['name']:
             F_FUNC = 'F_FUNC_US'
@@ -232,11 +232,11 @@ def buildhooks(pymod):
         iadd('extern void %s(f2pyinit%s,F2PYINIT%s)(void (*)(%s));'
              % (F_FUNC, m['name'], m['name'].upper(), ','.join(sargsp)))
         iadd('static void f2py_init_%s(void) {' % (m['name']))
-        iadd('\t%s(f2pyinit%s,F2PYINIT%s)(f2py_setup_%s);'
+        iadd('  %s(f2pyinit%s,F2PYINIT%s)(f2py_setup_%s);'
              % (F_FUNC, m['name'], m['name'].upper(), m['name']))
         iadd('}\n')
         ret['f90modhooks'] = ret['f90modhooks'] + chooks + ihooks
-        ret['initf90modhooks'] = ['\tPyDict_SetItemString(d, "%s", PyFortranObject_New(f2py_%s_def,f2py_init_%s));' % (
+        ret['initf90modhooks'] = ['  PyDict_SetItemString(d, "%s", PyFortranObject_New(f2py_%s_def,f2py_init_%s));' % (
             m['name'], m['name'], m['name'])] + ret['initf90modhooks']
         fadd('')
         fadd('subroutine f2pyinit%s(f2pysetupfunc)' % (m['name']))
